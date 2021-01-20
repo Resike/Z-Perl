@@ -1,5 +1,5 @@
 **r1266**
-* Some combo poin fixes.
+* Some combo point fixes.
 
 **r1258**
 * Fixed some highlight issues.
