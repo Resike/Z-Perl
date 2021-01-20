@@ -1,3 +1,6 @@
+**r1266**
+* Some combo poin fixes.
+
 **r1258**
 * Fixed some highlight issues.
 * Update for Classic 1.13.6.
