@@ -1,0 +1,23 @@
+package-as: ZPerl
+
+move-folders:
+    ZPerl/ZPerl: ZPerl
+    ZPerl/ZPerl_ArcaneBar: ZPerl_ArcaneBar
+    ZPerl/ZPerl_CustomHighlight: ZPerl_CustomHighlight
+    ZPerl/ZPerl_Options: ZPerl_Options
+    ZPerl/ZPerl_Party: ZPerl_Party
+    ZPerl/ZPerl_PartyPet: ZPerl_PartyPet
+    ZPerl/ZPerl_Player: ZPerl_Player
+    ZPerl/ZPerl_PlayerBuffs: ZPerl_PlayerBuffs
+    ZPerl/ZPerl_PlayerPet: ZPerl_PlayerPet
+    ZPerl/ZPerl_RaidAdmin: ZPerl_RaidAdmin
+    ZPerl/ZPerl_RaidFrames: ZPerl_RaidFrames
+    ZPerl/ZPerl_RaidHelper: ZPerl_RaidHelper
+    ZPerl/ZPerl_RaidMonitor: ZPerl_RaidMonitor
+    ZPerl/ZPerl_RaidPets: ZPerl_RaidPets
+    ZPerl/ZPerl_Target: ZPerl_Target
+    ZPerl/ZPerl_TargetTarget: ZPerl_TargetTarget
+
+manual-changelog:
+    filename: ZPerl/!Changelog.txt
+    markup-type: creole

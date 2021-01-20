@@ -1,0 +1,31 @@
+## Interface: 11306
+## Version: 6.1.4
+## Author: Resike
+## Title: Z-Perl UnitFrames
+## Title-itIT: Z-Perl UnitFrames
+## Title-ruRU: Z-Perl UnitFrames
+## Title-deDE: Z-Perl UnitFrames
+## Title-zhCN: Z-Perl 核心
+## Title-zhTW: Z-Perl 主要核心
+## Notes: Replaces the normal unit, party, target, pet frames and adds target-of-target.
+## Notes-itIT: Rimpiazza le finestre del giocatore, del gruppo, del bersaglio, del famiglio e aggiunge la finestra del bersaglio del bersaglio.
+## Notes-ruRU: Заменяет стандартные фреймы игроков, группы, цели, питомца и добавляет цель цели.
+## Notes-deDE: Ersetzt die normalen Fenster (Einheit, Gruppe, Ziel, Begleiter und Ziel des Ziels).
+## Notes-esES: Reemplazo para los marcos de unidades, con nuevo aspecto para jugador, mascota, grupo, objetivo, objetivo del objetivo, y banda
+## Notes-zhCN: 玩家头像增强插件，附带团队助手功能
+## Notes-zhTW: 提供玩家單位、隊伍、目標、寵物、目標的目標頭像增強以及團隊框架顯示、團隊助手等等功能
+## SavedVariables: ZPerlConfig, ZPerlConfig_Global, ZPerlConfigNew, ZPerlConfigSavePerCharacter, ZPerlImportDone
+## OptionalDeps: Clique
+
+
+Libs\LibStub\LibStub.lua
+Libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
+libs\LibClassicCasterino\LibClassicCasterino.lua
+Libs\LibClassicDurations\LibClassicDurations.xml
+Libs\LibHealComm-4.0\LibHealComm-4.0.xml
+Libs\MSA-DropDownMenu-1.0\MSA-DropDownMenu-1.0.lua
+
+Version.lua
+
+ZPerl_Globals.xml
+ZPerl.xml

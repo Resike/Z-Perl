@@ -1,0 +1,17 @@
+## Interface: 90002
+## Author: Resike
+## Title: Z-Perl |cffeda55fRaid Frames|r
+## Title-itIT: Z-Perl |cffeda55fIncursione|r
+## Title-ruRU: Z-Perl |cffeda55fРейд|r
+## Title-deDE: Z-Perl |cffeda55fSchlachtzugsfenster|r
+## Title-zhCN: Z-Perl |cffeda55f团队窗|r
+## Title-zhTW: Z-Perl |cffeda55f團隊框架|r
+## Notes: Z-Perl Raid frames
+## Notes-itIT: Finestre incursione di Z-Perl
+## Notes-ruRU: Фреймы рейда.
+## Notes-deDE: Z-Perl |cffeda55fSchlachtzugfenster|r
+## Notes-zhTW: Z-Perl 團隊框架
+## Dependencies: ZPerl
+## SavedVariablesPerCharacter: ZPerl_Roster
+
+ZPerl_Raid.xml

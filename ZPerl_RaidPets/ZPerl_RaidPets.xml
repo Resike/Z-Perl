@@ -1,0 +1,151 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
+
+	<Script file="ZPerl_RaidPets.lua"/>
+
+	<Button name="XPerl_RaidPet_FrameTemplate" frameStrata="LOW" virtual="true" hidden="true" inherits="XPerlBackdropTemplate,SecureUnitButtonTemplate">
+		<KeyValues>
+			<KeyValue key="backdropInfo" value="XPerl_Frame_Backdrop_256_10_1211" type="global"/>
+		</KeyValues>
+		<Scripts>
+			<OnLoad function="XPerl_RaidPet_Single_OnLoad"/>
+			<OnEnter>
+				XPerl_PlayerTip(self)
+				self.highlight:Select()
+			</OnEnter>
+			<OnLeave>
+				self.highlight:Deselect()
+				XPerl_PlayerTipHide()
+			</OnLeave>
+		</Scripts>
+		<Size>
+			<AbsDimension x="80" y="30.5"/>
+		</Size>
+		<Attributes>
+			<Attribute name="*type1" type="string" value="target"/>
+			<Attribute name="initial-height" type="number" value="30"/>
+		</Attributes>
+		<Layers>
+			<Layer level="OVERLAY">
+				<FontString name="$parenttext" inherits="GameFontNormalSmall">
+					<Anchors>
+						<Anchor point="TOPLEFT">
+							<Offset>
+								<AbsDimension x="2" y="-3"/>
+							</Offset>
+						</Anchor>
+						<Anchor point="BOTTOMRIGHT" relativePoint="TOPRIGHT">
+							<Offset>
+								<AbsDimension x="-2" y="-9"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
+		<Frames>
+			<!-- Health Bar -->
+			<StatusBar name="$parenthealthBar" drawLayer="ARTWORK" inherits="XPerlRaidStatusBar">
+				<Anchors>
+					<Anchor point="TOPLEFT">
+						<Offset>
+							<AbsDimension x="3" y="-12"/>
+						</Offset>
+					</Anchor>
+					<Anchor point="BOTTOMRIGHT">
+						<Offset>
+							<AbsDimension x="-3" y="3"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<BarColor r="0" g="0.8" b="0"/>
+			</StatusBar>
+			<!-- Expected Health Bar -->
+			<StatusBar name="$parentexpectedHealth" drawLayer="BORDER" hidden="true">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parenthealthBar">
+						<Offset>
+							<AbsDimension x="0" y="0"/>
+						</Offset>
+					</Anchor>
+					<Anchor point="BOTTOMRIGHT" relativeTo="$parenthealthBar">
+						<Offset>
+							<AbsDimension x="0" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<BarTexture name="$parenttex" file="Interface\TargetingFrame\UI-StatusBar"/>
+				<BarColor r="0" g="1" b="1"/>
+				<Scripts>
+					<OnLoad>
+						XPerl_SetChildMembers(self)
+						XPerl_RegisterBar(self)
+						self:SetFrameLevel(_G[self:GetParent():GetName().."healthBar"]:GetFrameLevel() - 1)
+					</OnLoad>
+				</Scripts>
+			</StatusBar>
+			<!-- Absorb Health Bar -->
+			<StatusBar name="$parentexpectedAbsorbs" drawLayer="OVERLAY" hidden="true">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parenthealthBar">
+						<Offset>
+							<AbsDimension x="0" y="0"/>
+						</Offset>
+					</Anchor>
+					<Anchor point="BOTTOMRIGHT" relativeTo="$parenthealthBar">
+						<Offset>
+							<AbsDimension x="0" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<BarTexture name="$parenttex" file="Interface\Buttons\White8x8"/>
+				<BarColor r="0.14" g="0.33" b="0.7" a="0.7"/>
+				<Scripts>
+					<OnLoad>
+						self:SetReverseFill(true)
+						XPerl_SetChildMembers(self)
+					</OnLoad>
+				</Scripts>
+			</StatusBar>
+			<Frame name="$parenthighlight" inherits="XPerl_HighlightTemplate" setAllPoints="true"/>
+			<Frame name="$parentresurrect" inherits="XPerlBackdropTemplate" setAllPoints="true" frameStrata="HIGH" hidden="true">
+				<Layers>
+					<Layer level="OVERLAY">
+						<Texture file="Interface\RaidFrame\Raid-Icon-Rez">
+							<Size>
+								<AbsDimension x="26" y="26"/>
+							</Size>
+							<Anchors>
+								<Anchor point="CENTER" />
+							</Anchors>
+						</Texture>
+					</Layer>
+				</Layers>
+			</Frame>
+		</Frames>
+	</Button>
+	<Frame name="XPerl_Raid_TitlePets" parent="UIParent" inherits="XPerlBackdropTemplate,XPerl_Raid_TitleDragTemplate" id="99">
+		<Anchors>
+			<Anchor point="TOPLEFT">
+				<Offset>
+					<AbsDimension x="720" y="-465"/>
+				</Offset>
+			</Anchor>
+		</Anchors>
+	</Frame>
+	<Frame name="XPerl_Raid_GrpPets" parent="XPerl_Raid_TitlePets" inherits="XPerlBackdropTemplate,SecureRaidPetHeaderTemplate" clampedToScreen="true" frameStrata="LOW" hidden="true" id="1">
+		<Size>
+			<AbsDimension x="80" y="10"/>
+		</Size>
+		<Anchors>
+			<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT"/>
+		</Anchors>
+		<Attributes>
+			<Attribute name="template" type="string" value="XPerl_RaidPet_FrameTemplate"/>
+		</Attributes>
+	</Frame>
+	<Frame name="XPerl_RaidPets_Frame" parent="UIParent" inherits="XPerlBackdropTemplate" hidden="true">
+		<Scripts>
+			<OnLoad function="XPerl_RaidPets_OnLoad"/>
+		</Scripts>
+	</Frame>
+</Ui>

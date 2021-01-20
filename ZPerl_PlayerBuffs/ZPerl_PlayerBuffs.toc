@@ -1,0 +1,17 @@
+## Interface: 90002
+## Author: Resike
+## Title: Z-Perl |cffeda55fPlayer Buffs|r
+## Title-itIT: Z-Perl |cffeda55fBenefici Giocatore|r
+## Title-ruRU: Z-Perl |cffeda55fБаффы игрока|r
+## Title-deDE: Z-Perl |cffeda55fSpielerbuffs|r
+## Title-zhCN: Z-Perl |cffeda55f玩家Buff|r
+## Title-zhTW: Z-Perl |cffeda55f玩家增益狀態|r
+## Notes: Gives buff icons on the Z-Perl player frame.
+## Notes-itIT: Gestisce i benefici e le penalità del giocatore.
+## Notes-ruRU: Отображает иконки баффов на фрейме игрока.
+## Notes-deDE: Zeigt die Buffsymbole am Z-Perl Spielerfenster an.
+## Notes-zhTW: 給予 Z-Perl 玩家單位框架增益狀態圖標功能
+## RequiredDeps: ZPerl, ZPerl_Player
+
+ZPerl_PlayerBuffs.lua
+ZPerl_PlayerBuffs.xml

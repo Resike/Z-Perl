@@ -1,0 +1,15 @@
+## Interface: 90002
+## Author: Resike
+## Title: Z-Perl |cffeda55fArcane Bars|r
+## Title-itIT: Z-Perl |cffeda55fBarre Arcane|r
+## Title-ruRU: Z-Perl |cffeda55fПолосы применений|r
+## Title-zhCN: Z-Perl |cffeda55f施法条|r
+## Title-zhTW: Z-Perl |cffeda55f施法條|r
+## Notes: Gives player, pet, target, focus and party frames a casting bar.
+## Notes-itIT: Fornisce le barre di lancio alle altre finestre di Z-Perl.
+## Notes-ruRU: Отображение полосок применения игрока, питомца, цели, фокуса и группы.
+## Notes-zhCN: 在玩家, 宠物, 目标, 焦点和队伍头像上增加施法条.
+## Notes-zhTW: 給予玩家, 寵物, 目標, 專注(focus) 以及隊伍等框架上的施法條進度顯示
+## RequiredDeps: ZPerl
+
+ZPerl_ArcaneBar.xml

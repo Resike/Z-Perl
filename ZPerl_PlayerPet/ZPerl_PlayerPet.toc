@@ -1,0 +1,16 @@
+## Interface: 90002
+## Author: Resike
+## Title: Z-Perl |cffeda55fPlayer Pet|r
+## Title-itIT: Z-Perl |cffeda55fFamiglio Giocatore|r
+## Title-ruRU: Z-Perl |cffeda55fПитомец игрока|r
+## Title-deDE: Z-Perl |cffeda55fSpielerbegleiter|r
+## Title-zhCN: Z-Perl |cffeda55f玩家宠物|r
+## Title-zhTW: Z-Perl |cffeda55f玩家寵物|r
+## Notes: Replaces the default player's pet frame.
+## Notes-itIT: Rimpiazza la finestra del famiglio del giocatore.
+## Notes-ruRU: Заменяет стандартный фрейм питомца игрока.
+## Notes-deDE: Ersetzt das Begleiterfenster des Spielers.
+## Notes-zhTW: 顯示玩家單位的寵物框架
+## RequiredDeps: ZPerl, ZPerl_Player
+
+ZPerl_PlayerPet.xml

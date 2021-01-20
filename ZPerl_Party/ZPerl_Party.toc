@@ -1,0 +1,17 @@
+## Interface: 90002
+## Author: Resike
+## Title: Z-Perl |cffeda55fParty|r
+## Title-itIT: Z-Perl |cffeda55fGruppo|r
+## Title-ruRU: Z-Perl |cffeda55fГруппа|r
+## Title-deDE: Z-Perl |cffeda55fGruppe|r
+## Title-zhCN: Z-Perl |cffeda55f小队窗|r
+## Title-zhTW: Z-Perl |cffeda55f隊伍框架|r
+## Notes: Replaces the default party frames.
+## Notes-itIT: Rimpiazza la finestra del gruppo.
+## Notes-ruRU: Заменяет стандартные фреймы группы.
+## Notes-deDE: Ersetzt die Gruppenfenster.
+## Notes-zhTW: Z-Perl 隊伍框架 替換內建的隊伍框架
+## RequiredDeps: ZPerl
+## OptionalDeps: ZPerl_ArcaneBar
+
+ZPerl_Party.xml

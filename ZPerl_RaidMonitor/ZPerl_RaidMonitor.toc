@@ -1,0 +1,17 @@
+## Interface: 90002
+## Author: Resike
+## Title: Z-Perl |cffeda55fRaid Monitor|r
+## Title-itIT: Z-Perl |cffeda55fMonitor Incursione|r
+## Title-ruRU: Z-Perl |cffeda55fМонитор|r
+## Title-deDE: Z-Perl |cffeda55fSchlachtzugsmonitor|r
+## Title-zhCN: Z-Perl |cffeda55f团队监控|r
+## Title-zhTW: Z-Perl |cffeda55f團隊生命法力監視|r
+## Notes: Provides a casting monitor and mana status window.
+## Notes-itIT: Visualizza un monitor dei lanci e del mana dei membri dell'incursione.
+## Notes-ruRU: Обеспечивает окном мониторинга применений и маны.
+## Notes-deDE: Bietet ein Casting-Monitor und eine Statusanzeige der Gesundheit und des Manas an.
+## Notes-zhTW: 提供施法進度以及治療和法力狀態的監控視窗
+## SavedVariablesPerCharacter: ZPerlRaidMonConfig
+## RequiredDeps: ZPerl
+
+ZPerl_RaidMonitor.xml

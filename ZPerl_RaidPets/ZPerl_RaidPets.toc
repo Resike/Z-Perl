@@ -1,0 +1,16 @@
+## Interface: 90002
+## Author: Resike
+## Title: Z-Perl |cffeda55fRaid Pets|r
+## Title-itIT: Z-Perl |cffeda55fFamigli Incursione|r
+## Title-ruRU: Z-Perl |cffeda55fПитомцы рейда|r
+## Title-deDE: Z-Perl |cffeda55fSchlachtzugsbegleiter|r
+## Title-zhCN: Z-Perl |cffeda55f团队宠物窗|r
+## Title-zhTW: Z-Perl |cffeda55f團隊寵物框架|r
+## Notes: Z-Perl Raid pets
+## Notes-itIT: Famigli dell'incursione di Z-Perl
+## Notes-ruRU: Фреймы питомцев рейда.
+## Notes-deDE: Z-Perl Schlachtzugsbegleiter
+## Notes-zhTW: Z-Perl 團隊寵物框架
+## Dependencies: ZPerl, ZPerl_RaidFrames
+
+ZPerl_RaidPets.xml

@@ -1,0 +1,16 @@
+## Interface: 90002
+## Author: Resike
+## Title: Z-Perl |cffeda55fOptions|r |cFF40FF40(LoadOnDemand)|r
+## Title-itIT: Z-Perl |cffeda55fOpzioni|r |cFF40FF40(Caricabile su richiesta)|r
+## Title-ruRU: Z-Perl |cffeda55fНастройки|r |cFF40FF40(LoadOnDemand)|r
+## Title-zhCN: Z-Perl |cffeda55f选项|r |cFF40FF40(LoadOnDemand)|r
+## Title-zhTW: Z-Perl |cffeda55f功能設定|r |cFF40FF40(隨機載入)|r
+## Notes: Z-Perl Options GUI
+## Notes-itIT: Finestra opzioni di Z-Perl
+## Notes-ruRU: Интерфейс настроек Z-Perl'а
+## Notes-deDE: Z-Perl UnitFrames Optionen GUI
+## Notes-zhTW: Z-Perl 單位框架功能設定 GUI
+## RequiredDeps: ZPerl
+## LoadOnDemand: 1
+
+ZPerl_FrameOptions.xml

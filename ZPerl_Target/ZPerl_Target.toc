@@ -1,0 +1,17 @@
+## Interface: 90002
+## Author: Resike
+## Title: Z-Perl |cffeda55fTarget|r
+## Title-itIT: Z-Perl |cffeda55fBersaglio|r
+## Title-ruRU: Z-Perl |cffeda55fЦель|r
+## Title-deDE: Z-Perl |cffeda55fZiel|r
+## Title-zhCN: Z-Perl |cffeda55f目标窗|r
+## Title-zhTW: Z-Perl |cffeda55f目標框架|r
+## Notes: Replaces the default target frame.
+## Notes-itIT: Rimpiazza la finestra del bersaglio.
+## Notes-ruRU: Заменяет стандартный фрейм цели.
+## Notes-deDE: Ersetzt das Zielfenster.
+## Notes-zhTW: 提供顯示目標框架.
+## RequiredDeps: ZPerl
+## OptionalDeps: ZPerl_ArcaneBar
+
+ZPerl_Target.xml

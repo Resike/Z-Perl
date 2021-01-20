@@ -1,0 +1,17 @@
+## Interface: 90002
+## Author: Resike
+## Title: Z-Perl |cffeda55fParty Pet|r
+## Title-itIT: Z-Perl |cffeda55fFamigli Gruppo|r
+## Title-ruRU: Z-Perl |cffeda55fПитомцы группы|r
+## Title-deDE: Z-Perl |cffeda55fGruppenbegleiter|r
+## Title-zhCN: Z-Perl |cffeda55f队友宠物窗|r
+## Title-zhTW: Z-Perl |cffeda55f隊友寵物|r
+## Notes: Replaces the default party's pet frames.
+## Notes-itIT: Rimpiazza le finestre dei famigli del gruppo.
+## Notes-ruRU: Заменяет стандартные фреймы питомцев группы.
+## Notes-deDE: Ersetzt die Begleiterfenster der Gruppe.
+## Notes-zhTW: 提供增強的隊員寵物框架
+## RequiredDeps: ZPerl, ZPerl_Party
+## OptionalDeps: ZPerl_ArcaneBar
+
+ZPerl_PartyPet.xml

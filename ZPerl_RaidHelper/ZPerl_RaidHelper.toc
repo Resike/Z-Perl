@@ -1,0 +1,18 @@
+## Interface: 90002
+## Author: Resike
+## Title: Z-Perl |cffeda55fRaid Helper|r
+## Title-itIT: Z-Perl |cffeda55fAiutante Incursione|r
+## Title-ruRU: Z-Perl |cffeda55fРейд помощник|r
+## Title-deDE: Z-Perl |cffeda55fSchlachtzugshelfer|r
+## Title-zhCN: Z-Perl |cffeda55f团队助手|r
+## Title-zhTW: Z-Perl |cffeda55f團隊助手|r
+## Notes: Replaces CTRA MT Targets window with extra functionality, and provides assists frame.
+## Notes-itIT: Rimpiazza la finestra dei bersagli dei guardiani di CTRA, aggiungendo funzioni extra e crea la finestra degli assist.
+## Notes-ruRU: Заменяет окно главных танков CTRA на более функциональное, и обеспечивает фреймом поддержки.
+## Notes-deDE: Ersetzt das CTRA MT-Fenster mit Extra-Funktionen und bietet einen Assistentenfenster an.
+## Notes-zhTW: 整合 CTRA MT目標視窗另增加額外功能, 以及提供協助框架
+## SavedVariablesPerCharacter: ZPerlConfigHelper, ZPerl_MainTanks
+## RequiredDeps: ZPerl
+
+ZPerl_RaidHelper.xml
+ZPerl_AssistFrame.xml

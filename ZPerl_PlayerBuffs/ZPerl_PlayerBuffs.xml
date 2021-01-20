@@ -1,0 +1,69 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
+	<Button name="XPerl_Secure_BuffTemplate" inherits="SecureActionButtonTemplate" virtual="true" enableMouse="true" registerForClicks="RightButtonUp">
+		<Size>
+			<AbsDimension x="32" y="32"/>
+		</Size>
+		<Layers>
+			<Layer level="ARTWORK">
+				<Texture name="$parenticon" setAllPoints="true" />
+			</Layer>
+			<Layer level="OVERLAY">
+				<FontString name="$parentcount" inherits="NumberFontNormalLarge" justifyV="BOTTOM" justifyH="RIGHT">
+					<FontHeight>
+						<AbsValue val="24"/>
+					</FontHeight>
+					<Anchors>
+						<Anchor point="TOPLEFT"/>
+						<Anchor point="BOTTOMRIGHT">
+							<Offset>
+								<AbsDimension x="-2" y="2"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+				<Texture name="$parentborder" file="Interface\Buttons\UI-Debuff-Overlays" setAllPoints="true">
+					<Anchors>
+						<Anchor point="TOPLEFT">
+							<Offset>
+								<AbsDimension x="-1" y="1"/>
+							</Offset>
+						</Anchor>
+						<Anchor point="BOTTOMRIGHT"/>
+					</Anchors>
+					<TexCoords left="0.296875" right="0.5703125" top="0" bottom="0.515625"/>
+				</Texture>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Cooldown name="$parentcooldown" inherits="CooldownFrameTemplate" setAllPoints="true" reverse="true" drawEdge="true" hidden="true">
+				<Layers>
+					<Layer level="OVERLAY">
+						<FontString name="$parentcountdown" inherits="GameFontNormalHuge">
+							<Anchors>
+								<Anchor point="TOPLEFT"/>
+								<Anchor point="BOTTOMRIGHT">
+									<Offset>
+										<AbsDimension x="-1" y="2"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+							<Color r="1" g="1" b="0"/>
+						</FontString>
+					</Layer>
+				</Layers>
+			</Cooldown>
+		</Frames>
+		<Scripts>
+			<OnLoad function="XPerl_PlayerBuffs_OnLoad"/>
+			<OnShow function="XPerl_PlayerBuffs_Show"/>
+			<OnHide function="XPerl_PlayerBuffs_Hide"/>
+			<OnEnter function="XPerl_PlayerBuffs_OnEnter"/>
+			<OnLeave function="XPerl_PlayerBuffs_OnLeave"/>
+			<OnEvent function="XPerl_PlayerBuffs_OnEvent"/>
+			<OnAttributeChanged function="XPerl_PlayerBuffs_OnAttrChanged"/>
+		</Scripts>
+		<Attributes>
+			<Attribute name="type2" value="cancelaura"/>
+		</Attributes>
+	</Button>
+</Ui>
