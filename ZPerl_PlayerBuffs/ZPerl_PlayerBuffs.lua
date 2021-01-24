@@ -344,6 +344,43 @@ function XPerl_PlayerBuffs_OnLeave(self)
 	GameTooltip:Hide()
 end
 
+-------------------------------------------------------------------------------------------------------------
+-- MAPS FOR PLAYER BUFF FILTER -- hardcoded only - checkboxes in Player-Frame-Options would be neat tho
+-------------------------------------------------------------------------------------------------------------
+local WorldBuffs
+local ConsumeBuffs
+--local ClassBuffs
+--local BuffBlacklist
+
+WorldBuffs = {
+	[GetSpellInfo(22888)] = true,					-- Rallying Cry of the Dragonslayer
+	[GetSpellInfo(24425)] = true,					-- Spirit of Zandalar
+	[GetSpellInfo(22820)] = true,					-- Slip'kik's Savvy
+	--[GetSpellInfo(22817)] = true,					-- Fengus' Ferocity
+	[GetSpellInfo(22818)] = true,					-- Mol'dar's Moxie
+	[GetSpellInfo(15366)] = true,					-- Songflower Serenade
+}
+ConsumeBuffs = {
+	[GetSpellInfo(17628)] = true,					-- Supreme Power
+	[GetSpellInfo(24382)] = true,					-- Spirit of Zanza
+	[GetSpellInfo(24383)] = true,					-- Swiftness of Zanza
+	[GetSpellInfo(3593)] = true,					-- Elixir of Fortitude
+	[GetSpellInfo(24363)] = true,					-- Mageblood Potion
+	[GetSpellInfo(17539)] = true,					-- Greater Arcane Elixir
+	[GetSpellInfo(26276)] = true,					-- Elixir of Greater Firepower
+	[GetSpellInfo(22789)] = true,					-- Gordok Green Grog
+	[GetSpellInfo(22730)] = true,					-- Runn Tum Tuber Surprise
+}
+--[[ClassBuffs = {
+	[GetSpellInfo(23028)] = true,					-- Arcane Brilliance
+	[GetSpellInfo(10157)] = true,					-- Arcane Intellect
+	[GetSpellInfo(9885)] = true,					-- Mark of the Wild
+	[GetSpellInfo(21850)] = true,					-- Gift of the Wild
+}]]
+--[[BuffBlacklist = {
+	TODO: Interface to add/delete SpellIDs via Options into config file and then load them here (user defined blacklist)
+}]]
+
 function XPerl_PlayerBuffs_Update(self)
 	local slot = self:GetAttribute("target-slot")
 	if (slot) then
@@ -362,53 +399,59 @@ function XPerl_PlayerBuffs_Update(self)
 
 		if (filter and unit) then
 			local name, icon, count, debuffType, duration, expirationTime, unitCaster, canStealOrPurge = UnitAura(unit, index, filter)
-			self.filter = filter
-			self:SetAlpha(1)
+			-- PLAYER BUFF FILTER -- show this Buff ? -- ! IT'S DISABLED BECAUSE THERE IS NO OPTION FOR IT RIGHT NOW ! 
+			if (true) then --(not WorldBuffs[name] and not ConsumeBuffs[name]) then 
+				self.filter = filter
+				self:SetAlpha(1)
 
-			if (name and filter == "HARMFUL") then
-				self.border:Show()
-				local borderColor = DebuffTypeColor[(debuffType or "none")]
-				self.border:SetVertexColor(borderColor.r, borderColor.g, borderColor.b)
-			else
-				self.border:Hide()
-			end
-
-			self.icon:SetTexture(icon)
-			if ((count or 0) > 1) then
-				self.count:SetText(count)
-				self.count:Show()
-			else
-				self.count:Hide()
-			end
-
-			-- Handle cooldowns
-			if (self.cooldown and (duration or 0) ~= 0 and conf.buffs.cooldown and (unitCaster or conf.buffs.cooldownAny)) then
-				local start = expirationTime - duration
-				XPerl_CooldownFrame_SetTimer(self.cooldown, start, duration, 1, unitCaster)
-				if (pconf.buffs.flash) then
-					self.endTime = expirationTime
-					self:SetScript("OnUpdate", AuraButton_OnUpdate)
+				if (name and filter == "HARMFUL") then
+					self.border:Show()
+					local borderColor = DebuffTypeColor[(debuffType or "none")]
+					self.border:SetVertexColor(borderColor.r, borderColor.g, borderColor.b)
 				else
+					self.border:Hide()
+				end
+
+				self.icon:SetTexture(icon)
+				if ((count or 0) > 1) then
+					self.count:SetText(count)
+					self.count:Show()
+				else
+					self.count:Hide()
+				end
+
+				-- Handle cooldowns
+				if (self.cooldown and (duration or 0) ~= 0 and conf.buffs.cooldown and (unitCaster or conf.buffs.cooldownAny)) then
+					local start = expirationTime - duration
+					XPerl_CooldownFrame_SetTimer(self.cooldown, start, duration, 1, unitCaster)
+					if (pconf.buffs.flash) then
+						self.endTime = expirationTime
+						self:SetScript("OnUpdate", AuraButton_OnUpdate)
+					else
+						self.endTime = nil
+					end
+				else
+					self.cooldown:Hide()
 					self.endTime = nil
 				end
+				-- TODO: Variable this
+				self.cooldown:SetDrawEdge(false)
+				self.cooldown:SetDrawBling(false)
+				-- Blizzard Cooldown Text Support
+				if not conf.buffs.blizzard then
+					self.cooldown:SetHideCountdownNumbers(true)
+				else
+					self.cooldown:SetHideCountdownNumbers(false)
+				end
+				-- OmniCC Support
+				if not conf.buffs.omnicc then
+					self.cooldown.noCooldownCount = true
+				else
+					self.cooldown.noCooldownCount = nil
+				end
+			-- PLAYER BUFF FILTER -- dont show this one
 			else
-				self.cooldown:Hide()
-				self.endTime = nil
-			end
-			-- TODO: Variable this
-			self.cooldown:SetDrawEdge(false)
-			self.cooldown:SetDrawBling(false)
-			-- Blizzard Cooldown Text Support
-			if not conf.buffs.blizzard then
-				self.cooldown:SetHideCountdownNumbers(true)
-			else
-				self.cooldown:SetHideCountdownNumbers(false)
-			end
-			-- OmniCC Support
-			if not conf.buffs.omnicc then
-				self.cooldown.noCooldownCount = true
-			else
-				self.cooldown.noCooldownCount = nil
+				self:Hide()
 			end
 		end
 	end
