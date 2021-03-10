@@ -855,7 +855,7 @@ function XPerl_Target_SetMana(self)
 	mb:SetValue(targetmana)
 
 	local p = XPerl_GetDisplayedPowerType(self.partyid)
-	if (p == 0) then
+	if p == 0 then
 		mb.percent:SetFormattedText(percD, 100 * pmanaPct)	--	XPerl_Percent[floor(100 * (targetmana / targetmanamax))])
 	else
 		mb.percent:SetText(targetmana)

@@ -1,3 +1,7 @@
+**6.1.6**
+* Update Retail for 9.0.5.
+* Raid health bar tweaks.
+
 **r1266**
 * Some combo point fixes.
 

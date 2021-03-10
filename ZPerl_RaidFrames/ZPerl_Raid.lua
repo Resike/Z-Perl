@@ -11,8 +11,8 @@ local ResArray = { }		-- List of currently active resserections in progress
 --local buffUpdates = { }		-- Queue for buff updates after a roster change
 local raidLoaded
 local rosterUpdated
-local percF = "%.1f"..PERCENT_SYMBOL
 local percD = "%d"..PERCENT_SYMBOL
+local perc1F = "%.1f"..PERCENT_SYMBOL
 local fullyInitiallized
 local SkipHighlightUpdate
 
@@ -614,9 +614,14 @@ local function XPerl_Raid_UpdateHealth(self)
 				if rconf.values then
 					self.statsFrame.healthBar.text:SetFormattedText("%d/%d", health, healthmax)
 				elseif rconf.precisionPercent then
-					self.statsFrame.healthBar.text:SetFormattedText(percF, percentHp * 100 + 0.05)
+					self.statsFrame.healthBar.text:SetFormattedText(perc1F, percentHp * 100 + 0.05)
 				else
-					self.statsFrame.healthBar.text:SetFormattedText(percD, percentHp * 100 + 0.5)
+					local show = percentHp * 100
+					if show < 10 then
+						self.statsFrame.healthBar.text:SetFormattedText(perc1F or "%.1f%%", show + 0.05)
+					else
+						self.statsFrame.healthBar.text:SetFormattedText(percD or "%d%%", show + 0.5)
+					end
 				end
 			end
 
@@ -679,7 +684,7 @@ local function XPerl_Raid_UpdateMana(self)
 				-- end division by 0 check
 
 				if rconf.precisionManaPercent then
-					self.statsFrame.manaBar.text:SetFormattedText(percF, pmanaPct * 100)
+					self.statsFrame.manaBar.text:SetFormattedText(perc1F, pmanaPct * 100)
 				else
 					self.statsFrame.manaBar.text:SetFormattedText(percD, pmanaPct * 100)
 				end
