@@ -11,7 +11,7 @@ XPerl_RequestConfig(function(New)
 end, "$Revision: @project-revision@ $")
 XPerl_SetModuleRevision("$Revision: @project-revision@ $")
 
-local IsClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
+local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
 local LCD = IsClassic and LibStub and LibStub("LibClassicDurations", true)
 local UnitAuraDirect
 if LCD then

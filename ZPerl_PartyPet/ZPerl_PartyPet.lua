@@ -19,7 +19,7 @@ end, "$Revision: @file-revision@ $")
 
 local AllPetFrames = {}
 
-local IsClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
+local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
 
 local UnitName = UnitName
 local UnitHealth = UnitHealth

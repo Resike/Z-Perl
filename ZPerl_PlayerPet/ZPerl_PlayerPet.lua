@@ -12,7 +12,7 @@ XPerl_RequestConfig(function(new)
 	end
 end, "$Revision: @file-revision@ $")
 
-local IsClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
+local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
 
 local XPerl_Player_Pet_HighlightCallback
 

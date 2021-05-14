@@ -1,7 +1,7 @@
 --[[
 Localisation file
 ]]
-local IsClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
+local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
 
 if (GetLocale() == "zhTW") then
 -- Tabs

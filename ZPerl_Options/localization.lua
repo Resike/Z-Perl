@@ -2,7 +2,7 @@
 	Localisation file
 ]]
 
-local IsClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
+local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
 
 -- Tabs
 XPERL_CONF_TITLE1						= "Global"

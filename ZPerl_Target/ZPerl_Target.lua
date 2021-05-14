@@ -25,15 +25,15 @@ XPerl_RequestConfig(function(new)
 	end
 end, "$Revision: @file-revision@ $")
 
-local IsClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
-local LCD = IsClassic and LibStub and LibStub("LibClassicDurations")
-if IsClassic then
-	LCD.RegisterCallback("ZPerl", "UNIT_BUFF", function(event, unit)
-		if unit == "target" then
-			XPerl_Target_Events:UNIT_AURA(event, unit)
-		end
-	end)
-end
+local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
+--local LCD = IsClassic and LibStub and LibStub("LibClassicDurations")
+--if IsClassic then
+--	LCD.RegisterCallback("ZPerl", "UNIT_BUFF", function(event, unit)
+--		if unit == "target" then
+--			XPerl_Target_Events:UNIT_AURA(event, unit)
+--		end
+--	end)
+--end
 
 -- Upvalues
 local _G = _G

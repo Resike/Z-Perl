@@ -2,7 +2,7 @@
 LibClassicCasterino
 Author: d87
 --]================]
-if WOW_PROJECT_ID ~= WOW_PROJECT_CLASSIC then return end
+if WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC then return end
 
 local MAJOR, MINOR = "LibClassicCasterino", 35
 local lib = LibStub:NewLibrary(MAJOR, MINOR)

@@ -1,4 +1,4 @@
-## Interface: 90005
+## Interface: 20501
 ## Author: Resike
 ## Title: Z-Perl |cffeda55fRaid Helper|r
 ## Title-itIT: Z-Perl |cffeda55fAiutante Incursione|r

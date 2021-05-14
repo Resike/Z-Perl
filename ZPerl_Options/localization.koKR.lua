@@ -2,7 +2,7 @@
 	Korean Localisation file By 地獄天使(kohalbae), Modified By DroArc, Fenlis
 ]]
 
-local IsClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
+local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
 
 if (GetLocale() == "koKR") then
 -- 탭 제목
