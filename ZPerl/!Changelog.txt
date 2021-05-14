@@ -1,3 +1,6 @@
+**6.1.7**
+* Update for Burning Crusade Classic compatability.
+
 **6.1.6**
 * Update Retail for 9.0.5.
 * Raid health bar tweaks.

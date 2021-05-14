@@ -1,7 +1,7 @@
 ## Interface: 20501
-## Version: 6.1.6
+## Version: 6.1.7
 ## Author: Resike
-## Title: Z-Perl UnitFramse
+## Title: Z-Perl UnitFrames
 ## Title-itIT: Z-Perl UnitFrames
 ## Title-ruRU: Z-Perl UnitFrames
 ## Title-deDE: Z-Perl UnitFrames
