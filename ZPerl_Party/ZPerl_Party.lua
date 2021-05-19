@@ -17,7 +17,7 @@ end, "$Revision: @file-revision@ $")
 
 local percD = "%d"..PERCENT_SYMBOL
 
-local IsClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
+local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
 
 local format = format
 

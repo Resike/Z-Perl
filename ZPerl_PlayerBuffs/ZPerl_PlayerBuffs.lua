@@ -17,7 +17,7 @@ local function d(fmt, ...)
 end
 --@end-debug@]===]
 
-local IsClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
+local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
 
 -- setCommon
 local function setCommon(self, filter, buffTemplate)

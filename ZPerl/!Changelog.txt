@@ -1,3 +1,9 @@
+**6.1.7**
+* Initial support for Burning Crusade Classic.
+* Update Retail for 9.1.0.
+* Update Classic for 1.13.7.
+* Updated libraries.
+
 **6.1.6**
 * Update Retail for 9.0.5.
 * Raid health bar tweaks.

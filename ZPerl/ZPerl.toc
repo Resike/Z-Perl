@@ -1,5 +1,5 @@
-## Interface: 90005
-## Version: 6.1.6
+## Interface: 11307
+## Version: 6.1.7
 ## Author: Resike
 ## Title: Z-Perl UnitFrames
 ## Title-itIT: Z-Perl UnitFrames
@@ -20,7 +20,7 @@
 
 Libs\LibStub\LibStub.lua
 Libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
-libs\LibClassicCasterino\LibClassicCasterino.lua
+Libs\LibClassicCasterino\LibClassicCasterino.lua
 Libs\LibClassicDurations\LibClassicDurations.xml
 Libs\LibHealComm-4.0\LibHealComm-4.0.xml
 Libs\MSA-DropDownMenu-1.0\MSA-DropDownMenu-1.0.lua

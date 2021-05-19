@@ -12762,7 +12762,7 @@
 								</Anchors>
 								<Scripts>
 									<OnLoad>
-										if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC then
+										if WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC then
 											self:Hide()
 											return
 										end
@@ -12789,7 +12789,7 @@
 								</Anchors>
 								<Scripts>
 									<OnLoad>
-										if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC then
+										if WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC then
 											self:Hide()
 											return
 										end
@@ -12816,7 +12816,7 @@
 								</Anchors>
 								<Scripts>
 									<OnLoad>
-										if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC then
+										if WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC then
 											self:Hide()
 											return
 										end
@@ -12947,7 +12947,7 @@
 								</Anchors>
 								<Scripts>
 									<OnLoad>
-										if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC then
+										if WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC then
 											self:Hide()
 										end
 									</OnLoad>
@@ -12963,7 +12963,7 @@
 								</Anchors>
 								<Scripts>
 									<OnLoad>
-										if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC then
+										if WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC then
 											self:Hide()
 										end
 									</OnLoad>
@@ -12980,7 +12980,7 @@
 								</Anchors>
 								<Scripts>
 									<OnLoad>
-										if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC then
+										if WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC then
 											self:Hide()
 										end
 									</OnLoad>

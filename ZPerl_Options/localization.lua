@@ -2,7 +2,8 @@
 	Localisation file
 ]]
 
-local IsClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
+local IsRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
+local IsBCClassic = WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC
 
 -- Tabs
 XPERL_CONF_TITLE1						= "Global"
@@ -834,13 +835,16 @@ XPERL_CONF_RAID_HIGHLIGHTS_HOTCOUNT			= "HOT Counter"
 XPERL_CONF_RAID_HIGHLIGHTS_HOTCOUNT_DESC	= "Will indicate on a unit how many active HOTs they currently have from ANY class"
 XPERL_CONF_RAID_HIGHLIGHTS_TARGET		= "My Target"
 XPERL_CONF_RAID_HIGHLIGHTS_TARGET_DESC	= "Indicate your target on party and raid frames"
-if not IsClassic then
+if IsRetail then
 	XPERL_CONF_RAID_HIGHLIGHTS_MENDING		= GetSpellInfo(33076) -- Prayer of Mending
 	XPERL_CONF_RAID_HIGHLIGHTS_MENDING_DESC	= "Enable the "..GetSpellInfo(33076).." tracking. With sparkles enabled, this will show a bouncing graphic to make it easier to follow the buff."
 	XPERL_CONF_RAID_HIGHLIGHTS_RENEWING			= GetSpellInfo(115151) -- Renewing Mist
 	XPERL_CONF_RAID_HIGHLIGHTS_RENEWING_DESC	= "Enable the "..GetSpellInfo(115151).." tracking. With sparkles enabled, this will show a bouncing graphic to make it easier to follow the buff."
 	--XPERL_CONF_RAID_HIGHLIGHTS_BEACON		= GetSpellInfo(157007) -- Beacon of Insight
 	--XPERL_CONF_RAID_HIGHLIGHTS_BEACON_DESC	= "Enable the "..GetSpellInfo(157007).." tracking. With sparkles enabled, this will show a bouncing graphic to make it easier to follow the buff."
+elseif IsBCClassic then
+	XPERL_CONF_RAID_HIGHLIGHTS_MENDING		= GetSpellInfo(33076) -- Prayer of Mending
+	XPERL_CONF_RAID_HIGHLIGHTS_MENDING_DESC	= "Enable the "..GetSpellInfo(33076).." tracking. With sparkles enabled, this will show a bouncing graphic to make it easier to follow the buff."
 end
 XPERL_CONF_RAID_HIGHLIGHTS_SPARKLES			= "Sparkles"
 XPERL_CONF_RAID_HIGHLIGHTS_SPARKLES_DESC	= "Use the new-look sparkles for a more apparent and vivid approach to highlighting. Disable for the old style border colours."
