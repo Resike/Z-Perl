@@ -1,6 +1,5 @@
 **6.1.7**
 * Initial support for Burning Crusade Classic.
-* Update Retail for 9.1.0.
 * Update Classic for 1.13.7.
 * Updated libraries.
 
