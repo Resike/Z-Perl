@@ -3,6 +3,7 @@
 -- License: GNU GPL v3, 18 October 2014
 
 local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
+local IsVanillaClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 
 local max = max
 local pairs = pairs
@@ -93,7 +94,7 @@ function ZPerl_TargetTarget_OnLoad(self)
 	elseif (self == XPerl_FocusTarget) then
 		self.parentid = "focus"
 		self.partyid = "focustarget"
-		if not IsClassic then
+		if not IsVanillaClassic then
 			self:RegisterEvent("PLAYER_FOCUS_CHANGED")
 		end
 		for i, event in pairs(events) do
