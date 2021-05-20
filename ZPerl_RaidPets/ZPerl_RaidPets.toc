@@ -1,4 +1,4 @@
-## Interface: 20501
+## Interface: 11307
 ## Author: Resike
 ## Title: Z-Perl |cffeda55fRaid Pets|r
 ## Title-itIT: Z-Perl |cffeda55fFamigli Incursione|r
