@@ -1087,7 +1087,6 @@ local function SetClassNames(self)
 	end
 end
 
-
 -- XPerl_Options_MoveRaidClassUp
 function XPerl_Options_MoveRaidClassUp(self)
 	local i = self:GetID()

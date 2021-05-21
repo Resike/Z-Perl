@@ -2,6 +2,8 @@
 -- Author: Resike
 -- License: GNU GPL v3, 29 June 2007 (see LICENSE.txt)
 
+local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
+
 XPerlLocked = 1
 local conf
 local ConfigRequesters = {}
@@ -12,6 +14,12 @@ local totalBlocked = 0
 local xperlBlocked = 0
 local lastConfigMode
 local maxRevision
+
+local localGroups = LOCALIZED_CLASS_NAMES_MALE
+local WoWclassCount = 0
+for k, v in pairs(localGroups) do
+	WoWclassCount = WoWclassCount + 1
+end
 
 XPerl_Tooltip_Edge_9 = {
 	edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
@@ -689,6 +697,88 @@ function XPerl_UpgradeSettings()
 	end
 end
 
+-- DefaultRaidClasses
+local function DefaultRaidClasses()
+	if IsClassic then
+		return {
+			{enable = true, name = "WARRIOR"},
+			--{enable = true, name = "DEATHKNIGHT"},
+			{enable = true, name = "ROGUE"},
+			{enable = true, name = "HUNTER"},
+			{enable = true, name = "MAGE"},
+			{enable = true, name = "WARLOCK"},
+			{enable = true, name = "PRIEST"},
+			{enable = true, name = "DRUID"},
+			{enable = true, name = "SHAMAN"},
+			{enable = true, name = "PALADIN"},
+			--{enable = true, name = "MONK"},
+			--{enable = true, name = "DEMONHUNTER"},
+		}
+	else
+		return {
+			{enable = true, name = "WARRIOR"},
+			{enable = true, name = "DEATHKNIGHT"},
+			{enable = true, name = "ROGUE"},
+			{enable = true, name = "HUNTER"},
+			{enable = true, name = "MAGE"},
+			{enable = true, name = "WARLOCK"},
+			{enable = true, name = "PRIEST"},
+			{enable = true, name = "DRUID"},
+			{enable = true, name = "SHAMAN"},
+			{enable = true, name = "PALADIN"},
+			{enable = true, name = "MONK"},
+			{enable = true, name = "DEMONHUNTER"},
+		}
+	end
+end
+
+-- ValidateClassNames
+local function ValidateClassNames(part)
+	if not part then
+		return
+	end
+	-- This should never happen, but I'm sure someone will find a way to break it
+
+	local list
+	if IsClassic then
+		list = {WARRIOR = false, MAGE = false, ROGUE = false, DRUID = false, HUNTER = false, SHAMAN = false, PRIEST = false, WARLOCK = false, PALADIN = false}
+	else
+		list = {WARRIOR = false, MAGE = false, ROGUE = false, DRUID = false, HUNTER = false, SHAMAN = false, PRIEST = false, WARLOCK = false, PALADIN = false, DEATHKNIGHT = false, MONK = false, DEMONHUNTER = false}
+	end
+	local valid
+	if (part.class) then
+		local classCount = 0
+		for i, info in pairs(part.class) do
+			if (type(info) == "table" and info.name) then
+				classCount = classCount + 1
+			end
+		end
+		if (classCount == WoWclassCount) then
+			valid = true
+		end
+
+		if (valid) then
+			for i = 1, WoWclassCount do
+				if (part.class[i]) then
+					list[part.class[i].name] = true
+				end
+			end
+		end
+	end
+
+	if (valid) then
+		for k, v in pairs(list) do
+			if (not v) then
+				valid = nil
+			end
+		end
+	end
+
+	if (not valid) then
+		part.class = DefaultRaidClasses(true)
+	end
+end
+
 -- XPerl_ValidateSettings()
 function XPerl_ValidateSettings()
 
@@ -795,6 +885,8 @@ function XPerl_ValidateSettings()
 			conf.colour.bar.pain = {r = 1, g = 0.611, b = 0}
 		end
 	end
+
+	ValidateClassNames(XPerlDB.raid)
 
 	XPerl_ValidateSettings = nil
 end
