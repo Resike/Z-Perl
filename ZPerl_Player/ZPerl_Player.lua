@@ -1220,6 +1220,142 @@ function XPerl_Player_Events:PLAYER_ENTERING_WORLD(event, initialLogin, reloadin
 								end
 							end
 						end
+					else
+						if newstate == 1 then
+							if extend then
+								frame:SetHeight(62 + offset)
+								portrait:SetHeight(62 + offset)
+							else
+								frame:SetHeight(62)
+								portrait:SetHeight(62)
+							end
+							stats:SetHeight(40 + offset)
+							if not above and buffs then
+								if extend then
+									buffs:SetPoint("TOPLEFT", frame, "BOTTOMLEFT", 5, 0)
+								else
+									buffs:SetPoint("TOPLEFT", frame, "BOTTOMLEFT", 5, -buffoffset)
+								end
+							end
+						elseif newstate == 2 then
+							if extend then
+								if bar then
+									frame:SetHeight(62 + offset)
+									portrait:SetHeight(62 + offset)
+								else
+									frame:SetHeight(62 + offset - 10)
+									portrait:SetHeight(62 + offset - 10)
+								end
+							else
+								if bar then
+									frame:SetHeight(62)
+									portrait:SetHeight(62)
+								else
+									frame:SetHeight(62)
+									portrait:SetHeight(62)
+								end
+							end
+							if bar then
+								stats:SetHeight(40 + offset)
+							else
+								stats:SetHeight(40 + offset - 10)
+							end
+							if not above and buffs then
+								if extend then
+									buffs:SetPoint("TOPLEFT", frame, "BOTTOMLEFT", 5, 0)
+								else
+									if bar then
+										buffs:SetPoint("TOPLEFT", frame, "BOTTOMLEFT", 5, -buffoffset)
+									else
+										buffs:SetPoint("TOPLEFT", frame, "BOTTOMLEFT", 5, -buffoffset + 13.5)
+									end
+								end
+							end
+						elseif newstate == 3 then
+							if extend then
+								frame:SetHeight(62 + offset)
+								portrait:SetHeight(62 + offset)
+							else
+								frame:SetHeight(62)
+								portrait:SetHeight(62)
+							end
+							stats:SetHeight(40 + offset)
+							if not above and buffs then
+								if extend then
+									buffs:SetPoint("TOPLEFT", frame, "BOTTOMLEFT", 5, 0)
+								else
+									buffs:SetPoint("TOPLEFT", frame, "BOTTOMLEFT", 5, -buffoffset)
+								end
+							end
+						elseif newstate == 4 then
+							if extend then
+								if bar then
+									frame:SetHeight(62 + offset)
+									portrait:SetHeight(62 + offset)
+								else
+									frame:SetHeight(62 + offset - 10)
+									portrait:SetHeight(62 + offset - 10)
+								end
+							else
+								if bar then
+									frame:SetHeight(62)
+									portrait:SetHeight(62)
+								else
+									frame:SetHeight(62)
+									portrait:SetHeight(62)
+								end
+							end
+							if bar then
+								stats:SetHeight(40 + offset)
+							else
+								stats:SetHeight(40 + offset - 10)
+							end
+							if not above and buffs then
+								if extend then
+									buffs:SetPoint("TOPLEFT", frame, "BOTTOMLEFT", 5, 0)
+								else
+									if bar then
+										buffs:SetPoint("TOPLEFT", frame, "BOTTOMLEFT", 5, -buffoffset)
+									else
+										buffs:SetPoint("TOPLEFT", frame, "BOTTOMLEFT", 5, -buffoffset + 13.5)
+									end
+								end
+							end
+						else
+							if extend then
+								if bar then
+									frame:SetHeight(62 + offset)
+									portrait:SetHeight(62 + offset)
+								else
+									frame:SetHeight(62 + offset - 10)
+									portrait:SetHeight(62 + offset - 10)
+								end
+							else
+								if bar then
+									frame:SetHeight(62)
+									portrait:SetHeight(62)
+								else
+									frame:SetHeight(62)
+									portrait:SetHeight(62)
+								end
+							end
+							if bar then
+								stats:SetHeight(40 + offset)
+							else
+								stats:SetHeight(40 + offset - 10)
+							end
+							if not above and buffs then
+								if extend then
+									buffs:SetPoint("TOPLEFT", frame, "BOTTOMLEFT", 5, 0)
+								else
+									if bar then
+										buffs:SetPoint("TOPLEFT", frame, "BOTTOMLEFT", 5, -buffoffset)
+									else
+										buffs:SetPoint("TOPLEFT", frame, "BOTTOMLEFT", 5, -buffoffset + 13.5)
+									end
+								end
+							end
+						end
 					end
 				elseif class == "PRIEST" then
 					if spec == 1 or spec == 2 then
