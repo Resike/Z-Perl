@@ -1,4 +1,4 @@
-## Interface: 20501
+## Interface: 90005
 ## Version: 6.2.1
 ## Author: Resike
 ## Title: Z-Perl UnitFrames
