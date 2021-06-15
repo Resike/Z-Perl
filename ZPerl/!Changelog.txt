@@ -1,3 +1,7 @@
+**6.2.2**
+* Totem frame fix.
+* Library updates and fixes.
+
 **6.2.1**
 * Classic combo fixes.
 * Aura duartion fixes.
