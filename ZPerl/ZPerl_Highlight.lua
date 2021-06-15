@@ -8,14 +8,19 @@ XPerl_RequestConfig(function(new)
 	conf = new
 end, "$Revision: @file-revision@ $")
 
-local UnitCastingInfo, UnitChannelInfo = UnitCastingInfo, UnitChannelInfo
-local LCC = LibStub("LibClassicCasterino", true)
-if LCC then
-    UnitCastingInfo = function(unit) return LCC:UnitCastingInfo(unit); end
-    UnitChannelInfo = function(unit) return LCC:UnitChannelInfo(unit); end
-end
-
 local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
+local IsVanillaClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
+local UnitCastingInfo = UnitCastingInfo
+local UnitChannelInfo = UnitChannelInfo
+local LCC = IsVanillaClassic and LibStub("LibClassicCasterino", true)
+if LCC then
+	UnitCastingInfo = function(unit)
+		return LCC:UnitCastingInfo(unit)
+	end
+	UnitChannelInfo = function(unit)
+		return LCC:UnitChannelInfo(unit)
+	end
+end
 
 local _G = _G
 
@@ -944,9 +949,9 @@ end
 
 -- StartMendingAnimation
 function xpHigh:StartMendingAnimation(sourceFrame, targetFrame)
-    local oldMA = self.mendingAnimation
+	local oldMA = self.mendingAnimation
 
-    local ma = new()
+	local ma = new()
 	self.mendingAnimation = ma
 
 	local sx, sy = sourceFrame:GetCenter()

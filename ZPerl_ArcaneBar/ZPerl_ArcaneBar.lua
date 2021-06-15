@@ -16,14 +16,19 @@ XPerl_RequestConfig(function(new)
 	conf = new
 end, "$Revision: @file-revision@ $")
 
-local UnitCastingInfo, UnitChannelInfo = UnitCastingInfo, UnitChannelInfo
-local LCC = LibStub("LibClassicCasterino", true)
-if LCC then
-    UnitCastingInfo = function(unit) return LCC:UnitCastingInfo(unit); end
-    UnitChannelInfo = function(unit) return LCC:UnitChannelInfo(unit); end
-end
-
 local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
+local IsVanillaClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
+local UnitCastingInfo = UnitCastingInfo
+local UnitChannelInfo = UnitChannelInfo
+local LCC = IsVanillaClassic and LibStub("LibClassicCasterino", true)
+if LCC then
+	UnitCastingInfo = function(unit)
+		return LCC:UnitCastingInfo(unit)
+	end
+	UnitChannelInfo = function(unit)
+		return LCC:UnitChannelInfo(unit)
+	end
+end
 
 -- Registers frame to spellcast events.
 local barColours = {
@@ -45,7 +50,7 @@ local function enableToggle(self, value)
 				return XPerl_ArcaneBar_OnEvent(self, event, ...)
 			end
 			for i, event in pairs(events) do
-				if LCC and strfind(event, "^UNIT_SPELLCAST") then
+				if LCC and strfind(event, "^UNIT_SPELLCAST") and (IsClassic and event ~= "UNIT_SPELLCAST_INTERRUPTIBLE" and event ~= "UNIT_SPELLCAST_NOT_INTERRUPTIBLE") then
 					LCC.RegisterCallback(self, event, CastbarEventHandler)
 				else
 					if pcall(self.RegisterEvent, self, event) then
@@ -326,8 +331,8 @@ end
 
 local function ShowPrecast(self, side)
 	if (self.precast) then
-	 	if (conf.player.castBar.precast) then
-	 		local _, _, _, latencyWorld = GetNetStats()
+		if (conf.player.castBar.precast) then
+			local _, _, _, latencyWorld = GetNetStats()
 			local lag = min(1000, latencyWorld)
 			if (lag < 10) then
 				self.precast:Hide()

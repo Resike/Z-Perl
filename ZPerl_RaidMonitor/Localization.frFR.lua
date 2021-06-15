@@ -1,7 +1,7 @@
 -- Local stuff
 
 if (GetLocale() == "frFR") then
-        XPERL_RAID_MONITOR_TITLE	= "Moniteur de lancement de sort |c00A04040(BETA)|r"
+	XPERL_RAID_MONITOR_TITLE	= "Moniteur de lancement de sort |c00A04040(BETA)|r"
 	XPERL_RAID_MONITOR_TOTALS	= "Bascule l'affichage des totaux et des statistiques"
 
 	XPERL_RAID_MONITOR_STATS_RAID_MANA	= "Mana du raid"

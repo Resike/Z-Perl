@@ -36,6 +36,6 @@ if ( GetLocale() == "frFR" ) then
 
 	XPERL_AGGRO_PLAYER 		= "- AGGRO -"
 	XPERL_AGGRO_PET 		= "- AGGRO DU FAMILIER -"
-        XPERL_AGGRO_DRAGTIP		= "D\195\169place l'endroit de l'avertissement d'Aggro"
+		XPERL_AGGRO_DRAGTIP		= "D\195\169place l'endroit de l'avertissement d'Aggro"
 
 end

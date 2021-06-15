@@ -11,8 +11,8 @@ local config = ZPerlRaidMonConfig
 local UnitCastingInfo, UnitChannelInfo = UnitCastingInfo, UnitChannelInfo
 local LCC = LibStub("LibClassicCasterino", true)
 if LCC then
-    UnitCastingInfo = function(unit) return LCC:UnitCastingInfo(unit); end
-    UnitChannelInfo = function(unit) return LCC:UnitChannelInfo(unit); end
+	UnitCastingInfo = function(unit) return LCC:UnitCastingInfo(unit); end
+	UnitChannelInfo = function(unit) return LCC:UnitChannelInfo(unit); end
 end
 
 local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC

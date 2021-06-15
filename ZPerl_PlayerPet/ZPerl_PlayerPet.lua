@@ -426,7 +426,7 @@ end
 function XPerl_Player_Pet_OnEvent(self, event, unitID, ...)
 	local func = XPerl_Player_Pet_Events[event]
 	if string.find(event, "^UNIT_") then
-	 	if (unitID == "pet" or unitID == "player") then
+		if (unitID == "pet" or unitID == "player") then
 			func(self, unitID, ...)
 		end
 	else

@@ -61,8 +61,8 @@ local XPerl_ColourHealthBar = XPerl_ColourHealthBar
 local UnitCastingInfo, UnitChannelInfo = UnitCastingInfo, UnitChannelInfo
 local LCC = LibStub("LibClassicCasterino", true)
 if LCC then
-    UnitCastingInfo = function(unit) return LCC:UnitCastingInfo(unit); end
-    UnitChannelInfo = function(unit) return LCC:UnitChannelInfo(unit); end
+	UnitCastingInfo = function(unit) return LCC:UnitCastingInfo(unit); end
+	UnitChannelInfo = function(unit) return LCC:UnitChannelInfo(unit); end
 end
 
 -- TODO - Watch for:	 ERR_FRIEND_OFFLINE_S = "%s has gone offline."

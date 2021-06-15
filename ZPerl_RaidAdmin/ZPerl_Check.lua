@@ -55,7 +55,7 @@ function XPerl_CheckOnLoad(self)
 	self.corner:SetParent(XPerl_CheckList)
 
 	XPerl_Check:SetWidth(130)
-        XPerl_Check:SetHeight(18)
+		XPerl_Check:SetHeight(18)
 
 	XPerl_CheckOnLoad = nil
 end
@@ -363,9 +363,9 @@ end
 -- XPerl_Check_Expand()
 function XPerl_Check_Expand(forced)
 	XPerl_Check:SetWidth(500)
-        XPerl_Check:SetHeight(240)
-        XPerl_CheckList:Show()
-        XPerl_CheckButton:Show()
+		XPerl_Check:SetHeight(240)
+		XPerl_CheckList:Show()
+		XPerl_CheckButton:Show()
 	XPerl_Check.forcedOpen = forced
 	XPerl_CheckTitleBarLockOpen:Show()
 end
@@ -741,7 +741,7 @@ function XPerl_Check_UpdateItemList()
 				nameFrame:SetText(v.link)
 
 				local itemId = strmatch(v.link, "item:(%d+):")
-   				if (itemId) then
+				if (itemId) then
 					local itemName, itemString, itemQuality, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture = GetItemInfo(itemId)
 					iconFrame:SetTexture(itemTexture)
 					iconFrame:Show()
@@ -1308,7 +1308,7 @@ function XPerl_Check_OnEnter(self)
 		if (link and strsub(link, 1, 1) == "|") then
 			-- Have to strip excess information for the SetHyperlink call
 			local itemId = strmatch(link, "item:(%d+):")
-   			if (itemId) then
+			if (itemId) then
 				local newLink = format("item:%d:0:0:0", itemId)
 
 				GameTooltip:SetOwner(anc, "ANCHOR_LEFT")
@@ -1519,14 +1519,14 @@ function XPerl_Check_ValidateButtons()
 		tex = XPerl_CheckButtonEquiped:GetPushedTexture()
 		tex:SetTexCoord(0.875, 1, 0.5, 0.75)
 
-                XPerl_CheckButtonEquiped.tooltipText = "XPERL_CHECK_SCANSTOP_DESC"
+				XPerl_CheckButtonEquiped.tooltipText = "XPERL_CHECK_SCANSTOP_DESC"
 	else
 		local tex = XPerl_CheckButtonEquiped:GetNormalTexture()
 		tex:SetTexCoord(0.375, 0.5, 0.5, 0.75)
 		tex = XPerl_CheckButtonEquiped:GetPushedTexture()
 		tex:SetTexCoord(0.5, 0.625, 0.5, 0.75)
 
-                XPerl_CheckButtonEquiped.tooltipText = "XPERL_CHECK_SCAN_DESC"
+				XPerl_CheckButtonEquiped.tooltipText = "XPERL_CHECK_SCAN_DESC"
 	end
 
 	local myPlayer = GetSelectedPlayer()
