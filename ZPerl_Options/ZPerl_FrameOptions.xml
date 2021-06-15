@@ -6007,11 +6007,12 @@
 								</Anchors>
 								<Scripts>
 									<OnLoad>
+										XPerl_Options_RegisterProtected(self)
 										XPerl_OptionsSetMyText(self, "XPERL_CONF_PLAYER_TOTEMS_ENABLE")
 										self.configBase = "XPerlDB.player.totems"
 										self.configIndex = "enable"
 										self.configClick = function()
-											TotemFrame_Update()
+											XPerl_Player_Set_Bits(XPerl_Player)
 										end
 									</OnLoad>
 								</Scripts>

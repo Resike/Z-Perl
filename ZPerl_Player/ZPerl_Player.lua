@@ -2079,6 +2079,10 @@ function XPerl_Player_Set_Bits(self)
 			hooksecurefunc("TotemFrame_Update", XPerl_Player_SetTotems)
 			self.totemHooked = true
 		end
+
+		if not InCombatLockdown() then
+			XPerl_Player_SetTotems(XPerl_Player)
+		end
 	end
 
 	self:SetAlpha(conf.transparency.frame)
