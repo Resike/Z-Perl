@@ -24,6 +24,7 @@ end
 --@end-debug@]===]
 
 local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
+local IsVanillaClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 
 local format = format
 
@@ -2075,13 +2076,9 @@ function XPerl_Player_Set_Bits(self)
 			}
 		end
 
-		if (not IsClassic and not self.totemHooked) then
+		if (not IsVanillaClassic and not self.totemHooked) then
 			hooksecurefunc("TotemFrame_Update", XPerl_Player_SetTotems)
 			self.totemHooked = true
-		end
-
-		if not InCombatLockdown() then
-			XPerl_Player_SetTotems(XPerl_Player)
 		end
 	end
 
