@@ -858,8 +858,7 @@ if( playerClass == "DRUID" ) then
 			local spellName, spellRank = GetSpellInfo(spellID), SpellIDToRank[spellID]
 			local healAmount = getBaseHealAmount(hotData, spellName, spellRank)
 			local spellPower = GetSpellBonusHealing()
-			local healModifier = HealComm:GetHealModifier(guid) * playerHealModifier
-			local spModifier = 1
+			local healModifier, spModifier = playerHealModifier, 1
 			local bombAmount, totalTicks
 
 			-- Gift of Nature
@@ -944,8 +943,7 @@ if( playerClass == "DRUID" ) then
 			local spellName, spellRank = GetSpellInfo(spellID), SpellIDToRank[spellID]
 			local healAmount = getBaseHealAmount(spellData, spellName, spellRank)
 			local spellPower = GetSpellBonusHealing()
-			local healModifier = HealComm:GetHealModifier(guid) * playerHealModifier
-			local spModifier = 1
+			local healModifier, spModifier = playerHealModifier, 1
 
 			-- Gift of Nature
 			if isTBC then
@@ -1076,8 +1074,7 @@ if( playerClass == "PALADIN" ) then
 			local spellName, spellRank = GetSpellInfo(spellID), SpellIDToRank[spellID]
 			local healAmount = getBaseHealAmount(spellData, spellName, spellRank)
 			local spellPower = GetSpellBonusHealing()
-			local healModifier = HealComm:GetHealModifier(guid) * playerHealModifier
-			local spModifier = 1
+			local healModifier, spModifier = playerHealModifier, 1
 
 			if isTBC then
 				healModifier = healModifier * (1 + talentData[HealingLight].current)
@@ -1218,8 +1215,7 @@ if( playerClass == "PRIEST" ) then
 			local spellName, spellRank = GetSpellInfo(spellID), SpellIDToRank[spellID]
 			local healAmount = getBaseHealAmount(hotData, spellName, spellRank)
 			local spellPower = GetSpellBonusHealing()
-			local healModifier = HealComm:GetHealModifier(guid) * playerHealModifier
-			local spModifier = 1
+			local healModifier, spModifier = playerHealModifier, 1
 			local totalTicks
 
 			if isTBC then
@@ -1261,8 +1257,7 @@ if( playerClass == "PRIEST" ) then
 			local spellName, spellRank = GetSpellInfo(spellID), SpellIDToRank[spellID]
 			local healAmount = getBaseHealAmount(spellData, spellName, spellRank)
 			local spellPower = GetSpellBonusHealing()
-			local healModifier = HealComm:GetHealModifier(guid) * playerHealModifier
-			local spModifier = 1
+			local healModifier, spModifier = playerHealModifier, 1
 
 			if isTBC then
 				healModifier = healModifier * (1 + talentData[SpiritualHealing].current)
@@ -1362,8 +1357,7 @@ if( playerClass == "SHAMAN" ) then
 			local spellName, spellRank = GetSpellInfo(spellID), SpellIDToRank[spellID]
 			local healAmount = getBaseHealAmount(spellData, spellName, spellRank)
 			local spellPower = GetSpellBonusHealing()
-			local healModifier = HealComm:GetHealModifier(guid) * playerHealModifier
-			local spModifier = 1
+			local healModifier, spModifier = playerHealModifier, 1
 
 			if isTBC then
 				healModifier = healModifier * (1 + talentData[Purification].current)
