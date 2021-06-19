@@ -1,3 +1,7 @@
+**6.2.3**
+* Totem frame fix (again).
+* Bump LibHealComm.
+
 **6.2.2**
 * Totem frame fix.
 * Library updates and fixes.
