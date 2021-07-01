@@ -44,6 +44,7 @@ function XPerl_Party_Pet_OnLoadEvents(self)
 		"UNIT_FLAGS",
 		IsClassic and "UNIT_HEALTH_FREQUENT" or "UNIT_HEALTH",
 		"UNIT_MAXHEALTH",
+		"UNIT_PET",
 		"PLAYER_ENTERING_WORLD",
 		"PET_BATTLE_OPENING_START",
 		"PET_BATTLE_CLOSE",
@@ -73,6 +74,9 @@ function XPerl_Party_Pet_UpdateGUIDs()
 	--del(guids)
 	--guids = new()
 	guids = { }
+	if pconf.showPlayer then
+		guids[UnitGUID("player")] = PartyPetFrames["pet"]
+	end
 	for i = 1, GetNumSubgroupMembers() do
 		local id = "partypet"..i
 		if (UnitExists(id)) then
@@ -512,6 +516,7 @@ function XPerl_Party_Pet_OnEvent(self, event, unit, ...)
 			local pet = string.gsub(unit, "(%a+)(%d+)", "%1pet%2")
 			local f = PartyPetFrames[pet]
 			if f then
+				local owner
 				local unitID = f.partyid
 				if unitID == "pet" or unitID == "playerpet" then
 					owner = "player"
@@ -575,6 +580,7 @@ end
 function XPerl_Party_Pet_Events:UNIT_NAME_UPDATE()
 	XPerl_Party_Pet_UpdateGUIDs()
 	XPerl_Party_Pet_UpdateName(self)
+	XPerl_Party_Pet_UpdateHealth(self)
 end
 
 -- UNIT_FACTION

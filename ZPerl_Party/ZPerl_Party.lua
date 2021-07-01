@@ -764,7 +764,7 @@ local function XPerl_Party_UpdatePVP(self)
 end
 
 -- XPerl_Party_UpdateCombat
-function XPerl_Party_UpdateCombat(self)
+local function XPerl_Party_UpdateCombat(self)
 	local partyid = self.partyid
 	if (UnitIsVisible(partyid)) then
 		if (UnitAffectingCombat(partyid)) then

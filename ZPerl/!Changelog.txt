@@ -1,3 +1,8 @@
+**6.2.4**
+* Fixed 10y range finder in BCC.
+* Party pet related fixes.
+* LibHealComm workaround for non-english clients.
+
 **6.2.3**
 * Totem frame fix (again).
 * Bump LibHealComm.

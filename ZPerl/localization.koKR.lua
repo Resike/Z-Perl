@@ -103,7 +103,5 @@ if (GetLocale() == "koKR") then
 	XPERL_RAID_TOOLTIP_WITHOUTBUFF	= "버프없음: (%s)"
 	XPERL_RAID_TOOLTIP_BUFFEXPIRING	= "%s의 %s %s 이내 사라짐"	-- Name, buff name, time to expire
 
-	XPerl_DefaultRangeSpells.ANY = {item = "두꺼운 황천매듭 붕대"}
-
 	XPERL_NEW_VERSION_DETECTED = "새로운 버전이 발견되었습니다."
 end

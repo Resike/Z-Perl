@@ -180,7 +180,7 @@
 		</Anchors>
 	</Button>
 
-	<Frame name="XPerl_Party_Pet_EventFrame" inherits="XPerlBackdropTemplate" hidden="true">
+	<Frame name="XPerl_Party_Pet_EventFrame">
 		<Scripts>
 			<OnLoad function="XPerl_Party_Pet_OnLoadEvents"/>
 		</Scripts>

@@ -290,6 +290,15 @@ XPerl_AnchorList = {"TOP", "LEFT", "BOTTOM", "RIGHT"}
 -- FindABandage()
 local function FindABandage()
 	local bandages = {
+		[173192] = true, -- Shrouded Cloth Bandage
+		[173191] = true, -- Heavy Shrouded Cloth Bandage
+		[158382] = true, -- Deep Sea Bandage
+		[158381] = true, -- Tidespray Linen Bandage
+		[142332] = true, -- Feathered Luffa
+		[136653] = true, -- Silvery Salve
+		[133942] = true, -- Silkweave Splint
+		[133940] = true, -- Silkweave Bandage
+		[115497] = true, -- Ashran Bandage
 		[111603] = true, -- Antiseptic Bandage
 		[72986] = true, -- Heavy Windwool Bandage
 		[72985] = true, -- Windwool Bandage
@@ -430,17 +439,17 @@ local function DoRangeCheck(unit, opt)
 			elseif (opt.interact == 3) then -- 10y
 				if UnitCanAssist("player", unit) then
 					-- Sparrowhawk Net (10y)
-					range = IsItemInRange(not IsClassic and 32321 or 21866 --[[Alterac Ram Collar DND]], unit)
+					range = IsItemInRange(not IsVanillaClassic and 32321 or 17689 --[[Stormpike Training Collar]], unit)
 					if range == nil then
-						-- Fallback (8y) (Classic = 10 yards)
-						range = CheckInteractDistance(unit, not IsClassic and 2 or 1)
+						-- Fallback (8y) (BCC = 8y) (Vanilla = 10 yards)
+						range = CheckInteractDistance(unit, IsVanillaClassic and 1 or 2)
 					end
 				else
 					-- Sparrowhawk Net (10y)
-					range = IsItemInRange(not IsClassic and 32321 or 9618 --[[Wildkin Muisek Vessel]], unit)
+					range = IsItemInRange(not IsVanillaClassic and 32321 or 9618 --[[Wildkin Muisek Vessel]], unit)
 					if range == nil then
-						-- Fallback (8y) (Classic = 10 yards)
-						range = CheckInteractDistance(unit, not IsClassic and 2 or 1)
+						-- Fallback (8y) (BCC = 8y) (Vanilla = 10 yards)
+						range = CheckInteractDistance(unit, IsVanillaClassic and 1 or 2)
 					end
 				end
 			elseif (opt.interact == 2) then -- 20y
@@ -448,14 +457,14 @@ local function DoRangeCheck(unit, opt)
 					-- Mistletoe (20y)
 					range = IsItemInRange(21519, unit)
 					if range == nil then
-						-- Fallback (28y) (Classic = 21 yards)
+						-- Fallback (28y) (BCC = 28y) (Vanilla = 21 yards)
 						range = CheckInteractDistance(unit, 4)
 					end
 				else
 					-- Gnomish Death Ray (20y)
 					range = IsItemInRange(not IsClassic and 10645 or 1191 --[[Bag of Marbles]], unit)
 					if range == nil then
-						-- Fallback (28y) (Classic = 21 yards)
+						-- Fallback (28y) (BCC = 28y) (Vanilla = 21 yards)
 						range = CheckInteractDistance(unit, 4)
 					end
 				end
@@ -464,39 +473,39 @@ local function DoRangeCheck(unit, opt)
 					-- Handful of Snowflakes (30y)
 					range = IsItemInRange(not IsClassic and 34191 or 1180 --[[Scroll of Stamina]], unit)
 					if range == nil then
-						-- Fallback (28y) (Classic = 21 yards)
+						-- Fallback (28y) (BCC = 28y) (Vanilla = 21 yards)
 						range = CheckInteractDistance(unit, 4)
 					end
 				else
 					-- Handful of Snowflakes (30y)
 					range = IsItemInRange(not IsClassic and 34191 or 835 --[[Large Rope Net]], unit)
 					if range == nil then
-						-- Fallback (28y) (Classic = 21 yards)
+						-- Fallback (28y) (BCC = 28y) (Vanilla = 21 yards)
 						range = CheckInteractDistance(unit, 4)
 					end
 				end
 			end
 			-- CheckInteractDistance
-			-- 1 = Inspect = 28 yards (Classic = 10 yards)
-			-- 2 = Trade = 8 yards (Classic = 11 yards)
-			-- 3 = Duel = 7 yards (Classic = 10 yards)
-			-- 4 = Follow = 28 yards (Classic = 21 yards)
-			-- 5 = ??? = 7 yards (Classic = 10 yards)
+			-- 1 = Inspect = 28 yards (BCC = 28y) (Vanilla = 10 yards)
+			-- 2 = Trade = 8 yards (BCC = 8y) (Vanilla = 11 yards)
+			-- 3 = Duel = 7 yards (BCC = 7y) (Vanilla = 10 yards)
+			-- 4 = Follow = 28 yards (BCC = 28y) (Vanilla = 21 yards)
+			-- 5 = ??? = 7 yards (BCC = 7y) (Vanilla = 10 yards)
 		elseif (opt.spell) then
 			if UnitCanAssist("player", unit) then
 				range = IsSpellInRange(opt.spell, unit)
 				if range == nil then
-					-- Fallback (28y)
+					-- Fallback (28y) (BCC = 28y) (Vanilla = 21 yards)
 					range = CheckInteractDistance(unit, 4)
 				end
 			elseif UnitCanAttack("player", unit) then
 				range = IsSpellInRange(opt.spell, unit)
 				if range == nil then
-					-- Fallback (28y)
+					-- Fallback (28y) (BCC = 28y) (Vanilla = 21 yards)
 					range = CheckInteractDistance(unit, 4)
 				end
 			else
-				-- Fallback (28y)
+				-- Fallback (28y) (BCC = 28y) (Vanilla = 21 yards)
 				range = CheckInteractDistance(unit, 4)
 			end
 		elseif (opt.item and UnitCanAssist("player", unit)) then

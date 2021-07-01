@@ -237,36 +237,36 @@ end
 -- Default spells for range checking in the healer visual out-of-range cues.
 if IsClassic then
 	XPerl_DefaultRangeSpells = {
-		DRUID	= {spell = GetSpellInfo(774)},				--Rejuvenation
+		DRUID	= {spell = GetSpellInfo(774)},				-- Rejuvenation
 		PALADIN = {spell = GetSpellInfo(19750)},			-- Flash of Light
 		PRIEST	= {spell = GetSpellInfo(2061)},				-- Flash Heal
 		SHAMAN	= {spell = GetSpellInfo(8004)},				-- Healing Surge
 		MAGE	= {spell = GetSpellInfo(475)},				-- Remove Lesser Curse
 		ROGUE	= {spell = GetSpellInfo(57934)},			-- Trick of the Trade
 		WARLOCK	= {spell = GetSpellInfo(5697)},				-- Unending Breath
-		ANY		= {item = GetItemInfo(111603)}				-- Antiseptic Bandage
+		ANY		= {item = GetItemInfo(1251)}				-- Linen Bandage
 	}
 elseif IsBCClassic then
 	XPerl_DefaultRangeSpells = {
-		DRUID	= {spell = GetSpellInfo(774)},				--Rejuvenation
+		DRUID	= {spell = GetSpellInfo(774)},				-- Rejuvenation
 		PALADIN = {spell = GetSpellInfo(19750)},			-- Flash of Light
 		PRIEST	= {spell = GetSpellInfo(2061)},				-- Flash Heal
 		SHAMAN	= {spell = GetSpellInfo(8004)},				-- Healing Surge
 		MAGE	= {spell = GetSpellInfo(475)},				-- Remove Lesser Curse
 		ROGUE	= {spell = GetSpellInfo(57934)},			-- Trick of the Trade
 		WARLOCK	= {spell = GetSpellInfo(5697)},				-- Unending Breath
-		ANY		= {item = GetItemInfo(111603)}				-- Antiseptic Bandage
+		ANY		= {item = GetItemInfo(1251)}				-- Linen Bandage
 	}
 else
 	XPerl_DefaultRangeSpells = {
-		DRUID	= {spell = GetSpellInfo(774)},				--Rejuvenation
+		DRUID	= {spell = GetSpellInfo(774)},				-- Rejuvenation
 		PALADIN = {spell = GetSpellInfo(19750)},			-- Flash of Light
 		PRIEST	= {spell = GetSpellInfo(2061)},				-- Flash Heal
 		SHAMAN	= {spell = GetSpellInfo(8004)},				-- Healing Surge
 		--MAGE	= {spell = GetSpellInfo(475)},				-- Remove Lesser Curse
 		ROGUE	= {spell = GetSpellInfo(57934)},			-- Trick of the Trade
 		WARLOCK	= {spell = GetSpellInfo(5697)},				-- Unending Breath
-		ANY		= {item = GetItemInfo(111603)}				-- Antiseptic Bandage
+		ANY		= {item = GetItemInfo(173191)}				-- Heavy Shrouded Cloth Bandage
 	}
 end
 

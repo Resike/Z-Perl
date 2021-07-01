@@ -105,8 +105,6 @@ if (GetLocale() == "zhCN") then
 	XPERL_CONFIG_LIST		= "配置列表:"
 	XPERL_CONFIG_CURRENT		= " (当前)"
 
-	XPerl_DefaultRangeSpells.ANY = {item = "厚灵纹布绷带"}
-
 	XPERL_RAID_TOOLTIP_WITHBUFF	= "有该buff的成员： (%s)"
 	XPERL_RAID_TOOLTIP_WITHOUTBUFF	= "无该buff的成员： (%s)"
 	XPERL_RAID_TOOLTIP_BUFFEXPIRING	= "%s的%s将在%s后过期"	-- Name, buff name, time to expire
