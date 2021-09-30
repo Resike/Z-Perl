@@ -1,3 +1,7 @@
+**6.2.5**
+* Updated LibHealComm.
+* Party pet health fixes.
+
 **6.2.4**
 * Fixed 10y range finder in BCC.
 * Party pet related fixes.
