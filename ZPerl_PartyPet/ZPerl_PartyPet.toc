@@ -1,4 +1,4 @@
-## Interface: 20502
+## Interface: 90100
 ## Author: Resike
 ## Title: Z-Perl |cffeda55fParty Pet|r
 ## Title-itIT: Z-Perl |cffeda55fFamigli Gruppo|r
