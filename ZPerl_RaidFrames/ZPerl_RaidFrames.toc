@@ -1,4 +1,4 @@
-## Interface: 11307
+## Interface: 20502
 ## Author: Resike
 ## Title: Z-Perl |cffeda55fRaid Frames|r
 ## Title-itIT: Z-Perl |cffeda55fIncursione|r
