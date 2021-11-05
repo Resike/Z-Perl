@@ -1,5 +1,5 @@
-## Interface: 90100
-## Version: 6.2.5
+## Interface: 11400
+## Version: 6.2.6
 ## Author: Resike
 ## Title: Z-Perl UnitFrames
 ## Title-itIT: Z-Perl UnitFrames

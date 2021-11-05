@@ -814,11 +814,11 @@ local function XPerl_Party_UpdateMana(self)
 
 	--Begin 4.3 division by 0 work around to ensure we don't divide if max is 0
 	local percent
-	if Partymana > 0 and Partymanamax == 0 then--We have current mana but max mana failed.
-		Partymanamax = Partymana--Make max mana at least equal to current health
-		percent = 100--And percent 100% cause a number divided by itself is 1, duh.
+	if Partymana > 0 and Partymanamax == 0 then --We have current mana but max mana failed.
+		Partymanamax = Partymana --Make max mana at least equal to current health
+		percent = 1 --And percent 100% cause a number divided by itself is 1, duh.
 	elseif Partymana == 0 and Partymanamax == 0 then--Probably doesn't use mana or is oom?
-		percent = 0--So just automatically set percent to 0 and avoid division of 0/0 all together in this situation.
+		percent = 0 --So just automatically set percent to 0 and avoid division of 0/0 all together in this situation.
 	else
 		percent = Partymana / Partymanamax--Everything is dandy, so just do it right way.
 	end
@@ -959,7 +959,7 @@ local function XPerl_Party_TargetUpdateHealth(self)
 		percent = 0 -- So just automatically set percent to 0 and avoid division of 0/0 all together in this situation.
 	elseif hp > 0 and hpMax == 0 then -- We have current ho but max hp failed.
 		hpMax = hp -- Make max hp at least equal to current health
-		percent = 100 -- And percent 100% cause a number divided by itself is 1, duh.
+		percent = 1 -- And percent 100% cause a number divided by itself is 1, duh.
 	else
 		if hpMax > 0 then
 			percent = hp / hpMax--Everything is dandy, so just do it right way.

@@ -1,4 +1,4 @@
-## Interface: 90100
+## Interface: 11400
 ## Author: Resike
 ## Title: Z-Perl |cffeda55fCustom Highlight|r
 ## Title-itIT: Z-Perl |cffeda55fEvidenziazioni Personalizzate|r

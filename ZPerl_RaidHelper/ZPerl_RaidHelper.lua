@@ -129,7 +129,7 @@ local function UpdateUnit(self,forcedUpdate)
 			percBar = 0 -- So just automatically set percent to 0 and avoid division of 0/0 all together in this situation.
 		elseif health > 0 and healthMax == 0 then -- We have current ho but max hp failed.
 			healthMax = health -- Make max hp at least equal to current health
-			percBar = 100 -- And percent 100% cause a number divided by itself is 1, duh.
+			percBar = 1 -- And percent 100% cause a number divided by itself is 1, duh.
 		else
 			percBar = health / healthMax--Everything is dandy, so just do it right way.
 		end

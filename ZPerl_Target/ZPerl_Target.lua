@@ -836,11 +836,11 @@ function XPerl_Target_SetMana(self)
 
 	--Begin 4.3 division by 0 work around to ensure we don't divide if max is 0
 	local pmanaPct
-	if targetmana > 0 and targetmanamax == 0 then--We have current mana but max mana failed.
-		targetmanamax = targetmana--Make max mana at least equal to current mana
-		pmanaPct = 100--And percent 100% cause a number divided by itself is 1, duh.
+	if targetmana > 0 and targetmanamax == 0 then --We have current mana but max mana failed.
+		targetmanamax = targetmana --Make max mana at least equal to current mana
+		pmanaPct = 1 --And percent 100% cause a number divided by itself is 1, duh.
 	elseif targetmana == 0 and targetmanamax == 0 then--Probably doesn't use mana or is oom?
-		pmanaPct = 0--So just automatically set percent to 0 and avoid division of 0/0 all together in this situation.
+		pmanaPct = 0 --So just automatically set percent to 0 and avoid division of 0/0 all together in this situation.
 	else
 		pmanaPct = targetmana / targetmanamax--Everything is dandy, so just do it right way.
 	end

@@ -422,9 +422,9 @@ function XPerl_RaidMonitor_Init(self)
 					local percent
 					if UnitIsDeadOrGhost(id) or (hp == 0 and hpMax == 0) then--They are dead
 						percent = 0
-					elseif hp > 0 and hpMax == 0 then--They have more then 1 HP so they have to be alive, so we need to fix hpmax being wrong.
-						hpMax = hp--Make max hp equal to current HP
-						percent = 100
+					elseif hp > 0 and hpMax == 0 then --They have more then 1 HP so they have to be alive, so we need to fix hpmax being wrong.
+						hpMax = hp --Make max hp equal to current HP
+						percent = 1
 					else
 						percent = hp / hpMax
 					end
@@ -442,9 +442,9 @@ function XPerl_RaidMonitor_Init(self)
 					local percent
 					if UnitIsDeadOrGhost(id) or (hp == 0 and hpMax == 0) then--They are dead
 						percent = 0
-					elseif hp > 0 and hpMax == 0 then--They have more then 1 HP so they have to be alive, so we need to fix hpmax being wrong.
-						hpMax = hp--Make max hp equal to current HP
-						percent = 100
+					elseif hp > 0 and hpMax == 0 then --They have more then 1 HP so they have to be alive, so we need to fix hpmax being wrong.
+						hpMax = hp --Make max hp equal to current HP
+						percent = 1
 					else
 						percent = hp / hpMax
 					end
@@ -459,9 +459,9 @@ function XPerl_RaidMonitor_Init(self)
 			local percent
 			if UnitIsDeadOrGhost("player") or (hp == 0 and hpMax == 0) then--They are dead
 				percent = 0
-			elseif hp > 0 and hpMax == 0 then--They have more then 1 HP so they have to be alive, so we need to fix hpmax being wrong.
-				hpMax = hp--Make max hp equal to current HP
-				percent = 100
+			elseif hp > 0 and hpMax == 0 then --They have more then 1 HP so they have to be alive, so we need to fix hpmax being wrong.
+				hpMax = hp --Make max hp equal to current HP
+				percent = 1
 			else
 				percent = hp / hpMax
 			end

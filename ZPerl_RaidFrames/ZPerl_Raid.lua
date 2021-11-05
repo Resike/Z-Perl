@@ -601,7 +601,7 @@ local function XPerl_Raid_UpdateHealth(self)
 			local percentHp
 			if health > 0 and healthmax == 0 then -- We have current hp but max hp failed.
 				healthmax = health -- Make max hp at least equal to current health
-				percentHp = 100 -- And percent 100% cause a number divided by itself is 1, duh.
+				percentHp = 1 -- And percent 100% cause a number divided by itself is 1, duh.
 			elseif health == 0 and healthmax == 0 then -- Probably dead target
 				percentHp = 0 -- So just automatically set percent to 0 and avoid division of 0/0 all together in this situation.
 			else
@@ -614,13 +614,13 @@ local function XPerl_Raid_UpdateHealth(self)
 				if rconf.values then
 					self.statsFrame.healthBar.text:SetFormattedText("%d/%d", health, healthmax)
 				elseif rconf.precisionPercent then
-					self.statsFrame.healthBar.text:SetFormattedText(perc1F, percentHp * 100 + 0.05)
+					self.statsFrame.healthBar.text:SetFormattedText(perc1F, percentHp == 1 and 100 or percentHp * 100 + 0.05)
 				else
 					local show = percentHp * 100
 					if show < 10 then
-						self.statsFrame.healthBar.text:SetFormattedText(perc1F or "%.1f%%", show + 0.05)
+						self.statsFrame.healthBar.text:SetFormattedText(perc1F or "%.1f%%", percentHp == 1 and 100 or percentHp * 100 + 0.05)
 					else
-						self.statsFrame.healthBar.text:SetFormattedText(percD or "%d%%", show + 0.5)
+						self.statsFrame.healthBar.text:SetFormattedText(percD or "%d%%", percentHp == 1 and 100 or percentHp * 100 + 0.5)
 					end
 				end
 			end
@@ -675,7 +675,7 @@ local function XPerl_Raid_UpdateMana(self)
 				local pmanaPct
 				if mana > 0 and manamax == 0 then -- We have current mana but max mana failed.
 					manamax = mana -- Make max mana at least equal to current health
-					pmanaPct = 100 -- And percent 100% cause a number divided by itself is 1, duh.
+					pmanaPct = 1 -- And percent 100% cause a number divided by itself is 1, duh.
 				elseif mana == 0 and manamax == 0 then--Probably doesn't use mana or is oom?
 					pmanaPct = 0 -- So just automatically set percent to 0 and avoid division of 0/0 all together in this situation.
 				else
