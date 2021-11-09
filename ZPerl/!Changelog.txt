@@ -1,3 +1,7 @@
+**6.2.8**
+* Fixes issues from previous release.
+* Some party pet optimisations.
+
 **6.2.7**
 * Fixed heal prediction for party pet frames.
 * Fixed cast prediction on classic.

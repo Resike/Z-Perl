@@ -37,8 +37,6 @@ local UnitPowerMax = UnitPowerMax
 -- Loading Function --
 ----------------------
 function XPerl_Party_Pet_OnLoadEvents(self)
-	self.time = 0
-
 	local events = {
 		"UNIT_COMBAT",
 		"UNIT_FACTION",
@@ -62,9 +60,7 @@ function XPerl_Party_Pet_OnLoadEvents(self)
 		end
 	end
 
-	-- Set here to reduce amount of function calls made
 	self:SetScript("OnEvent", XPerl_Party_Pet_OnEvent)
-	self:SetScript("OnUpdate", XPerl_Party_Pet_OnUpdate)
 
 	XPerl_RegisterOptionChanger(XPerl_Party_Pet_Set_Bits)
 
@@ -223,40 +219,6 @@ function XPerl_Party_Pet_OnLoad(self)
 	self.nameFrame:SetAttribute("useparent-unit", true)
 	self.nameFrame:SetAttribute("unitsuffix", "pet")
 
-	if IsClassic then
-		self:SetScript("OnUpdate", function(self, elapsed)
-			local partyid = self.partyid
-
-			local newGuid = UnitGUID(partyid)
-			local newHP = UnitIsGhost(partyid) and 1 or (UnitIsDead(partyid) and 0 or XPerl_Unit_GetHealth(self))
-			local newMana = UnitPower(partyid)
-
-			if (newHP ~= self.pethp) then
-				XPerl_Party_Pet_UpdateHealth(self)
-			end
-
-			if (newMana ~= self.petmana) then
-				XPerl_Party_Pet_UpdateMana(self)
-			end
-
-			if (newGuid ~= self.guid) then
-				XPerl_Party_Pet_UpdateDisplay(self)
-			else
-				self.time = elapsed + self.time
-				if self.time >= 0.5 then
-					if self.conf.buffs.enable then
-						XPerl_Unit_UpdateBuffs(self, nil, nil, self.conf.buffs.castable, self.conf.debuffs.curable)
-					end
-					XPerl_UpdateSpellRange(self, partyid)
-					XPerl_Highlight:SetHighlight(self, UnitGUID(partyid))
-					self.time = 0
-				end
-			end
-		end)
-
-		self.time, self.pethp, self.petmana = 0, 0, 0
-	end
-
 	XPerl_RegisterClickCastFrame(self.nameFrame)
 	XPerl_RegisterClickCastFrame(self)
 
@@ -277,8 +239,6 @@ function XPerl_Party_Pet_OnLoad(self)
 		--CheckVisiblity()
 		XPerl_Party_SetDebuffLocation(self:GetParent())
 	end)
-
-	self.time = 0
 
 	if (XPerlDB) then
 		self.conf = conf.partypet
@@ -341,11 +301,16 @@ end
 local function XPerl_Party_Pet_UpdateHealth(self)
 	local partyid = self.partyid
 	if not partyid then
+		self.pethp = 0
+		self.pethpmax = 0
 		return
 	end
 
 	local health = UnitIsGhost(partyid) and 1 or (UnitIsDead(partyid) and 0 or UnitHealth(partyid))
 	local healthmax = UnitHealthMax(partyid)
+
+	self.pethp = health
+	self.pethpmax = healthmax
 
 	-- PTR region fix
 	if not healthmax or healthmax <= 0 then
@@ -402,11 +367,16 @@ end
 local function XPerl_Party_Pet_UpdateMana(self)
 	local partyid = self.partyid
 	if not partyid then
+		self.petmana = 0
+		self.petmanamax = 0
 		return
 	end
 
 	local unitPower = UnitPower(partyid)
 	local unitPowerMax = UnitPowerMax(partyid)
+
+	self.petmana = unitPower
+	self.petmanamax = unitPowerMax
 
 	-- PTR region fix
 	if not unitPowerMax or unitPowerMax <= 0 then
@@ -470,13 +440,11 @@ end
 function XPerl_Party_Pet_UpdateDisplay(self)
 	local partyid = self.partyid
 	if not partyid then
+		self.guid = nil
 		return
 	end
 
-	if IsClassic and self.conf.enable and UnitExists(partyid) then
-		-- Save these, so we know whether to update the frame later
-		self.pethp = UnitIsGhost(partyid) and 1 or (UnitIsDead(partyid) and 0 or XPerl_Unit_GetHealth(self))
-		self.petmana = UnitPower(partyid)
+	if IsClassic then
 		self.guid = UnitGUID(partyid)
 	end
 
@@ -488,6 +456,8 @@ function XPerl_Party_Pet_UpdateDisplay(self)
 	XPerl_Party_Pet_UpdateCombat(self)
 	XPerl_Party_Pet_Buff_UpdateAll(self)
 	XPerl_UpdateSpellRange(self)
+
+	self.guid = UnitGUID(partyid)
 end
 
 --------------------
@@ -541,11 +511,43 @@ function XPerl_Party_Pet_OnUpdate(self, elapsed)
 			end
 
 			if conf.rangeFinder.enabled then
-				frame.time = frame.time + elapsed
-				if (frame.time > 0.2) then
-					frame.time = 0
+				frame.rangeTime = elapsed + (frame.rangeTime or 0)
+				if (frame.rangeTime > 0.2) then
+					frame.rangeTime = 0
 					XPerl_UpdateSpellRange(frame, nil, false)
 				end
+			end
+		end
+	end
+
+	if IsClassic then
+		local partyid = self.partyid
+
+		local newGuid = UnitGUID(partyid)
+		local newHP = UnitIsGhost(partyid) and 1 or (UnitIsDead(partyid) and 0 or XPerl_Unit_GetHealth(self))
+		local newHPMax = UnitHealthMax(partyid)
+		local newMana = UnitPower(partyid)
+		local newManaMax = UnitPowerMax(partyid)
+
+		if (newHP ~= self.pethp or newHPMax ~= self.pethpmax) then
+			XPerl_Party_Pet_UpdateHealth(self)
+		end
+
+		if (newMana ~= self.petmana or newManaMax ~= self.petmanamax) then
+			XPerl_Party_Pet_UpdateMana(self)
+		end
+
+		if (newGuid ~= self.guid) then
+			XPerl_Party_Pet_UpdateDisplay(self)
+		else
+			self.time = elapsed + (self.time or 0)
+			if self.time >= 0.5 then
+				if self.conf.buffs.enable then
+					XPerl_Unit_UpdateBuffs(self, nil, nil, self.conf.buffs.castable, self.conf.debuffs.curable)
+				end
+				XPerl_UpdateSpellRange(self, partyid)
+				XPerl_Highlight:SetHighlight(self, UnitGUID(partyid))
+				self.time = 0
 			end
 		end
 	end
@@ -805,6 +807,16 @@ function XPerl_Party_Pet_Set_Bits1(self)
 			d:SetPoint("TOPRIGHT", b, "BOTTOMRIGHT", 0, 0)
 		else
 			d:SetPoint("TOPLEFT", b, "BOTTOMLEFT", 0, 0)
+		end
+	end
+
+	if IsClassic or conf.combatFlash or conf.rangeFinder.enabled then
+		if not self:GetScript("OnUpdate") then
+			self:SetScript("OnUpdate", XPerl_Party_Pet_OnUpdate)
+		end
+	else
+		if self:GetScript("OnUpdate") then
+			self:SetScript("OnUpdate", nil)
 		end
 	end
 

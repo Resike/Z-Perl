@@ -1584,8 +1584,13 @@ function XPerl_SetManaBarType(self)
 	local m = self.statsFrame.manaBar
 	if (m and not self.statsFrame.greyMana) then
 		local unit = self.partyid -- SecureButton_GetUnit(self)
+		if not unit then
+			self.targetmanatype = 0
+			return
+		end
 		if (unit) then
 			local p = XPerl_GetDisplayedPowerType(unit)
+			self.targetmanatype = p
 			if (p) then
 				local c = conf.colour.bar[ManaColours[p]]
 				if (c) then
