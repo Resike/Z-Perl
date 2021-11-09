@@ -94,8 +94,12 @@ local function overrideToggle(value)
 				local CastbarEventHandler = function(event, ...)
 					return XPerl_ArcaneBar_OnEvent(CastingBarFrame, event, ...)
 				end
-				if LCC and strfind(event, "^UNIT_SPELLCAST") then
-					LCC.RegisterCallback(CastingBarFrame, event, CastbarEventHandler)
+				if LCC then
+					for i, event in pairs(events) do
+						if strfind(event, "^UNIT_SPELLCAST") and (IsClassic and event ~= "UNIT_SPELLCAST_INTERRUPTIBLE" and event ~= "UNIT_SPELLCAST_NOT_INTERRUPTIBLE") then
+							LCC.RegisterCallback(CastingBarFrame, event, CastbarEventHandler)
+						end
+					end
 				else
 					for i, event in pairs(events) do
 						CastingBarFrame:RegisterEvent(event)

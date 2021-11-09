@@ -116,18 +116,14 @@ local function SetFrameArray(self, value)
 	for k, v in pairs(PartyFrames) do
 		if (v == self) then
 			PartyFrames[k] = nil
-			if (XPerl_PartyPetFrames) then
+			if (XPerl_Party_Pet_ClearFrame) then
 				local petid
 				if k == "player" then
 					petid = "pet"
 				else
 					petid = "partypet"..strmatch(k, "^party(%d)")
 				end
-				if (XPerl_PartyPetFrames[petid]) then
-					XPerl_PartyPetFrames[petid].partyid = nil
-					XPerl_PartyPetFrames[petid].ownerid = nil
-					XPerl_PartyPetFrames[petid] = nil
-				end
+				XPerl_Party_Pet_ClearFrame(petid)
 			end
 		end
 	end
@@ -136,17 +132,14 @@ local function SetFrameArray(self, value)
 	if (value) then
 		self.targetid = value.."target"
 		PartyFrames[value] = self
-		if (XPerl_PartyPetFrames and self.petFrame) then
-			--local petid = "partypet"..strmatch(value, "^party(%d)")
+		if (XPerl_Party_Pet_SetFrame) then
 			local petid
 			if value == "player" then
 				petid = "pet"
 			else
 				petid = "partypet"..strmatch(value, "^party(%d)")
 			end
-			XPerl_PartyPetFrames[petid] = self.petFrame
-			self.petFrame.partyid = petid
-			self.petFrame.ownerid = value
+			XPerl_Party_Pet_SetFrame(self:GetID(), petid, value)
 		end
 	end
 end
@@ -1321,7 +1314,7 @@ function XPerl_Party_GetUnitFrameByUnit(unitid)
 	return PartyFrames[unitid]
 end
 
-local rosterGuids
+local rosterGuids = { }
 -- XPerl_Party_GetUnitFrameByGUID
 function XPerl_Party_GetUnitFrameByGUID(guid)
 	local unitid = rosterGuids and rosterGuids[guid]
@@ -1333,7 +1326,7 @@ end
 local function BuildGuidMap()
 	if (GetNumSubgroupMembers() > 0) then
 		--rosterGuids = XPerl_GetReusableTable()
-		rosterGuids = { }
+		wipe(rosterGuids)
 		if partyHeader:GetAttribute("showPlayer") then
 			local guid = UnitGUID("player")
 			if (guid) then
