@@ -17,6 +17,7 @@ local pendingTankListChange -- If in combat when tank list changes, then we'll d
 local conf
 
 local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
+local IsBCClassic = WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC
 
 local GetNumGroupMembers = GetNumGroupMembers
 
@@ -276,7 +277,7 @@ function XPerl_MTListUnit_OnEnter(self)
 					XPerl_BottomTip:SetOwner(GameTooltip, a2, 0, 10)
 					XPerl_BottomTip:SetUnit(parentID)
 
-					if IsClassic then
+					if IsBCClassic then
 						XPerl_BottomTip:OnBackdropLoaded()
 						XPerl_BottomTip:SetBackdropColor(0.1, 0.4, 0.1, 0.75)
 					else
@@ -296,7 +297,7 @@ function XPerl_MTListUnit_OnEnter(self)
 				GameTooltip:SetOwner(self, a1)
 				GameTooltip:SetUnit(partyid)
 
-				if IsClassic then
+				if IsBCClassic then
 					GameTooltip:OnBackdropLoaded()
 					GameTooltip:SetBackdropColor(0.1, 0.4, 0.1, 0.75)
 				else
