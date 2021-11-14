@@ -62,6 +62,7 @@ function XPerl_RosterText_Init(self)
 	self:OnBackdropLoaded()
 	self:SetBackdropColor(0, 0, 0, 0.7)
 	self:SetBackdropBorderColor(0.5, 0.5, 0.5, 1)
+
 	self:RegisterForDrag("LeftButton")
 
 	if (XPerl_SavePosition) then

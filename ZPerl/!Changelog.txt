@@ -1,3 +1,10 @@
+**6.2.9**
+* Updated for 1.14.1.
+* Fixed reseting settings.
+* Fixed pet happiness not beeing disableable.
+* Fixed some tooltips and their options.
+* Updated locales.
+
 **6.2.8**
 * Fixes issues from previous release.
 * Some party pet optimisations.

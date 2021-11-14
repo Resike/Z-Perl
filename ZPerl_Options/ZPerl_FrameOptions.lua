@@ -431,8 +431,6 @@ end
 
 -- XPerl_SliderSetup(self)
 function XPerl_SliderSetup(self, percent)
-	self:OnBackdropLoaded()
-
 	self.xperlSliderEnabled = true
 
 	self.IsEnabled = function(self)
@@ -1775,7 +1773,7 @@ function XPerl_Options_ImportOldConfig(old)
 			portrait3D		= Convert(old.ShowPlayerPetPortrait3D),
 			hitIndicator		= Convert(old.PetCombatHitIndicator),
 			happiness = {
-				enabled		= Convert(old.PetHappiness),
+				enable		= Convert(old.PetHappiness),
 				onlyWhenSad	= Convert(old.PetHappinessSad),
 				flashWhenSad	= Convert(old.PetFlashWhenSad),
 			},
@@ -2465,9 +2463,9 @@ local function XPerl_Pet_ConfigDefault(default)
 		portrait3D = 1,
 		hitIndicator= 1,
 		happiness = {
-			enabled		= 1,
+			enable = 1,
 			onlyWhenSad	= 1,
-			flashWhenSad	= 1,
+			flashWhenSad = 1,
 		},
 		threat = 1,
 		threatMode = "portraitFrame",
@@ -3441,7 +3439,7 @@ if (XPerl_UpgradeSettings) then
 
 			if (oldVersion < "5.8.2") then
 				old.pet.happiness = { }
-				old.pet.happiness.enabled = 1
+				old.pet.happiness.enable = 1
 				old.pet.happiness.onlyWhenSad = 1
 				old.pet.happiness.flashWhenSad = 1
 			end
@@ -3453,6 +3451,16 @@ if (XPerl_UpgradeSettings) then
 							old.custom.zones[k] = nil
 						end
 					end
+				end
+			end
+
+			if (oldVersion < "6.2.9") then
+				if not old.pet.happiness then
+					old.pet.happiness = { }
+				end
+				if not old.pet.happiness.enable and old.pet.happiness.enabled then
+					old.pet.happiness.enable = old.pet.happiness.enabled
+					old.pet.happiness.enabled = nil
 				end
 			end
 		end

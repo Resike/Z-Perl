@@ -275,8 +275,13 @@ function XPerl_MTListUnit_OnEnter(self)
 				if (parentID) then
 					XPerl_BottomTip:SetOwner(GameTooltip, a2, 0, 10)
 					XPerl_BottomTip:SetUnit(parentID)
-					XPerl_BottomTip:OnBackdropLoaded()
-					XPerl_BottomTip:SetBackdropColor(0.1, 0.4, 0.1, 0.75)
+
+					if IsClassic then
+						XPerl_BottomTip:OnBackdropLoaded()
+						XPerl_BottomTip:SetBackdropColor(0.1, 0.4, 0.1, 0.75)
+					else
+						XPerl_BottomTip.NineSlice:SetCenterColor(0.1, 0.4, 0.1, 0.75)
+					end
 				end
 			end
 		else
@@ -290,8 +295,13 @@ function XPerl_MTListUnit_OnEnter(self)
 
 				GameTooltip:SetOwner(self, a1)
 				GameTooltip:SetUnit(partyid)
-				GameTooltip:OnBackdropLoaded()
-				GameTooltip:SetBackdropColor(0.1, 0.4, 0.1, 0.75)
+
+				if IsClassic then
+					GameTooltip:OnBackdropLoaded()
+					GameTooltip:SetBackdropColor(0.1, 0.4, 0.1, 0.75)
+				else
+					GameTooltip.NineSlice:SetCenterColor(0.1, 0.4, 0.1, 0.75)
+				end
 			end
 		end
 	end

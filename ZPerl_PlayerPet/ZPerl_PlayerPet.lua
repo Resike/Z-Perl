@@ -133,7 +133,7 @@ function XPerl_Player_Pet_OnLoad(self)
 				if pcall(self.RegisterUnitEvent, self, event, "target") then
 					self:RegisterUnitEvent(event, "target")
 				end
-			elseif event == "UNIT_HAPPINESS" and classFileName == "HUNTER" then
+			elseif IsClassic and event == "UNIT_HAPPINESS" and classFileName == "HUNTER" then
 				if pcall(self.RegisterUnitEvent, self, event, "pet") then
 					self:RegisterUnitEvent(event, "pet")
 				end
@@ -343,7 +343,7 @@ local function XPerl_Player_Pet_SetHappiness(self)
 	local icon = self.happyFrame.icon
 	icon.tex:SetTexCoord(0.5625 - (0.1875 * happiness), 0.75 - (0.1875 * happiness), 0, 0.359375)
 
-	if (pconf.happiness.enabled and (not pconf.happiness.onlyWhenSad or happiness < 3)) then
+	if (pconf.happiness.enable and (not pconf.happiness.onlyWhenSad or happiness < 3)) then
 		self.happyFrame:Show()
 
 		icon.tooltip = _G[("PET_HAPPINESS"..happiness)]

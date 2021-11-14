@@ -1581,8 +1581,8 @@
 						XPerl_OptionsSetMyText(self, "XPERL_CONF_HEALER_MODE", true)
 						self.Validate = function()
 							XPerl_Options_EnableSibling(self, "DeficitOnly")
-							XPerl_Options_EnableSibling(self,"DeficitMax")
-							XPerl_Options_EnableSibling(self,"CurMaxDeficit")
+							XPerl_Options_EnableSibling(self, "DeficitMax")
+							XPerl_Options_EnableSibling(self, "CurMaxDeficit")
 						end
 					</OnLoad>
 					<OnShow>
@@ -2010,7 +2010,7 @@
 								XPerl_Options_RegisterProtected(self)
 							</OnLoad>
 							<OnClick>
-								local new = XPerl_Options_IncrementSibling(self,"Gap")
+								local new = XPerl_Options_IncrementSibling(self, "Gap")
 								XPerl_Player_SetGap(new)
 							</OnClick>
 						</Scripts>
@@ -2125,7 +2125,7 @@
 								XPerl_Options_RegisterProtected(self)
 							</OnLoad>
 							<OnClick>
-								local new = XPerl_Options_DecrementSibling(self,"Gap")
+								local new = XPerl_Options_DecrementSibling(self, "Gap")
 								XPerl_Party_SetGap(new)
 							</OnClick>
 						</Scripts>
@@ -2207,7 +2207,7 @@
 								XPerl_Options_RegisterProtected(self)
 							</OnLoad>
 							<OnClick>
-								local new = XPerl_Options_IncrementSibling(self,"Gap")
+								local new = XPerl_Options_IncrementSibling(self, "Gap")
 								XPerl_Party_SetGap(new)
 							</OnClick>
 						</Scripts>
@@ -3216,7 +3216,7 @@
 								self.configBase = "XPerlDB.bar"
 								self.configIndex = "fading"
 								self.Validate = function()
-									XPerl_Options_EnableSibling(self,"FadeTime")
+									XPerl_Options_EnableSibling(self, "FadeTime")
 								end
 							</OnLoad>
 						</Scripts>
@@ -3344,10 +3344,10 @@
 								self.configIndex = "enable"
 								self.configClick = XPerl_OptionActions
 								self.Validate = function()
-									XPerl_Options_EnableSibling(self,"HighBackground")
-									XPerl_Options_EnableSibling(self,"HighBorder")
-									XPerl_Options_EnableSibling(self,"HighBoth")
-									XPerl_Options_EnableSibling(self,"HighlightCurable")
+									XPerl_Options_EnableSibling(self, "HighBackground")
+									XPerl_Options_EnableSibling(self, "HighBorder")
+									XPerl_Options_EnableSibling(self, "HighBoth")
+									XPerl_Options_EnableSibling(self, "HighlightCurable")
 								end
 							</OnLoad>
 						</Scripts>
@@ -3458,12 +3458,12 @@
 								self.configIndex = "cooldown"
 								self.configClick = XPerl_OptionActions
 								self.Validate = function()
-									XPerl_Options_EnableSibling(self,"BuffCooldownAny")
-									XPerl_Options_EnableSibling(self,"BlizzardSupport")
-									XPerl_Options_EnableSibling(self,"OmniCCSupport")
-									XPerl_Options_EnableSibling(self,"BuffCountdown")
-									XPerl_Options_EnableSibling(self,"BuffCountdownAny", "BuffCountdown")
-									XPerl_Options_EnableSibling(self,"BuffCountdownStart", "BuffCountdown")
+									XPerl_Options_EnableSibling(self, "BuffCooldownAny")
+									XPerl_Options_EnableSibling(self, "BlizzardSupport")
+									XPerl_Options_EnableSibling(self, "OmniCCSupport")
+									XPerl_Options_EnableSibling(self, "BuffCountdown")
+									XPerl_Options_EnableSibling(self, "BuffCountdownAny", "BuffCountdown")
+									XPerl_Options_EnableSibling(self, "BuffCountdownStart", "BuffCountdown")
 								end
 							</OnLoad>
 						</Scripts>
@@ -3550,8 +3550,8 @@
 								self.configIndex = "countdown"
 								self.configClick = XPerl_OptionActions
 								self.Validate = function()
-									XPerl_Options_EnableSibling(self,"BuffCountdownStart")
-									XPerl_Options_EnableSibling(self,"BuffCountdownAny", "BuffCooldown")
+									XPerl_Options_EnableSibling(self, "BuffCountdownStart")
+									XPerl_Options_EnableSibling(self, "BuffCountdownAny", "BuffCooldown")
 								end
 							</OnLoad>
 						</Scripts>
@@ -3679,15 +3679,15 @@
 								self.configBase = "XPerlDB.highlight"
 								self.configIndex = "enable"
 								self.Validate = function()
-									XPerl_Options_EnableSibling(self,"HighlightHoTs")
-									XPerl_Options_EnableSibling(self,"HighlightHEAL")
-									XPerl_Options_EnableSibling(self,"HighlightAggro")
-									XPerl_Options_EnableSibling(self,"HighlightShields")
-									XPerl_Options_EnableSibling(self,"HighlightHotcount")
-									XPerl_Options_EnableSibling(self,"HighlightTarget")
-									XPerl_Options_EnableSibling(self,"HighlightMending")
-									XPerl_Options_EnableSibling(self,"HighlightSparkles")
-									XPerl_Options_EnableSibling(self,"ExtraSparkles")
+									XPerl_Options_EnableSibling(self, "HighlightHoTs")
+									XPerl_Options_EnableSibling(self, "HighlightHEAL")
+									XPerl_Options_EnableSibling(self, "HighlightAggro")
+									XPerl_Options_EnableSibling(self, "HighlightShields")
+									XPerl_Options_EnableSibling(self, "HighlightHotcount")
+									XPerl_Options_EnableSibling(self, "HighlightTarget")
+									XPerl_Options_EnableSibling(self, "HighlightMending")
+									XPerl_Options_EnableSibling(self, "HighlightSparkles")
+									XPerl_Options_EnableSibling(self, "ExtraSparkles")
 
 									local _, class = UnitClass("player")
 									if (class ~= "DRUID" and class ~= "PRIEST" and class ~= "SHAMAN" and class ~= "MONK" and class ~= "PALADIN") then
@@ -4493,11 +4493,11 @@
 								self.configBase = "XPerlDB.tooltip"
 								self.configIndex = "enableBuffs"
 								--self.Validate = function()
-								--XPerl_Options_EnableSibling(self,"NotInCombat", "or", "UnitTooltips")
-								--XPerl_Options_EnableSibling(self,"TooltipAlways", "or", "UnitTooltips")
-								--XPerl_Options_EnableSibling(self,"TooltipAlt", "or", "UnitTooltips")
-								--XPerl_Options_EnableSibling(self,"TooltipShift", "or", "UnitTooltips")
-								--XPerl_Options_EnableSibling(self,"TooltipCtrl", "or", "UnitTooltips")
+								--XPerl_Options_EnableSibling(self, "NotInCombat", "or", "UnitTooltips")
+								--XPerl_Options_EnableSibling(self, "TooltipAlways", "or", "UnitTooltips")
+								--XPerl_Options_EnableSibling(self, "TooltipAlt", "or", "UnitTooltips")
+								--XPerl_Options_EnableSibling(self, "TooltipShift", "or", "UnitTooltips")
+								--XPerl_Options_EnableSibling(self, "TooltipCtrl", "or", "UnitTooltips")
 								--end
 							</OnLoad>
 							<OnEnter>
@@ -4525,11 +4525,11 @@
 								self.configBase = "XPerlDB.tooltip"
 								self.configIndex = "enable"
 								--self.Validate = function()
-								--XPerl_Options_EnableSibling(self,"NotInCombat", "or", "BuffTooltips")
-								--XPerl_Options_EnableSibling(self,"TooltipAlways", "or", "BuffTooltips")
-								--XPerl_Options_EnableSibling(self,"TooltipAlt", "or", "BuffTooltips")
-								--XPerl_Options_EnableSibling(self,"TooltipShift", "or", "BuffTooltips")
-								--XPerl_Options_EnableSibling(self,"TooltipCtrl", "or", "BuffTooltips")
+								--XPerl_Options_EnableSibling(self, "NotInCombat", "or", "BuffTooltips")
+								--XPerl_Options_EnableSibling(self, "TooltipAlways", "or", "BuffTooltips")
+								--XPerl_Options_EnableSibling(self, "TooltipAlt", "or", "BuffTooltips")
+								--XPerl_Options_EnableSibling(self, "TooltipShift", "or", "BuffTooltips")
+								--XPerl_Options_EnableSibling(self, "TooltipCtrl", "or", "BuffTooltips")
 								--end
 							</OnLoad>
 							<OnEnter>
@@ -4574,8 +4574,8 @@
 								self.configBase = "XPerlDB.player.fullScreen"
 								self.configIndex = "enable"
 								self.Validate = function()
-									XPerl_Options_EnableSibling(self,"FullscreenWarn")
-									XPerl_Options_EnableSibling(self,"FullscreenOK")
+									XPerl_Options_EnableSibling(self, "FullscreenWarn")
+									XPerl_Options_EnableSibling(self, "FullscreenOK")
 								end
 							</OnLoad>
 						</Scripts>
@@ -5478,7 +5478,7 @@
 								self.configIndex = "partyNumber"
 								self.configClick = XPerl_Player_Reset
 								self.Validate = function()
-									XPerl_Options_EnableSibling(self,"WithName")
+									XPerl_Options_EnableSibling(self, "WithName")
 								end
 							</OnLoad>
 						</Scripts>
@@ -6311,6 +6311,10 @@
 						</Anchors>
 						<Scripts>
 							<OnLoad>
+								if WOW_PROJECT_ID == WOW_PROJECT_MAINLINE then
+									self:Hide()
+									return
+								end
 								XPerl_OptionsSetMyText(self, "XPERL_CONF_PLAYER_PET_HAPPINESS")
 								self.Validate = function()
 									XPerl_Options_EnableSibling(self, "OnlySad")
@@ -6338,6 +6342,10 @@
 						</Anchors>
 						<Scripts>
 							<OnLoad>
+								if WOW_PROJECT_ID == WOW_PROJECT_MAINLINE then
+									self:Hide()
+									return
+								end
 								XPerl_OptionsSetMyText(self, "XPERL_CONF_PLAYER_PET_ONLYSAD")
 								self.flashFrame = XPerl_Player_PethappyFrame
 								self.configBase = "XPerlDB.pet.happiness"
@@ -6361,6 +6369,10 @@
 						</Anchors>
 						<Scripts>
 							<OnLoad>
+								if WOW_PROJECT_ID == WOW_PROJECT_MAINLINE then
+									self:Hide()
+									return
+								end
 								XPerl_OptionsSetMyText(self, "XPERL_CONF_PLAYER_PET_FLASHSAD")
 								self.flashFrame = XPerl_Player_PethappyFrame
 								self.configBase = "XPerlDB.pet.happiness"
@@ -6381,6 +6393,9 @@
 						</Anchors>
 						<Scripts>
 							<OnLoad>
+								if WOW_PROJECT_ID == WOW_PROJECT_MAINLINE then
+									self:SetPoint("TOPLEFT", self:GetParent():GetName().."_ArcaneBar", "BOTTOMLEFT", 0, 6)
+								end
 								XPerl_OptionsSetMyText(self, "XPERL_CONF_PLAYER_PET_LEVEL")
 								self.flashFrame = XPerl_Player_PetlevelFrame
 								self.configBase = "XPerlDB.pet"
@@ -6564,21 +6579,21 @@
 									<OnLoad>
 										XPerl_OptionsSetMyText(self, "XPERL_CONF_PLAYER_PET_TARGET")
 										self.Validate = function()
-											XPerl_Options_EnableSibling(self,"Buffs")
-											XPerl_Options_EnableSibling(self,"BigBuffs", "Buffs")
-											XPerl_Options_EnableSibling(self,"BigDebuffs", "Buffs")
-											XPerl_Options_EnableSibling(self,"BigPet", "Buffs", "BigBuffs")
-											XPerl_Options_EnableSibling(self,"Above", "Buffs")
-											XPerl_Options_EnableSibling(self,"Level")
-											XPerl_Options_EnableSibling(self,"Values")
-											XPerl_Options_EnableSibling(self,"Percent")
-											XPerl_Options_EnableSibling(self,"Mana")
-											XPerl_Options_EnableSibling(self,"ScalePetTarget")
-											XPerl_Options_EnableSibling(self,"Width")
-											XPerl_Options_EnableSibling(self,"Healer_Healer")
-											XPerl_Options_EnableSibling(self,"Healer_DeficitOnly", "Healer_Healer")
-											XPerl_Options_EnableSibling(self,"Healer_DeficitMax", "Healer_Healer")
-											XPerl_Options_EnableSibling(self,"Healer_CurMaxDeficit", "Healer_Healer")
+											XPerl_Options_EnableSibling(self, "Buffs")
+											XPerl_Options_EnableSibling(self, "BigBuffs", "Buffs")
+											XPerl_Options_EnableSibling(self, "BigDebuffs", "Buffs")
+											XPerl_Options_EnableSibling(self, "BigPet", "Buffs", "BigBuffs")
+											XPerl_Options_EnableSibling(self, "Above", "Buffs")
+											XPerl_Options_EnableSibling(self, "Level")
+											XPerl_Options_EnableSibling(self, "Values")
+											XPerl_Options_EnableSibling(self, "Percent")
+											XPerl_Options_EnableSibling(self, "Mana")
+											XPerl_Options_EnableSibling(self, "ScalePetTarget")
+											XPerl_Options_EnableSibling(self, "Width")
+											XPerl_Options_EnableSibling(self, "Healer_Healer")
+											XPerl_Options_EnableSibling(self, "Healer_DeficitOnly", "Healer_Healer")
+											XPerl_Options_EnableSibling(self, "Healer_DeficitMax", "Healer_Healer")
+											XPerl_Options_EnableSibling(self, "Healer_CurMaxDeficit", "Healer_Healer")
 										end
 										self.flashFrame = XPerl_TargetTarget
 										self.configClick = XPerl_TargetTarget_Set_Bits
@@ -6612,9 +6627,9 @@
 											XPerl_TargetTarget_Set_Bits()
 										end
 										self.Validate = function()
-											XPerl_Options_EnableSibling(self,"BigBuffs")
-											XPerl_Options_EnableSibling(self,"BigDebuffs")
-											XPerl_Options_EnableSibling(self,"Above")
+											XPerl_Options_EnableSibling(self, "BigBuffs")
+											XPerl_Options_EnableSibling(self, "BigDebuffs")
+											XPerl_Options_EnableSibling(self, "Above")
 										end
 									</OnLoad>
 								</Scripts>
@@ -6661,7 +6676,7 @@
 										self.configIndex = "big"
 										self.configClick = XPerl_TargetTarget_Reset
 										self.Validate = function()
-											XPerl_Options_EnableSibling(self,"BigPet")
+											XPerl_Options_EnableSibling(self, "BigPet")
 										end
 									</OnLoad>
 								</Scripts>
@@ -6901,8 +6916,8 @@
 								self.configIndex = "enable"
 								self.configClick = XPerl_Player_Pet_Reset
 								self.Validate = function()
-									XPerl_Options_EnableSibling(self,"Castable")
-									XPerl_Options_EnableSibling(self,"BuffSize")
+									XPerl_Options_EnableSibling(self, "Castable")
+									XPerl_Options_EnableSibling(self, "BuffSize")
 								end
 							</OnLoad>
 						</Scripts>
@@ -15871,19 +15886,16 @@
 						<Scripts>
 							<OnLoad>
 								XPerl_OptionsSetMyText(self, "XPERL_CONF_RAIDHELP_TOOLTIPS")
-								self.XconfigVar = "Tooltips"
 								self.Validate = function()
-									XPerl_Options_EnableSibling(self, "TooltipTarget", XPerl_Options_Helper_Options_Enabled)
-									XPerl_Options_EnableSibling(self, "TooltipTank", XPerl_Options_Helper_Options_Enabled)
-									XPerl_Options_EnableSibling(self, "TooltipBoth", XPerl_Options_Helper_Options_Enabled)
+									XPerl_Options_EnableSibling(self, "TooltipTarget")
+									XPerl_Options_EnableSibling(self, "TooltipTank")
+									XPerl_Options_EnableSibling(self, "TooltipBoth")
 								end
+								self.XconfigVar = "Tooltips"
 							</OnLoad>
 							<OnShow>
-								if ZPerlConfigHelper.Tooltips == 1 then
-									self:SetChecked(true)
-								else
-									self:SetChecked(false)
-								end
+								self:SetChecked(ZPerlConfigHelper.Tooltips == 1)
+								self:Validate()
 							</OnShow>
 						</Scripts>
 					</CheckButton>
