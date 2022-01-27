@@ -428,7 +428,7 @@ function XPerl_TargetTarget_OnUpdate(self, elapsed)
 			--XPerl_TargetTarget_Buff_UpdateAll(self)
 			XPerl_SetUnitNameColor(self.nameFrame.text, partyid)
 			XPerl_UpdateSpellRange(self, partyid)
-			XPerl_Highlight:SetHighlight(self, UnitGUID(partyid))
+			--XPerl_Highlight:SetHighlight(self, UnitGUID(partyid))
 			self.time = 0
 		end
 	end
@@ -483,7 +483,7 @@ function XPerl_TargetTargetTarget_OnUpdate(self, elapsed)
 			--XPerl_TargetTarget_Buff_UpdateAll(self)
 			XPerl_SetUnitNameColor(self.nameFrame.text, partyid)
 			XPerl_UpdateSpellRange(self, partyid)
-			XPerl_Highlight:SetHighlight(self, UnitGUID(partyid))
+			--XPerl_Highlight:SetHighlight(self, UnitGUID(partyid))
 			self.time = 0
 		end
 	end

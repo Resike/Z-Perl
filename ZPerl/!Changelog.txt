@@ -1,3 +1,9 @@
+**6.3.0**
+* Fixed raid pet health updates on Classic.
+* Fixed heal prediction for raid pet frames.
+* Fixed raid pet target highlight.
+* More optimisations for all target and pet frame updates.
+
 **6.2.9**
 * Updated for 1.14.1.
 * Fixed reseting settings.
@@ -12,13 +18,13 @@
 **6.2.7**
 * Fixed heal prediction for party pet frames.
 * Fixed cast prediction on classic.
-* More fixes regarding party pet health on BCC.
+* More fixes regarding party pet health on Classic.
 * Fix initial party pet detection.
 
 **6.2.6**
 * Updated for 9.1.5.
 * Updated for 1.14.0.
-* Attempt to fix party pet health on BCC.
+* Attempt to fix party pet health on Classic.
 * Raid health percet fixes.
 
 **6.2.5**

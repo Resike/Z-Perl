@@ -16,6 +16,21 @@ end, "$Revision: @file-revision@ $")
 local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
 
 local GetNumGroupMembers = GetNumGroupMembers
+local GetRaidTargetIndex = GetRaidTargetIndex
+local InCombatLockdown = InCombatLockdown
+local IsInGroup = IsInGroup
+local IsInRaid = IsInRaid
+local SetRaidTargetIconTexture = SetRaidTargetIconTexture
+local UnitClass = UnitClass
+local UnitGUID = UnitGUID
+local UnitHasVehicleUI = UnitHasVehicleUI
+local UnitHealth = UnitHealth
+local UnitHealthMax = UnitHealthMax
+local UnitInVehicle = UnitInVehicle
+local UnitIsDead = UnitIsDead
+local UnitIsGhost = UnitIsGhost
+local UnitIsUnit = UnitIsUnit
+local UnitName = UnitName
 
 local localGroups = LOCALIZED_CLASS_NAMES_MALE
 local WoWclassCount = 0
@@ -46,30 +61,46 @@ end
 
 -- XPerl_RaidPets_OnUpdate
 local function XPerl_RaidPets_OnUpdate(self, elapsed)
-	for unit, frame in pairs(RaidPetFrameArray) do
-		if (frame:IsShown()) then
-			--[[local visible = UnitIsVisible(unit)
-			if frame.visible ~= visible then
-				if XPerl_RaidPets_UpdateDisplay then
-					XPerl_RaidPets_UpdateDisplay(frame)
-				end
-				frame.visible = visible
-			end]]
+	if not self:IsShown() then
+		return
+	end
+	local partyid = SecureButton_GetUnit(self) or self.partyid
+	if not partyid then
+		return
+	end
 
-			if conf.rangeFinder.enabled then
-				self.time = self.time + elapsed
-				if (self.time > 0.2) then
-					self.time = 0
-					if (unit) then
-						XPerl_UpdateSpellRange(frame, unit, true)
-					end
+	if conf.rangeFinder.enabled then
+		self.rangeTime = elapsed + (self.rangeTime or 0)
+		if (self.rangeTime > 0.2) then
+			XPerl_UpdateSpellRange(self, partyid, true)
+			self.rangeTime = 0
+		end
+	end
+
+	if IsClassic then
+		local newGuid = UnitGUID(partyid)
+		local newHP = UnitIsGhost(partyid) and 1 or (UnitIsDead(partyid) and 0 or XPerl_Unit_GetHealth(self))
+		local newHPMax = UnitHealthMax(partyid)
+
+		if (newHP ~= self.pethp or newHPMax ~= self.pethpmax) then
+			XPerl_RaidPets_UpdateHealth(self)
+		end
+
+		if (newGuid ~= self.guid) then
+			XPerl_RaidPets_UpdateDisplay(self)
+		else
+			self.time = elapsed + (self.time or 0)
+			if self.time >= 0.5 then
+				if conf.highlightDebuffs.enable then
+					XPerl_CheckDebuffs(self, partyid)
 				end
+				--XPerl_Highlight:SetHighlight(self, UnitGUID(partyid))
+				self.time = 0
 			end
 		end
 	end
 end
 
-local XPerl_RaidPets_HighlightCallback
 local guids
 -- XPerl_RaidPet_UpdateGUIDs
 function XPerl_RaidPet_UpdateGUIDs()
@@ -89,19 +120,11 @@ function XPerl_Raid_Pet_GetUnitFrameByGUID(guid)
 end
 
 -- XPerl_RaidPets_HighlightCallback
-function XPerl_RaidPets_HighlightCallback(self, guid)
-	if not guid then
-		return
-	end
-
-	local f = XPerl_Raid_Pet_GetUnitFrameByGUID(guid)
+function XPerl_RaidPets_HighlightCallback(self, updateGUID)
+	local f = guids and guids[updateGUID]
 	if (f) then
-		XPerl_Highlight:SetHighlight(f, guid)
+		XPerl_Highlight:SetHighlight(f, updateGUID)
 	end
-	--[[local f = guids and guids[guid]
-	if (f) then
-		XPerl_Highlight:SetHighlight(f, guid)
-	end]]
 end
 
 
@@ -130,13 +153,12 @@ function XPerl_RaidPets_OnLoad(self)
 	]])
 	RegisterStateDriver(self.state, "groupupdate", "[petbattle] hide; show")
 
-	self.time = 0
 	self.Array = { }
 
 	--XPerl_Raid_GrpPets:UnregisterEvent("UNIT_NAME_UPDATE") -- Fix for WoW 2.1 UNIT_NAME_UPDATE issue
 
 	self:SetScript("OnEvent", XPerl_RaidPets_OnEvent)
-	self:SetScript("OnUpdate", XPerl_RaidPets_OnUpdate)
+	--self:SetScript("OnUpdate", XPerl_RaidPets_OnUpdate)
 
 	XPerl_Highlight:Register(XPerl_RaidPets_HighlightCallback, self)
 
@@ -203,6 +225,8 @@ end
 local function XPerl_RaidPets_UpdateHealth(self)
 	local partyid = SecureButton_GetUnit(self)
 	if not partyid then
+		self.pethp = 0
+		self.pethpmax = 0
 		self.healthBar:SetValue(0)
 		XPerl_SetSmoothBarColor(self.healthBar, 0)
 		return
@@ -210,6 +234,9 @@ local function XPerl_RaidPets_UpdateHealth(self)
 
 	local health = UnitIsGhost(partyid) and 1 or (UnitIsDead(partyid) and 0 or UnitHealth(partyid))
 	local healthmax = UnitHealthMax(partyid)
+
+	self.pethp = health
+	self.pethpmax = healthmax
 
 	-- PTR region fix
 	if not healthmax or healthmax <= 0 then
@@ -283,13 +310,23 @@ end
 function XPerl_RaidPets_UpdateDisplayAll()
 	for k, frame in pairs(RaidPetFrameArray) do
 		if (frame:IsShown()) then
-			XPerl_RaidPets_UpdateDisplay(frame )
+			XPerl_RaidPets_UpdateDisplay(frame)
 		end
 	end
 end
 
 -- XPerl_RaidPets_UpdateDisplay
 function XPerl_RaidPets_UpdateDisplay(self)
+	local partyid = SecureButton_GetUnit(self)
+	if not partyid then
+		self.guid = nil
+		return
+	end
+
+	if IsClassic then
+		self.guid = UnitGUID(partyid)
+	end
+
 	XPerl_RaidPets_UpdateName(self)
 	XPerl_RaidPets_UpdateHealth(self)
 	XPerl_RaidPets_RaidTargetUpdate(self)
@@ -536,7 +573,6 @@ local function SetMainHeaderAttributes(self)
 	end
 
 	self:SetAttribute("showParty", raidconf.inParty)
-	self:SetAttribute("showPlayer", raidconf.inParty)
 
 	self:SetAttribute("filterOnPet", true)
 	self:SetAttribute("unitsPerColumn", petsPerColumn) -- Don't grow taller than a standard raid group
@@ -595,7 +631,7 @@ function XPerl_RaidPets_HideShow()
 		end
 	end
 
-	local on = ((IsInRaid() and rconf.enable) or (IsInGroup() and XPerl_Raid_GrpPets:GetAttribute("showPlayer") and rconf.enable))
+	local on = ((IsInRaid() and rconf.enable) or (IsInGroup() and XPerl_Raid_GrpPets:GetAttribute("showParty") and rconf.enable))
 
 	local events = {
 		IsClassic and "UNIT_HEALTH_FREQUENT" or "UNIT_HEALTH",
@@ -671,6 +707,18 @@ function XPerl_RaidPets_Titles()
 	end
 end
 
+function XPerl_RaidPets_SetBits1(self)
+	if IsClassic or (IsClassic and conf.highlightDebuffs.enable) or conf.rangeFinder.enabled then
+		if not self:GetScript("OnUpdate") then
+			self:SetScript("OnUpdate", XPerl_RaidPets_OnUpdate)
+		end
+	else
+		if self:GetScript("OnUpdate") then
+			self:SetScript("OnUpdate", nil)
+		end
+	end
+end
+
 -- XPerl_RaidPets_OptionActions
 function XPerl_RaidPets_OptionActions()
 	if (InCombatLockdown()) then
@@ -679,6 +727,12 @@ function XPerl_RaidPets_OptionActions()
 	end
 
 	SetMainHeaderAttributes(XPerl_Raid_GrpPets)
+
+	for k, frame in pairs(RaidPetFrameArray) do
+		if frame:IsShown() then
+			XPerl_RaidPets_SetBits1(frame)
+		end
+	end
 
 	local events = {
 		"PLAYER_ENTERING_WORLD",
@@ -706,7 +760,7 @@ function XPerl_RaidPets_OptionActions()
 		end
 	end
 
-	XPerl_Register_Prediction(self, raidconf, function(guid)
+	XPerl_Register_Prediction(XPerl_RaidPets_Frame, raidconf, function(guid)
 		local frame = XPerl_Raid_Pet_GetUnitFrameByGUID(guid)
 		if frame then
 			return frame.partyid
@@ -723,4 +777,4 @@ function XPerl_RaidPets_OptionActions()
 	end
 end
 
-XPerl_RegisterOptionChanger(XPerl_RaidPets_OptionActions, "RaidPets")
+XPerl_RegisterOptionChanger(XPerl_RaidPets_OptionActions)

@@ -389,7 +389,7 @@ function xpHigh:SetHighlight(frame, guid)
 					hotSparks = true
 				else
 					if (not r1 or t1 == "TARGET") then
-						if frame == XPerl_Player or frame == XPerl_Player_Pet or frame == XPerl_Target or frame == XPerl_TargetTarget or frame == XPerl_TargetTargetTarget or frame == XPerl_Focus or frame == XPerl_FocusTarget or frame == XPerl_partypet1 or frame == XPerl_partypet2 or frame == XPerl_partypet3 or frame == XPerl_partypet4 or frame == XPerl_partypet5 then
+						if frame == XPerl_Player or frame == XPerl_Player_Pet or frame == XPerl_Target or frame == XPerl_TargetTarget or frame == XPerl_TargetTargetTarget or frame == XPerl_Focus or frame == XPerl_FocusTarget or frame == XPerl_partypet1 or frame == XPerl_partypet2 or frame == XPerl_partypet3 or frame == XPerl_partypet4 or frame == XPerl_partypet5 or strmatch(frame:GetName(), "XPerl_Raid_GrpPetsUnitButton") then
 						else
 							t1 = k
 							r1, g1, b1 = colours[k].r, colours[k].g, colours[k].b
@@ -1322,7 +1322,7 @@ end
 -- xpHigh:ClearAll
 function xpHigh:ClearAll(clearType)
 	if (clearType == "SHIELD") then
-		for guid,s in pairs(self.shields) do
+		for guid, s in pairs(self.shields) do
 			self.shields[guid] = del(self.shields[guid])
 			self:Send(guid)
 		end

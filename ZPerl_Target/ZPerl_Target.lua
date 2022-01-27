@@ -1257,7 +1257,7 @@ function XPerl_Target_OnUpdate(self, elapsed)
 				XPerl_Target_Update_Range(self)
 			end
 			if conf.rangeFinder.enabled then
-				XPerl_UpdateSpellRange(self)
+				XPerl_UpdateSpellRange(self, partyid)
 			end
 
 			if (self.deferring) then

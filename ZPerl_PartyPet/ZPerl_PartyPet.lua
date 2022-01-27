@@ -455,7 +455,7 @@ function XPerl_Party_Pet_UpdateDisplay(self)
 	XPerl_Party_Pet_UpdateMana(self)
 	XPerl_Party_Pet_UpdateCombat(self)
 	XPerl_Party_Pet_Buff_UpdateAll(self)
-	XPerl_UpdateSpellRange(self)
+	XPerl_UpdateSpellRange(self, self.partyid)
 
 	self.guid = UnitGUID(partyid)
 end
@@ -491,38 +491,34 @@ end
 
 -- XPerl_Party_Pet_CombatFlash
 local function XPerl_Party_Pet_CombatFlash(self, elapsed, argNew, argGreen)
-	if (XPerl_CombatFlashSet (self, elapsed, argNew, argGreen)) then
+	if (XPerl_CombatFlashSet(self, elapsed, argNew, argGreen)) then
 		XPerl_CombatFlashSetFrames(self)
 	end
 end
 
 -- XPerl_Party_Pet_OnUpdate
 function XPerl_Party_Pet_OnUpdate(self, elapsed)
-	for unit, frame in pairs(PartyPetFrames) do
-		if (frame:IsShown()) then
-			--[[local visible = UnitIsVisible(unit)
-			if frame.visible ~= visible then
-				XPerl_Party_Pet_UpdateDisplay(frame)
-				frame.visible = visible
-			end]]
+	if not self:IsShown() then
+		return
+	end
+	local partyid = self.partyid
+	if not partyid then
+		return
+	end
 
-			if (conf.combatFlash and frame.PlayerFlash) then
-				XPerl_Party_Pet_CombatFlash(frame, elapsed, false)
-			end
+	if (conf.combatFlash and self.PlayerFlash) then
+		XPerl_Party_Pet_CombatFlash(self, elapsed, false)
+	end
 
-			if conf.rangeFinder.enabled then
-				frame.rangeTime = elapsed + (frame.rangeTime or 0)
-				if (frame.rangeTime > 0.2) then
-					frame.rangeTime = 0
-					XPerl_UpdateSpellRange(frame, nil, false)
-				end
-			end
+	if conf.rangeFinder.enabled then
+		self.rangeTime = elapsed + (self.rangeTime or 0)
+		if (self.rangeTime > 0.2) then
+			XPerl_UpdateSpellRange(self, partyid)
+			self.rangeTime = 0
 		end
 	end
 
 	if IsClassic then
-		local partyid = self.partyid
-
 		local newGuid = UnitGUID(partyid)
 		local newHP = UnitIsGhost(partyid) and 1 or (UnitIsDead(partyid) and 0 or XPerl_Unit_GetHealth(self))
 		local newHPMax = UnitHealthMax(partyid)
@@ -543,10 +539,9 @@ function XPerl_Party_Pet_OnUpdate(self, elapsed)
 			self.time = elapsed + (self.time or 0)
 			if self.time >= 0.5 then
 				if self.conf.buffs.enable then
-					XPerl_Unit_UpdateBuffs(self, nil, nil, self.conf.buffs.castable, self.conf.debuffs.curable)
+					XPerl_Party_Pet_Buff_UpdateAll(self)
 				end
-				XPerl_UpdateSpellRange(self, partyid)
-				XPerl_Highlight:SetHighlight(self, UnitGUID(partyid))
+				--XPerl_Highlight:SetHighlight(self, UnitGUID(partyid))
 				self.time = 0
 			end
 		end

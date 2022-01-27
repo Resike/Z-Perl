@@ -1048,8 +1048,8 @@ function XPerl_Party_OnUpdate(self, elapsed)
 
 		self.flagsCheck = self.flagsCheck + 1
 		if (self.flagsCheck > 25) then
-			self.flagsCheck = 0
 			XPerl_Party_UpdatePlayerFlags(self)
+			self.flagsCheck = 0
 		end
 
 		if (pconf.target.large and self.targetFrame:IsShown()) then
@@ -1061,11 +1061,16 @@ function XPerl_Party_OnUpdate(self, elapsed)
 
 		self.time = self.time + elapsed
 		if (self.time >= 0.2) then
-			self.time = 0
-			XPerl_Party_UpdateRange(self, partyid)
+			if pconf.range30yard then
+				XPerl_Party_UpdateRange(self, partyid)
+			end
 
-			XPerl_UpdateSpellRange(self, partyid)
-			XPerl_UpdateSpellRange(self.targetFrame, targetid)
+			if conf.rangeFinder.enabled then
+				XPerl_UpdateSpellRange(self, partyid)
+				XPerl_UpdateSpellRange(self.targetFrame, targetid)
+			end
+
+			self.time = 0
 		end
 
 		--[=[if (checkRaidNextUpdate) then
@@ -1090,9 +1095,9 @@ end
 -- XPerl_Party_Target_OnUpdate
 function XPerl_Party_Target_OnUpdate(self, elapsed)
 	self.time = elapsed + (self.time or 0)
-	if (self.time >= 0.5) then
-		self.time = 0
+	if (self.time >= 0.2) then
 		XPerl_Party_UpdateTarget(self:GetParent())
+		self.time = 0
 	end
 end
 
