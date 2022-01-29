@@ -59,6 +59,92 @@ local function XPerl_RaidPets_OnEvent(self, event, unit, ...)
 	end
 end
 
+-- XPerl_RaidPets_UpdateAbsorbPrediction
+local function XPerl_RaidPets_UpdateAbsorbPrediction(self)
+	if raidconf.absorbs then
+		XPerl_SetExpectedAbsorbs(self)
+	else
+		self.expectedAbsorbs:Hide()
+	end
+end
+
+-- XPerl_RaidPets_UpdateHealPrediction
+local function XPerl_RaidPets_UpdateHealPrediction(self)
+	if raidconf.healprediction then
+		XPerl_SetExpectedHealth(self)
+	else
+		self.expectedHealth:Hide()
+	end
+end
+
+local function XPerl_RaidPets_UpdateResurrectionStatus(self)
+	if (UnitHasIncomingResurrection(self.partyid)) then
+		self.resurrect:Show()
+	else
+		self.resurrect:Hide()
+	end
+end
+
+-- XPerl_RaidPets_UpdateHealth
+local function XPerl_RaidPets_UpdateHealth(self)
+	local partyid = SecureButton_GetUnit(self)
+	if not partyid then
+		self.pethp = 0
+		self.pethpmax = 0
+		self.healthBar:SetValue(0)
+		XPerl_SetSmoothBarColor(self.healthBar, 0)
+		return
+	end
+
+	local health = UnitIsGhost(partyid) and 1 or (UnitIsDead(partyid) and 0 or UnitHealth(partyid))
+	local healthmax = UnitHealthMax(partyid)
+
+	self.pethp = health
+	self.pethpmax = healthmax
+
+	-- PTR region fix
+	if not healthmax or healthmax <= 0 then
+		if healthmax > 0 then
+			healthmax = health
+		else
+			healthmax = 1
+		end
+	end
+
+	if (health > healthmax) then
+		-- New glitch with 1.12.1
+		if (UnitIsDeadOrGhost(partyid)) then
+			health = 0
+		else
+			health = healthmax
+		end
+	end
+
+	self.healthBar:SetMinMaxValues(0, healthmax)
+	if (conf.bar.inverse) then
+		self.healthBar:SetValue(healthmax - health)
+	else
+		self.healthBar:SetValue(health)
+	end
+	XPerl_SetSmoothBarColor(self.healthBar, health / healthmax)
+
+	if (UnitIsDead(partyid)) then
+		self.healthBar.text:SetText(XPERL_LOC_DEAD)
+		self.healthBar:SetStatusBarColor(0.5, 0.5, 0.5, 1)
+		self.healthBar.bg:SetVertexColor(0.5, 0.5, 0.5, 0.5)
+	else
+		if (healthmax == 0) then
+			self.healthBar.text:SetText("")
+		else
+			self.healthBar.text:SetFormattedText("%.0f%%", health / healthmax * 100)
+		end
+	end
+
+	XPerl_RaidPets_UpdateAbsorbPrediction(self)
+	XPerl_RaidPets_UpdateHealPrediction(self)
+	XPerl_RaidPets_UpdateResurrectionStatus(self)
+end
+
 -- XPerl_RaidPets_OnUpdate
 local function XPerl_RaidPets_OnUpdate(self, elapsed)
 	if not self:IsShown() then
@@ -193,92 +279,6 @@ local function XPerl_RaidPets_UpdateName(self)
 	else
 		self.text:SetTextColor(1, 1, 1)
 	end
-end
-
--- XPerl_RaidPets_UpdateAbsorbPrediction
-local function XPerl_RaidPets_UpdateAbsorbPrediction(self)
-	if raidconf.absorbs then
-		XPerl_SetExpectedAbsorbs(self)
-	else
-		self.expectedAbsorbs:Hide()
-	end
-end
-
--- XPerl_RaidPets_UpdateHealPrediction
-local function XPerl_RaidPets_UpdateHealPrediction(self)
-	if raidconf.healprediction then
-		XPerl_SetExpectedHealth(self)
-	else
-		self.expectedHealth:Hide()
-	end
-end
-
-local function XPerl_RaidPets_UpdateResurrectionStatus(self)
-	if (UnitHasIncomingResurrection(self.partyid)) then
-		self.resurrect:Show()
-	else
-		self.resurrect:Hide()
-	end
-end
-
--- XPerl_RaidPets_UpdateHealth
-local function XPerl_RaidPets_UpdateHealth(self)
-	local partyid = SecureButton_GetUnit(self)
-	if not partyid then
-		self.pethp = 0
-		self.pethpmax = 0
-		self.healthBar:SetValue(0)
-		XPerl_SetSmoothBarColor(self.healthBar, 0)
-		return
-	end
-
-	local health = UnitIsGhost(partyid) and 1 or (UnitIsDead(partyid) and 0 or UnitHealth(partyid))
-	local healthmax = UnitHealthMax(partyid)
-
-	self.pethp = health
-	self.pethpmax = healthmax
-
-	-- PTR region fix
-	if not healthmax or healthmax <= 0 then
-		if healthmax > 0 then
-			healthmax = health
-		else
-			healthmax = 1
-		end
-	end
-
-	if (health > healthmax) then
-		-- New glitch with 1.12.1
-		if (UnitIsDeadOrGhost(partyid)) then
-			health = 0
-		else
-			health = healthmax
-		end
-	end
-
-	self.healthBar:SetMinMaxValues(0, healthmax)
-	if (conf.bar.inverse) then
-		self.healthBar:SetValue(healthmax - health)
-	else
-		self.healthBar:SetValue(health)
-	end
-	XPerl_SetSmoothBarColor(self.healthBar, health / healthmax)
-
-	if (UnitIsDead(partyid)) then
-		self.healthBar.text:SetText(XPERL_LOC_DEAD)
-		self.healthBar:SetStatusBarColor(0.5, 0.5, 0.5, 1)
-		self.healthBar.bg:SetVertexColor(0.5, 0.5, 0.5, 0.5)
-	else
-		if (healthmax == 0) then
-			self.healthBar.text:SetText("")
-		else
-			self.healthBar.text:SetFormattedText("%.0f%%", health / healthmax * 100)
-		end
-	end
-
-	XPerl_RaidPets_UpdateAbsorbPrediction(self)
-	XPerl_RaidPets_UpdateHealPrediction(self)
-	XPerl_RaidPets_UpdateResurrectionStatus(self)
 end
 
 -- XPerl_RaidPets_RaidTargetUpdate
