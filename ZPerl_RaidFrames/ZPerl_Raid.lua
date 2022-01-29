@@ -2435,6 +2435,7 @@ local function SetMainHeaderAttributes(self)
 	end
 
 	self:SetAttribute("showParty", rconf.inParty)
+	self:SetAttribute("showPlayer", rconf.inParty)
 	self:SetAttribute("showRaid", true)
 
 	if rconf.anchor ~= "BOTTOM" then
