@@ -1,3 +1,9 @@
+**6.3.3**
+* Fix for highlighing issues on Retail.
+* Various party and raid pet optimizations for Classic.
+* Fix for raid pets sometimes not updating on Classic.
+* Updated libraries, and fixed Heal Communication issues on Classic.
+
 **6.3.2**
 * Fix for player not shown in raids.
 

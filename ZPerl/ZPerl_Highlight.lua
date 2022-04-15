@@ -197,11 +197,11 @@ end
 
 -- XPerl_Highlight:Add
 function xpHigh:Add(guid, highlightType, duration, source)
-	if (not strfind(guid, "-")) then
-		guid = self.lookup and self.lookup[guid]
-	end
 	if (not guid) then
 		return
+	end
+	if (not strfind(guid, "-")) then
+		guid = self.lookup and self.lookup[guid]
 	end
 
 	local a = self.list[guid]
@@ -269,11 +269,11 @@ end
 
 -- xpHigh:Remove
 function xpHigh:Remove(guid, highlightType)
-	if (not strfind(guid, "-")) then
-		guid = self.lookup and self.lookup[guid]
-	end
 	if (not guid) then
 		return
+	end
+	if (not strfind(guid, "-")) then
+		guid = self.lookup and self.lookup[guid]
 	end
 
 	local a = self.list[guid]
@@ -285,11 +285,11 @@ end
 
 -- xpHigh:HasEffect
 function xpHigh:HasEffect(guid, effect)
-	if (not strfind(guid, "-")) then
-		guid = self.lookup and self.lookup[guid]
-	end
 	if (not guid) then
 		return
+	end
+	if (not strfind(guid, "-")) then
+		guid = self.lookup and self.lookup[guid]
 	end
 
 	local list = self.list[guid]

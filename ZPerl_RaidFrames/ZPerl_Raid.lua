@@ -42,6 +42,7 @@ local format = format
 local strsub = strsub
 
 local GetNumGroupMembers = GetNumGroupMembers
+local UnitGUID = UnitGUID
 local UnitHealth = UnitHealth
 local UnitHealthMax = UnitHealthMax
 local UnitIsConnected = UnitIsConnected

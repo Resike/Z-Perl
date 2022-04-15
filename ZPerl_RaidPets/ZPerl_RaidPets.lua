@@ -15,6 +15,10 @@ end, "$Revision: @file-revision@ $")
 
 local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
 
+local pairs = pairs
+local strfind = strfind
+
+local CreateFrame = CreateFrame
 local GetNumGroupMembers = GetNumGroupMembers
 local GetRaidTargetIndex = GetRaidTargetIndex
 local InCombatLockdown = InCombatLockdown
@@ -22,15 +26,20 @@ local IsInGroup = IsInGroup
 local IsInRaid = IsInRaid
 local SetRaidTargetIconTexture = SetRaidTargetIconTexture
 local UnitClass = UnitClass
+local UnitExists = UnitExists
 local UnitGUID = UnitGUID
+local UnitHasIncomingResurrection = UnitHasIncomingResurrection
 local UnitHasVehicleUI = UnitHasVehicleUI
 local UnitHealth = UnitHealth
 local UnitHealthMax = UnitHealthMax
 local UnitInVehicle = UnitInVehicle
 local UnitIsDead = UnitIsDead
+local UnitIsDeadOrGhost = UnitIsDeadOrGhost
 local UnitIsGhost = UnitIsGhost
 local UnitIsUnit = UnitIsUnit
 local UnitName = UnitName
+
+local SecureButton_GetUnit = SecureButton_GetUnit
 
 local localGroups = LOCALIZED_CLASS_NAMES_MALE
 local WoWclassCount = 0
@@ -82,6 +91,56 @@ local function XPerl_RaidPets_UpdateResurrectionStatus(self)
 		self.resurrect:Show()
 	else
 		self.resurrect:Hide()
+	end
+end
+
+local guids
+-- XPerl_RaidPet_UpdateGUIDs
+local function XPerl_RaidPet_UpdateGUIDs()
+	--del(guids)
+	guids = { }
+	for i = 1, GetNumGroupMembers() do
+		local id = "raidpet"..i
+		if (UnitExists(id)) then
+			guids[UnitGUID(id)] = RaidPetFrameArray[id]
+		end
+	end
+end
+
+-- XPerl_RaidPets_UpdateName
+local function XPerl_RaidPets_UpdateName(self)
+	local partyid = SecureButton_GetUnit(self)
+	if not partyid then
+		self.petGUID = nil
+		self.petID = nil
+		self.petName = nil
+		return
+	end
+	local name
+	if (self.ownerid and not IsClassic and (UnitInVehicle(self.ownerid) or UnitHasVehicleUI(self.ownerid))) then
+		name = UnitName(self.ownerid)
+		if (name) then
+			self.text:SetFormattedText("<%s>", name)
+		end
+	end
+	if (not name and partyid) then
+		name = UnitName(partyid)
+		if name then
+			self.text:SetFormattedText("%s", name)
+		end
+	end
+
+	self.petGUID = UnitGUID(partyid)
+	self.petID = partyid
+	self.petName = name
+	self:SetAlpha(conf.transparency.frame)
+
+	if (self.ownerid) then
+		local _, class = UnitClass(self.ownerid)
+		local c = XPerl_GetClassColour(class)
+		self.text:SetTextColor(c.r, c.g, c.b)
+	else
+		self.text:SetTextColor(1, 1, 1)
 	end
 end
 
@@ -165,15 +224,13 @@ local function XPerl_RaidPets_OnUpdate(self, elapsed)
 
 	if IsClassic then
 		local newGuid = UnitGUID(partyid)
+		local newName = UnitName(partyid)
 		local newHP = UnitIsGhost(partyid) and 1 or (UnitIsDead(partyid) and 0 or XPerl_Unit_GetHealth(self))
 		local newHPMax = UnitHealthMax(partyid)
 
-		if (newHP ~= self.pethp or newHPMax ~= self.pethpmax) then
-			XPerl_RaidPets_UpdateHealth(self)
-		end
-
-		if (newGuid ~= self.guid) then
+		if (newGuid ~= self.petGUID) then
 			XPerl_RaidPets_UpdateDisplay(self)
+			return
 		else
 			self.time = elapsed + (self.time or 0)
 			if self.time >= 0.5 then
@@ -184,19 +241,16 @@ local function XPerl_RaidPets_OnUpdate(self, elapsed)
 				self.time = 0
 			end
 		end
-	end
-end
 
-local guids
--- XPerl_RaidPet_UpdateGUIDs
-function XPerl_RaidPet_UpdateGUIDs()
-	--del(guids)
-	guids = { }
-	for i = 1, GetNumGroupMembers() do
-		local id = "raidpet"..i
-		if (UnitExists(id)) then
-			guids[UnitGUID(id)] = RaidPetFrameArray[id]
+		if newName ~= self.petName then
+			XPerl_RaidPet_UpdateGUIDs()
+			XPerl_RaidPets_UpdateName(self)
 		end
+
+		if (newHP ~= self.pethp or newHPMax ~= self.pethpmax) then
+			XPerl_RaidPets_UpdateHealth(self)
+		end
+
 	end
 end
 
@@ -246,39 +300,11 @@ function XPerl_RaidPets_OnLoad(self)
 	self:SetScript("OnEvent", XPerl_RaidPets_OnEvent)
 	--self:SetScript("OnUpdate", XPerl_RaidPets_OnUpdate)
 
+	XPerl_RegisterOptionChanger(XPerl_RaidPets_OptionActions)
+
 	XPerl_Highlight:Register(XPerl_RaidPets_HighlightCallback, self)
 
 	XPerl_RaidPets_OnLoad = nil
-end
-
--- XPerl_RaidPets_UpdateName
-local function XPerl_RaidPets_UpdateName(self)
-	local partyid = SecureButton_GetUnit(self)
-	local name
-	if (self.ownerid and not IsClassic and (UnitInVehicle(self.ownerid) or UnitHasVehicleUI(self.ownerid))) then
-		name = UnitName(self.ownerid)
-		if (name) then
-			self.text:SetFormattedText("<%s>", name)
-		end
-	end
-	if (not name and partyid) then
-		name = UnitName(partyid)
-		if name then
-			self.text:SetFormattedText("%s", name)
-		end
-	end
-
-	--self.lastID = partyid
-	self.lastName = name
-	self:SetAlpha(conf.transparency.frame)
-
-	if (self.ownerid) then
-		local _, class = UnitClass(self.ownerid)
-		local c = XPerl_GetClassColour(class)
-		self.text:SetTextColor(c.r, c.g, c.b)
-	else
-		self.text:SetTextColor(1, 1, 1)
-	end
 end
 
 -- XPerl_RaidPets_RaidTargetUpdate
@@ -319,12 +345,7 @@ end
 function XPerl_RaidPets_UpdateDisplay(self)
 	local partyid = SecureButton_GetUnit(self)
 	if not partyid then
-		self.guid = nil
 		return
-	end
-
-	if IsClassic then
-		self.guid = UnitGUID(partyid)
 	end
 
 	XPerl_RaidPets_UpdateName(self)
@@ -508,13 +529,13 @@ local function onAttrChanged(self, name, value)
 			SetFrameArray(self, value)		-- "raidpet"..strmatch(value, "^raid(%d+)"))
 			self.ownerid = value:gsub("(%a+)pet(%d+)", "%1%2")
 
-			if (self.lastID ~= value or self.lastName ~= UnitName(self.partyid)) then
+			if (self.petGUID ~= UnitGUID(self.partyid) or self.petID ~= value) then
 				XPerl_RaidPets_UpdateDisplay(self)
 			end
 		else
 			SetFrameArray(self)
-			self.lastID = nil
-			self.lastName = nil
+			self.petGUID = nil
+			self.petID = nil
 		end
 	end
 end
@@ -543,6 +564,8 @@ function XPerl_RaidPet_Single_OnLoad(self)
 	self:SetAttribute("useparent-unit", true)
 	self:SetAttribute("*type1", "target")
 	self:SetAttribute("type2", "togglemenu")
+
+	XPerl_RaidPets_SetBits1(self)
 
 	--[[if (InCombatLockdown()) then
 		tinsert(taintFrames, self)
@@ -631,20 +654,21 @@ function XPerl_RaidPets_HideShow()
 		end
 	end
 
-	local on = ((IsInRaid() and rconf.enable) or (IsInGroup() and XPerl_Raid_GrpPets:GetAttribute("showParty") and rconf.enable))
+	if not IsClassic then
+		local on = ((IsInRaid() and rconf.enable) or (IsInGroup() and XPerl_Raid_GrpPets:GetAttribute("showParty") and rconf.enable))
+		local events = {
+			IsClassic and "UNIT_HEALTH_FREQUENT" or "UNIT_HEALTH",
+			"UNIT_MAXHEALTH",
+			"UNIT_NAME_UPDATE",
+			"UNIT_AURA",
+		}
 
-	local events = {
-		IsClassic and "UNIT_HEALTH_FREQUENT" or "UNIT_HEALTH",
-		"UNIT_MAXHEALTH",
-		"UNIT_NAME_UPDATE",
-		"UNIT_AURA",
-	}
-
-	for i, event in pairs(events) do
-		if (on) then
-			XPerl_RaidPets_Frame:RegisterEvent(event)
-		else
-			XPerl_RaidPets_Frame:UnregisterEvent(event)
+		for i, event in pairs(events) do
+			if (on) then
+				XPerl_RaidPets_Frame:RegisterEvent(event)
+			else
+				XPerl_RaidPets_Frame:UnregisterEvent(event)
+			end
 		end
 	end
 
@@ -708,7 +732,7 @@ function XPerl_RaidPets_Titles()
 end
 
 function XPerl_RaidPets_SetBits1(self)
-	if IsClassic or (IsClassic and conf.highlightDebuffs.enable) or conf.rangeFinder.enabled then
+	if IsClassic or conf.rangeFinder.enabled then
 		if not self:GetScript("OnUpdate") then
 			self:SetScript("OnUpdate", XPerl_RaidPets_OnUpdate)
 		end
@@ -729,9 +753,7 @@ function XPerl_RaidPets_OptionActions()
 	SetMainHeaderAttributes(XPerl_Raid_GrpPets)
 
 	for k, frame in pairs(RaidPetFrameArray) do
-		if frame:IsShown() then
-			XPerl_RaidPets_SetBits1(frame)
-		end
+		XPerl_RaidPets_SetBits1(frame)
 	end
 
 	local events = {
@@ -776,5 +798,3 @@ function XPerl_RaidPets_OptionActions()
 		XPerl_Raid_TitlePets:Hide()
 	end
 end
-
-XPerl_RegisterOptionChanger(XPerl_RaidPets_OptionActions)

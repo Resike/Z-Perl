@@ -73,7 +73,7 @@ end
 
 local guids = { }
 -- XPerl_Party_Pet_UpdateGUIDs
-function XPerl_Party_Pet_UpdateGUIDs()
+local function XPerl_Party_Pet_UpdateGUIDs()
 	--del(guids)
 	--guids = new()
 	wipe(guids)
@@ -253,8 +253,11 @@ end
 -- XPerl_Party_Pet_UpdateName
 local function XPerl_Party_Pet_UpdateName(self)
 	if not self.partyid then
+		self.petName = nil
 		return
 	end
+
+	self.petName = UnitName(self.partyid)
 
 	if not petconf.name then
 		return
@@ -497,7 +500,7 @@ local function XPerl_Party_Pet_CombatFlash(self, elapsed, argNew, argGreen)
 end
 
 -- XPerl_Party_Pet_OnUpdate
-function XPerl_Party_Pet_OnUpdate(self, elapsed)
+local function XPerl_Party_Pet_OnUpdate(self, elapsed)
 	if not self:IsShown() then
 		return
 	end
@@ -520,21 +523,15 @@ function XPerl_Party_Pet_OnUpdate(self, elapsed)
 
 	if IsClassic then
 		local newGuid = UnitGUID(partyid)
+		local newName = UnitName(partyid)
 		local newHP = UnitIsGhost(partyid) and 1 or (UnitIsDead(partyid) and 0 or XPerl_Unit_GetHealth(self))
 		local newHPMax = UnitHealthMax(partyid)
 		local newMana = UnitPower(partyid)
 		local newManaMax = UnitPowerMax(partyid)
 
-		if (newHP ~= self.pethp or newHPMax ~= self.pethpmax) then
-			XPerl_Party_Pet_UpdateHealth(self)
-		end
-
-		if (newMana ~= self.petmana or newManaMax ~= self.petmanamax) then
-			XPerl_Party_Pet_UpdateMana(self)
-		end
-
 		if (newGuid ~= self.guid) then
 			XPerl_Party_Pet_UpdateDisplay(self)
+			return
 		else
 			self.time = elapsed + (self.time or 0)
 			if self.time >= 0.5 then
@@ -545,6 +542,20 @@ function XPerl_Party_Pet_OnUpdate(self, elapsed)
 				self.time = 0
 			end
 		end
+
+		if newName ~= self.petName then
+			XPerl_Party_Pet_UpdateGUIDs()
+			XPerl_Party_Pet_UpdateName(self)
+		end
+
+		if (newHP ~= self.pethp or newHPMax ~= self.pethpmax) then
+			XPerl_Party_Pet_UpdateHealth(self)
+		end
+
+		if (newMana ~= self.petmana or newManaMax ~= self.petmanamax) then
+			XPerl_Party_Pet_UpdateMana(self)
+		end
+
 	end
 end
 
@@ -818,13 +829,23 @@ function XPerl_Party_Pet_Set_Bits1(self)
 	XPerl_ProtectedCall(EnableDisable, self)
 end
 
+local function RegisterEvents(self, enable, events)
+	for k, v in pairs(events) do
+		if (enable) then
+			self:RegisterEvent(v)
+		else
+			self:UnregisterEvent(v)
+		end
+	end
+end
+
 -- XPerl_Party_Pet_Set_Bits
 function XPerl_Party_Pet_Set_Bits()
 	for k, v in pairs(AllPetFrames) do
 		XPerl_Party_Pet_Set_Bits1(v)
 	end
 
-	local function RegisterEvents(self, enable, events)
+	--[[local function RegisterEvents(self, enable, events)
 		for k, v in pairs(events) do
 			if (enable) then
 				self:RegisterEvent(v)
@@ -832,11 +853,13 @@ function XPerl_Party_Pet_Set_Bits()
 				self:UnregisterEvent(v)
 			end
 		end
-	end
+	end--]]
 
-	RegisterEvents(XPerl_Party_Pet_EventFrame, petconf.mana, {"UNIT_POWER_FREQUENT", "UNIT_MAXPOWER", "UNIT_MANA", "UNIT_DISPLAYPOWER"})
-	--RegisterEvents(XPerl_Party_Pet_EventFrame, petconf.name, {"UNIT_NAME_UPDATE"})
-	RegisterEvents(XPerl_Party_Pet_EventFrame, petconf.name and petconf.level, {"UNIT_LEVEL"})
+	if not IsClassic then
+		RegisterEvents(XPerl_Party_Pet_EventFrame, petconf.mana, {"UNIT_POWER_FREQUENT", "UNIT_MAXPOWER", "UNIT_MANA", "UNIT_DISPLAYPOWER"})
+		--RegisterEvents(XPerl_Party_Pet_EventFrame, petconf.name, {"UNIT_NAME_UPDATE"})
+		RegisterEvents(XPerl_Party_Pet_EventFrame, petconf.name and petconf.level, {"UNIT_LEVEL"})
+	end
 
 	XPerl_Party_Pet_EventFrame:RegisterEvent("PARTY_MEMBER_ENABLE")
 	XPerl_Party_Pet_EventFrame:RegisterEvent("PARTY_MEMBER_DISABLE")

@@ -1,10 +1,10 @@
 --- MSA-DropDownMenu-1.0 - DropDown menu for non-Blizzard addons
---- Copyright (c) 2016-2020, Marouan Sabbagh <mar.sabbagh@gmail.com>
+--- Copyright (c) 2016-2022, Marouan Sabbagh <mar.sabbagh@gmail.com>
 --- All Rights Reserved.
 ---
 --- https://www.curseforge.com/wow/addons/msa-dropdownmenu-10
 
-local name, version = "MSA-DropDownMenu-1.0", 11
+local name, version = "MSA-DropDownMenu-1.0", 13
 
 local lib, oldVersion = LibStub:NewLibrary(name, version)
 if not lib then return end
@@ -111,7 +111,7 @@ local function CreateDropDownMenuButton(name, parent)
 		MSA_ToggleDropDownMenu(self:GetParent():GetParent():GetID() + 1, self:GetParent().value, nil, nil, nil, nil, self:GetParent().menuList, self);
 	end)
 	button2:SetScript("OnEnter", function(self, motion)
-		local level =  self:GetParent():GetParent():GetID() + 1;
+		local level = self:GetParent():GetParent():GetID() + 1;
 		local listFrame = _G["MSA_DropDownList"..level];
 		if ( not listFrame or not listFrame:IsShown() or select(2, listFrame:GetPoint()) ~= self ) then
 			MSA_ToggleDropDownMenu(level, self:GetParent().value, nil, nil, nil, nil, self:GetParent().menuList, self);
@@ -156,7 +156,7 @@ local function CreateDropDownMenuButton(name, parent)
 	end)
 	DropDownMenuButton:SetScript("OnEnter", function(self, motion)
 		if ( self.hasArrow ) then
-			local level =  self:GetParent():GetID() + 1;
+			local level = self:GetParent():GetID() + 1;
 			local listFrame = _G["MSA_DropDownList"..level];
 			if ( not listFrame or not listFrame:IsShown() or select(2, listFrame:GetPoint()) ~= self ) then
 				MSA_ToggleDropDownMenu(self:GetParent():GetID() + 1, self.value, nil, nil, nil, nil, self.menuList, self);
@@ -205,7 +205,7 @@ local function CreateDropDownList(name, parent)
 	DropDownList:EnableMouse(true)
 
 	local frame1
-	if oldVersion and oldVersion > 8 then  -- WoW 9.0 compatibility
+	if oldVersion and oldVersion > 8 then -- WoW 9.0 compatibility
 		frame1 = _G[name.."Backdrop"] or CreateFrame("Frame", name.."Backdrop", DropDownList, BackdropTemplateMixin and "BackdropTemplate")
 	else
 		frame1 = CreateFrame("Frame", name.."Backdrop", DropDownList, BackdropTemplateMixin and "BackdropTemplate")
@@ -226,7 +226,7 @@ local function CreateDropDownList(name, parent)
 	})
 
 	local frame2
-	if oldVersion and oldVersion > 8 then  -- WoW 9.0 compatibility
+	if oldVersion and oldVersion > 8 then -- WoW 9.0 compatibility
 		frame2 = _G[name.."MenuBackdrop"] or CreateFrame("Frame", name.."MenuBackdrop", DropDownList, BackdropTemplateMixin and "BackdropTemplate")
 	else
 		frame2 = CreateFrame("Frame", name.."MenuBackdrop", DropDownList, BackdropTemplateMixin and "BackdropTemplate")
@@ -465,7 +465,7 @@ function MSA_DropDownMenu_Initialize(frame, initFunction, displayMode, level, me
 
 	MSA_DropDownMenu_InitializeHelper(frame);
 
-	-- Set the initialize function and call it.  The initFunction populates the dropdown list.
+	-- Set the initialize function and call it. The initFunction populates the dropdown list.
 	if ( initFunction ) then
 		MSA_DropDownMenu_SetInitializeFunction(frame, initFunction);
 		initFunction(frame, level, frame.menuList);
@@ -557,29 +557,29 @@ end
 --[[
 List of button attributes
 ======================================================
-info.text = [STRING]  --  The text of the button
-info.value = [ANYTHING]  --  The value that MSA_DROPDOWNMENU_MENU_VALUE is set to when the button is clicked
-info.func = [function()]  --  The function that is called when you click the button
-info.checked = [nil, true, function]  --  Check the button if true or function returns true
-info.isNotRadio = [nil, true]  --  Check the button uses radial image if false check box image if true
-info.isTitle = [nil, true]  --  If it's a title the button is disabled and the font color is set to yellow
-info.disabled = [nil, true]  --  Disable the button and show an invisible button that still traps the mouseover event so menu doesn't time out
+info.text = [STRING] -- The text of the button
+info.value = [ANYTHING] -- The value that MSA_DROPDOWNMENU_MENU_VALUE is set to when the button is clicked
+info.func = [function()] -- The function that is called when you click the button
+info.checked = [nil, true, function] -- Check the button if true or function returns true
+info.isNotRadio = [nil, true] -- Check the button uses radial image if false check box image if true
+info.isTitle = [nil, true] -- If it's a title the button is disabled and the font color is set to yellow
+info.disabled = [nil, true] -- Disable the button and show an invisible button that still traps the mouseover event so menu doesn't time out
 info.tooltipWhileDisabled = [nil, 1] -- Show the tooltip, even when the button is disabled.
-info.hasArrow = [nil, true]  --  Show the expand arrow for multilevel menus
-info.hasColorSwatch = [nil, true]  --  Show color swatch or not, for color selection
-info.r = [1 - 255]  --  Red color value of the color swatch
-info.g = [1 - 255]  --  Green color value of the color swatch
-info.b = [1 - 255]  --  Blue color value of the color swatch
+info.hasArrow = [nil, true] -- Show the expand arrow for multilevel menus
+info.hasColorSwatch = [nil, true] -- Show color swatch or not, for color selection
+info.r = [1 - 255] -- Red color value of the color swatch
+info.g = [1 - 255] -- Green color value of the color swatch
+info.b = [1 - 255] -- Blue color value of the color swatch
 info.colorCode = [STRING] -- "|cAARRGGBB" embedded hex value of the button text color. Only used when button is enabled
-info.swatchFunc = [function()]  --  Function called by the color picker on color change
-info.hasOpacity = [nil, 1]  --  Show the opacity slider on the colorpicker frame
-info.opacity = [0.0 - 1.0]  --  Percentatge of the opacity, 1.0 is fully shown, 0 is transparent
-info.opacityFunc = [function()]  --  Function called by the opacity slider when you change its value
+info.swatchFunc = [function()] -- Function called by the color picker on color change
+info.hasOpacity = [nil, 1] -- Show the opacity slider on the colorpicker frame
+info.opacity = [0.0 - 1.0] -- Percentatge of the opacity, 1.0 is fully shown, 0 is transparent
+info.opacityFunc = [function()] -- Function called by the opacity slider when you change its value
 info.cancelFunc = [function(previousValues)] -- Function called by the colorpicker when you click the cancel button (it takes the previous values as its argument)
-info.notClickable = [nil, 1]  --  Disable the button and color the font white
-info.notCheckable = [nil, 1]  --  Shrink the size of the buttons and don't display a check box
-info.owner = [Frame]  --  Dropdown frame that "owns" the current dropdownlist
-info.keepShownOnClick = [nil, 1]  --  Don't hide the dropdownlist after a button is clicked
+info.notClickable = [nil, 1] -- Disable the button and color the font white
+info.notCheckable = [nil, 1] -- Shrink the size of the buttons and don't display a check box
+info.owner = [Frame] -- Dropdown frame that "owns" the current dropdownlist
+info.keepShownOnClick = [nil, 1] -- Don't hide the dropdownlist after a button is clicked
 info.tooltipTitle = [nil, STRING] -- Title of the tooltip shown on mouseover
 info.tooltipText = [nil, STRING] -- Text of the tooltip shown on mouseover
 info.tooltipOnButton = [nil, 1] -- Show the tooltip attached to the button instead of as a Newbie tooltip.
@@ -588,7 +588,7 @@ info.arg1 = [ANYTHING] -- This is the first argument used by info.func
 info.arg2 = [ANYTHING] -- This is the second argument used by info.func
 info.fontObject = [FONT] -- font object replacement for Normal and Highlight
 info.menuTable = [TABLE] -- This contains an array of info tables to be displayed as a child menu
-info.noClickSound = [nil, 1]  --  Set to 1 to suppress the sound when clicking the button. The sound only plays if .func is set.
+info.noClickSound = [nil, 1] -- Set to 1 to suppress the sound when clicking the button. The sound only plays if .func is set.
 info.padding = [nil, NUMBER] -- Number of pixels to pad the text on the right side
 info.leftPadding = [nil, NUMBER] -- Number of pixels to pad the button on the left side
 info.minWidth = [nil, NUMBER] -- Minimum width for this line
@@ -635,7 +635,7 @@ function MSA_DropDownMenu_AddSeparator(info, level)
 	info.isTitle = true;
 	info.isUninteractable = true;
 	info.notCheckable = true;
-	info.leftPadding = nil;     -- MSA
+	info.leftPadding = nil; -- MSA
 	info.iconOnly = true;
 	info.icon = "Interface\\Common\\UI-TooltipDivider-Transparent";
 	info.tCoordLeft = 0;
@@ -854,7 +854,7 @@ function MSA_DropDownMenu_AddButton(info, level)
 	local frame = MSA_DROPDOWNMENU_OPEN_MENU;
 	if ( frame and frame.displayMode == "MENU" ) then
 		if ( not info.notCheckable ) then
-			xPos = xPos - 2;    -- MSA
+			xPos = xPos - 2; -- MSA
 		end
 	end
 
@@ -1284,7 +1284,7 @@ function MSA_ToggleDropDownMenu(level, value, dropDownFrame, anchorName, xOffset
 				relativeTo = nil;
 				local cursorX, cursorY = GetCursorPosition();
 				cursorX = cursorX/uiScale;
-				cursorY =  cursorY/uiScale;
+				cursorY = cursorY/uiScale;
 
 				if ( not xOffset ) then
 					xOffset = 0;
@@ -1368,7 +1368,7 @@ function MSA_ToggleDropDownMenu(level, value, dropDownFrame, anchorName, xOffset
 
 		listFrame.onHide = dropDownFrame.onHide;
 
-		--  We just move level 1 enough to keep it on the screen. We don't necessarily change the anchors.
+		-- We just move level 1 enough to keep it on the screen. We don't necessarily change the anchors.
 		if ( level == 1 ) then
 			local offLeft = listFrame:GetLeft()/uiScale;
 			local offRight = (GetScreenWidth() - listFrame:GetRight())/uiScale;
@@ -1443,6 +1443,26 @@ if ToggleDropDownMenu then
 		local listFrameMSA = _G["MSA_DropDownList1"];
 		if ( listFrameMSA:IsShown() ) then
 			listFrameMSA:Hide();
+		end
+	end)
+end
+
+if UIDropDownMenu_HandleGlobalMouseEvent then
+	local function MSA_DropDownMenu_ContainsMouse()
+		for i = 1, MSA_DROPDOWNMENU_MAXLEVELS do
+			local dropdown = _G["MSA_DropDownList"..i];
+			if dropdown:IsShown() and dropdown:IsMouseOver() then
+				return true;
+			end
+		end
+		return false;
+	end
+
+	hooksecurefunc("UIDropDownMenu_HandleGlobalMouseEvent", function(button, event)
+		if event == "GLOBAL_MOUSE_DOWN" and (button == "LeftButton" or button == "RightButton") then
+			if not MSA_DropDownMenu_ContainsMouse() then
+				MSA_CloseDropDownMenus()
+			end
 		end
 	end)
 end
@@ -1681,8 +1701,8 @@ local function LoadSkin_Aurora()
 	if not IsAddOnLoaded("Aurora") then return end
 	local Skin = _G.Aurora.Skin
 	for i = 1, MSA_DROPDOWNMENU_MAXLEVELS do
-		Skin.TooltipBackdropTemplate(_G["MSA_DropDownList"..i.."MenuBackdrop"])
-		Skin.TooltipBackdropTemplate(_G["MSA_DropDownList"..i.."Backdrop"])
+		Skin.FrameTypeFrame(_G["MSA_DropDownList"..i.."MenuBackdrop"])
+		Skin.FrameTypeFrame(_G["MSA_DropDownList"..i.."Backdrop"])
 	end
 end
 
