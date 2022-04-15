@@ -1,4 +1,4 @@
-## Interface: 11402
+## Interface: 20504
 ## Author: Resike
 ## Title: Z-Perl |cffeda55fPlayer Pet|r
 ## Title-itIT: Z-Perl |cffeda55fFamiglio Giocatore|r
