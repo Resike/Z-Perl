@@ -2469,7 +2469,7 @@ local function DefaultRaidClasses()
 	if IsClassic then
 		return {
 			{enable = true, name = "WARRIOR"},
-			--{enable = true, name = "DEATHKNIGHT"},
+			{enable = true, name = "DEATHKNIGHT"},
 			{enable = true, name = "ROGUE"},
 			{enable = true, name = "HUNTER"},
 			{enable = true, name = "MAGE"},
