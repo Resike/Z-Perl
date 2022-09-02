@@ -26,21 +26,61 @@ end
 local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
 local IsVanillaClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 
+local floor = floor
 local format = format
+local hooksecurefunc = hooksecurefunc
+local max = max
+local pairs = pairs
+local pcall = pcall
+local string = string
 
+local CreateFrame = CreateFrame
 local GetDifficultyColor = GetDifficultyColor or GetQuestDifficultyColor
+local GetLootMethod = GetLootMethod
 local GetNumGroupMembers = GetNumGroupMembers
+local GetPVPTimer = GetPVPTimer
+local GetRaidRosterInfo = GetRaidRosterInfo
+local GetShapeshiftForm = GetShapeshiftForm
+local GetSpecialization = GetSpecialization
+local GetSpellInfo = GetSpellInfo
+local GetWatchedFactionInfo = GetWatchedFactionInfo
+local GetXPExhaustion = GetXPExhaustion
+local InCombatLockdown = InCombatLockdown
+local IsInInstance = IsInInstance
+local IsInRaid = IsInRaid
+local IsPVPTimerRunning = IsPVPTimerRunning
+local UnitAffectingCombat = UnitAffectingCombat
+local UnitClass = UnitClass
+local UnitFactionGroup = UnitFactionGroup
 local UnitGroupRolesAssigned = UnitGroupRolesAssigned
+local UnitGUID = UnitGUID
+local UnitHasIncomingResurrection = UnitHasIncomingResurrection
+local UnitHasVehicleUI = UnitHasVehicleUI
 local UnitHealth = UnitHealth
+local UnitHealthMax = UnitHealthMax
+local UnitInParty = UnitInParty
+local UnitInRaid = UnitInRaid
 local UnitIsAFK = UnitIsAFK
 local UnitIsDead = UnitIsDead
 local UnitIsDeadOrGhost = UnitIsDeadOrGhost
 local UnitIsGhost = UnitIsGhost
 local UnitIsGroupAssistant = UnitIsGroupAssistant
+local UnitIsGroupLeader = UnitIsGroupLeader
+local UnitIsMercenary = UnitIsMercenary
+local UnitIsPVP = UnitIsPVP
+local UnitIsPVPFreeForAll = UnitIsPVPFreeForAll
+local UnitIsUnit = UnitIsUnit
 local UnitName = UnitName
+local UnitOnTaxi = UnitOnTaxi
 local UnitPower = UnitPower
 local UnitPower = UnitPower
 local UnitPowerMax = UnitPowerMax
+local UnitPowerType = UnitPowerType
+local UnitXP = UnitXP
+local UnitXPMax = UnitXPMax
+
+local CombatFeedback_OnUpdate = CombatFeedback_OnUpdate
+local CombatFeedback_OnCombatEvent = CombatFeedback_OnCombatEvent
 
 local XPerl_Player_InitCP
 
@@ -172,7 +212,8 @@ local function UpdateAssignedRoles(self)
 	local unit = self.partyid
 	local icon = self.nameFrame.roleIcon
 	local isTank, isHealer, isDamage
-	if (not IsClassic and instanceType == "party") then
+	local inInstance, instanceType = IsInInstance()
+	if (not IsVanillaClassic and instanceType == "party") then
 		-- No point getting it otherwise, as they can be wrong. Usually the values you had
 		-- from previous instance if you're running more than one with the same people
 

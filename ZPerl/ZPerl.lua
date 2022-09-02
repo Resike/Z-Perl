@@ -13,13 +13,14 @@ XPerl_SetModuleRevision("$Revision: @project-revision@ $")
 
 local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
 local IsVanillaClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
+local IsWrathClassic = WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC
 local LCD = IsVanillaClassic and LibStub and LibStub("LibClassicDurations", true)
 local UnitAuraDirect
 if LCD then
 	LCD:Register("ZPerl")
 	UnitAuraDirect = LCD.UnitAuraDirect
 end
-local HealComm = IsClassic and LibStub and LibStub("LibHealComm-4.0", true)
+local HealComm = IsVanillaClassic and LibStub and LibStub("LibHealComm-4.0", true)
 
 -- Upvalues
 local _G = _G
@@ -52,6 +53,7 @@ local type = type
 local unpack = unpack
 
 local CheckInteractDistance = CheckInteractDistance
+local CreateFrame = CreateFrame
 local DebuffTypeColor = DebuffTypeColor
 local GetAddOnCPUUsage = GetAddOnCPUUsage
 local GetAddOnMemoryUsage = GetAddOnMemoryUsage
@@ -82,6 +84,7 @@ local IsSpellInRange = IsSpellInRange
 local SecureButton_GetUnit = SecureButton_GetUnit
 local SetCursor = SetCursor
 local SetPortraitTexture = SetPortraitTexture
+local SetPortraitToTexture = SetPortraitToTexture
 local SetRaidTargetIconTexture = SetRaidTargetIconTexture
 local SpellCanTargetUnit = SpellCanTargetUnit
 local SpellIsTargeting = SpellIsTargeting
@@ -127,8 +130,6 @@ local UnitReaction = UnitReaction
 local UnregisterUnitWatch = UnregisterUnitWatch
 local UpdateAddOnCPUUsage = UpdateAddOnCPUUsage
 local UpdateAddOnMemoryUsage = UpdateAddOnMemoryUsage
-
-local CreateFrame = CreateFrame
 
 local BuffFrame = BuffFrame
 local GameTooltip = GameTooltip
@@ -3992,7 +3993,7 @@ function XPerl_SetExpectedHealth(self)
 		end
 
 		local amount
-		if not IsClassic then
+		if not IsVanillaClassic then
 			amount = UnitGetIncomingHeals(unit)
 		else
 			local guid = UnitGUID(unit)
@@ -4155,20 +4156,22 @@ function XPerl_Register_Prediction(self, conf, g2u, ...)
 		return
 	end
 
-	if not IsClassic then
-		if (conf.healprediction) then
+	if not IsVanillaClassic then
+		if conf.healprediction then
 			self:RegisterUnitEvent("UNIT_HEAL_PREDICTION", ...)
 		else
 			self:UnregisterEvent("UNIT_HEAL_PREDICTION")
 		end
 
-		if (conf.absorbs) then
-			self:RegisterUnitEvent("UNIT_ABSORB_AMOUNT_CHANGED", ...)
-		else
-			self:UnregisterEvent("UNIT_ABSORB_AMOUNT_CHANGED")
+		if not IsWrathClassic then
+			if conf.absorbs then
+				self:RegisterUnitEvent("UNIT_ABSORB_AMOUNT_CHANGED", ...)
+			else
+				self:UnregisterEvent("UNIT_ABSORB_AMOUNT_CHANGED")
+			end
 		end
 	else
-		if (conf.healprediction) then
+		if conf.healprediction then
 			local UpdateHealth = function(event, ...)
 				local unit = g2u(select(select("#", ...), ...))
 				if unit then

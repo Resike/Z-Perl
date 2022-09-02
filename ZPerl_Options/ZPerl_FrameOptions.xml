@@ -1271,7 +1271,7 @@
 					<OnLoad>
 						self:SetID(self:GetParent():GetID())
 						self.tooltipText = XPERL_CONF_RAID_CLASS_DOWN
-						if (self:GetID() == (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC and 9 or 12)) then
+						if (self:GetID() == (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC and 9 or (WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC and 10 or 12))) then
 							self:Hide()
 						end
 					</OnLoad>
@@ -12778,7 +12778,7 @@
 								</Anchors>
 								<Scripts>
 									<OnLoad>
-										if WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC then
+										if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC then
 											self:Hide()
 											return
 										end
@@ -12805,7 +12805,7 @@
 								</Anchors>
 								<Scripts>
 									<OnLoad>
-										if WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC then
+										if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC or WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC then
 											self:Hide()
 											return
 										end
@@ -12832,7 +12832,7 @@
 								</Anchors>
 								<Scripts>
 									<OnLoad>
-										if WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC then
+										if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC or WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC then
 											self:Hide()
 											return
 										end
@@ -12963,7 +12963,7 @@
 								</Anchors>
 								<Scripts>
 									<OnLoad>
-										if WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC then
+										if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC then
 											self:Hide()
 										end
 									</OnLoad>
@@ -12979,7 +12979,7 @@
 								</Anchors>
 								<Scripts>
 									<OnLoad>
-										if WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC then
+										if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC or WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC then
 											self:Hide()
 										end
 									</OnLoad>
@@ -12996,7 +12996,7 @@
 								</Anchors>
 								<Scripts>
 									<OnLoad>
-										if WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC then
+										if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC or WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC then
 											self:Hide()
 										end
 									</OnLoad>

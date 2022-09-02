@@ -63,7 +63,7 @@ local function enableToggle(self, value)
 			if (self.unit == "target") then
 				self:RegisterEvent("PLAYER_TARGET_CHANGED")
 			elseif (self.unit == "focus") then
-				if not IsClassic then
+				if not IsVanillaClassic then
 					self:RegisterEvent("PLAYER_FOCUS_CHANGED")
 				end
 			elseif (strfind(self.unit, "^party")) then
