@@ -356,6 +356,30 @@
 					</OnLoad>
 				</Scripts>
 			</StatusBar>
+			<!-- Hots Health Bar -->
+			<StatusBar name="$parentexpectedHots" drawLayer="BORDER" hidden="true">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parenthealthBar">
+						<Offset>
+							<AbsDimension x="0" y="0"/>
+						</Offset>
+					</Anchor>
+					<Anchor point="BOTTOMRIGHT" relativeTo="$parenthealthBar">
+						<Offset>
+							<AbsDimension x="0" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<BarTexture name="$parenttex" file="Interface\Buttons\White8x8"/>
+				<BarColor r="0.14" g="0.33" b="0.7" a="0.7"/>
+				<Scripts>
+					<OnLoad>
+						XPerl_SetChildMembers(self)
+						XPerl_RegisterBar(self)
+						self:SetFrameLevel(_G[self:GetParent():GetName().."healthBar"]:GetFrameLevel() - 1)
+					</OnLoad>
+				</Scripts>
+			</StatusBar>
 			<!-- Mana Bar -->
 			<StatusBar name="$parentmanaBar" drawLayer="BACKGROUND" inherits="XPerlStatusBar">
 				<Size>
@@ -456,6 +480,30 @@
 					<OnLoad>
 						self:SetReverseFill(true)
 						XPerl_SetChildMembers(self)
+					</OnLoad>
+				</Scripts>
+			</StatusBar>
+			<!-- HOT Health Bar -->
+			<StatusBar name="$parentexpectedHots" drawLayer="OVERLAY" hidden="true">
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parenthealthBar">
+						<Offset>
+							<AbsDimension x="0" y="0"/>
+						</Offset>
+					</Anchor>
+					<Anchor point="BOTTOMRIGHT" relativeTo="$parenthealthBar">
+						<Offset>
+							<AbsDimension x="0" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<BarTexture name="$parenttex" file="Interface\Buttons\White8x8"/>
+				<BarColor r="0.14" g="0.33" b="0.7" a="0.7"/>
+				<Scripts>
+					<OnLoad>
+						XPerl_SetChildMembers(self)
+						XPerl_RegisterBar(self)
+						self:SetFrameLevel(_G[self:GetParent():GetName().."healthBar"]:GetFrameLevel() - 1)
 					</OnLoad>
 				</Scripts>
 			</StatusBar>
