@@ -20,7 +20,7 @@ if LCD then
 	LCD:Register("ZPerl")
 	UnitAuraDirect = LCD.UnitAuraDirect
 end
-local HealComm = IsVanillaClassic and LibStub and LibStub("LibHealComm-4.0", true)
+local HealComm = IsClassic and LibStub and LibStub("LibHealComm-4.0", true)
 
 -- Upvalues
 local _G = _G
@@ -3977,6 +3977,55 @@ function XPerl_SetExpectedAbsorbs(self)
 	end
 end
 
+-- XPerl_SetExpectedHots
+function XPerl_SetExpectedHots(self)
+	local bar
+	if self.statsFrame and self.statsFrame.expectedHots then
+		bar = self.statsFrame.expectedHots
+	else
+		bar = self.expectedHots
+	end
+	if (bar) then
+		local unit = self.partyid
+
+		if not unit then
+			unit = self:GetParent().targetid
+		end
+
+		local amount
+		if IsClassic then
+			local guid = UnitGUID(unit)
+			amount = (HealComm:GetHealAmount(guid, HealComm.OVERTIME_HEALS, GetTime() + 3) or 0) * HealComm:GetHealModifier(guid)
+		end
+
+		if (amount and amount > 0 and not UnitIsDeadOrGhost(unit)) then
+			local healthMax = UnitHealthMax(unit)
+			local health = UnitIsGhost(unit) and 1 or (UnitIsDead(unit) and 0 or UnitHealth(unit))
+
+			if UnitIsAFK(unit) then
+				bar:SetStatusBarColor(0.2, 0.2, 0.2, 0.7)
+			else
+				if not conf.colour.bar.hot then
+					conf.colour.bar.hot = { }
+					conf.colour.bar.hot.r = 1
+					conf.colour.bar.hot.g = 0.72
+					conf.colour.bar.hot.b = 0.1
+					conf.colour.bar.hot.a = 0.7
+				end
+
+				bar:SetStatusBarColor(conf.colour.bar.hot.r, conf.colour.bar.hot.g, conf.colour.bar.hot.b, conf.colour.bar.hot.a)
+			end
+
+			bar:Show()
+			bar:SetMinMaxValues(0, healthMax)
+			bar:SetValue(min(healthMax, health + amount))
+
+			return
+		end
+		bar:Hide()
+	end
+end
+
 -- XPerl_SetExpectedHealth
 function XPerl_SetExpectedHealth(self)
 	local bar
@@ -3997,7 +4046,7 @@ function XPerl_SetExpectedHealth(self)
 			amount = UnitGetIncomingHeals(unit)
 		else
 			local guid = UnitGUID(unit)
-			amount = (HealComm:GetHealAmount(guid, HealComm.ALL_HEALS, GetTime() + 3) or 0) * HealComm:GetHealModifier(guid)
+			amount = (HealComm:GetHealAmount(guid, HealComm.CASTED_HEALS, GetTime() + 3) or 0) * HealComm:GetHealModifier(guid)
 		end
 		if (amount and amount > 0 and not UnitIsDeadOrGhost(unit)) then
 			local healthMax = UnitHealthMax(unit)
@@ -4168,6 +4217,30 @@ function XPerl_Register_Prediction(self, conf, g2u, ...)
 				self:RegisterUnitEvent("UNIT_ABSORB_AMOUNT_CHANGED", ...)
 			else
 				self:UnregisterEvent("UNIT_ABSORB_AMOUNT_CHANGED")
+			end
+		else
+			--for hots prediction		
+			if conf.healprediction then
+				local UpdateHealth = function(event, ...)
+					local unit = g2u(select(select("#", ...), ...))
+					if unit then
+						local f = self:GetScript("OnEvent")
+						f(self, "UNIT_HEAL_PREDICTION", unit)
+					end
+				end
+				HealComm.RegisterCallback(self, "HealComm_HealStarted", UpdateHealth)
+				HealComm.RegisterCallback(self, "HealComm_HealStopped", UpdateHealth)
+				HealComm.RegisterCallback(self, "HealComm_HealDelayed", UpdateHealth)
+				HealComm.RegisterCallback(self, "HealComm_HealUpdated", UpdateHealth)
+				HealComm.RegisterCallback(self, "HealComm_ModifierChanged", UpdateHealth)
+				HealComm.RegisterCallback(self, "HealComm_GUIDDisappeared", UpdateHealth)
+			else
+				HealComm.UnregisterCallback(self, "HealComm_HealStarted")
+				HealComm.UnregisterCallback(self, "HealComm_HealStopped")
+				HealComm.UnregisterCallback(self, "HealComm_HealDelayed")
+				HealComm.UnregisterCallback(self, "HealComm_HealUpdated")
+				HealComm.UnregisterCallback(self, "HealComm_ModifierChanged")
+				HealComm.UnregisterCallback(self, "HealComm_GUIDDisappeared")
 			end
 		end
 	else

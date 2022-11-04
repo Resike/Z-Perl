@@ -351,6 +351,15 @@ local function XPerl_Party_UpdateAbsorbPrediction(self)
 	end
 end
 
+-- XPerl_Party_UpdateHotsPrediction
+local function XPerl_Party_UpdateHotsPrediction(self)
+	if pconf.hotPrediction then
+		XPerl_SetExpectedHots(self)
+	else
+		self.statsFrame.expectedHots:Hide()
+	end
+end
+
 local function XPerl_Party_UpdateResurrectionStatus(self)
 	if (UnitHasIncomingResurrection(self.partyid)) then
 		if pconf.portrait then
@@ -386,6 +395,7 @@ local function XPerl_Party_UpdateHealth(self)
 
 	XPerl_Party_UpdateAbsorbPrediction(self)
 	XPerl_Party_UpdateHealPrediction(self)
+	XPerl_Party_UpdateHotsPrediction(self)
 	XPerl_Party_UpdateResurrectionStatus(self)
 
 	if (not UnitIsConnected(partyid)) then
@@ -1476,6 +1486,9 @@ end
 function XPerl_Party_Events:UNIT_HEAL_PREDICTION(unit)
 	if (pconf.healprediction and unit == self.partyid) then
 		XPerl_SetExpectedHealth(self)
+	end
+	if(pconf.hotsPrediction and unit == self.partyid) then
+		XPerl_SetExpectedHots(self)
 	end
 end
 

@@ -509,6 +509,15 @@ local function XPerl_Raid_UpdateHealPrediction(self)
 	end
 end
 
+-- XPerl_Raid_UpdateHotsPrediction
+local function XPerl_Raid_UpdateHotsPrediction(self)
+	if rconf.hotPrediction then
+		XPerl_SetExpectedHots(self)
+	else
+		self.statsFrame.expectedHots:Hide()
+	end
+end
+
 local function XPerl_Raid_UpdateResurrectionStatus(self)
 	if (UnitHasIncomingResurrection(self.partyid)) then
 		self.statsFrame.resurrect:Show()
@@ -554,6 +563,7 @@ local function XPerl_Raid_UpdateHealth(self)
 
 	XPerl_Raid_UpdateAbsorbPrediction(self)
 	XPerl_Raid_UpdateHealPrediction(self)
+	XPerl_Raid_UpdateHotsPrediction(self)
 	XPerl_Raid_UpdateResurrectionStatus(self)
 
 	local name, realm = UnitName(partyid)
@@ -1701,6 +1711,9 @@ XPerl_Raid_Events.UNIT_SPELLCAST_INTERRUPTED = XPerl_Raid_Events.UNIT_SPELLCAST_
 function XPerl_Raid_Events:UNIT_HEAL_PREDICTION(unit)
 	if (rconf.healprediction and unit == self.partyid) then
 		XPerl_SetExpectedHealth(self)
+	end
+	if (rconf.hotPrediction and unit == self.partyid) then
+		XPerl_SetExpectedHots(self)
 	end
 end
 

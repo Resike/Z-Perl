@@ -942,6 +942,35 @@ local function XPerl_Target_UpdateAbsorbPrediction(self)
 	end
 end
 
+-- XPerl_Target_UpdateHotsPrediction
+local function XPerl_Target_UpdateHotsPrediction(self)
+	if self == XPerl_Target then
+		if tconf.hotPrediction then
+			XPerl_SetExpectedHots(self)
+		else
+			self.statsFrame.expectedHots:Hide()
+		end
+	elseif self == XPerl_TargetTarget or self == XPerl_TargetTargetTarget then
+		if conf.targettarget.hotPrediction then
+			XPerl_SetExpectedHots(self)
+		else
+			self.statsFrame.expectedHots:Hide()
+		end
+	elseif self == XPerl_Focus then
+		if fconf.hotPrediction then
+			XPerl_SetExpectedHots(self)
+		else
+			self.statsFrame.expectedHots:Hide()
+		end
+	elseif self == XPerl_FocusTarget then
+		if conf.focustarget.hotPrediction then
+			XPerl_SetExpectedHots(self)
+		else
+			self.statsFrame.expectedHots:Hide()
+		end
+	end
+end
+
 function XPerl_Target_UpdateResurrectionStatus(self)
 	if (UnitHasIncomingResurrection(self.partyid)) then
 		if (self == XPerl_Target and tconf.portrait) or
@@ -999,6 +1028,7 @@ function XPerl_Target_UpdateHealth(self)
 
 	XPerl_Target_UpdateAbsorbPrediction(self)
 	XPerl_Target_UpdateHealPrediction(self)
+	XPerl_Target_UpdateHotsPrediction(self)
 	XPerl_Target_UpdateResurrectionStatus(self)
 
 	if (percent) then
@@ -1662,17 +1692,29 @@ function XPerl_Target_Events:UNIT_HEAL_PREDICTION(unit)
 		if (tconf.healprediction and unit == self.partyid) then
 			XPerl_SetExpectedHealth(self)
 		end
+		if (tconf.hotPrediction and unit == self.partyid) then
+			XPerl_SetExpectedHots(self)
+		end
 	elseif self == XPerl_TargetTarget or self == XPerl_TargetTargetTarget then
 		if (conf.targettarget.healprediction and unit == self.partyid) then
 			XPerl_SetExpectedHealth(self)
+		end
+		if (conf.targettarget.hotPrediction and unit == self.partyid) then
+			XPerl_SetExpectedHots(self)
 		end
 	elseif self == XPerl_Focus then
 		if (fconf.healprediction and unit == self.partyid) then
 			XPerl_SetExpectedHealth(self)
 		end
+		if (fconf.hotPrediction and unit == self.partyid) then
+			XPerl_SetExpectedHots(self)
+		end
 	elseif self == XPerl_FocusTarget then
 		if (conf.focustarget.healprediction and unit == self.partyid) then
 			XPerl_SetExpectedHealth(self)
+		end
+		if (conf.focustarget.hotPrediction and unit == self.partyid) then
+			XPerl_SetExpectedHots(self)
 		end
 	end
 end
