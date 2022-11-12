@@ -2197,6 +2197,22 @@ function XPerl_Player_InitCP(self)
 				self:SetMovable(false)
 				moving = nil
 			end)
+			local parenting
+			hooksecurefunc(ComboPointPlayerFrame, "SetParent", function(self)
+				if parenting then
+					return
+				end
+				if not pconf.showRunes then
+					return
+				end
+				parenting = true
+				self:SetMovable(true)
+				self:SetParent(XPerl_Player.runes)
+				self:ClearAllPoints()
+				self:SetPoint("TOP", XPerl_Player.runes, "TOP", 0, 2)
+				self:SetMovable(false)
+				parenting = nil
+			end)
 		end
 
 		ComboPointPlayerFrame:SetParent(self.runes)
@@ -2239,6 +2255,22 @@ function XPerl_Player_InitWarlock(self)
 				self:SetPoint("TOP", XPerl_Player.runes, "TOP", 0, 0)
 				self:SetMovable(false)
 				moving = nil
+			end)
+			local parenting
+			hooksecurefunc(WarlockPowerFrame, "SetParent", function(self)
+				if parenting then
+					return
+				end
+				if not pconf.showRunes then
+					return
+				end
+				parenting = true
+				self:SetMovable(true)
+				self:SetParent(XPerl_Player.runes)
+				self:ClearAllPoints()
+				self:SetPoint("TOP", XPerl_Player.runes, "TOP", 0, 0)
+				self:SetMovable(false)
+				parenting = nil
 			end)
 		end
 
@@ -2283,6 +2315,22 @@ function XPerl_Player_InitPaladin(self)
 				self:SetMovable(false)
 				moving = nil
 			end)
+			local parenting
+			hooksecurefunc(PaladinPowerBarFrame, "SetParent", function(self)
+				if parenting then
+					return
+				end
+				if not pconf.showRunes then
+					return
+				end
+				parenting = true
+				self:SetMovable(true)
+				self:SetParent(XPerl_Player.runes)
+				self:ClearAllPoints()
+				self:SetPoint("TOP", XPerl_Player.runes, "TOP", 0, 6)
+				self:SetMovable(false)
+				parenting = nil
+			end)
 		end
 
 		PaladinPowerBarFrame:SetParent(self.runes)
@@ -2322,6 +2370,22 @@ function XPerl_Player_InitMonk(self)
 				self:SetMovable(false)
 				moving = nil
 			end)
+			local parenting
+			hooksecurefunc(MonkHarmonyBarFrame, "SetParent", function(self)
+				if parenting then
+					return
+				end
+				if not pconf.showRunes then
+					return
+				end
+				parenting = true
+				self:SetMovable(true)
+				self:SetParent(XPerl_Player.runes)
+				self:ClearAllPoints()
+				self:SetPoint("TOP", XPerl_Player.runes, "TOP", 0, 18)
+				self:SetMovable(false)
+				parenting = nil
+			end)
 		end
 
 		MonkHarmonyBarFrame:SetParent(self.runes)
@@ -2348,6 +2412,22 @@ function XPerl_Player_InitMonk(self)
 				self:SetPoint("TOP", XPerl_Player.runes, "TOP", 0, 0)
 				self:SetMovable(false)
 				moving = nil
+			end)
+			local parenting
+			hooksecurefunc(MonkStaggerBar, "SetParent", function(self)
+				if parenting then
+					return
+				end
+				if not pconf.showRunes then
+					return
+				end
+				parenting = true
+				self:SetMovable(true)
+				self:SetParent(XPerl_Player.runes)
+				self:ClearAllPoints()
+				self:SetPoint("TOP", XPerl_Player.runes, "TOP", 0, 0)
+				self:SetMovable(false)
+				parenting = nil
 			end)
 		end
 
@@ -2404,6 +2484,22 @@ function XPerl_Player_InitMage(self)
 				self:SetMovable(false)
 				moving = nil
 			end)
+			local parenting
+			hooksecurefunc(MageArcaneChargesFrame, "SetParent", function(self)
+				if parenting then
+					return
+				end
+				if not pconf.showRunes then
+					return
+				end
+				parenting = true
+				self:SetMovable(true)
+				self:SetParent(XPerl_Player.runes)
+				self:ClearAllPoints()
+				self:SetPoint("TOP", XPerl_Player.runes, "TOP", 0, 0)
+				self:SetMovable(false)
+				parenting = nil
+			end)
 		end
 
 		MageArcaneChargesFrame:SetParent(self.runes)
@@ -2446,6 +2542,22 @@ function XPerl_Player_InitDK(self)
 				self:SetPoint("TOP", XPerl_Player.runes, "TOP", 3, 0)
 				self:SetMovable(false)
 				moving = nil
+			end)
+			local parenting
+			hooksecurefunc(RuneFrame, "SetParent", function(self)
+				if parenting then
+					return
+				end
+				if not pconf.showRunes then
+					return
+				end
+				parenting = true
+				self:SetMovable(true)
+				self:SetParent(XPerl_Player.runes)
+				self:ClearAllPoints()
+				self:SetPoint("TOP", XPerl_Player.runes, "TOP", 3, 0)
+				self:SetMovable(false)
+				parenting = nil
 			end)
 		end
 
