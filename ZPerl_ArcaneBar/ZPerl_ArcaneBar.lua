@@ -16,6 +16,7 @@ XPerl_RequestConfig(function(new)
 	conf = new
 end, "$Revision: @file-revision@ $")
 
+local IsRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
 local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
 local IsVanillaClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 local UnitCastingInfo = UnitCastingInfo
@@ -109,10 +110,18 @@ local function overrideToggle(value)
 			end
 		else
 			if (not pconf.bar.Overrided) then
-				CastingBarFrame:Hide()
-				CastingBarFrame:UnregisterAllEvents()
-				if LCC then
-					LCC.UnregisterAllCallbacks(CastingBarFrame)
+				if IsRetail then
+					PlayerCastingBarFrame:Hide()
+					PlayerCastingBarFrame:UnregisterAllEvents()
+					if LCC then
+						LCC.UnregisterAllCallbacks(PlayerCastingBarFrame)
+					end
+				else
+					CastingBarFrame:Hide()
+					CastingBarFrame:UnregisterAllEvents()
+					if LCC then
+						LCC.UnregisterAllCallbacks(CastingBarFrame)
+					end
 				end
 				pconf.bar.Overrided = 1
 			end
@@ -512,7 +521,11 @@ local function XPerl_MakePreCast(self)
 	self.precast:Hide()
 	self.precast:SetBlendMode("ADD")
 	--self.precast:SetVertexColor(1, 0, 0)	--SetGradient("HORIZONTAL", 0, 0, 1, 1, 0, 0)
-	self.precast:SetGradient("HORIZONTAL", 0, 0, 1, 1, 0, 0)
+	if IsRetail then
+		self.precast:SetGradient("HORIZONTAL", CreateColor(0, 0, 1, 1), CreateColor(1, 0, 0, 1))
+	else
+		self.precast:SetGradient("HORIZONTAL", 0, 0, 1, 1, 0, 0)
+	end
 	--XPerl_MakePreCast = nil
 end
 

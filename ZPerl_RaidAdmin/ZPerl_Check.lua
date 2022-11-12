@@ -181,7 +181,7 @@ function XPerl_Check_Setup()
 	XPerl_CheckTitleBarPin:SetButtonTex()
 	XPerl_CheckTitleBarLockOpen:SetButtonTex()
 
-	XPerl_CheckListPlayersTotals:SetHighlightTexture(nil)
+	XPerl_CheckListPlayersTotals:SetHighlightTexture("")
 	XPerl_CheckListPlayersTotals:SetScript("OnClick", nil)
 
 	XPerl_Check_ItemsChanged()
@@ -415,9 +415,11 @@ end
 
 -- XPerl_PickupContainerItem
 local PickupBag, PickupSlot
-hooksecurefunc("PickupContainerItem", function(bagID, slot)
-	PickupBag, PickupSlot = bagID, slot
-end)
+if PickupContainerItem then
+	hooksecurefunc("PickupContainerItem", function(bagID, slot)
+		PickupBag, PickupSlot = bagID, slot
+	end)
+end
 
 -- sortItems
 -- Fixed entries at top, followed by last current queried, followed by rest. Alphabetical within this.

@@ -606,7 +606,7 @@ function XPerl_RaidMonitor_Init(self)
 		self.area:SetAttribute("sortMethod", "NAME")
 		self.area:SetAttribute("sortDir", "ASC")
 		self.area:SetAttribute("groupBy", "CLASS")		-- For API version 20003
-		self.area:SetAttribute("groupingOrder", "PRIEST,DRUID,SHAMAN,PALADIN,MAGE,WARLOCK,HUNTER,ROGUE,WARRIOR,DEATHKNIGHT,MONK,DEMONHUNTER")
+		self.area:SetAttribute("groupingOrder", "PRIEST,DRUID,SHAMAN,PALADIN,MAGE,WARLOCK,HUNTER,ROGUE,WARRIOR,DEATHKNIGHT,MONK,DEMONHUNTER,EVOKER")
 
 		self:SetAttribute("type", "target")
 		self:SetAttribute("initial-height", config.UnitHeight)

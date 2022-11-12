@@ -1,3 +1,8 @@
+**7.0.0**
+* Updated for 10.0.0.
+* Preparations for Evoker support.
+* Updated LibHealComm.
+
 **6.3.4**
 * Updated for 9.2.7.
 * Updated for 3.4.0.

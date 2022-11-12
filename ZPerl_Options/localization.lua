@@ -3,7 +3,7 @@
 ]]
 
 local IsRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
-local IsBCClassic = WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC
+local IsWrathClassic = WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC
 
 -- Tabs
 XPERL_CONF_TITLE1						= "Global"
@@ -842,7 +842,7 @@ if IsRetail then
 	XPERL_CONF_RAID_HIGHLIGHTS_RENEWING_DESC	= "Enable the "..GetSpellInfo(115151).." tracking. With sparkles enabled, this will show a bouncing graphic to make it easier to follow the buff."
 	--XPERL_CONF_RAID_HIGHLIGHTS_BEACON		= GetSpellInfo(157007) -- Beacon of Insight
 	--XPERL_CONF_RAID_HIGHLIGHTS_BEACON_DESC	= "Enable the "..GetSpellInfo(157007).." tracking. With sparkles enabled, this will show a bouncing graphic to make it easier to follow the buff."
-elseif IsBCClassic then
+elseif IsWrathClassic then
 	XPERL_CONF_RAID_HIGHLIGHTS_MENDING		= GetSpellInfo(33076) -- Prayer of Mending
 	XPERL_CONF_RAID_HIGHLIGHTS_MENDING_DESC	= "Enable the "..GetSpellInfo(33076).." tracking. With sparkles enabled, this will show a bouncing graphic to make it easier to follow the buff."
 end
@@ -1112,6 +1112,8 @@ XPERL_CONF_MONITOR_MONK					= "Show Monk"
 XPERL_CONF_MONITOR_MONK_DESC			= "Show Monks in the Raid Monitor"
 XPERL_CONF_MONITOR_DEMONHUNTER			= "Show Demon Hunter"
 XPERL_CONF_MONITOR_DEMONHUNTER_DESC		= "Show Demon Hunters in the Raid Monitor"
+XPERL_CONF_MONITOR_EVOKER				= "Show Evoker"
+XPERL_CONF_MONITOR_EVOKER_DESC			= "Show Evokers in the Raid Monitor"
 
 XPERL_CONF_MONITOR_LOWMANA				= "Low Mana"
 XPERL_CONF_MONITOR_LOWMANA_DESC			= "Set the mana Low point"

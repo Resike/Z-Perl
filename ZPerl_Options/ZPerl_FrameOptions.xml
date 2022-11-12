@@ -1271,7 +1271,7 @@
 					<OnLoad>
 						self:SetID(self:GetParent():GetID())
 						self.tooltipText = XPERL_CONF_RAID_CLASS_DOWN
-						if (self:GetID() == (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC and 9 or (WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC and 10 or 12))) then
+						if (self:GetID() == (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC and 9 or (WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC and 10 or 13))) then
 							self:Hide()
 						end
 					</OnLoad>
@@ -1883,7 +1883,7 @@
 				<Anchors>
 					<Anchor point="TOPRIGHT" relativePoint="TOPRIGHT">
 						<Offset>
-							<AbsDimension x="3" y="2"/>
+							<AbsDimension x="0" y="0"/>
 						</Offset>
 					</Anchor>
 				</Anchors>
@@ -5048,7 +5048,7 @@
 						<Scripts>
 							<OnLoad>
 								local _, class = UnitClass("player")
-								if (class ~= "ROGUE" and class ~= "DEATHKNIGHT" and class ~= "DRUID" and class ~= "WARLOCK" and class ~= "PALADIN" and class ~= "MONK" and class ~= "MAGE") then
+								if (class ~= "ROGUE" and class ~= "DEATHKNIGHT" and class ~= "DRUID" and class ~= "WARLOCK" and class ~= "PALADIN" and class ~= "MONK" and class ~= "MAGE" and class ~= "EVOKER") then
 									self:Hide()
 								end
 								XPerl_OptionsSetMyText(self, "XPERL_CONF_PLAYER_SHOW_RUNES")
@@ -5078,7 +5078,7 @@
 						<Scripts>
 							<OnLoad>
 								local _, class = UnitClass("player")
-								if (class ~= "ROGUE" and class ~= "DEATHKNIGHT" and class ~= "DRUID" and class ~= "WARLOCK" and class ~= "PALADIN" and class ~= "MONK" and class ~= "MAGE") then
+								if (class ~= "ROGUE" and class ~= "DEATHKNIGHT" and class ~= "DRUID" and class ~= "WARLOCK" and class ~= "PALADIN" and class ~= "MONK" and class ~= "MAGE" and class ~= "EVOKER") then
 									self:Hide()
 								end
 								XPerl_OptionsSetMyText(self, "XPERL_CONF_PLAYER_DOCKRUNES")
@@ -5105,7 +5105,7 @@
 						<Scripts>
 							<OnLoad>
 								local _, class = UnitClass("player")
-								if (class ~= "ROGUE" and class ~= "DEATHKNIGHT" and class ~= "DRUID" and class ~= "WARLOCK" and class ~= "PALADIN" and class ~= "MONK" and class ~= "MAGE") then
+								if (class ~= "ROGUE" and class ~= "DEATHKNIGHT" and class ~= "DRUID" and class ~= "WARLOCK" and class ~= "PALADIN" and class ~= "MONK" and class ~= "MAGE" and class ~= "EVOKER") then
 									self:Hide()
 								end
 								XPerl_OptionsSetMyText(self, "XPERL_CONF_PLAYER_LOCKRUNES")
@@ -5129,7 +5129,7 @@
 						<Scripts>
 							<OnLoad>
 								local _, class = UnitClass("player")
-								if (class ~= "ROGUE" and class ~= "DEATHKNIGHT" and class ~= "DRUID" and class ~= "WARLOCK" and class ~= "PALADIN" and class ~= "MONK" and class ~= "MAGE") then
+								if (class ~= "ROGUE" and class ~= "DEATHKNIGHT" and class ~= "DRUID" and class ~= "WARLOCK" and class ~= "PALADIN" and class ~= "MONK" and class ~= "MAGE" and class ~= "EVOKER") then
 									self:ClearAllPoints()
 									self:SetPoint("TOPLEFT", XPerl_Options_Player_Options_ShowRunes, "TOPLEFT")
 								end
@@ -5943,7 +5943,9 @@
 											if (XPerl_Player_BuffSetup) then
 												XPerl_Player_BuffSetup(XPerl_Player)
 											end
-											BuffFrame_Update()
+											if WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC then
+												BuffFrame_Update()
+											end
 										end
 										XPerl_Options_RegisterProtected(self)
 									</OnLoad>
@@ -11884,10 +11886,12 @@
 						</Anchors>
 						<Scripts>
 							<OnLoad>
-								local localGroups = LOCALIZED_CLASS_NAMES_MALE
-								local WoWclassCount = 0
-								for k, v in pairs(localGroups) do
-									WoWclassCount = WoWclassCount + 1
+								local LOCALIZED_CLASS_NAMES_MALE = LOCALIZED_CLASS_NAMES_MALE
+								local CLASS_COUNT = 0
+								for k, v in pairs(LOCALIZED_CLASS_NAMES_MALE) do
+									if k ~= "Adventurer" then
+										CLASS_COUNT = CLASS_COUNT + 1
+									end
 								end
 								XPerl_OptionsSetMyText(self, "XPERL_CONF_RAID_SHOW")
 								self.Validate = function()
@@ -11916,10 +11920,10 @@
 									XPerl_Options_EnableSibling(self, "BuffHelperSortClass", "BuffTooltipHelper")
 									XPerl_Options_EnableSibling(self, "BuffTooltipHelperVis", "BuffTooltipHelper")
 									XPerl_Options_EnableSibling(self, "Healer")
-									for i = 1, WoWclassCount do
+									for i = 1, CLASS_COUNT do
 										XPerl_Options_EnableSibling(self, "Groups_Grp"..i)
 									end
-									for i = 1, WoWclassCount do
+									for i = 1, CLASS_COUNT do
 										XPerl_Options_EnableSibling(self, "Groups_ClassSel"..i.."_Enable")
 										XPerl_Options_EnableSibling(self, "Groups_ClassSel"..i.."_Up")
 										XPerl_Options_EnableSibling(self, "Groups_ClassSel"..i.."_Down")
@@ -12849,6 +12853,33 @@
 								</Scripts>
 							</CheckButton>
 
+							<CheckButton name="$parent_Grp13" inherits="XPerlCheckButtonTemplate">
+								<Anchors>
+									<Anchor point="TOPLEFT" relativeTo="$parent_Grp12" relativePoint="BOTTOMLEFT">
+										<Offset>
+											<AbsDimension x="0" y="6"/>
+										</Offset>
+									</Anchor>
+								</Anchors>
+								<Scripts>
+									<OnLoad>
+										if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC or WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC then
+											self:Hide()
+											return
+										end
+										_G[self:GetName().."Text"]:SetText("13")
+										self.tooltipText = XPERL_CONF_RAID_GROUP_DESC
+										self.configBase = "XPerlDB.raid.group"
+										self.configIndex = 13
+										self.configClick = function()
+											XPerl_Raid_ChangeAttributes()
+											XPerl_Raid_OptionActions()
+										end
+										XPerl_Options_RegisterProtected(self)
+									</OnLoad>
+								</Scripts>
+							</CheckButton>
+
 							<Frame name="$parent_Title2" inherits="XPerlBackdropTemplate">
 								<Size>
 									<AbsDimension x="60" y="10"/>
@@ -13003,6 +13034,23 @@
 								</Scripts>
 							</Frame>
 
+							<Frame name="$parent_ClassSel13" inherits="XPerl_OptClassSelTemplate" id="13">
+								<Anchors>
+									<Anchor point="TOPLEFT" relativeTo="$parent_ClassSel12" relativePoint="BOTTOMLEFT">
+										<Offset>
+											<AbsDimension x="0" y="2"/>
+										</Offset>
+									</Anchor>
+								</Anchors>
+								<Scripts>
+									<OnLoad>
+										if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC or WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC then
+											self:Hide()
+										end
+									</OnLoad>
+								</Scripts>
+							</Frame>
+
 							<Button name="$parent_All" inherits="XPerlButtonTemplate">
 								<Size>
 									<AbsDimension x="70" y="24"/>
@@ -13010,7 +13058,7 @@
 								<Anchors>
 									<Anchor point="TOPLEFT" relativeTo="$parent_Grp11" relativePoint="BOTTOMLEFT">
 										<Offset>
-											<AbsDimension x="3" y="-22"/>
+											<AbsDimension x="3" y="-44"/>
 										</Offset>
 									</Anchor>
 								</Anchors>
@@ -16225,6 +16273,7 @@
 									XPerl_Options_EnableSibling(self, "DeathKnight")
 									XPerl_Options_EnableSibling(self, "Monk")
 									XPerl_Options_EnableSibling(self, "DemonHunter")
+									XPerl_Options_EnableSibling(self, "Evoker")
 									XPerl_Options_EnableSibling(self, "LowMana")
 									XPerl_Options_EnableSibling(self, "HighMana")
 									XPerl_Options_EnableSibling(self, "UnitWidth")
@@ -16542,12 +16591,37 @@
 						</Scripts>
 					</CheckButton>
 
+					<CheckButton name="$parent_Evoker" inherits="XPerlCheckButtonTemplate">
+						<Size>
+							<AbsDimension x="26" y="26"/>
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parent_DemonHunter" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="6"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								XPerl_OptionsSetMyText(self, "XPERL_CONF_MONITOR_EVOKER")
+							</OnLoad>
+							<OnShow>
+								self:SetChecked(ZPerlRaidMonConfig.classes.EVOKER)
+							</OnShow>
+							<OnClick>
+								ZPerlRaidMonConfig.classes.EVOKER = not ZPerlRaidMonConfig.classes.EVOKER
+								XPerl_RaidMonitor_Frame:Init()
+							</OnClick>
+						</Scripts>
+					</CheckButton>
+
 					<Slider name="$parent_LowMana" inherits="XPerlSlider">
 						<Size>
 							<AbsDimension x="75" y="16"/>
 						</Size>
 						<Anchors>
-							<Anchor point="TOPLEFT" relativeTo="$parent_DemonHunter" relativePoint="BOTTOMLEFT">
+							<Anchor point="TOPLEFT" relativeTo="$parent_Evoker" relativePoint="BOTTOMLEFT">
 								<Offset>
 									<AbsDimension x="0" y="-10"/>
 								</Offset>

@@ -11,9 +11,10 @@ XPerl_RequestConfig(function(New)
 end, "$Revision: @project-revision@ $")
 XPerl_SetModuleRevision("$Revision: @project-revision@ $")
 
-local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
-local IsVanillaClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
+local IsRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
 local IsWrathClassic = WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC
+local IsVanillaClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
+local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
 local LCD = IsVanillaClassic and LibStub and LibStub("LibClassicDurations", true)
 local UnitAuraDirect
 if LCD then
@@ -1413,10 +1414,18 @@ end
 -- XPerl_MinimapButton_UpdatePosition
 function XPerl_MinimapButton_UpdatePosition(self)
 	if (not conf.minimap.radius) then
-		conf.minimap.radius = 78
+		if IsRetail then
+			conf.minimap.radius = 101
+		else
+			conf.minimap.radius = 78
+		end
 	end
 	self:ClearAllPoints()
-	self:SetPoint("TOPLEFT", "Minimap", "TOPLEFT", 54 - (conf.minimap.radius * cos(conf.minimap.pos)), (conf.minimap.radius * sin(conf.minimap.pos)) - 55)
+	if IsRetail then
+		self:SetPoint("TOPLEFT", "Minimap", "TOPLEFT", 80 - (conf.minimap.radius * cos(conf.minimap.pos)), (conf.minimap.radius * sin(conf.minimap.pos)) - 82)
+	else
+		self:SetPoint("TOPLEFT", "Minimap", "TOPLEFT", 54 - (conf.minimap.radius * cos(conf.minimap.pos)), (conf.minimap.radius * sin(conf.minimap.pos)) - 55)
+	end
 end
 
 -- XPerl_MinimapButton_Dragging
@@ -2801,15 +2810,15 @@ local function AuraButtonOnShow(self)
 	if (not cd) then
 		cd = CreateFrame("Cooldown", nil, self, BackdropTemplateMixin and "BackdropTemplate,CooldownFrameTemplate" or "CooldownFrameTemplate")
 		self.cooldown = cd
-		cd:SetAllPoints()
+		cd:SetAllPoints(self.Icon)
 	end
 	cd:SetReverse(true)
 	--cd:SetDrawEdge(true) Blizzard removed this call from 5.0.4, commented it out to avoid lua error
 
 	if (not cd.countdown) then
 		cd.countdown = self.cooldown:CreateFontString(nil, "OVERLAY", "GameFontNormalHuge")
-		cd.countdown:SetPoint("TOPLEFT")
-		cd.countdown:SetPoint("BOTTOMRIGHT", -1, 2)
+		cd.countdown:SetPoint("TOPLEFT", self.Icon)
+		cd.countdown:SetPoint("BOTTOMRIGHT", self.Icon, -1, 2)
 		cd.countdown:SetTextColor(1, 1, 0)
 	end
 
@@ -2817,6 +2826,22 @@ local function AuraButtonOnShow(self)
 	if duration and expirationTime then
 		local start = expirationTime - duration
 		XPerl_CooldownFrame_SetTimer(self.cooldown, start, duration, 1, unitCaster == "player")
+	end
+end
+
+-- XPerl_AuraButton_UpdateInFo
+-- Hook for Blizzard aura button setup to add cooldowns if we have them enabled
+local function XPerl_AuraButton_UpdateInfo(button, buttonInfo, expanded)
+	if not button then
+		return
+	end
+	if (conf.buffs.blizzardCooldowns and BuffFrame:IsShown()) then
+		button.xindex = buttonInfo.index
+		button.xfilter = buttonInfo.filter
+		button:SetScript("OnShow", AuraButtonOnShow)
+		if (button:IsShown()) then
+			AuraButtonOnShow(button)
+		end
 	end
 end
 
@@ -2837,7 +2862,11 @@ local function XPerl_AuraButton_Update(buttonName, index, filter)
 	end
 end
 
-hooksecurefunc("AuraButton_Update", XPerl_AuraButton_Update)
+if IsRetail then
+	hooksecurefunc(BuffButtonMixin, "Update", XPerl_AuraButton_UpdateInfo)
+elseif AuraButton_Update then
+	hooksecurefunc("AuraButton_Update", XPerl_AuraButton_Update)
+end
 
 -- XPerl_Unit_BuffSpacing
 local function XPerl_Unit_BuffSpacing(self)
@@ -3890,7 +3919,11 @@ function XPerl_RegisterScalableFrame(self, anchorFrame, minScale, maxScale, resi
 		self.corner.frame = self
 	end
 
-	self:SetMinResize(10, 10)
+	if self.SetResizeBounds then
+		self:SetResizeBounds(10, 10)
+	else
+		self:SetMinResize(10, 10)
+	end
 
 	self.corner.scalable = scalable
 	self.corner.resizable = resizable

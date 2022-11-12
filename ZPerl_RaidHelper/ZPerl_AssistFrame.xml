@@ -122,8 +122,6 @@
 						<Size>
 							<AbsDimension x="300" y="400"/>
 						</Size>
-						<Anchor point="TOPLEFT"/>
-						<Anchor point="BOTTOMRIGHT"/>
 					</Frame>
 				</ScrollChild>
 				<Scripts>
@@ -156,8 +154,6 @@
 						<Size>
 							<AbsDimension x="300" y="400"/>
 						</Size>
-						<Anchor point="TOPLEFT"/>
-						<Anchor point="BOTTOMRIGHT"/>
 					</Frame>
 				</ScrollChild>
 				<Scripts>

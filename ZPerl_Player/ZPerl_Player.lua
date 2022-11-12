@@ -23,8 +23,9 @@ local function d(...)
 end
 --@end-debug@]===]
 
-local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
+local IsRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
 local IsVanillaClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
+local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
 
 local floor = floor
 local format = format
@@ -89,6 +90,7 @@ local XPerl_Player_InitMage
 local XPerl_Player_InitWarlock
 local XPerl_Player_InitPaladin
 local XPerl_Player_InitMonk
+local XPerl_Player_InitEvoker
 --local XPerl_Player_InitMoonkin
 
 local XPerl_PlayerStatus_OnUpdate
@@ -170,9 +172,10 @@ function XPerl_Player_OnLoad(self)
 	end
 
 	XPerl_Player_InitDK(self)
+	XPerl_Player_InitEvoker(self)
 	XPerl_Player_InitMage(self)
-	XPerl_Player_InitPaladin(self)
 	XPerl_Player_InitMonk(self)
+	XPerl_Player_InitPaladin(self)
 	XPerl_Player_InitWarlock(self)
 
 	XPerl_RegisterHighlight(self.highlight, 3)
@@ -2117,7 +2120,7 @@ function XPerl_Player_Set_Bits(self)
 			}
 		end
 
-		if (not IsVanillaClassic and not self.totemHooked) then
+		if (not IsRetail and not IsVanillaClassic and not self.totemHooked) then
 			hooksecurefunc("TotemFrame_Update", XPerl_Player_SetTotems)
 			self.totemHooked = true
 		end
@@ -2449,5 +2452,64 @@ function XPerl_Player_InitDK(self)
 		RuneFrame:SetParent(self.runes)
 		RuneFrame:ClearAllPoints()
 		RuneFrame:SetPoint("TOP", self.runes, "TOP", 3, 0)
+	end
+end
+
+--XPerl_Player_InitEvoker
+function XPerl_Player_InitEvoker(self)
+	local _, class = UnitClass("player")
+	if (class == "EVOKER") then
+
+		if not EssencePlayerFrame then
+			return
+		end
+
+		self.runes = CreateFrame("Frame", "XPerl_Runes", self)
+		self.runes:SetPoint("TOPLEFT", self.statsFrame, "BOTTOMLEFT", 0, 2)
+		self.runes:SetPoint("BOTTOMRIGHT", self.statsFrame, "BOTTOMRIGHT", 0, -22)
+		self.runes.child = EssencePlayerFrame
+		self.runes.unit = "player"
+
+		if pconf.lockRunes then
+			local moving
+			hooksecurefunc(EssencePlayerFrame, "SetPoint", function(self)
+				if moving then
+					return
+				end
+				if not pconf.showRunes then
+					return
+				end
+				if not pconf.lockRunes then
+					return
+				end
+				moving = true
+				self:SetMovable(true)
+				--self:SetUserPlaced(true)
+				self:ClearAllPoints()
+				self:SetPoint("TOP", XPerl_Player.runes, "TOP", 0, 5)
+				self:SetMovable(false)
+				moving = nil
+			end)
+			local parenting
+			hooksecurefunc(EssencePlayerFrame, "SetParent", function(self)
+				if parenting then
+					return
+				end
+				if not pconf.showRunes then
+					return
+				end
+				parenting = true
+				self:SetMovable(true)
+				self:SetParent(XPerl_Player.runes)
+				self:ClearAllPoints()
+				self:SetPoint("TOP", XPerl_Player.runes, "TOP", 0, 5)
+				self:SetMovable(false)
+				parenting = nil
+			end)
+		end
+
+		EssencePlayerFrame:SetParent(self.runes)
+		EssencePlayerFrame:ClearAllPoints()
+		EssencePlayerFrame:SetPoint("TOP", self.runes, "TOP", 0, 5)
 	end
 end

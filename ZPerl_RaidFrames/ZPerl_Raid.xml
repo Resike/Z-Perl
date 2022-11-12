@@ -507,6 +507,16 @@
 		</Anchors>
 	</Frame>
 
+	<Frame name="XPerl_Raid_Title13" parent="UIParent" inherits="XPerl_Raid_TitleDragTemplate" id="13">
+		<Anchors>
+			<Anchor point="TOPLEFT">
+				<Offset>
+					<AbsDimension x="836" y="-465"/>
+				</Offset>
+			</Anchor>
+		</Anchors>
+	</Frame>
+
 	<Frame name="XPerl_Raid_Grp1" parent="XPerl_Raid_Title1" inherits="XPerl_Raid_TitleFrameTemplate" id="1">
 		<Anchors>
 			<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT"/>
@@ -574,6 +584,12 @@
 	</Frame>
 
 	<Frame name="XPerl_Raid_Grp12" parent="XPerl_Raid_Title12" inherits="XPerl_Raid_TitleFrameTemplate" id="12">
+		<Anchors>
+			<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT"/>
+		</Anchors>
+	</Frame>
+
+	<Frame name="XPerl_Raid_Grp13" parent="XPerl_Raid_Title13" inherits="XPerl_Raid_TitleFrameTemplate" id="13">
 		<Anchors>
 			<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT"/>
 		</Anchors>

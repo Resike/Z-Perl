@@ -340,12 +340,8 @@
 										</Offset>
 									</Anchor>
 								</Anchors>
-								<NormalFont style="GameFontHighlightSmall">
-									<Color r="0.8" g="0.2" b="0.2"/>
-								</NormalFont>
-								<HighlightFont style="GameFontHighlightSmall">
-									<Color r="1" g="0" b="0"/>
-								</HighlightFont>
+								<NormalFont style="GameFontHighlightSmall"/>
+								<HighlightFont style="GameFontHighlightSmall"/>
 								<Scripts>
 									<OnLoad>
 										self:SetText(SAVE)
@@ -389,12 +385,8 @@
 										</Offset>
 									</Anchor>
 								</Anchors>
-								<NormalFont style="GameFontHighlightSmall">
-									<Color r="0.2" g="0.8" b="0.2"/>
-								</NormalFont>
-								<HighlightFont style="GameFontHighlightSmall">
-									<Color r="0" g="1" b="0"/>
-								</HighlightFont>
+								<NormalFont style="GameFontHighlightSmall"/>
+								<HighlightFont style="GameFontHighlightSmall"/>
 								<Scripts>
 									<OnLoad>
 										self.tooltipText = "XPERL_BUTTON_ADMIN_LOAD"
@@ -454,11 +446,6 @@
 										</Offset>
 									</Anchor>
 								</Anchors>
-								<Backdrop edgeFile="Interface\Tooltips\UI-Tooltip-Border" tile="true">
-									<EdgeSize>
-										<AbsValue val="9"/>
-									</EdgeSize>
-								</Backdrop>
 								<Frames>
 									<Button name="$parent1" inherits="XPerlRosterLineTemplate" text="Line" id="1">
 										<Anchors>
