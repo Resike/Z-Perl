@@ -2822,7 +2822,7 @@ local function AuraButtonOnShow(self)
 		cd.countdown:SetTextColor(1, 1, 0)
 	end
 
-	local name, icon, count, debuffType, duration, expirationTime, unitCaster = UnitAura("player", self.xindex, self.xfilter)
+	local _, _, _, _, duration, expirationTime, unitCaster = UnitAura("player", self.xindex, self.xfilter)
 	if duration and expirationTime then
 		local start = expirationTime - duration
 		XPerl_CooldownFrame_SetTimer(self.cooldown, start, duration, 1, unitCaster == "player")
