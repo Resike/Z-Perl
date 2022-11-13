@@ -83,15 +83,14 @@ local UnitXPMax = UnitXPMax
 local CombatFeedback_OnUpdate = CombatFeedback_OnUpdate
 local CombatFeedback_OnCombatEvent = CombatFeedback_OnCombatEvent
 
-local XPerl_Player_InitCP
-
 local XPerl_Player_InitDK
-local XPerl_Player_InitMage
-local XPerl_Player_InitWarlock
-local XPerl_Player_InitPaladin
-local XPerl_Player_InitMonk
+local XPerl_Player_InitDruid
 local XPerl_Player_InitEvoker
---local XPerl_Player_InitMoonkin
+local XPerl_Player_InitMage
+local XPerl_Player_InitMonk
+local XPerl_Player_InitPaladin
+local XPerl_Player_InitRogue
+local XPerl_Player_InitWarlock
 
 local XPerl_PlayerStatus_OnUpdate
 local XPerl_Player_HighlightCallback
@@ -166,7 +165,7 @@ function XPerl_Player_OnLoad(self)
 
 	self.nameFrame.pvptimer:SetScript("OnUpdate", XPerl_Player_UpdatePVPTimerOnUpdate)
 
-	XPerl_Player_InitCP(self)
+	XPerl_Player_InitDruid(self)
 	if (playerClass == "DRUID") or (playerClass == "SHAMAN") or (playerClass == "PRIEST") then
 		XPerl_Player_DruidBarUpdate(self)
 	end
@@ -176,6 +175,7 @@ function XPerl_Player_OnLoad(self)
 	XPerl_Player_InitMage(self)
 	XPerl_Player_InitMonk(self)
 	XPerl_Player_InitPaladin(self)
+	XPerl_Player_InitRogue(self)
 	XPerl_Player_InitWarlock(self)
 
 	XPerl_RegisterHighlight(self.highlight, 3)
@@ -2163,10 +2163,68 @@ local function MakeMoveable(frame)
 	end)
 end
 
--- XPerl_Player_InitCP
-function XPerl_Player_InitCP(self)
+-- XPerl_Player_InitDruid
+function XPerl_Player_InitDruid(self)
 	local _, class = UnitClass("player")
-	if (class == "DRUID") or (class == "ROGUE") then
+	if (class == "DRUID") then
+		if not ComboPointDruidPlayerFrame then
+			return
+		end
+
+		self.runes = CreateFrame("Frame", "XPerl_Runes", self)
+		self.runes:SetPoint("TOPLEFT", self.statsFrame, "BOTTOMLEFT", 0, 2)
+		self.runes:SetPoint("BOTTOMRIGHT", self.statsFrame, "BOTTOMRIGHT", 0, -22)
+		self.runes.child = ComboPointDruidPlayerFrame
+		self.runes.unit = "player"
+
+		if pconf.lockRunes then
+			local moving
+			hooksecurefunc(ComboPointDruidPlayerFrame, "SetPoint", function(self)
+				if moving then
+					return
+				end
+				if not pconf.showRunes then
+					return
+				end
+				if not pconf.lockRunes then
+					return
+				end
+				moving = true
+				self:SetMovable(true)
+				--self:SetUserPlaced(true)
+				self:ClearAllPoints()
+				self:SetPoint("TOP", XPerl_Player.runes, "TOP", 0, 2)
+				self:SetMovable(false)
+				moving = nil
+			end)
+			local parenting
+			hooksecurefunc(ComboPointDruidPlayerFrame, "SetParent", function(self)
+				if parenting then
+					return
+				end
+				if not pconf.showRunes then
+					return
+				end
+				parenting = true
+				self:SetMovable(true)
+				self:SetParent(XPerl_Player.runes)
+				self:ClearAllPoints()
+				self:SetPoint("TOP", XPerl_Player.runes, "TOP", 0, 2)
+				self:SetMovable(false)
+				parenting = nil
+			end)
+		end
+
+		ComboPointDruidPlayerFrame:SetParent(self.runes)
+		ComboPointDruidPlayerFrame:ClearAllPoints()
+		ComboPointDruidPlayerFrame:SetPoint("TOP", self.runes, "TOP", 0, 2)
+	end
+end
+
+-- XPerl_Player_InitDruid
+function XPerl_Player_InitRogue(self)
+	local _, class = UnitClass("player")
+	if (class == "ROGUE") then
 		if not ComboPointPlayerFrame then
 			return
 		end
@@ -2366,7 +2424,7 @@ function XPerl_Player_InitMonk(self)
 				self:SetMovable(true)
 				--self:SetUserPlaced(true)
 				self:ClearAllPoints()
-				self:SetPoint("TOP", XPerl_Player.runes, "TOP", 0, 18)
+				self:SetPoint("TOP", XPerl_Player.runes, "TOP", 0, 4)
 				self:SetMovable(false)
 				moving = nil
 			end)
@@ -2382,7 +2440,7 @@ function XPerl_Player_InitMonk(self)
 				self:SetMovable(true)
 				self:SetParent(XPerl_Player.runes)
 				self:ClearAllPoints()
-				self:SetPoint("TOP", XPerl_Player.runes, "TOP", 0, 18)
+				self:SetPoint("TOP", XPerl_Player.runes, "TOP", 0, 4)
 				self:SetMovable(false)
 				parenting = nil
 			end)
@@ -2391,7 +2449,7 @@ function XPerl_Player_InitMonk(self)
 		MonkHarmonyBarFrame:SetParent(self.runes)
 		MonkHarmonyBarFrame:SetFrameLevel(0)
 		MonkHarmonyBarFrame:ClearAllPoints()
-		MonkHarmonyBarFrame:SetPoint("TOP", self.runes, "TOP", 0, 18)
+		MonkHarmonyBarFrame:SetPoint("TOP", self.runes, "TOP", 0, 4)
 
 		if pconf.lockRunes then
 			local moving

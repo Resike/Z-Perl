@@ -265,7 +265,7 @@ do
 		DisableOther("CT_PartyBuffs", true)
 	end
 
-	local name,_,_,enabled,loadable = GetAddOnInfo("XPerl_GrimReaper")
+	local name, _, _, enabled, loadable = GetAddOnInfo("XPerl_GrimReaper")
 	if (enabled) then
 		DisableAddOn("XPerl_GrimReaper")
 		XPerl_Notice("Disabled XPerl_GrimReaper. This has been replaced by a standalone version 'GrimReaper' available on the WoW Ace Updater or from files.wowace.com")

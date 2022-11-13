@@ -797,67 +797,80 @@ hiddenParent:Hide()
 
 -- XPerl_BlizzFrameDisable
 function XPerl_BlizzFrameDisable(self)
-	if (self) then
-		UnregisterUnitWatch(self)
+	if not self then
+		return
+	end
 
-		self:UnregisterAllEvents()
+	UnregisterUnitWatch(self)
 
-		if self == PlayerFrame then
-			local events = {
-				"PLAYER_ENTERING_WORLD",
-				"UNIT_ENTERING_VEHICLE",
-				"UNIT_ENTERED_VEHICLE",
-				"UNIT_EXITING_VEHICLE",
-				"UNIT_EXITED_VEHICLE",
-			}
+	self:UnregisterAllEvents()
 
-			for i, event in pairs(events) do
-				if pcall(self.RegisterEvent, self, event) then
-					self:RegisterEvent(event)
-				end
+	if self == PlayerFrame then
+		local events = {
+			"PLAYER_ENTERING_WORLD",
+			"UNIT_ENTERING_VEHICLE",
+			"UNIT_ENTERED_VEHICLE",
+			"UNIT_EXITING_VEHICLE",
+			"UNIT_EXITED_VEHICLE",
+		}
+
+		for i, event in pairs(events) do
+			if pcall(self.RegisterEvent, self, event) then
+				self:RegisterEvent(event)
 			end
 		end
+	end
 
-		self:SetMovable(true)
-		self:SetUserPlaced(true)
-		self:SetDontSavePosition(true)
-		self:SetMovable(false)
+	if IsRetail and self == PartyFrame then
+		for frame in PartyFrame.PartyMemberFramePool:EnumerateActive() do
+			XPerl_BlizzFrameDisable(frame)
+		end
+	end
 
+	self:SetMovable(true)
+	self:SetUserPlaced(true)
+	self:SetDontSavePosition(true)
+	self:SetMovable(false)
+
+	if not InCombatLockdown() then
+		self:Hide()
+	end
+	self:SetParent(hiddenParent)
+
+	self:HookScript("OnShow", function(self)
 		if not InCombatLockdown() then
 			self:Hide()
 		end
-		self:SetParent(hiddenParent)
+	end)
 
-		self:HookScript("OnShow", function(self)
-			if not InCombatLockdown() then
-				self:Hide()
-			end
-		end)
+	local health = self.healthbar
+	if health then
+		health:UnregisterAllEvents()
+	end
 
-		local health = self.healthbar
-		if health then
-			health:UnregisterAllEvents()
-		end
+	local power = self.manabar
+	if power then
+		power:UnregisterAllEvents()
+	end
 
-		local power = self.manabar
-		if power then
-			power:UnregisterAllEvents()
-		end
+	local spell = self.spellbar
+	if spell then
+		spell:UnregisterAllEvents()
+	end
 
-		local spell = self.spellbar
-		if spell then
-			spell:UnregisterAllEvents()
-		end
+	local powerBarAlt = self.powerBarAlt
+	if powerBarAlt then
+		powerBarAlt:UnregisterAllEvents()
+	end
 
-		local powerBarAlt = self.powerBarAlt
-		if powerBarAlt then
-			powerBarAlt:UnregisterAllEvents()
-		end
+	local buffFrame = self.BuffFrame
+	if buffFrame then
+		buffFrame:UnregisterAllEvents()
+	end
 
-		local buffFrame = self.BuffFrame
-		if buffFrame then
-			buffFrame:UnregisterAllEvents()
-		end
+	local petFrame = self.petFrame or self.PetFrame
+	if petFrame then
+		petFrame:UnregisterAllEvents()
 	end
 end
 

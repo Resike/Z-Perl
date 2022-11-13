@@ -19,8 +19,25 @@ end, "$Revision: @file-revision@ $")
 local IsRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
 local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
 local IsVanillaClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
+
+local min = min
+local max = max
+local pairs = pairs
+local format = format
+local strfind = strfind
+local pcall = pcall
+
+local GetTime = GetTime
 local UnitCastingInfo = UnitCastingInfo
 local UnitChannelInfo = UnitChannelInfo
+local GetNetStats = GetNetStats
+local CreateColor = CreateColor
+local CreateFrame = CreateFrame
+
+local CASTING_BAR_HOLD_TIME = CASTING_BAR_HOLD_TIME
+local FAILED = FAILED
+local SPELL_FAILED_INTERRUPTED = SPELL_FAILED_INTERRUPTED
+
 local LCC = IsVanillaClassic and LibStub("LibClassicCasterino", true)
 if LCC then
 	UnitCastingInfo = function(unit)
@@ -255,7 +272,7 @@ function XPerl_ArcaneBar_OnEvent(self, event, unit, ...)
 				self.flash = 1
 			end
 			self.fadeOut = 1
-			self.holdTime = GetTime() + CASTING_BAR_HOLD_TIME
+			self.holdTime = GetTime() + (CASTING_BAR_HOLD_TIME or 1)
 		end
 	elseif (event == "UNIT_SPELLCAST_INTERRUPTIBLE") or (event == "UNIT_SPELLCAST_NOT_INTERRUPTIBLE") then
 		if (self:IsShown()) then

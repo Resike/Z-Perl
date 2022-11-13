@@ -1,3 +1,8 @@
+**7.0.2**
+* Properly hiding party frames, to show/hide the default raid frames use the raid manager.
+* Fixed druid and monk special bars.
+* Fix for spell interrupt error.
+
 **7.0.1**
 * Fix for special power bars that were not showing up.
 
