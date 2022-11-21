@@ -348,15 +348,6 @@
 					</Anchor>
 				</Anchors>
 
-				<Backdrop edgeFile="Interface\Tooltips\UI-Tooltip-Border" inherits="XPerlBackdropTemplate" tile="true">
-					<EdgeSize>
-						<AbsValue val="16"/>
-					</EdgeSize>
-					<BackgroundInsets>
-						<AbsInset left="5" right="5" top="5" bottom="5"/>
-					</BackgroundInsets>
-				</Backdrop>
-
 				<Frames>
 					<ScrollFrame name="$parentscroll" inherits="UIPanelScrollFrameTemplate">
 						<Anchors>
@@ -378,14 +369,12 @@
 							</OnMouseDown>
 						</Scripts>
 						<ScrollChild>
-							<EditBox name="$parenttext" multiLine="true" maxLines="50" letters="1000" autoFocus="false">
+							<EditBox name="$parenttext" multiLine="true" letters="1000" autoFocus="false">
 								<Size>
 									<AbsDimension x="200" y="2000"/>
-								</Size>
-								<Anchor point="TOPLEFT"/>
-								<Anchor point="BOTTOMRIGHT"/>
+							</Size>
 
-								<FontString inherits="ChatFontNormal"></FontString>
+								<FontString inherits="ChatFontNormal"/>
 
 								<Scripts>
 									<OnTextChanged>

@@ -8,23 +8,52 @@ XPerl_RequestConfig(function(new)
 	conf = new
 end, "$Revision: @file-revision@ $")
 
-local IsVanillaClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
+local IsRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
 local IsWrathClassic = WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC
+local IsVanillaClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 
-local GetNumSubgroupMembers = GetNumSubgroupMembers
+local _G = _G
+local format = format
+local geterrorhandler = geterrorhandler
+local hooksecurefunc = hooksecurefunc
+local ipairs = ipairs
+local max = max
+local min = min
+local pairs = pairs
+local pcall = pcall
+local sort = sort
+local tinsert = tinsert
+local tonumber = tonumber
+local type = type
+local unpack = unpack
+
+local CreateColor = CreateColor
+local CreateFrame = CreateFrame
+local DisableAddOn = DisableAddOn
+local GetAddOnInfo = GetAddOnInfo
+local GetAddOnMetadata = GetAddOnMetadata
 local GetNumGroupMembers = GetNumGroupMembers
+local GetNumSubgroupMembers = GetNumSubgroupMembers
+local InCombatLockdown = InCombatLockdown
+local IsAltKeyDown = IsAltKeyDown
+local IsInRaid = IsInRaid
+local UnitAura = UnitAura
+local UnitClass = UnitClass
+local UnitInParty = UnitInParty
+local UnitInRaid = UnitInRaid
 local UnitIsGroupAssistant = UnitIsGroupAssistant
+local UnitName = UnitName
 
 local classOrder
-if IsVanillaClassic then
-	classOrder = {"WARRIOR", "ROGUE", "HUNTER", "DRUID", "SHAMAN", "PALADIN", "PRIEST", "MAGE", "WARLOCK"}
+if IsRetail then
+	classOrder = {"WARRIOR", "DEATHKNIGHT", "ROGUE", "HUNTER", "DRUID", "SHAMAN", "PALADIN", "PRIEST", "MAGE", "WARLOCK", "MONK", "DEMONHUNTER", "EVOKER"}
 elseif IsWrathClassic then
 	classOrder = {"WARRIOR", "DEATHKNIGHT", "ROGUE", "HUNTER", "DRUID", "SHAMAN", "PALADIN", "PRIEST", "MAGE", "WARLOCK"}
 else
-	classOrder = {"WARRIOR", "DEATHKNIGHT", "ROGUE", "HUNTER", "DRUID", "SHAMAN", "PALADIN", "PRIEST", "MAGE", "WARLOCK", "MONK", "DEMONHUNTER"}
+	classOrder = {"WARRIOR", "ROGUE", "HUNTER", "DRUID", "SHAMAN", "PALADIN", "PRIEST", "MAGE", "WARLOCK"}
 end
 
--- SetTex
+-- SetTexCreateColor
 local highlightPositions = {
 	{0, 0.25, 0, 0.5},
 	{0.25, 0.75, 0, 0.5},
@@ -94,8 +123,13 @@ function XPerl_DoGradient(self, force)
 				end
 			end
 			if (self.gradient) then
+				local orient, r, g, b, a, r2, g2, b2, a2 = unpack(gradient)
+				if IsRetail then
+					self.gradient:SetGradient(orient, CreateColor(r, g, b, a), CreateColor(r2, g2, b2, a2))
+				else
+					self.gradient:SetGradientAlpha(orient, r, g, b, a, r2, g2, b2, a2)
+				end
 				self.gradient:Show()
-				self.gradient:SetGradientAlpha(unpack(gradient))
 			end
 			return true
 		end

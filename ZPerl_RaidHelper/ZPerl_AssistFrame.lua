@@ -20,8 +20,12 @@ local GetNumSubgroupMembers = GetNumSubgroupMembers
 
 -- XPerl_Assists_OnLoad(self)
 function XPerl_Assists_OnLoad(self)
-	self:SetMinResize(170, 40)
-	self:SetMaxResize(1000, 600)
+	if self.SetResizeBounds then
+		self:SetResizeBounds(170, 40, 1000, 600)
+	else
+		self:SetMinResize(170, 40)
+		self:SetMaxResize(1000, 600)
+	end
 
 	self:RegisterEvent("VARIABLES_LOADED")
 	self:RegisterEvent("UNIT_TARGET")

@@ -272,7 +272,7 @@
 				</Frames>
 			</Frame>
 			<!-- Phase Indicator Frame -->
-			<Frame name="$parentPhasingIcon" parentKey="phasingIcon" inherits="XPerlBackdropTemplate" forceAlpha="true" hidden="true">
+			<Frame name="$parentPhasingIcon" parentKey="phasingIcon" inherits="XPerlBackdropTemplate" hidden="true">
 				<Size x="22" y="22"/>
 				<Anchors>
 					<Anchor point="BOTTOMLEFT" relativeTo="$parentnameFrame" relativePoint="BOTTOMRIGHT" x="0" y="2"/>

@@ -181,11 +181,6 @@
 					<Size>
 						<AbsDimension x="20" y="14"/>
 					</Size>
-					<Anchor point="TOPRIGHT">
-						<Offset>
-							<AbsDimension x="0" y="2"/>
-						</Offset>
-					</Anchor>
 				</FontString>
 			</Layer>
 			<Layer level="BACKGROUND">
