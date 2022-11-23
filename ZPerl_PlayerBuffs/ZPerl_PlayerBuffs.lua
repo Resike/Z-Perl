@@ -17,6 +17,7 @@ local function d(fmt, ...)
 end
 --@end-debug@]===]
 
+local IsRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
 local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
 
 -- setCommon
@@ -175,11 +176,15 @@ function XPerl_Player_BuffSetup(self)
 	if (pconf.buffs.hideBlizzard) then
 		BuffFrame:UnregisterEvent("UNIT_AURA")
 		BuffFrame:Hide()
-		TemporaryEnchantFrame:Hide()
+		if not IsRetail then
+			TemporaryEnchantFrame:Hide()
+		end
 	else
 		BuffFrame:Show()
 		BuffFrame:RegisterEvent("UNIT_AURA")
-		TemporaryEnchantFrame:Show()
+		if not IsRetail then
+			TemporaryEnchantFrame:Show()
+		end
 	end
 end
 

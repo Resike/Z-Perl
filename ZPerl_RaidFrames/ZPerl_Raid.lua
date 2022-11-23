@@ -3,7 +3,7 @@
 -- License: GNU GPL v3, 29 June 2007 (see LICENSE.txt)
 
 local XPerl_Raid_Events = { }
-local RaidGroupCounts = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+local RaidGroupCounts = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 local myGroup
 local FrameArray = { }		-- List of raid frames indexed by raid ID
 local RaidPositions = { }	-- Back-matching of unit names to raid ID
@@ -36,9 +36,10 @@ end
 
 --local new, del, copy = XPerl_GetReusableTable, XPerl_FreeTable, XPerl_CopyTable
 
-local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
-local IsVanillaClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
+local IsRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
 local IsWrathClassic = WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC
+local IsVanillaClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
+local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
 
 local format = format
 local strsub = strsub
@@ -81,10 +82,12 @@ ZPerl_Roster = { }
 -- NUM_RAID_GROUPS = 8
 -- MEMBERS_PER_RAID_GROUP = 5
 
-local localGroups = LOCALIZED_CLASS_NAMES_MALE
-local WoWclassCount = 0
-for k, v in pairs(localGroups) do
-	WoWclassCount = WoWclassCount + 1
+local LOCALIZED_CLASS_NAMES_MALE = LOCALIZED_CLASS_NAMES_MALE
+local CLASS_COUNT = 0
+for k, v in pairs(LOCALIZED_CLASS_NAMES_MALE) do
+	if k ~= "Adventurer" then
+		CLASS_COUNT = CLASS_COUNT + 1
+	end
 end
 
 local resSpells
@@ -167,7 +170,7 @@ function XPerl_Raid_OnLoad(self)
 
 	self:SetScript("OnEvent", XPerl_Raid_OnEvent)
 
-	for i = 1, WoWclassCount do
+	for i = 1, CLASS_COUNT do
 		--_G["XPerl_Raid_Grp"..i]:UnregisterEvent("UNIT_NAME_UPDATE")
 		tinsert(raidHeaders, _G[XPERL_RAIDGRP_PREFIX..i])
 	end
@@ -186,6 +189,7 @@ function XPerl_Raid_OnLoad(self)
 		self.state:SetFrameRef("ZPerlRaidHeader10", _G[XPERL_RAIDGRP_PREFIX..10])
 		self.state:SetFrameRef("ZPerlRaidHeader11", _G[XPERL_RAIDGRP_PREFIX..11])
 		self.state:SetFrameRef("ZPerlRaidHeader12", _G[XPERL_RAIDGRP_PREFIX..12])
+		self.state:SetFrameRef("ZPerlRaidHeader13", _G[XPERL_RAIDGRP_PREFIX..13])
 
 		self.state:SetAttribute("partySmallRaid", XPerlDB.party.smallRaid)
 		self.state:SetAttribute("raidEnabled", XPerlDB.raid.enable)
@@ -206,6 +210,7 @@ function XPerl_Raid_OnLoad(self)
 				self:GetFrameRef("ZPerlRaidHeader10"):Hide()
 				self:GetFrameRef("ZPerlRaidHeader11"):Hide()
 				self:GetFrameRef("ZPerlRaidHeader12"):Hide()
+				self:GetFrameRef("ZPerlRaidHeader13"):Hide()
 			elseif self:GetAttribute('partySmallRaid') or not self:GetAttribute('raidEnabled') then
 				return
 			else
@@ -221,6 +226,7 @@ function XPerl_Raid_OnLoad(self)
 				self:GetFrameRef("ZPerlRaidHeader10"):Show()
 				self:GetFrameRef("ZPerlRaidHeader11"):Show()
 				self:GetFrameRef("ZPerlRaidHeader12"):Show()
+				self:GetFrameRef("ZPerlRaidHeader13"):Show()
 			end
 		]])
 		RegisterStateDriver(self.state, "groupupdate", "[petbattle] hide; show")
@@ -1277,7 +1283,7 @@ function XPerl_Raid_HideShowRaid()
 		end
 	end
 
-	for i = 1, WoWclassCount do
+	for i = 1, CLASS_COUNT do
 		if (rconf.group[i] and enable and (i < 9 or rconf.sortByClass) and not singleGroup) then
 			if not IsClassic and not C_PetBattles.IsInBattle() then
 				if (not raidHeaders[i]:IsShown()) then
@@ -1922,7 +1928,7 @@ function SetRaidRoster()
 
 	--del(RaidGroupCounts)
 	--RaidGroupCounts = new(0,0,0,0,0,0,0,0,0,0,0)
-	RaidGroupCounts = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+	RaidGroupCounts = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 
 	local player
 	for i = 1, GetNumGroupMembers() do
@@ -1953,7 +1959,7 @@ function SetRaidRoster()
 			end
 
 			if (rconf.sortByClass) then
-				for j = 1, WoWclassCount do
+				for j = 1, CLASS_COUNT do
 					if (rconf.class[j].name == fileName and rconf.class[j].enable) then
 						RaidGroupCounts[j] = RaidGroupCounts[j] + 1
 						break
@@ -2011,7 +2017,7 @@ end
 
 -- XPerl_ScaleRaid
 function XPerl_ScaleRaid()
-	for frame = 1, 12 do
+	for frame = 1, 13 do
 		local f = _G["XPerl_Raid_Title"..frame]
 		if (f) then
 			f:SetScale(rconf.scale)
@@ -2025,7 +2031,7 @@ function XPerl_Raid_SetWidth()
 		XPerl_OutOfCombatQueue[XPerl_Raid_SetWidth] = true
 		return
 	end
-	for i = 1, 12 do
+	for i = 1, 13 do
 		local f = _G["XPerl_Raid_Title"..i]
 		if (f) then
 			f:SetWidth(80 + rconf.size.width)
@@ -2053,7 +2059,7 @@ function XPerl_RaidTitles()
 	end
 
 	local c
-	for i = 1, WoWclassCount do
+	for i = 1, CLASS_COUNT do
 		local confClass = rconf.class[i].name
 		local frame = _G["XPerl_Raid_Title"..i]
 		local titleFrame = frame.text
@@ -2159,7 +2165,7 @@ end
 
 -- XPerl_EnableRaidMouse()
 function XPerl_EnableRaidMouse()
-	for i = 1, 12 do
+	for i = 1, 13 do
 		local frame = _G["XPerl_Raid_Title"..i]
 		if (XPerlLocked == 0) then
 			frame:EnableMouse(true)
@@ -2481,37 +2487,7 @@ local function SetMainHeaderAttributes(self)
 end
 
 local function DefaultRaidClasses()
-	if IsVanillaClassic then
-		return {
-			{enable = true, name = "WARRIOR"},
-			--{enable = true, name = "DEATHKNIGHT"},
-			{enable = true, name = "ROGUE"},
-			{enable = true, name = "HUNTER"},
-			{enable = true, name = "MAGE"},
-			{enable = true, name = "WARLOCK"},
-			{enable = true, name = "PRIEST"},
-			{enable = true, name = "DRUID"},
-			{enable = true, name = "SHAMAN"},
-			{enable = true, name = "PALADIN"},
-			--{enable = true, name = "MONK"},
-			--{enable = true, name = "DEMONHUNTER"},
-		}
-	elseif IsWrathClassic then
-		return {
-			{enable = true, name = "WARRIOR"},
-			{enable = true, name = "DEATHKNIGHT"},
-			{enable = true, name = "ROGUE"},
-			{enable = true, name = "HUNTER"},
-			{enable = true, name = "MAGE"},
-			{enable = true, name = "WARLOCK"},
-			{enable = true, name = "PRIEST"},
-			{enable = true, name = "DRUID"},
-			{enable = true, name = "SHAMAN"},
-			{enable = true, name = "PALADIN"},
-			--{enable = true, name = "MONK"},
-			--{enable = true, name = "DEMONHUNTER"},
-		}
-	else
+	if IsRetail then
 		return {
 			{enable = true, name = "WARRIOR"},
 			{enable = true, name = "DEATHKNIGHT"},
@@ -2525,6 +2501,32 @@ local function DefaultRaidClasses()
 			{enable = true, name = "PALADIN"},
 			{enable = true, name = "MONK"},
 			{enable = true, name = "DEMONHUNTER"},
+			{enable = true, name = "EVOKER"}
+		}
+	elseif IsWrathClassic then
+		return {
+			{enable = true, name = "WARRIOR"},
+			{enable = true, name = "DEATHKNIGHT"},
+			{enable = true, name = "ROGUE"},
+			{enable = true, name = "HUNTER"},
+			{enable = true, name = "MAGE"},
+			{enable = true, name = "WARLOCK"},
+			{enable = true, name = "PRIEST"},
+			{enable = true, name = "DRUID"},
+			{enable = true, name = "SHAMAN"},
+			{enable = true, name = "PALADIN"},
+		}
+	else
+		return {
+			{enable = true, name = "WARRIOR"},
+			{enable = true, name = "ROGUE"},
+			{enable = true, name = "HUNTER"},
+			{enable = true, name = "MAGE"},
+			{enable = true, name = "WARLOCK"},
+			{enable = true, name = "PRIEST"},
+			{enable = true, name = "DRUID"},
+			{enable = true, name = "SHAMAN"},
+			{enable = true, name = "PALADIN"},
 		}
 	end
 end
@@ -2545,7 +2547,7 @@ local function GroupFilter(n)
 		end
 
 		local invalid
-		for i = 1, WoWclassCount do
+		for i = 1, CLASS_COUNT do
 			if (not rconf.class[i]) then
 				invalid = true
 			end
@@ -2554,7 +2556,7 @@ local function GroupFilter(n)
 			rconf.class = DefaultRaidClasses()
 		end
 
-		for i = 1, WoWclassCount do
+		for i = 1, CLASS_COUNT do
 			if (rconf.class[i].enable) then
 				if (not f) then
 					f = rconf.class[i].name
@@ -2576,7 +2578,7 @@ function XPerl_Raid_ChangeAttributes()
 
 	rconf.anchor = (rconf and rconf.anchor) or "TOP"
 
-	for i = 1, rconf.sortByClass and WoWclassCount or (IsVanillaClassic and 9 or (IsWrathClassic and 10 or 12)) do
+	for i = 1, rconf.sortByClass and CLASS_COUNT or (IsVanillaClassic and 9 or (IsWrathClassic and 10 or 13)) do
 		local groupHeader = raidHeaders[i]
 
 		-- Hide this when we change attributes, so the whole re-calc is only done once, instead of for every attribute change
@@ -2641,7 +2643,7 @@ function XPerl_Raid_Set_Bits(self)
 	XPerl_ScaleRaid()
 	XPerl_Raid_SetWidth()
 
-	for i = 1, 12 do
+	for i = 1, 13 do
 		XPerl_SavePosition(_G["XPerl_Raid_Title"..i], true)
 	end
 

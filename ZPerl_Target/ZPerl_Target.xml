@@ -108,7 +108,6 @@
 						<Layers>
 							<Layer level="BACKGROUND">
 								<Texture name="$parenttexture" file="Interface\TargetingFrame\UI-RaidTargetingIcons" setAllPoints="true"/>
-								<TexCoords left="0" right="0.25" top="0" bottom="0.25"/>
 							</Layer>
 						</Layers>
 					</Frame>

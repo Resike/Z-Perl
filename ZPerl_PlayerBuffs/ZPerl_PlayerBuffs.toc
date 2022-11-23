@@ -1,4 +1,4 @@
-## Interface: 90207
+## Interface: 100000
 ## Author: Resike
 ## Title: Z-Perl |cffeda55fPlayer Buffs|r
 ## Title-itIT: Z-Perl |cffeda55fBenefici Giocatore|r
