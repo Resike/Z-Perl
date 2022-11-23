@@ -3492,6 +3492,7 @@ if (XPerl_UpgradeSettings) then
 					old.pet.happiness.enabled = nil
 				end
 			end
+
 			if (oldVersion < "6.3.5") then
 				old.player.hotPrediction = 1
 				old.pet.hotPrediction = 1
@@ -3501,10 +3502,8 @@ if (XPerl_UpgradeSettings) then
 				old.focustarget.hotPrediction = 1
 				old.party.hotPrediction = 1
 				old.raid.hotPrediction = 1
-			end
-		end
-	end
-
+      end
+      
 			if (oldVersion < "7.0.0") then
 				if IsRetail then
 					old.minimap.radius = 101
