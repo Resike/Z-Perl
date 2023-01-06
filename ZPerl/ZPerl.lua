@@ -4009,7 +4009,7 @@ function XPerl_SetExpectedAbsorbs(self)
 			local min, max = healthBar:GetMinMaxValues()
 			local position = ((max - healthBar:GetValue()) / max) * healthBar:GetWidth()
 
-			if healthBar:GetWidth() <= 0 then
+			if healthBar:GetWidth() <= 0 or healthBar:GetWidth() == position then
 				return
 			end
 
