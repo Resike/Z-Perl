@@ -5314,6 +5314,25 @@
 						</Scripts>
 					</CheckButton>
 
+					<CheckButton name="$parent_Hots" inherits="XPerlCheckButtonTemplate">
+						<Anchors>
+							<Anchor point="LEFT" relativeTo="$parent_Absorbs" relativePoint="RIGHT">
+								<Offset>
+									<AbsDimension x="85" y="0"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								XPerl_OptionsSetMyText(self, "XPERL_CONF_PLAYER_HOTS")
+								self.configBase = "XPerlDB.player"
+								self.configIndex = "hotPrediction"
+								self.configClick = XPerl_Player_Reset
+								XPerl_Options_RegisterProtected(self)
+							</OnLoad>
+						</Scripts>
+					</CheckButton>
+
 					<CheckButton name="$parent_PlayerXP" inherits="XPerlCheckButtonTemplate">
 						<Anchors>
 							<Anchor point="TOPLEFT" relativeTo="$parent_HealPrediction" relativePoint="BOTTOMLEFT">
@@ -6458,6 +6477,25 @@
 								XPerl_OptionsSetMyText(self, "XPERL_CONF_PET_ABSORBS")
 								self.configBase = "XPerlDB.pet"
 								self.configIndex = "absorbs"
+								self.configClick = XPerl_Player_Pet_Reset
+								XPerl_Options_RegisterProtected(self)
+							</OnLoad>
+						</Scripts>
+					</CheckButton>
+
+					<CheckButton name="$parent_Hots" inherits="XPerlCheckButtonTemplate">
+						<Anchors>
+							<Anchor point="LEFT" relativeTo="$parent_Absorbs" relativePoint="RIGHT">
+								<Offset>
+									<AbsDimension x="85" y="0"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								XPerl_OptionsSetMyText(self, "XPERL_CONF_PET_HOTS")
+								self.configBase = "XPerlDB.pet"
+								self.configIndex = "hotPrediction"
 								self.configClick = XPerl_Player_Pet_Reset
 								XPerl_Options_RegisterProtected(self)
 							</OnLoad>
@@ -7689,6 +7727,25 @@
 						</Scripts>
 					</CheckButton>
 
+					<CheckButton name="$parent_Hots" inherits="XPerlCheckButtonTemplate">
+						<Anchors>
+							<Anchor point="LEFT" relativeTo="$parent_Absorbs" relativePoint="RIGHT">
+								<Offset>
+									<AbsDimension x="85" y="0"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								XPerl_OptionsSetMyText(self, "XPERL_CONF_TARGET_HOTS")
+								self.configBase = "XPerlDB.target"
+								self.configIndex = "hotPrediction"
+								self.configClick = XPerl_Target_Reset
+								XPerl_Options_RegisterProtected(self)
+							</OnLoad>
+						</Scripts>
+					</CheckButton>
+
 					<CheckButton name="$parent_Values" inherits="XPerlCheckButtonTemplate">
 						<Anchors>
 							<Anchor point="TOPLEFT" relativeTo="$parent_HealPrediction" relativePoint="BOTTOMLEFT">
@@ -8452,6 +8509,25 @@
 								</Scripts>
 							</CheckButton>
 
+							<CheckButton name="$parent_Hots" inherits="XPerlCheckButtonTemplate">
+								<Anchors>
+									<Anchor point="BOTTOM" relativeTo="$parent_HealPrediction" relativePoint="TOP">
+										<Offset>
+											<AbsDimension x="0" y="-7"/>
+										</Offset>
+									</Anchor>
+								</Anchors>
+								<Scripts>
+									<OnLoad>
+										XPerl_OptionsSetMyText(self, "XPERL_CONF_TARGETTARGET_HOTS")
+										self.configBase = "XPerlDB.targettarget"
+										self.configIndex = "hotPrediction"
+										self.configClick = XPerl_TargetTarget_Reset
+										XPerl_Options_RegisterProtected(self)
+									</OnLoad>
+								</Scripts>
+							</CheckButton>
+
 							<CheckButton name="$parent_Values" inherits="XPerlCheckButtonTemplate">
 								<Size>
 									<AbsDimension x="26" y="26"/>
@@ -9172,6 +9248,7 @@
 									XPerl_Options_EnableSibling(self, "All", "DebuffHighlight")
 									XPerl_Options_EnableSibling(self, "Friend", "DebuffHighlight")
 									XPerl_Options_EnableSibling(self, "Enemy", "DebuffHighlight")
+									XPerl_Options_EnableSibling(self, "Hots")
 									--XPerl_Options_EnableSibling(self, "FocusTarget_TargetsTarget")
 								end
 							</OnLoad>
@@ -9611,6 +9688,25 @@
 						</Scripts>
 					</CheckButton>
 
+					<CheckButton name="$parent_Hots" inherits="XPerlCheckButtonTemplate">
+						<Anchors>
+							<Anchor point="LEFT" relativeTo="$parent_Absorbs" relativePoint="RIGHT">
+								<Offset>
+									<AbsDimension x="85" y="0"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								XPerl_OptionsSetMyText(self, "XPERL_CONF_FOCUS_HOTS")
+								self.configBase = "XPerlDB.focus"
+								self.configIndex = "hotPrediction"
+								self.configClick = XPerl_Target_Reset
+								XPerl_Options_RegisterProtected(self)
+							</OnLoad>
+						</Scripts>
+					</CheckButton>
+
 					<CheckButton name="$parent_Values" inherits="XPerlCheckButtonTemplate">
 						<Anchors>
 							<Anchor point="TOPLEFT" relativeTo="$parent_HealPrediction" relativePoint="BOTTOMLEFT">
@@ -9813,6 +9909,7 @@
 											XPerl_Options_EnableSibling(self, "Healer_DeficitOnly", "Healer_Healer")
 											XPerl_Options_EnableSibling(self, "Healer_DeficitMax", "Healer_Healer")
 											XPerl_Options_EnableSibling(self, "Healer_CurMaxDeficit", "Healer_Healer")
+											XPerl_Options_EnableSibling(self, "Hots")
 										end
 										self.flashFrame = XPerl_FocusTarget
 										self.configBase = "XPerlDB.focustarget"
@@ -10042,6 +10139,25 @@
 										XPerl_OptionsSetMyText(self, "XPERL_CONF_FOCUSTARGET_ABSORBS")
 										self.configBase = "XPerlDB.focustarget"
 										self.configIndex = "absorbs"
+										self.configClick = XPerl_TargetTarget_Reset
+										XPerl_Options_RegisterProtected(self)
+									</OnLoad>
+								</Scripts>
+							</CheckButton>
+
+							<CheckButton name="$parent_Hots" inherits="XPerlCheckButtonTemplate">
+								<Anchors>
+									<Anchor point="BOTTOM" relativeTo="$parent_HealPrediction" relativePoint="TOP">
+										<Offset>
+											<AbsDimension x="0" y="-7"/>
+										</Offset>
+									</Anchor>
+								</Anchors>
+								<Scripts>
+									<OnLoad>
+										XPerl_OptionsSetMyText(self, "XPERL_CONF_FOCUSTARGET_HOTS")
+										self.configBase = "XPerlDB.focustarget"
+										self.configIndex = "hotPrediction"
 										self.configClick = XPerl_TargetTarget_Reset
 										XPerl_Options_RegisterProtected(self)
 									</OnLoad>
@@ -10725,6 +10841,7 @@
 									XPerl_Options_EnableSibling(self, "MaxRows", "BuffWrap")
 									XPerl_Options_EnableSibling(self, "BigBuffs")
 									XPerl_Options_EnableSibling(self, "BigPet", "BigBuffs")
+									XPerl_Options_EnableSibling(self, "Hots")
 								end
 								self.configBase = "XPerlDB.party"
 								self.configIndex = "enable"
@@ -10980,6 +11097,25 @@
 								XPerl_OptionsSetMyText(self, "XPERL_CONF_PARTY_ABSORBS")
 								self.configBase = "XPerlDB.party"
 								self.configIndex = "absorbs"
+								self.configClick = XPerl_Party_Reset
+								XPerl_Options_RegisterProtected(self)
+							</OnLoad>
+						</Scripts>
+					</CheckButton>
+
+					<CheckButton name="$parent_Hots" inherits="XPerlCheckButtonTemplate">
+						<Anchors>
+							<Anchor point="LEFT" relativeTo="$parent_Absorbs" relativePoint="RIGHT">
+								<Offset>
+									<AbsDimension x="85" y="0"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								XPerl_OptionsSetMyText(self, "XPERL_CONF_PARTY_HOTS")
+								self.configBase = "XPerlDB.party"
+								self.configIndex = "hotPrediction"
 								self.configClick = XPerl_Party_Reset
 								XPerl_Options_RegisterProtected(self)
 							</OnLoad>
@@ -11904,6 +12040,7 @@
 									XPerl_Options_EnableSibling(self, "PrecisionPercent", "HealthText")
 									XPerl_Options_EnableSibling(self, "HealPrediction")
 									XPerl_Options_EnableSibling(self, "Absorbs")
+									XPerl_Options_EnableSibling(self, "Hots")
 									XPerl_Options_EnableSibling(self, "Mana")
 									XPerl_Options_EnableSibling(self, "ManaPercent", "Mana")
 									XPerl_Options_EnableSibling(self, "PrecisionManaPercent", "Mana")
@@ -12137,6 +12274,25 @@
 								XPerl_OptionsSetMyText(self, "XPERL_CONF_RAID_ABSORBS")
 								self.configBase = "XPerlDB.raid"
 								self.configIndex = "absorbs"
+								self.configClick = XPerl_Raid_OptionActions
+								XPerl_Options_RegisterProtected(self)
+							</OnLoad>
+						</Scripts>
+					</CheckButton>
+
+					<CheckButton name="$parent_Hots" inherits="XPerlCheckButtonTemplate">
+						<Anchors>
+							<Anchor point="LEFT" relativeTo="$parent_Absorbs" relativePoint="RIGHT">
+								<Offset>
+									<AbsDimension x="85" y="0"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								XPerl_OptionsSetMyText(self, "XPERL_CONF_RAID_HOTS")
+								self.configBase = "XPerlDB.raid"
+								self.configIndex = "hotPrediction"
 								self.configClick = XPerl_Raid_OptionActions
 								XPerl_Options_RegisterProtected(self)
 							</OnLoad>
@@ -13587,9 +13743,27 @@
 						</Scripts>
 					</CheckButton>
 
-					<CheckButton name="$parent_ClassIcon" inherits="XPerlCheckButtonTemplate">
+					<CheckButton name="$parent_Hots" inherits="XPerlCheckButtonTemplate">
 						<Anchors>
 							<Anchor point="TOPLEFT" relativeTo="$parent_Absorbs" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="6"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<Scripts>
+							<OnLoad>
+								XPerl_OptionsSetMyText(self, "XPERL_CONF_ALL_HOTS")
+								self.configClick = XPerl_OptionActions
+								self.configSelection = {"XPerlDB.player", "XPerlDB.pet", "XPerlDB.target", "XPerlDB.targettarget", "XPerlDB.focus", "XPerlDB.focustarget", "XPerlDB.party", "XPerlDB.raid"}
+								self.configIndex = "hotPrediction"
+							</OnLoad>
+						</Scripts>
+					</CheckButton>
+
+					<CheckButton name="$parent_ClassIcon" inherits="XPerlCheckButtonTemplate">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parent_Hots" relativePoint="BOTTOMLEFT">
 								<Offset>
 									<AbsDimension x="0" y="6"/>
 								</Offset>
@@ -14458,6 +14632,40 @@
 											XPerlDB.colour.bar.absorb.g = n.g
 											XPerlDB.colour.bar.absorb.b = n.b
 											XPerlDB.colour.bar.absorb.a = n.a
+										end
+										XPerl_ColourPicker.alpha = true
+										XPerl_ColourPicker:Show()
+									</OnClick>
+								</Scripts>
+							</Button>
+
+							<Button name="$parent_ColourHotsBar" inherits="XPerlColorPickerTemplate">
+								<Anchors>
+									<Anchor point="LEFT" relativeTo="$parent_ColourAbsorbBar" relativePoint="RIGHT">
+										<Offset>
+											<AbsDimension x="85" y="0"/>
+										</Offset>
+									</Anchor>
+								</Anchors>
+								<Scripts>
+									<OnLoad>
+										XPerl_OptionsSetMyText(self, "XPERL_CONF_COLOUR_HOT")
+									</OnLoad>
+									<OnShow>
+										local f = _G[self:GetName().."_Colour"]
+										f:SetVertexColor(XPerlDB.colour.bar.hot.r, XPerlDB.colour.bar.hot.g, XPerlDB.colour.bar.hot.b)
+									</OnShow>
+									<OnClick>
+										XPerlLocked = 1
+										XPerl_ColourPicker.ParentFrame = XPerl_Options
+										XPerl_ColourPicker.varGet = function()
+											return XPerlDB and XPerlDB.colour.bar.hot
+										end
+										XPerl_ColourPicker.varSet = function(n)
+											XPerlDB.colour.bar.hot.r = n.r
+											XPerlDB.colour.bar.hot.g = n.g
+											XPerlDB.colour.bar.hot.b = n.b
+											XPerlDB.colour.bar.hot.a = n.a
 										end
 										XPerl_ColourPicker.alpha = true
 										XPerl_ColourPicker:Show()

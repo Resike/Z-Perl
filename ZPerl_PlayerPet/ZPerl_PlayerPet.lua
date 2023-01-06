@@ -239,6 +239,15 @@ local function XPerl_Player_Pet_UpdateAbsorbPrediction(self)
 	end
 end
 
+-- XPerl_Player_Pet_UpdateHotsPrediction
+local function XPerl_Player_Pet_UpdateHotsPrediction(self)
+	if pconf.absorbs then
+		XPerl_SetExpectedHots(self)
+	else
+		self.statsFrame.expectedHots:Hide()
+	end
+end
+
 -- XPerl_Player_Pet_UpdateHealPrediction
 local function XPerl_Player_Pet_UpdateHealPrediction(self)
 	if pconf.healprediction then
@@ -273,6 +282,7 @@ local function XPerl_Player_Pet_UpdateHealth(self)
 	XPerl_SetHealthBar(self, pethealth, pethealthmax)
 
 	XPerl_Player_Pet_UpdateAbsorbPrediction(self)
+	XPerl_Player_Pet_UpdateHotsPrediction(self)
 	XPerl_Player_Pet_UpdateHealPrediction(self)
 	XPerl_Player_Pet_UpdateResurrectionStatus(self)
 
@@ -645,6 +655,9 @@ end
 function XPerl_Player_Pet_Events:UNIT_HEAL_PREDICTION(unit)
 	if (pconf.healprediction and unit == self.partyid) then
 		XPerl_SetExpectedHealth(self)
+	end
+	if (pconf.hotPrediction and unit == self.partyid) then 
+		XPerl_SetExpectedHots(self)
 	end
 end
 
