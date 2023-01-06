@@ -705,7 +705,7 @@ do
 					elseif (inspectReady and guid == UnitGUID(partyid)) then
 						local remoteInspectNeeded = not UnitIsUnit("player", partyid) or nil
 						if not IsClassic then
-							group =  GetInspectSpecialization("target")
+							group = GetInspectSpecialization("target")
 							local _, spec = GetSpecializationInfoByID(group)
 							name1 = group and spec or "None"
 						else
@@ -973,15 +973,13 @@ end
 
 function XPerl_Target_UpdateResurrectionStatus(self)
 	if (UnitHasIncomingResurrection(self.partyid)) then
-		if (self == XPerl_Target and tconf.portrait) or
-		   (self == XPerl_Focus and fconf.portrait) then
+		if (self == XPerl_Target and tconf.portrait) or (self == XPerl_Focus and fconf.portrait) then
 			self.portraitFrame.resurrect:Show()
 		else
 			self.statsFrame.resurrect:Show()
 		end
 	else
-		if (self == XPerl_Target and tconf.portrait) or
-		   (self == XPerl_Focus and fconf.portrait) then
+		if (self == XPerl_Target and tconf.portrait) or (self == XPerl_Focus and fconf.portrait) then
 			self.portraitFrame.resurrect:Hide()
 		else
 			self.statsFrame.resurrect:Hide()
@@ -1677,7 +1675,7 @@ function XPerl_Target_Events:PARTY_LOOT_METHOD_CHANGED()
 	XPerl_Target_UpdateLeader(self)
 end
 XPerl_Target_Events.GROUP_ROSTER_UPDATE = XPerl_Target_Events.PARTY_LOOT_METHOD_CHANGED
-XPerl_Target_Events.PARTY_LEADER_CHANGED  = XPerl_Target_Events.PARTY_LOOT_METHOD_CHANGED
+XPerl_Target_Events.PARTY_LEADER_CHANGED = XPerl_Target_Events.PARTY_LOOT_METHOD_CHANGED
 
 function XPerl_Target_Events:UNIT_THREAT_LIST_UPDATE(unit)
 	if (UnitCanAttack("player", self.partyid or "target")) then

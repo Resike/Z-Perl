@@ -4051,14 +4051,6 @@ function XPerl_SetExpectedHots(self)
 			if UnitIsAFK(unit) then
 				bar:SetStatusBarColor(0.2, 0.2, 0.2, 0.7)
 			else
-				if not conf.colour.bar.hot then
-					conf.colour.bar.hot = { }
-					conf.colour.bar.hot.r = 1
-					conf.colour.bar.hot.g = 0.72
-					conf.colour.bar.hot.b = 0.1
-					conf.colour.bar.hot.a = 0.7
-				end
-
 				bar:SetStatusBarColor(conf.colour.bar.hot.r, conf.colour.bar.hot.g, conf.colour.bar.hot.b, conf.colour.bar.hot.a)
 			end
 
@@ -4265,8 +4257,8 @@ function XPerl_Register_Prediction(self, conf, g2u, ...)
 				self:UnregisterEvent("UNIT_ABSORB_AMOUNT_CHANGED")
 			end
 		else
-			--for hots prediction		
-			if conf.healprediction then
+			-- HoT predictions do not work properly on Wrath Classic so use HealComm
+			if conf.hotPrediction then
 				local UpdateHealth = function(event, ...)
 					local unit = g2u(select(select("#", ...), ...))
 					if unit then
@@ -4313,5 +4305,4 @@ function XPerl_Register_Prediction(self, conf, g2u, ...)
 			HealComm.UnregisterCallback(self, "HealComm_GUIDDisappeared")
 		end
 	end
-
 end

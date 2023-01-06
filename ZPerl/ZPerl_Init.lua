@@ -545,7 +545,7 @@ function ZPerl_Init()
 	name, title, notes, enabled = GetAddOnInfo("AutoBar")
 	if (name and enabled) then
 		local ver = GetAddOnMetadata(name, "Version")
-		if (ver < "2.01.00.02 beta") then
+		if (ver < "2.01.00.02") then
 			XPerl_Notice("Out-dated version of AutoBar detected. This will taint the Targetting system for all mods that use them, including X-Perl.")
 		end
 	end

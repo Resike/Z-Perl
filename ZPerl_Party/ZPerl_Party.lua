@@ -1492,7 +1492,7 @@ function XPerl_Party_Events:UNIT_HEAL_PREDICTION(unit)
 	if (pconf.healprediction and unit == self.partyid) then
 		XPerl_SetExpectedHealth(self)
 	end
-	if(pconf.hotsPrediction and unit == self.partyid) then
+	if (pconf.hotPrediction and unit == self.partyid) then
 		XPerl_SetExpectedHots(self)
 	end
 end

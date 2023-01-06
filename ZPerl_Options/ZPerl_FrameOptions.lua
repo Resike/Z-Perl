@@ -1670,6 +1670,7 @@ function XPerl_Options_ImportOldConfig(old)
 				healthFull	= old.ColourHealthFull		or {r = 0, g = 1, b = 0},
 				absorb		= {r = 0.14, g = 0.33, b = 0.7, a = 0.7},
 				healprediction = {r = 0, g = 1, b = 1, a = 1},
+				hot			= {r = 1, g = 0.72, b = 0.1, a = 0.7},
 				mana		= old.ColourMana		or {r = 0, g = 0, b = 1},
 				energy		= old.ColourEnergy		or {r = 1, g = 1, b = 0},
 				rage		= old.ColourRage		or {r = 1, g = 0, b = 0},
@@ -2285,7 +2286,7 @@ local function XPerl_Target_ConfigDefault(default, section)
 		mobType			= 1,
 		level			= 1,
 		healprediction	= 1,
-		hotPrediction   = 1,
+		hotPrediction	= 1,
 		absorbs			= 1,
 		elite			= 1,
 --		eliteGfx		= nil,
@@ -2357,7 +2358,7 @@ local function XPerl_Party_ConfigDefault(default)
 		level			= 1,
 		healprediction	= 1,
 		absorbs			= 1,
-		hotPrediction   = 1,
+		hotPrediction	= 1,
 		name			= 1,
 		values			= 1,
 		percent			= 1,
@@ -2431,7 +2432,7 @@ local function XPerl_Player_ConfigDefault(default)
 		level			= 1,
 		healprediction	= 1,
 		absorbs			= 1,
-		hotPrediction   = 1,
+		hotPrediction	= 1,
 		classIcon		= 1,
 --		xpBar			= nil,
 --		repBar			= nil,
@@ -2548,7 +2549,7 @@ local function XPerl_TargetTarget_ConfigDefault(default, section)
 --		level			= nil,
 		healprediction	= 1,
 		absorbs			= 1,
-		hotPrediction   = 1,
+		hotPrediction	= 1,
 		mana			= 1,
 		size = {
 			width		= 0,
@@ -2588,7 +2589,7 @@ local function XPerl_Raid_ConfigDefault(default)
 		precisionPercent = 1,
 		healprediction	= 1,
 		absorbs			= 1,
-		hotPrediction   = 1,
+		hotPrediction	= 1,
 		mana			= 1,
 		manaPercent		= 1,
 		precisionManaPercent = 1,
@@ -2668,8 +2669,8 @@ function XPerl_DefaultBarColours()
 		healthEmpty	= {r = 1, g = 0, b = 0},
 		healthFull	= {r = 0, g = 1, b = 0},
 		absorb		= {r = 0.14, g = 0.33, b = 0.7, a = 0.7},
-		hot			= {r = 0, g = 1, b = 1, a = 1},
 		healprediction = {r = 0, g = 1, b = 1, a = 1},
+		hot			= {r = 1, g = 0.72, b = 0.1, a = 0.7},
 		mana		= {r = 0, g = 0, b = 1},
 		energy		= {r = 1, g = 1, b = 0},
 		rage		= {r = 1, g = 0, b = 0},
@@ -3186,6 +3187,10 @@ if (XPerl_UpgradeSettings) then
 				old.colour.bar.healprediction = {r = 0, g = 1, b = 1, a = 1}
 			end
 
+			if (not old.colour.bar.hot or old.colour.bar.hot[1]) then
+				old.colour.bar.hot = {r = 1, g = 0.72, b = 0.1, a = 0.7}
+			end
+
 			if (not old.colour.bar.runic_power or old.colour.bar.runic_power[1]) then
 				if (PowerBarColor) then
 					old.colour.bar.runic_power = {r = PowerBarColor["RUNIC_POWER"].r, g = PowerBarColor["RUNIC_POWER"].g, b = PowerBarColor["RUNIC_POWER"].b}
@@ -3493,7 +3498,20 @@ if (XPerl_UpgradeSettings) then
 				end
 			end
 
-			if (oldVersion < "6.3.5") then
+			if (oldVersion < "7.0.0") then
+				if IsRetail then
+					old.minimap.radius = 101
+				else
+					old.minimap.radius = 78
+				end
+			end
+
+			if (oldVersion < "7.0.3") then
+				old.colour.bar.hot = { }
+				old.colour.bar.hot.r = 1
+				old.colour.bar.hot.g = 0.72
+				old.colour.bar.hot.b = 0.1
+				old.colour.bar.hot.a = 0.7
 				old.player.hotPrediction = 1
 				old.pet.hotPrediction = 1
 				old.target.hotPrediction = 1
@@ -3502,14 +3520,6 @@ if (XPerl_UpgradeSettings) then
 				old.focustarget.hotPrediction = 1
 				old.party.hotPrediction = 1
 				old.raid.hotPrediction = 1
-      end
-      
-			if (oldVersion < "7.0.0") then
-				if IsRetail then
-					old.minimap.radius = 101
-				else
-					old.minimap.radius =  78
-				end
 			end
 		end
 	end

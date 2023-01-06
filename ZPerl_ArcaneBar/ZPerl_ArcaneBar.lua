@@ -57,7 +57,7 @@ local barColours = {
 }
 
 local events = {
-	"UNIT_SPELLCAST_START", "UNIT_SPELLCAST_STOP", "UNIT_SPELLCAST_FAILED", "UNIT_SPELLCAST_INTERRUPTED", "UNIT_SPELLCAST_INTERRUPTIBLE",  "UNIT_SPELLCAST_NOT_INTERRUPTIBLE", "UNIT_SPELLCAST_DELAYED", "UNIT_SPELLCAST_CHANNEL_START", "UNIT_SPELLCAST_CHANNEL_UPDATE", "UNIT_SPELLCAST_CHANNEL_STOP", "PLAYER_ENTERING_WORLD"
+	"UNIT_SPELLCAST_START", "UNIT_SPELLCAST_STOP", "UNIT_SPELLCAST_FAILED", "UNIT_SPELLCAST_INTERRUPTED", "UNIT_SPELLCAST_INTERRUPTIBLE", "UNIT_SPELLCAST_NOT_INTERRUPTIBLE", "UNIT_SPELLCAST_DELAYED", "UNIT_SPELLCAST_CHANNEL_START", "UNIT_SPELLCAST_CHANNEL_UPDATE", "UNIT_SPELLCAST_CHANNEL_STOP", "PLAYER_ENTERING_WORLD"
 }
 
 -- enableToggle
@@ -120,7 +120,11 @@ local function overrideToggle(value)
 					end
 				else
 					for i, event in pairs(events) do
-						CastingBarFrame:RegisterEvent(event)
+						if IsRetail then
+							PlayerCastingBarFrame:RegisterEvent(event)
+						else
+							CastingBarFrame:RegisterEvent(event)
+						end
 					end
 				end
 				pconf.bar.Overrided = nil
