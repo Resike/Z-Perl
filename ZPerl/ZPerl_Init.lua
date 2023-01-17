@@ -124,11 +124,7 @@ function XPerl_DoGradient(self, force)
 			end
 			if (self.gradient) then
 				local orient, r, g, b, a, r2, g2, b2, a2 = unpack(gradient)
-				if IsRetail then
-					self.gradient:SetGradient(orient, CreateColor(r, g, b, a), CreateColor(r2, g2, b2, a2))
-				else
-					self.gradient:SetGradientAlpha(orient, r, g, b, a, r2, g2, b2, a2)
-				end
+				self.gradient:SetGradient(orient, CreateColor(r, g, b, a), CreateColor(r2, g2, b2, a2))
 				self.gradient:Show()
 			end
 			return true

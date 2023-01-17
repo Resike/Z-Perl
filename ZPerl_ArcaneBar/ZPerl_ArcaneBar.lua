@@ -538,11 +538,7 @@ local function XPerl_MakePreCast(self)
 	self.precast:Hide()
 	self.precast:SetBlendMode("ADD")
 	--self.precast:SetVertexColor(1, 0, 0)	--SetGradient("HORIZONTAL", 0, 0, 1, 1, 0, 0)
-	if IsRetail then
-		self.precast:SetGradient("HORIZONTAL", CreateColor(0, 0, 1, 1), CreateColor(1, 0, 0, 1))
-	else
-		self.precast:SetGradient("HORIZONTAL", 0, 0, 1, 1, 0, 0)
-	end
+	self.precast:SetGradient("HORIZONTAL", CreateColor(0, 0, 1, 1), CreateColor(1, 0, 0, 1))
 	--XPerl_MakePreCast = nil
 end
 
