@@ -419,11 +419,7 @@ function xpHigh:SetHighlight(frame, guid)
 						g2 = min(g2 * 1.2, 1)
 						b2 = min(b2 * 1.2, 1)
 					end
-					if IsRetail then
-						frame.highlight.tex:SetGradient("HORIZONTAL", CreateColor(r1, g1, b1, 1), CreateColor(r2, g2, b2, 1))
-					else
-						frame.highlight.tex:SetGradient("HORIZONTAL", r1, g1, b1, r2, g2, b2)
-					end
+					frame.highlight.tex:SetGradient("HORIZONTAL", CreateColor(r1, g1, b1, 1), CreateColor(r2, g2, b2, 1))
 				else
 					frame.highlight.tex:SetVertexColor(r1, g1, b1)
 				end
