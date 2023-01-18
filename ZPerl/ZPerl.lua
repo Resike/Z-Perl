@@ -2823,15 +2823,24 @@ local function AuraButtonOnShow(self)
 	if (not cd) then
 		cd = CreateFrame("Cooldown", nil, self, BackdropTemplateMixin and "BackdropTemplate,CooldownFrameTemplate" or "CooldownFrameTemplate")
 		self.cooldown = cd
-		cd:SetAllPoints(self.Icon)
+		if self.Icon then
+			cd:SetAllPoints(self.Icon)
+		else
+			cd:SetAllPoints(self:GetName().."Icon")
+		end
 	end
 	cd:SetReverse(true)
 	--cd:SetDrawEdge(true) Blizzard removed this call from 5.0.4, commented it out to avoid lua error
 
 	if (not cd.countdown) then
 		cd.countdown = self.cooldown:CreateFontString(nil, "OVERLAY", "GameFontNormalHuge")
-		cd.countdown:SetPoint("TOPLEFT", self.Icon)
-		cd.countdown:SetPoint("BOTTOMRIGHT", self.Icon, -1, 2)
+		if self.Icon then
+			cd.countdown:SetPoint("TOPLEFT", self.Icon)
+			cd.countdown:SetPoint("BOTTOMRIGHT", self.Icon, -1, 2)
+		else
+			cd.countdown:SetPoint("TOPLEFT", self:GetName().."Icon")
+			cd.countdown:SetPoint("BOTTOMRIGHT", self:GetName().."Icon", -1, 2)
+		end
 		cd.countdown:SetTextColor(1, 1, 0)
 	end
 

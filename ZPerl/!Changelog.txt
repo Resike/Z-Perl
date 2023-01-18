@@ -1,3 +1,6 @@
+**7.0.4**
+* Fix default buff cooldowns.
+
 **7.0.3**
 * Updated for 3.4.1.
 * Adde heal over times bar for Wrath Classic.
