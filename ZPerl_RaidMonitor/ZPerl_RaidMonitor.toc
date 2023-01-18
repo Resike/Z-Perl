@@ -1,4 +1,4 @@
-## Interface: 30401
+## Interface: 100002
 ## Author: Resike
 ## Title: Z-Perl |cffeda55fRaid Monitor|r
 ## Title-itIT: Z-Perl |cffeda55fMonitor Incursione|r
