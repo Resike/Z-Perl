@@ -16,8 +16,12 @@ XPerl_RequestConfig(function(new)
 	conf = new
 end, "$Revision: @file-revision@ $")
 
+
+local _, _, _, clientRevision = GetBuildInfo()
+
 local IsRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
 local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
+local IsWrathClassicPTR = WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC and clientRevision >= 30401
 local IsVanillaClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 
 local min = min
@@ -541,13 +545,11 @@ local function XPerl_MakePreCast(self)
 	self.precast:SetWidth(1)
 	self.precast:Hide()
 	self.precast:SetBlendMode("ADD")
-	--self.precast:SetVertexColor(1, 0, 0)	--SetGradient("HORIZONTAL", 0, 0, 1, 1, 0, 0)
-	if IsRetail then
+	if IsRetail or IsWrathClassicPTR then
 		self.precast:SetGradient("HORIZONTAL", CreateColor(0, 0, 1, 1), CreateColor(1, 0, 0, 1))
 	else
 		self.precast:SetGradient("HORIZONTAL", 0, 0, 1, 1, 0, 0)
 	end
-	--XPerl_MakePreCast = nil
 end
 
 -- XPerl_ArcaneBar_RegisterFrame

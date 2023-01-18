@@ -2565,6 +2565,7 @@ end
 local function XPerl_Raid_ConfigDefault(default)
 	default.raid = {
 		enable			= 1,
+		disableDefault	= 1,
 --		sortByClass		= nil,
 		sortByRole 		= nil,
 --		sortAlpha		= nil,
@@ -2584,6 +2585,7 @@ local function XPerl_Raid_ConfigDefault(default)
 			{enable = 1, name = "DEMONHUNTER"},
 			{enable = 1, name = "EVOKER"},
 		},
+		role			= 0,
 		titles			= 1,
 		percent			= 1,
 		precisionPercent = 1,
@@ -3520,6 +3522,8 @@ if (XPerl_UpgradeSettings) then
 				old.focustarget.hotPrediction = 1
 				old.party.hotPrediction = 1
 				old.raid.hotPrediction = 1
+				old.raid.disableDefault = 1
+				old.raid.role = 0
 			end
 		end
 	end

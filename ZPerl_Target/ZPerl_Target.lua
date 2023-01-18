@@ -26,6 +26,7 @@ XPerl_RequestConfig(function(new)
 end, "$Revision: @file-revision@ $")
 
 local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
+local IsWrathClassic = WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC
 local IsVanillaClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 local LCD = IsVanillaClassic and LibStub and LibStub("LibClassicDurations", true)
 if LCD then
@@ -944,6 +945,9 @@ end
 
 -- XPerl_Target_UpdateHotsPrediction
 local function XPerl_Target_UpdateHotsPrediction(self)
+	if not IsWrathClassic then
+		return
+	end
 	if self == XPerl_Target then
 		if tconf.hotPrediction then
 			XPerl_SetExpectedHots(self)

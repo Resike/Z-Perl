@@ -517,6 +517,9 @@ end
 
 -- XPerl_Raid_UpdateHotsPrediction
 local function XPerl_Raid_UpdateHotsPrediction(self)
+	if not IsWrathClassic then
+		return
+	end
 	if rconf.hotPrediction then
 		XPerl_SetExpectedHots(self)
 	else
@@ -1356,9 +1359,23 @@ end
 
 -- COMPACT_UNIT_FRAME_PROFILES_LOADED
 function XPerl_Raid_Events:COMPACT_UNIT_FRAME_PROFILES_LOADED()
-	if rconf.enable then
+	if not rconf.disableDefault then
+		return
+	end
+	if IsClassic then
 		DisableCompactRaidFrames()
 	end
+	CompactRaidFrameManager:UnregisterAllEvents()
+	hooksecurefunc(CompactRaidFrameManager, "Show", function(self)
+		self:Hide()
+	end)
+	CompactRaidFrameManager:Hide()
+
+	CompactRaidFrameContainer:UnregisterAllEvents()
+	hooksecurefunc(CompactRaidFrameContainer, "Show", function(self)
+		self:Hide()
+	end)
+	CompactRaidFrameContainer:Hide()
 end
 
 -- VARIABLES_LOADED
@@ -1691,7 +1708,7 @@ end
 
 -- UNIT_SPELLCAST_STOP
 function XPerl_Raid_Events:UNIT_SPELLCAST_STOP(unit)
-	if (unit) then
+	if unit then
 		local unitName, realm = UnitName(unit)
 		if realm and realm ~= "" then
 			unitName = unitName.."-"..realm
@@ -1702,7 +1719,7 @@ end
 
 -- UNIT_SPELLCAST_FAILED
 function XPerl_Raid_Events:UNIT_SPELLCAST_FAILED(unit)
-	if (unit) then
+	if unit then
 		local unitName, realm = UnitName(unit)
 		if realm and realm ~= "" then
 			unitName = unitName.."-"..realm
@@ -1715,16 +1732,19 @@ XPerl_Raid_Events.UNIT_SPELLCAST_INTERRUPTED = XPerl_Raid_Events.UNIT_SPELLCAST_
 
 
 function XPerl_Raid_Events:UNIT_HEAL_PREDICTION(unit)
-	if (rconf.healprediction and unit == self.partyid) then
+	if rconf.healprediction and unit == self.partyid then
 		XPerl_SetExpectedHealth(self)
 	end
-	if (rconf.hotPrediction and unit == self.partyid) then
+	if not IsWrathClassic then
+		return
+	end
+	if rconf.hotPrediction and unit == self.partyid then
 		XPerl_SetExpectedHots(self)
 	end
 end
 
 function XPerl_Raid_Events:UNIT_ABSORB_AMOUNT_CHANGED(unit)
-	if (rconf.absorbs and unit == self.partyid) then
+	if rconf.absorbs and unit == self.partyid then
 		XPerl_SetExpectedAbsorbs(self)
 	end
 end

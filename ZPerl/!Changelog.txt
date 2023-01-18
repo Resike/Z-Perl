@@ -1,3 +1,9 @@
+**7.0.3**
+* Updated for 3.4.1.
+* Adde heal over times bar for Wrath Classic.
+* Totem frame fixes.
+* Various other fixes.
+
 **7.0.2**
 * Properly hiding party frames, to show/hide the default raid frames use the raid manager.
 * Fixed druid and monk special bars.

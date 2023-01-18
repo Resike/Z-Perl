@@ -8,8 +8,11 @@ XPerl_RequestConfig(function(new)
 	conf = new
 end, "$Revision: @file-revision@ $")
 
+local _, _, _, clientRevision = GetBuildInfo()
+
 local IsRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
 local IsWrathClassic = WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC
+local IsWrathClassicPTR = WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC and clientRevision >= 30401
 local IsVanillaClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 
 local _G = _G
@@ -124,7 +127,7 @@ function XPerl_DoGradient(self, force)
 			end
 			if (self.gradient) then
 				local orient, r, g, b, a, r2, g2, b2, a2 = unpack(gradient)
-				if IsRetail then
+				if IsRetail or IsWrathClassicPTR then
 					self.gradient:SetGradient(orient, CreateColor(r, g, b, a), CreateColor(r2, g2, b2, a2))
 				else
 					self.gradient:SetGradientAlpha(orient, r, g, b, a, r2, g2, b2, a2)

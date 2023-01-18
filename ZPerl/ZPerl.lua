@@ -4025,6 +4025,9 @@ end
 
 -- XPerl_SetExpectedHots
 function XPerl_SetExpectedHots(self)
+	if WOW_PROJECT_ID ~= WOW_PROJECT_WRATH_CLASSIC then
+		return
+	end
 	local bar
 	if self.statsFrame and self.statsFrame.expectedHots then
 		bar = self.statsFrame.expectedHots
@@ -4102,6 +4105,7 @@ function XPerl_SetExpectedHealth(self)
 			bar:Show()
 			bar:SetMinMaxValues(0, healthMax)
 			bar:SetValue(min(healthMax, health + amount))
+
 			return
 		end
 		bar:Hide()

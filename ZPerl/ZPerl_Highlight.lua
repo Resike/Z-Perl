@@ -8,8 +8,11 @@ XPerl_RequestConfig(function(new)
 	conf = new
 end, "$Revision: @file-revision@ $")
 
+local _, _, _, clientRevision = GetBuildInfo()
+
 local IsRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
 local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
+local IsWrathClassicPTR = WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC and clientRevision >= 30401
 local IsVanillaClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 
 local UnitCastingInfo = UnitCastingInfo
@@ -419,7 +422,7 @@ function xpHigh:SetHighlight(frame, guid)
 						g2 = min(g2 * 1.2, 1)
 						b2 = min(b2 * 1.2, 1)
 					end
-					if IsRetail then
+					if IsRetail or IsWrathClassicPTR then
 						frame.highlight.tex:SetGradient("HORIZONTAL", CreateColor(r1, g1, b1, 1), CreateColor(r2, g2, b2, 1))
 					else
 						frame.highlight.tex:SetGradient("HORIZONTAL", r1, g1, b1, r2, g2, b2)
