@@ -1365,17 +1365,21 @@ function XPerl_Raid_Events:COMPACT_UNIT_FRAME_PROFILES_LOADED()
 	if IsClassic then
 		DisableCompactRaidFrames()
 	end
-	CompactRaidFrameManager:UnregisterAllEvents()
-	hooksecurefunc(CompactRaidFrameManager, "Show", function(self)
-		self:Hide()
-	end)
-	CompactRaidFrameManager:Hide()
+	if CompactRaidFrameManager then
+		CompactRaidFrameManager:UnregisterAllEvents()
+		hooksecurefunc(CompactRaidFrameManager, "Show", function(self)
+			self:Hide()
+		end)
+		CompactRaidFrameManager:Hide()
+	end
 
-	CompactRaidFrameContainer:UnregisterAllEvents()
-	hooksecurefunc(CompactRaidFrameContainer, "Show", function(self)
-		self:Hide()
-	end)
-	CompactRaidFrameContainer:Hide()
+	if CompactRaidFrameContainer then
+		CompactRaidFrameContainer:UnregisterAllEvents()
+		hooksecurefunc(CompactRaidFrameContainer, "Show", function(self)
+			self:Hide()
+		end)
+		CompactRaidFrameContainer:Hide()
+	end
 end
 
 -- VARIABLES_LOADED

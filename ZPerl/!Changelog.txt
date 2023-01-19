@@ -1,3 +1,8 @@
+**7.0.5**
+* Fix for right click buff remove not working with `ActionButtonUseKeyDown` setting enabled.
+* Compact raid error fixes.
+* Druid combo error fix.
+
 **7.0.4**
 * Fix default buff cooldowns.
 

@@ -421,8 +421,11 @@ end
 
 function XPerl_PlayerBuffs_OnLoad(self)
 	XPerl_SetChildMembers(self)
-	self:RegisterForClicks("RightButtonUp") -- The XML version doesn't work..
-	--XPerl_ProtectedCall(setupButton, self)
+	if IsRetail then
+		self:RegisterForClicks("RightButtonDown", "RightButtonUp")
+	else
+		self:RegisterForClicks("RightButtonUp")
+	end
 end
 
 

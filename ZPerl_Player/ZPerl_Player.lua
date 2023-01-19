@@ -103,6 +103,7 @@ local XPerl_Player_HighlightCallback
 function XPerl_Player_OnLoad(self)
 	XPerl_SetChildMembers(self)
 	self.partyid = "player"
+	self.unit = self.partyid
 
 	XPerl_BlizzFrameDisable(PlayerFrame)
 
@@ -2342,7 +2343,6 @@ end
 function XPerl_Player_InitWarlock(self)
 	local _, class = UnitClass("player")
 	if (class == "WARLOCK" ) then
-
 		if not WarlockPowerFrame then
 			return
 		end
@@ -2401,7 +2401,6 @@ end
 function XPerl_Player_InitPaladin(self)
 	local _, class = UnitClass("player")
 	if (class == "PALADIN") then
-
 		if not PaladinPowerBarFrame then
 			return
 		end
@@ -2570,7 +2569,6 @@ end
 function XPerl_Player_InitMage(self)
 	local _, class = UnitClass("player")
 	if (class == "MAGE") then
-
 		if not MageArcaneChargesFrame then
 			return
 		end
@@ -2629,7 +2627,6 @@ end
 function XPerl_Player_InitDK(self)
 	local _, class = UnitClass("player")
 	if (class == "DEATHKNIGHT") then
-
 		if not RuneFrame then
 			return
 		end
@@ -2688,7 +2685,6 @@ end
 function XPerl_Player_InitEvoker(self)
 	local _, class = UnitClass("player")
 	if (class == "EVOKER") then
-
 		if not EssencePlayerFrame then
 			return
 		end
