@@ -2884,8 +2884,9 @@ local function XPerl_AuraButton_Update(buttonName, index, filter)
 	end
 end
 
-if IsRetail then
-	hooksecurefunc(BuffButtonMixin, "Update", XPerl_AuraButton_UpdateInfo)
+if AuraFrameMixin then
+	-- TODO: Figure out what's changed here
+	--hooksecurefunc(AuraFrameMixin, "Update", XPerl_AuraButton_UpdateInfo)
 elseif AuraButton_Update then
 	hooksecurefunc("AuraButton_Update", XPerl_AuraButton_Update)
 end

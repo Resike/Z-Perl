@@ -415,7 +415,11 @@ end
 
 -- XPerl_PickupContainerItem
 local PickupBag, PickupSlot
-if PickupContainerItem then
+if C_Container then
+	hooksecurefunc(C_Container, "PickupContainerItem", function(bagID, slot)
+		PickupBag, PickupSlot = bagID, slot
+	end)
+elseif PickupContainerItem then
 	hooksecurefunc("PickupContainerItem", function(bagID, slot)
 		PickupBag, PickupSlot = bagID, slot
 	end)

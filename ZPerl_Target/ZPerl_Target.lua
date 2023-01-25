@@ -1149,7 +1149,7 @@ local function XPerl_Target_UpdateLeader(self)
 			if UnitIsUnit("raid"..raidID, partyid) then
 				masterLooter = true
 			end
-		else
+		elseif partyID then
 			if UnitIsUnit("party"..partyID, partyid) or (partyID == 0 and UnitIsUnit("player", partyid)) then
 				masterLooter = true
 			end

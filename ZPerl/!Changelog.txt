@@ -1,3 +1,9 @@
+**7.0.6**
+* Updated for 10.0.5.
+* Temporary disabled Blizzard Default buff cooldowns.
+* Fix container error on Retail.
+* Fix master loot error.
+
 **7.0.5**
 * Fix for right click buff remove not working with `ActionButtonUseKeyDown` setting enabled.
 * Compact raid error fixes.
