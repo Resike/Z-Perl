@@ -1,4 +1,4 @@
-## Interface: 30401
+## Interface: 100005
 ## Author: Resike
 ## Title: Z-Perl |cffeda55fParty Pet|r
 ## Title-itIT: Z-Perl |cffeda55fFamigli Gruppo|r
