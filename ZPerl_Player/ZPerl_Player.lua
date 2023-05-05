@@ -1694,7 +1694,12 @@ function XPerl_Player_Events:UNIT_POWER_FREQUENT(powerType)
 
 	if powerType == "COMBO_POINTS" then
 		if XPerl_Target_UpdateCombo then
-			XPerl_Target_UpdateCombo(XPerl_Target)
+			if UnitExists("target") and XPerl_Target:IsVisible() then
+				XPerl_Target_UpdateCombo(XPerl_Target)
+			end
+			if UnitExists("focus") and XPerl_Focus:IsVisible() then
+				XPerl_Target_UpdateCombo(XPerl_Focus)
+			end
 		end
 
 		if conf.target.combo.blizzard then
@@ -2227,19 +2232,19 @@ end
 function XPerl_Player_InitDruid(self)
 	local _, class = UnitClass("player")
 	if (class == "DRUID") then
-		if not ComboPointDruidPlayerFrame then
+		if not DruidComboPointBarFrame then
 			return
 		end
 
 		self.runes = CreateFrame("Frame", "XPerl_Runes", self)
 		self.runes:SetPoint("TOPLEFT", self.statsFrame, "BOTTOMLEFT", 0, 2)
 		self.runes:SetPoint("BOTTOMRIGHT", self.statsFrame, "BOTTOMRIGHT", 0, -22)
-		self.runes.child = ComboPointDruidPlayerFrame
+		self.runes.child = DruidComboPointBarFrame
 		self.runes.unit = "player"
 
 		if pconf.lockRunes then
 			local moving
-			hooksecurefunc(ComboPointDruidPlayerFrame, "SetPoint", function(self)
+			hooksecurefunc(DruidComboPointBarFrame, "SetPoint", function(self)
 				if moving then
 					return
 				end
@@ -2258,7 +2263,7 @@ function XPerl_Player_InitDruid(self)
 				moving = nil
 			end)
 			local parenting
-			hooksecurefunc(ComboPointDruidPlayerFrame, "SetParent", function(self)
+			hooksecurefunc(DruidComboPointBarFrame, "SetParent", function(self)
 				if parenting then
 					return
 				end
@@ -2275,9 +2280,9 @@ function XPerl_Player_InitDruid(self)
 			end)
 		end
 
-		ComboPointDruidPlayerFrame:SetParent(self.runes)
-		ComboPointDruidPlayerFrame:ClearAllPoints()
-		ComboPointDruidPlayerFrame:SetPoint("TOP", self.runes, "TOP", 0, 2)
+		DruidComboPointBarFrame:SetParent(self.runes)
+		DruidComboPointBarFrame:ClearAllPoints()
+		DruidComboPointBarFrame:SetPoint("TOP", self.runes, "TOP", 0, 2)
 	end
 end
 
@@ -2285,19 +2290,19 @@ end
 function XPerl_Player_InitRogue(self)
 	local _, class = UnitClass("player")
 	if (class == "ROGUE") then
-		if not ComboPointPlayerFrame then
+		if not RogueComboPointBarFrame then
 			return
 		end
 
 		self.runes = CreateFrame("Frame", "XPerl_Runes", self)
 		self.runes:SetPoint("TOPLEFT", self.statsFrame, "BOTTOMLEFT", 0, 2)
 		self.runes:SetPoint("BOTTOMRIGHT", self.statsFrame, "BOTTOMRIGHT", 0, -22)
-		self.runes.child = ComboPointPlayerFrame
+		self.runes.child = RogueComboPointBarFrame
 		self.runes.unit = "player"
 
 		if pconf.lockRunes then
 			local moving
-			hooksecurefunc(ComboPointPlayerFrame, "SetPoint", function(self)
+			hooksecurefunc(RogueComboPointBarFrame, "SetPoint", function(self)
 				if moving then
 					return
 				end
@@ -2316,7 +2321,7 @@ function XPerl_Player_InitRogue(self)
 				moving = nil
 			end)
 			local parenting
-			hooksecurefunc(ComboPointPlayerFrame, "SetParent", function(self)
+			hooksecurefunc(RogueComboPointBarFrame, "SetParent", function(self)
 				if parenting then
 					return
 				end
@@ -2333,9 +2338,9 @@ function XPerl_Player_InitRogue(self)
 			end)
 		end
 
-		ComboPointPlayerFrame:SetParent(self.runes)
-		ComboPointPlayerFrame:ClearAllPoints()
-		ComboPointPlayerFrame:SetPoint("TOP", self.runes, "TOP", 0, 2)
+		RogueComboPointBarFrame:SetParent(self.runes)
+		RogueComboPointBarFrame:ClearAllPoints()
+		RogueComboPointBarFrame:SetPoint("TOP", self.runes, "TOP", 0, 2)
 	end
 end
 

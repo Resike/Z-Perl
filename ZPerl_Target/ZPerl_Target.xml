@@ -451,11 +451,6 @@
 				</Offset>
 			</Anchor>
 		</Anchors>
-		<Scripts>
-			<OnLoad>
-				XPerl_Target_OnLoad(self, "focus")
-			</OnLoad>
-		</Scripts>
 		<Frames>
 			<Frame>
 				<Size>
@@ -471,5 +466,10 @@
 				</Layers>
 			</Frame>
 		</Frames>
+		<Scripts>
+			<OnLoad>
+				XPerl_Target_OnLoad(self, "focus")
+			</OnLoad>
+		</Scripts>
 	</Button>
 </Ui>

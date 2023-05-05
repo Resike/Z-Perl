@@ -2188,6 +2188,7 @@ function XPerl_RestoreAllPositions()
 						break
 					end]]
 					if v.left and v.top then
+						frame:SetUserPlaced(false)
 						frame:ClearAllPoints()
 						frame:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", v.left / frame:GetScale(), v.top / frame:GetScale())
 						if v.height and v.width then
@@ -2206,7 +2207,7 @@ function XPerl_RestoreAllPositions()
 							frame:SetScript("OnDragStop", frame.StopMovingOrSizing)
 							frame:SetUserPlaced(true)
 						else]]
-							frame:SetUserPlaced(true)
+							--frame:SetUserPlaced(true)
 						--end
 					end
 				end

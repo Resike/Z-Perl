@@ -619,14 +619,14 @@ function XPerl_Globals_OnEvent(self, event, arg1, ...)
 		self:UnregisterEvent(event)
 		startupCheckSettings(self, event)
 		ZPerl_MinimapButton_Init(ZPerl_MinimapButton_Frame)
-		-- Load the player's layout, will be profile dependent later.
-		local layout = format("%s(%s)", GetRealmName(), UnitName("player"))
-		XPerl_LoadFrameLayout(layout)
 	elseif (event == "PLAYER_ENTERING_WORLD") then
 		self:UnregisterEvent(event)
 		self:UnregisterAllEvents()
 		self:RegisterEvent("PLAYER_REGEN_ENABLED")
 		self:SetScript("OnEvent", onEventPostSetup)
+		-- Load the player's layout, will be profile dependent later.
+		local layout = format("%s(%s)", GetRealmName(), UnitName("player"))
+		XPerl_LoadFrameLayout(layout)
 		XPerl_Globals_OnEvent = nil
 	end
 end

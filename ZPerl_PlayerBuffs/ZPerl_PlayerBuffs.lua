@@ -136,7 +136,7 @@ function XPerl_Player_BuffSetup(self)
 		self.buffFrame.BuffFrameFlashTime = 0
 		self.buffFrame.BuffFrameFlashState = 1
 		self.buffFrame.BuffAlphaValue = 1
-		self.buffFrame:SetScript("OnUpdate", BuffFrame_OnUpdate)
+		--self.buffFrame:SetScript("OnUpdate", BuffFrame_OnUpdate)
 
 		-- Not implemented.. yet.. maybe later
 		--self.buffFrame.initialConfigFunction = function(self)
@@ -226,20 +226,19 @@ local function XPerl_Player_Buffs_Set_Bits(self)
 end
 
 -- AuraButton_OnUpdate
-local function AuraButton_OnUpdate(self, elapsed)
+--[[local function AuraButton_OnUpdate(self, elapsed)
 	if (not self.endTime) then
 		self:SetAlpha(1)
 		self:SetScript("OnUpdate", nil)
 		return
 	end
-	local index = self:GetID()
 	local timeLeft = self.endTime - GetTime()
 	if (timeLeft < _G.BUFF_WARNING_TIME) then
 		self:SetAlpha(XPerl_Player.buffFrame.BuffAlphaValue)
 	else
 		self:SetAlpha(1)
 	end
-end
+end--]]
 
 local function DoEnchant(self, slotID, hasEnchant, expire, charges)
 	if (hasEnchant) then
@@ -271,15 +270,15 @@ local function DoEnchant(self, slotID, hasEnchant, expire, charges)
 			local timeStart = timeEnd - self.fullDuration --(30 * 60)
 			XPerl_CooldownFrame_SetTimer(self.cooldown, timeStart, self.fullDuration, 1)
 
-			if (pconf.buffs.flash) then
+			--[[if (pconf.buffs.flash) then
 				self.endTime = timeEnd
 				self:SetScript("OnUpdate", AuraButton_OnUpdate)
 			else
 				self.endTime = nil
-			end
+			end--]]
 		else
 			self.cooldown:Hide()
-			self.endTime = nil
+			--self.endTime = nil
 		end
 	else
 		self.fullDuration = nil
@@ -390,15 +389,15 @@ function XPerl_PlayerBuffs_Update(self)
 			if (self.cooldown and (duration or 0) ~= 0 and conf.buffs.cooldown and (unitCaster or conf.buffs.cooldownAny)) then
 				local start = expirationTime - duration
 				XPerl_CooldownFrame_SetTimer(self.cooldown, start, duration, 1, unitCaster)
-				if (pconf.buffs.flash) then
+				--[[if (pconf.buffs.flash) then
 					self.endTime = expirationTime
 					self:SetScript("OnUpdate", AuraButton_OnUpdate)
 				else
 					self.endTime = nil
-				end
+				end--]]
 			else
 				self.cooldown:Hide()
-				self.endTime = nil
+				--self.endTime = nil
 			end
 			-- TODO: Variable this
 			self.cooldown:SetDrawEdge(false)

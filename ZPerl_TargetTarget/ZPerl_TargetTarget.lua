@@ -657,20 +657,23 @@ function XPerl_TargetTarget_Set_Bits()
 	if conf.targettargettarget.enable then
 		if not XPerl_TargetTargetTarget then
 			local ttt = CreateFrame("Button", "XPerl_TargetTargetTarget", UIParent, "ZPerl_TargetTarget_Template")
+			ttt:ClearAllPoints()
 			ttt:SetPoint("TOPLEFT", XPerl_TargetTarget.statsFrame, "TOPRIGHT", 5, 0)
 		end
 	end
 
 	if conf.focustarget.enable then
 		if not XPerl_FocusTarget then
-			local ttt = CreateFrame("Button", "XPerl_FocusTarget", UIParent, "ZPerl_TargetTarget_Template")
-			ttt:SetPoint("TOPLEFT", XPerl_Focus.levelFrame, "TOPRIGHT", 5, 0)
+			local ft = CreateFrame("Button", "XPerl_FocusTarget", UIParent, "ZPerl_TargetTarget_Template")
+			ft:ClearAllPoints()
+			ft:SetPoint("TOPLEFT", XPerl_Focus.levelFrame, "TOPRIGHT", 5, 0)
 		end
 	end
 
 	if conf.pettarget.enable and XPerl_Player_Pet then
 		if not XPerl_PetTarget then
 			local pt = CreateFrame("Button", "XPerl_PetTarget", XPerl_Player_Pet, "ZPerl_TargetTarget_Template")
+			pt:ClearAllPoints()
 			pt:SetPoint("BOTTOMLEFT", XPerl_Player_Pet.statsFrame, "BOTTOMRIGHT", 5, 0)
 		end
 		if (not InCombatLockdown()) then
