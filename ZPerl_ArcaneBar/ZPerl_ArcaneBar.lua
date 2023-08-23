@@ -21,7 +21,6 @@ local _, _, _, clientRevision = GetBuildInfo()
 
 local IsRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
 local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
-local IsWrathClassicPTR = WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC and clientRevision >= 30401
 local IsVanillaClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 
 local min = min
@@ -127,7 +126,9 @@ local function overrideToggle(value)
 						if IsRetail then
 							PlayerCastingBarFrame:RegisterEvent(event)
 						else
-							CastingBarFrame:RegisterEvent(event)
+							if event ~= "UNIT_SPELLCAST_INTERRUPTIBLE" and event ~= "UNIT_SPELLCAST_NOT_INTERRUPTIBLE" then
+								CastingBarFrame:RegisterEvent(event)
+							end
 						end
 					end
 				end

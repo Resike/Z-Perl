@@ -1,5 +1,5 @@
-## Interface: 100100
-## Version: 7.0.7
+## Interface: 11404
+## Version: 7.0.8
 ## Author: Resike
 ## Title: Z-Perl UnitFrames
 ## Title-itIT: Z-Perl UnitFrames

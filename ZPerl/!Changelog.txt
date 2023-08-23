@@ -1,4 +1,9 @@
 **7.0.7**
+* Updated for 10.1.5.
+* Updated for 3.4.2.
+* Updated for 1.14.4.
+
+**7.0.7**
 * Updated for 10.1.0.
 * Fixed combo points not updating on the focus frame.
 * Fixed issues with old role icons and disable default raid frame settings.

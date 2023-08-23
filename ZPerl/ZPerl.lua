@@ -488,11 +488,11 @@ local function DoRangeCheck(unit, opt)
 				end
 			end
 			-- CheckInteractDistance
-			-- 1 = Inspect = 28 yards (BCC = 28y) (Vanilla = 10 yards)
-			-- 2 = Trade = 8 yards (BCC = 8y) (Vanilla = 11 yards)
-			-- 3 = Duel = 7 yards (BCC = 7y) (Vanilla = 10 yards)
-			-- 4 = Follow = 28 yards (BCC = 28y) (Vanilla = 21 yards)
-			-- 5 = ??? = 7 yards (BCC = 7y) (Vanilla = 10 yards)
+			-- 1 = Inspect = 28 yards (BCC = 28 yards) (Vanilla = 10 yards)
+			-- 2 = Trade = 8 yards (BCC = 8 yards) (Vanilla = 11 yards)
+			-- 3 = Duel = 7 yards (BCC = 7 yards) (Vanilla = 10 yards)
+			-- 4 = Follow = 28 yards (BCC = 28 yards) (Vanilla = 21 yards)
+			-- 5 = Pet-battle Duel = 7 yards (BCC = 7 yards) (Vanilla = 10 yards)
 		elseif (opt.spell) then
 			if UnitCanAssist("player", unit) then
 				range = IsSpellInRange(opt.spell, unit)
