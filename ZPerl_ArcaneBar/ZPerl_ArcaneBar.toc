@@ -1,4 +1,4 @@
-## Interface: 11404
+## Interface: 30402
 ## Author: Resike
 ## Title: Z-Perl |cffeda55fArcane Bars|r
 ## Title-itIT: Z-Perl |cffeda55fBarre Arcane|r
