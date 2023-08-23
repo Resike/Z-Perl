@@ -545,11 +545,7 @@ local function XPerl_MakePreCast(self)
 	self.precast:SetWidth(1)
 	self.precast:Hide()
 	self.precast:SetBlendMode("ADD")
-	if IsRetail or IsWrathClassicPTR then
-		self.precast:SetGradient("HORIZONTAL", CreateColor(0, 0, 1, 1), CreateColor(1, 0, 0, 1))
-	else
-		self.precast:SetGradient("HORIZONTAL", 0, 0, 1, 1, 0, 0)
-	end
+	self.precast:SetGradient("HORIZONTAL", CreateColor(0, 0, 1, 1), CreateColor(1, 0, 0, 1))
 end
 
 -- XPerl_ArcaneBar_RegisterFrame
