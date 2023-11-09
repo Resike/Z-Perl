@@ -76,8 +76,9 @@ local UnitPower = UnitPower
 local UnitPowerMax = UnitPowerMax
 local UnregisterUnitWatch = UnregisterUnitWatch
 
-local CombatFeedback_OnUpdate = CombatFeedback_OnUpdate
+local CombatFeedback_Initialize = CombatFeedback_Initialize
 local CombatFeedback_OnCombatEvent = CombatFeedback_OnCombatEvent
+local CombatFeedback_OnUpdate = CombatFeedback_OnUpdate
 
 local partyHeader
 local partyAnchor

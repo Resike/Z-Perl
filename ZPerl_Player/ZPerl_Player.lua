@@ -28,6 +28,8 @@ local IsWrathClassic = WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC
 local IsVanillaClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
 
+-- Upvalues
+local ceil = ceil
 local floor = floor
 local format = format
 local hooksecurefunc = hooksecurefunc
@@ -51,8 +53,10 @@ local InCombatLockdown = InCombatLockdown
 local IsInInstance = IsInInstance
 local IsInRaid = IsInRaid
 local IsPVPTimerRunning = IsPVPTimerRunning
+local IsResting = IsResting
 local UnitAffectingCombat = UnitAffectingCombat
 local UnitClass = UnitClass
+local UnitExists = UnitExists
 local UnitFactionGroup = UnitFactionGroup
 local UnitGroupRolesAssigned = UnitGroupRolesAssigned
 local UnitGUID = UnitGUID
@@ -72,6 +76,7 @@ local UnitIsMercenary = UnitIsMercenary
 local UnitIsPVP = UnitIsPVP
 local UnitIsPVPFreeForAll = UnitIsPVPFreeForAll
 local UnitIsUnit = UnitIsUnit
+local UnitLevel = UnitLevel
 local UnitName = UnitName
 local UnitOnTaxi = UnitOnTaxi
 local UnitPower = UnitPower
@@ -81,8 +86,9 @@ local UnitPowerType = UnitPowerType
 local UnitXP = UnitXP
 local UnitXPMax = UnitXPMax
 
-local CombatFeedback_OnUpdate = CombatFeedback_OnUpdate
+local CombatFeedback_Initialize = CombatFeedback_Initialize
 local CombatFeedback_OnCombatEvent = CombatFeedback_OnCombatEvent
+local CombatFeedback_OnUpdate = CombatFeedback_OnUpdate
 
 local XPerl_Player_InitDK
 local XPerl_Player_InitDruid
@@ -1610,7 +1616,7 @@ function XPerl_Player_Events:VARIABLES_LOADED()
 		"PLAYER_FLAGS_CHANGED",
 		"UNIT_ENTERED_VEHICLE",
 		"UNIT_EXITING_VEHICLE",
-		--[["UNIT_PET",]]
+		--"UNIT_PET",
 		"PLAYER_TALENT_UPDATE",
 		"RAID_TARGET_UPDATE",
 		"UPDATE_SHAPESHIFT_FORM",

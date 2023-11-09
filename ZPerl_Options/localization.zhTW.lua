@@ -1,7 +1,8 @@
 --[[
 Localisation file
 ]]
-local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
+local IsRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
+local IsWrathClassic = WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC
 
 if (GetLocale() == "zhTW") then
 -- Tabs
@@ -826,13 +827,16 @@ XPERL_CONF_RAID_HIGHLIGHTS_HOTCOUNT	= "HOT倒數"
 XPERL_CONF_RAID_HIGHLIGHTS_HOTCOUNT_DESC = "顯示當前 HOTs 性質法術倒數(不分職業)"
 XPERL_CONF_RAID_HIGHLIGHTS_TARGET	= "我的目標"
 XPERL_CONF_RAID_HIGHLIGHTS_TARGET_DESC	= "表明您的目標在隊伍和團隊框架"
-if IsClassic then
+if IsRetail then
 	XPERL_CONF_RAID_HIGHLIGHTS_MENDING		= GetSpellInfo(33076)				-- Prayer of Mending
 	XPERL_CONF_RAID_HIGHLIGHTS_MENDING_DESC	= "啟用"..GetSpellInfo(33076).."追蹤。若啟用閃爍效果，將會以彈跳的圖示的方式來追蹤此 buff。"
 	XPERL_CONF_RAID_HIGHLIGHTS_RENEWING		= GetSpellInfo(115151) -- Renewing Mist
 	XPERL_CONF_RAID_HIGHLIGHTS_RENEWING_DESC= "啟用"..GetSpellInfo(115151).."追蹤. 若啟用閃爍效果，將會以彈跳的圖示的方式來追蹤此 buff。"
 	--XPERL_CONF_RAID_HIGHLIGHTS_BEACON		= GetSpellInfo(157007) -- Beacon of Insight
 	--XPERL_CONF_RAID_HIGHLIGHTS_BEACON_DESC	= "Enable the "..GetSpellInfo(157007).." tracking. With sparkles enabled, this will show a bouncing graphic to make it easier to follow the buff."
+elseif IsWrathClassic then
+	XPERL_CONF_RAID_HIGHLIGHTS_MENDING		= GetSpellInfo(33076)				-- Prayer of Mending
+	XPERL_CONF_RAID_HIGHLIGHTS_MENDING_DESC	= "啟用"..GetSpellInfo(33076).."追蹤。若啟用閃爍效果，將會以彈跳的圖示的方式來追蹤此 buff。"
 end
 XPERL_CONF_RAID_HIGHLIGHTS_SPARKLES	= "閃爍效果"
 XPERL_CONF_RAID_HIGHLIGHTS_SPARKLES_DESC= "使用新的、更明顯、生動的閃爍效果。關閉此選項將會回復預設的效果。"

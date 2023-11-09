@@ -15,6 +15,43 @@ end, "$Revision: @file-revision@ $")
 local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
 local IsWrathClassic = WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC
 
+-- Upvalues
+local _G = _G
+local format = format
+local max = max
+local pairs = pairs
+local pcall = pcall
+local string = string
+local tonumber = tonumber
+
+local CreateFrame = CreateFrame
+local GetPetHappiness = GetPetHappiness
+local InCombatLockdown = InCombatLockdown
+local RegisterAttributeDriver = RegisterAttributeDriver
+local RegisterStateDriver = RegisterStateDriver
+local RegisterUnitWatch = RegisterUnitWatch
+local UnitAffectingCombat = UnitAffectingCombat
+local UnitClass = UnitClass
+local UnitExists = UnitExists
+local UnitGUID = UnitGUID
+local UnitHasIncomingResurrection = UnitHasIncomingResurrection
+local UnitHasVehicleUI = UnitHasVehicleUI
+local UnitHealth = UnitHealth
+local UnitHealthMax = UnitHealthMax
+local UnitInVehicle = UnitInVehicle
+local UnitIsCharmed = UnitIsCharmed
+local UnitIsDead = UnitIsDead
+local UnitIsFriend = UnitIsFriend
+local UnitIsGhost = UnitIsGhost
+local UnitName = UnitName
+local UnitPower = UnitPower
+local UnitPowerMax = UnitPowerMax
+local UnregisterUnitWatch = UnregisterUnitWatch
+
+local CombatFeedback_Initialize = CombatFeedback_Initialize
+local CombatFeedback_OnCombatEvent = CombatFeedback_OnCombatEvent
+local CombatFeedback_OnUpdate = CombatFeedback_OnUpdate
+
 local XPerl_Player_Pet_HighlightCallback
 
 -- XPerl_Player_Pet_OnLoad

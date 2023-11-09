@@ -25,6 +25,7 @@ XPerl_RequestConfig(function(new)
 	end
 end, "$Revision: @file-revision@ $")
 
+local IsRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
 local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
 local IsWrathClassic = WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC
 local IsVanillaClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
@@ -43,15 +44,23 @@ local bit_band = bit.band
 local format = format
 local max = max
 local pairs = pairs
+local pcall = pcall
 local select = select
 local string = string
+local tinsert = tinsert
 local tonumber = tonumber
 local tostring = tostring
 local type = type
 local unpack = unpack
+local setmetatable = setmetatable
+local hooksecurefunc = hooksecurefunc
+
+local Enum = Enum
 
 local CanInspect = CanInspect
 local CheckInteractDistance = CheckInteractDistance
+local CombatFeedbackText = CombatFeedbackText
+local CombatLogGetCurrentEventInfo = CombatLogGetCurrentEventInfo
 local GetComboPoints = GetComboPoints
 local GetDifficultyColor = GetDifficultyColor or GetQuestDifficultyColor
 local GetInspectSpecialization = GetInspectSpecialization
@@ -66,6 +75,7 @@ local NotifyInspect = NotifyInspect
 local PlaySound = PlaySound
 local RegisterUnitWatch = RegisterUnitWatch
 local UnitAffectingCombat = UnitAffectingCombat
+local UnitBattlePet = UnitIsBattlePet
 local UnitBattlePetType = UnitBattlePetType
 local UnitCanAssist = UnitCanAssist
 local UnitCanAttack = UnitCanAttack
@@ -81,6 +91,7 @@ local UnitInParty = UnitInParty
 local UnitInRaid = UnitInRaid
 local UnitInVehicle = UnitInVehicle
 local UnitIsAFK = UnitIsAFK
+local UnitIsBattlePet = UnitIsBattlePet
 local UnitIsBattlePetCompanion = UnitIsBattlePetCompanion
 local UnitIsCharmed = UnitIsCharmed
 local UnitIsConnected = UnitIsConnected
@@ -104,6 +115,10 @@ local UnitPlayerControlled = UnitPlayerControlled
 local UnitPower = UnitPower
 local UnitPowerMax = UnitPowerMax
 local UnregisterUnitWatch = UnregisterUnitWatch
+
+local CombatFeedback_Initialize = CombatFeedback_Initialize
+local CombatFeedback_OnUpdate = CombatFeedback_OnUpdate
+local CombatFeedback_OnCombatEvent = CombatFeedback_OnCombatEvent
 
 local percD = "%d"..PERCENT_SYMBOL
 local buffSetup
@@ -141,8 +156,6 @@ function XPerl_Target_OnLoad(self, partyid)
 		"UNIT_AURA",
 		IsClassic and "UNIT_HEALTH_FREQUENT" or "UNIT_HEALTH",
 		"UNIT_MAXHEALTH",
-		"PET_BATTLE_HEALTH_CHANGED",
-		"UPDATE_SUMMONPETS_ACTION",
 		"UNIT_POWER_FREQUENT",
 		"UNIT_MAXPOWER",
 		"UNIT_LEVEL",
@@ -152,6 +165,10 @@ function XPerl_Target_OnLoad(self, partyid)
 		--"PET_BATTLE_CLOSE",
 		"INCOMING_RESURRECT_CHANGED",
 	}
+	if IsRetail then
+		tinsert(events, "PET_BATTLE_HEALTH_CHANGED")
+		tinsert(events, "UPDATE_SUMMONPETS_ACTION")
+	end
 
 	for i, event in pairs(events) do
 		if string.find(event, "^UNIT_") or string.find(event, "^INCOMING") then
@@ -1374,67 +1391,66 @@ local missIndex = {
 
 -- DoEvent
 local function DoEvent(self, timestamp, event, hideCaster, srcGUID, srcName, srcFlags, srcRaidFlags, dstGUID, dstName, dstFlags, destRaidFlags, ...)
-	local feedbackText = self.feedbackText
-	local fontHeight = self.feedbackFontHeight
-	local text
-	local r = 1
-	local g = 1
-	local b = 1
+	if (bit_band(dstFlags, self.combatMask) ~= 0 and bit_band(srcFlags, 0x00000001) ~= 0) or (UnitIsUnit("player", self.partyid) and bit_band(dstFlags, 0x00000001)) then
+		local feedbackText = self.feedbackText
+		local fontHeight = self.feedbackFontHeight
+		local text
+		local r = 1
+		local g = 1
+		local b = 1
 
-	if (event == "SWING_DAMAGE" or event == "RANGE_DAMAGE" or event == "SPELL_DAMAGE" or event == "DAMAGE_SHIELD" or event == "ENVIRONMENTAL_DAMAGE" or event == "SPELL_PERIODIC_DAMAGE") then
-		local amount, overkill, spellSchool, resisted, blocked, absorbed, critical, glancing, crushing, isOffHand, multistrike = select(amountIndex[event], ...)
-		if (amount and amount ~= 0) then
-			if (critical or crushing) then
-				fontHeight = fontHeight * 1.5
-			elseif (glancing) then
-				fontHeight = fontHeight * 0.75
+		if (event == "SWING_DAMAGE" or event == "RANGE_DAMAGE" or event == "SPELL_DAMAGE" or event == "DAMAGE_SHIELD" or event == "ENVIRONMENTAL_DAMAGE" or event == "SPELL_PERIODIC_DAMAGE") then
+			local amount, overkill, spellSchool, resisted, blocked, absorbed, critical, glancing, crushing, isOffHand, multistrike = select(amountIndex[event], ...)
+			if (amount and amount ~= 0) then
+				if (critical or crushing) then
+					fontHeight = fontHeight * 1.5
+				elseif (glancing) then
+					fontHeight = fontHeight * 0.75
+				end
+				if (event ~= "SWING_DAMAGE" and event ~= "RANGE_DAMAGE") then
+					b = 0
+				end
+				text = amount
 			end
-			if (event ~= "SWING_DAMAGE" and event ~= "RANGE_DAMAGE") then
+
+		elseif (event == "SWING_MISSED" or event == "RANGE_MISSED" or event == "SPELL_MISSED" or event == "SPELL_PERIODIC_MISSED") then
+			local missType = select(missIndex[event], ...)
+			if (missType) then
+				if (event ~= "SWING_MISSED" and event ~= "RANGE_MISSED") then
+					b = 0
+				end
+				text = CombatFeedbackText[missType]
+			end
+
+		elseif (event == "SPELL_HEAL" or event == "SPELL_PERIODIC_HEAL") then
+			local spellID, spellName, spellSchool, amount, overhealing, absorbed, critical = ...
+			if (amount and amount ~= 0) then
+				if (critical) then
+					fontHeight = fontHeight * 1.5
+				end
+				r = 0
+				g = 1
 				b = 0
+				text = amount
 			end
-			text = amount
 		end
 
-	elseif (event == "SWING_MISSED" or event == "RANGE_MISSED" or event == "SPELL_MISSED" or event == "SPELL_PERIODIC_MISSED") then
-		local missType = select(missIndex[event], ...)
-		if (missType) then
-			if (event ~= "SWING_MISSED" and event ~= "RANGE_MISSED") then
-				b = 0
-			end
-			text = CombatFeedbackText[missType]
+		if (text) then
+			self.feedbackStartTime = GetTime()
+
+			feedbackText:SetTextHeight(fontHeight)
+			feedbackText:SetText(text)
+			feedbackText:SetTextColor(r, g, b)
+			feedbackText:SetAlpha(0)
+			feedbackText:Show()
 		end
-
-	elseif (event == "SPELL_HEAL" or event == "SPELL_PERIODIC_HEAL") then
-		local spellID, spellName, spellSchool, amount, overhealing, absorbed, critical = ...
-		if (amount and amount ~= 0) then
-			if (critical) then
-				fontHeight = fontHeight * 1.5
-			end
-			r = 0
-			g = 1
-			b = 0
-			text = amount
-		end
-	end
-
-	if (text) then
-		self.feedbackStartTime = GetTime()
-
-		feedbackText:SetTextHeight(fontHeight)
-		feedbackText:SetText(text)
-		feedbackText:SetTextColor(r, g, b)
-		feedbackText:SetAlpha(0)
-		feedbackText:Show()
 	end
 end
 
 -- COMBAT_LOG_EVENT_UNFILTERED
 function XPerl_Target_Events:COMBAT_LOG_EVENT_UNFILTERED()
 	if (self.conf.hitIndicator and self.conf.portrait) then
-		local _, _, _, _, _, srcFlags, _, _, _, dstFlags = CombatLogGetCurrentEventInfo()
-		if (bit_band(dstFlags, self.combatMask) ~= 0 and bit_band(srcFlags, 0x00000001) ~= 0) or (UnitIsUnit("player", self.partyid) and bit_band(dstFlags, 0x00000001)) then
-			DoEvent(self, CombatLogGetCurrentEventInfo())
-		end
+		DoEvent(self, CombatLogGetCurrentEventInfo())
 	end
 end
 
@@ -1443,10 +1459,8 @@ function XPerl_Target_Events:UNIT_COMBAT(unitID, action, descriptor, damage, dam
 	if (unitID == self.partyid) then
 		XPerl_Target_Update_Combat(self)
 
-		if (not self.conf.ownDamageOnly) then
-			if (self.conf.hitIndicator and self.conf.portrait) then
-				CombatFeedback_OnCombatEvent(self, action, descriptor, damage, damageType)
-			end
+		if (self.conf.hitIndicator and self.conf.portrait) then
+			CombatFeedback_OnCombatEvent(self, action, descriptor, damage, damageType)
 		end
 
 		if (action == "HEAL") then
@@ -1853,7 +1867,7 @@ function XPerl_Target_Set_Bits(self)
 
 	XPerl_StatsFrameSetup(self)
 
-	if (self.conf.ownDamageOnly and (self.conf.hitIndicator and self.conf.portrait)) then
+	if (not self.conf.ownDamageOnly and self.conf.hitIndicator and self.conf.portrait) then
 		self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 	else
 		self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")

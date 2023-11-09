@@ -2072,7 +2072,7 @@ end
 -- Keep track of where all the data should be going
 local instanceType
 local function updateDistributionChannel()
-	if( instanceType == "pvp" or instanceType == "arena" ) then
+	if( instanceType == "pvp" or instanceType == "arena" or IsInGroup(LE_PARTY_CATEGORY_INSTANCE) ) then
 		distribution = "INSTANCE_CHAT"
 	elseif( IsInRaid() ) then
 		distribution = "RAID"
@@ -2681,6 +2681,9 @@ function HealComm:COMBAT_LOG_EVENT_UNFILTERED(...)
 
 	local _, spellName = select(12, ...)
 	local destUnit = guidToUnit[destGUID]
+
+	if not destUnit then return end -- We only handle own group units
+
 	local spellID = destUnit and select(10, unitHasAura(destUnit, spellName)) or select(7, GetSpellInfo(spellName))
 
 	-- Heal or hot ticked that the library is tracking
