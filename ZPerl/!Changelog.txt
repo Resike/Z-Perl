@@ -1,3 +1,10 @@
+**7.1.1**
+* Updated for 1.15.0.
+* Fixed alternate power bar taint.
+* Fixed Shaman's curse dispel in Wrath Classic.
+* Fixed vehcile swaps in Wrath Classic.
+* Removed only yours hit indicator settings.
+
 **7.1.0**
 * Updated for 10.2.0.
 * Updated for 3.4.3.

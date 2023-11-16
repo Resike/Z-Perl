@@ -7288,7 +7288,7 @@
 									XPerl_Options_EnableSibling(self, "Portrait3D")
 									XPerl_Options_EnableSibling(self, "ClassPortrait")
 									XPerl_Options_EnableSibling(self, "HitIndicator")
-									XPerl_Options_EnableSibling(self, "OnlyMine", "HitIndicator")
+									--XPerl_Options_EnableSibling(self, "OnlyMine", "HitIndicator")
 								end
 								XPerl_Options_RegisterProtected(self)
 							</OnLoad>
@@ -7356,13 +7356,13 @@
 								self.configBase = "XPerlDB.target"
 								self.configIndex = "hitIndicator"
 								self.Validate = function()
-									XPerl_Options_EnableSibling(self, "OnlyMine")
+									--XPerl_Options_EnableSibling(self, "OnlyMine")
 								end
 							</OnLoad>
 						</Scripts>
 					</CheckButton>
 
-					<CheckButton name="$parent_OnlyMine" inherits="XPerlCheckButtonTemplate">
+					<!--<CheckButton name="$parent_OnlyMine" inherits="XPerlCheckButtonTemplate">
 						<Size>
 							<AbsDimension x="24" y="24"/>
 						</Size>
@@ -7380,7 +7380,7 @@
 								self.configIndex = "ownDamageOnly"
 							</OnLoad>
 						</Scripts>
-					</CheckButton>
+					</CheckButton>-->
 
 					<CheckButton name="$parent_Defer" inherits="XPerlCheckButtonTemplate">
 						<Anchors>
@@ -7420,7 +7420,7 @@
 						<Anchors>
 							<Anchor point="TOP" relativeTo="$parent_Portrait" relativePoint="BOTTOM">
 								<Offset>
-									<AbsDimension x="0" y="-75"/>
+									<AbsDimension x="0" y="-55"/>
 								</Offset>
 							</Anchor>
 						</Anchors>
@@ -9223,7 +9223,7 @@
 									XPerl_Options_EnableSibling(self, "Portrait3D", "Portrait")
 									XPerl_Options_EnableSibling(self, "ClassPortrait", "Portrait")
 									XPerl_Options_EnableSibling(self, "HitIndicator", "Portrait")
-									XPerl_Options_EnableSibling(self, "OnlyMine", "HitIndicator")
+									--XPerl_Options_EnableSibling(self, "OnlyMine", "HitIndicator")
 									XPerl_Options_EnableSibling(self, "Threat")
 									XPerl_Options_EnableSibling(self, "ThreatName", "Threat")
 									XPerl_Options_EnableSibling(self, "ThreatPortrait", "Threat")
@@ -9290,7 +9290,7 @@
 									XPerl_Options_EnableSibling(self, "Portrait3D", "Enable")
 									XPerl_Options_EnableSibling(self, "ClassPortrait", "Enable")
 									XPerl_Options_EnableSibling(self, "HitIndicator", "Enable")
-									XPerl_Options_EnableSibling(self, "OnlyMine", "HitIndicator", "Enable")
+									--XPerl_Options_EnableSibling(self, "OnlyMine", "HitIndicator", "Enable")
 								end
 								XPerl_Options_RegisterProtected(self)
 							</OnLoad>
@@ -9358,13 +9358,13 @@
 								self.configBase = "XPerlDB.focus"
 								self.configIndex = "hitIndicator"
 								self.Validate = function()
-									XPerl_Options_EnableSibling(self, "OnlyMine", "Enable")
+									--XPerl_Options_EnableSibling(self, "OnlyMine", "Enable")
 								end
 							</OnLoad>
 						</Scripts>
 					</CheckButton>
 
-					<CheckButton name="$parent_OnlyMine" inherits="XPerlCheckButtonTemplate">
+					<!--<CheckButton name="$parent_OnlyMine" inherits="XPerlCheckButtonTemplate">
 						<Size>
 							<AbsDimension x="24" y="24"/>
 						</Size>
@@ -9382,13 +9382,13 @@
 								self.configIndex = "ownDamageOnly"
 							</OnLoad>
 						</Scripts>
-					</CheckButton>
+					</CheckButton>-->
 
 					<CheckButton name="$parent_Threat" inherits="XPerlCheckButtonTemplate">
 						<Anchors>
 							<Anchor point="TOP" relativeTo="$parent_Portrait" relativePoint="BOTTOM">
 								<Offset>
-									<AbsDimension x="0" y="-75"/>
+									<AbsDimension x="0" y="-55"/>
 								</Offset>
 							</Anchor>
 						</Anchors>

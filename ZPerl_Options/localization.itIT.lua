@@ -414,7 +414,7 @@ XPERL_CONF_TARGET_DEBUFFHIGHLIGHT_FRIEND        = "Amico"
 XPERL_CONF_TARGET_DEBUFFHIGHLIGHT_FRIEND_DESC    = "Visualizza solo le penalità sui bersagli amici"
 XPERL_CONF_TARGET_DEBUFFHIGHLIGHT_FOE            = ENEMY
 XPERL_CONF_TARGET_DEBUFFHIGHLIGHT_FOE_DESC        = "Evidenzia solo le penalità sui giocatori nemici"
-XPERL_CONF_TARGET_SOUNDS                        = SOUND_VOLUME
+XPERL_CONF_TARGET_SOUNDS                        = "Sound"
 XPERL_CONF_TARGET_SOUNDS_DESC                    = "Abilita il suono quando bersagli, diverso in base alla reazione del nemico"
 
 XPERL_CONF_PLAYER_PET_TARGET			= "Bersaglio Famiglio"

@@ -819,6 +819,10 @@ function XPerl_BlizzFrameDisable(self)
 				self:RegisterEvent(event)
 			end
 		end
+
+		if AlternatePowerBar then
+			AlternatePowerBar:UnregisterAllEvents()
+		end
 	end
 
 	if IsRetail and self == PartyFrame then
@@ -843,22 +847,22 @@ function XPerl_BlizzFrameDisable(self)
 		end
 	end)
 
-	local health = self.healthbar
+	local health = self.healthBar or self.healthbar or self.HealthBar
 	if health then
 		health:UnregisterAllEvents()
 	end
 
-	local power = self.manabar
+	local power = self.manabar or self.ManaBar
 	if power then
 		power:UnregisterAllEvents()
 	end
 
-	local spell = self.spellbar
+	local spell = self.castBar or self.spellbar or self.CastingBarFrame
 	if spell then
 		spell:UnregisterAllEvents()
 	end
 
-	local powerBarAlt = self.powerBarAlt
+	local powerBarAlt = self.powerBarAlt or self.PowerBarAlt
 	if powerBarAlt then
 		powerBarAlt:UnregisterAllEvents()
 	end
@@ -866,6 +870,21 @@ function XPerl_BlizzFrameDisable(self)
 	local buffFrame = self.BuffFrame
 	if buffFrame then
 		buffFrame:UnregisterAllEvents()
+	end
+
+	local debuffFrame = self.DebuffFrame
+	if debuffFrame then
+		debuffFrame:UnregisterAllEvents()
+	end
+
+	local classPowerBar = self.classPowerBar
+	if classPowerBar then
+		classPowerBar:UnregisterAllEvents()
+	end
+
+	local ccRemoverFrame = self.CcRemoverFrame
+	if ccRemoverFrame then
+		ccRemoverFrame:UnregisterAllEvents()
 	end
 
 	local petFrame = self.petFrame or self.PetFrame
@@ -1939,7 +1958,7 @@ function ZPerl_DebufHighlightInit()
 			if (CanClassCureMagic(playerClass)) then
 				magic = Curses.Magic
 			end
-			return (not IsClassic and Curses.Curse) or (IsClassic and Curses.Poison) or (IsClassic and Curses.Disease) or magic or show
+			return (not IsVanillaClassic and Curses.Curse) or (IsClassic and Curses.Poison) or (IsClassic and Curses.Disease) or magic or show
 		end
 	elseif (playerClass == "ROGUE") then
 		getShow = function(Curses)

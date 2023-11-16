@@ -1010,7 +1010,7 @@ end
 function XPerl_Player_Events:PLAYER_ENTERING_WORLD(event, initialLogin, reloadingUI)
 	self.updateAFK = true
 
-	if (not IsClassic and UnitHasVehicleUI("player")) then
+	if (not IsVanillaClassic and UnitHasVehicleUI("player")) then
 		self.partyid = "vehicle"
 		self:SetAttribute("unit", "vehicle")
 		if (XPerl_ArcaneBar_SetUnit) then
@@ -1904,7 +1904,7 @@ end
 
 -- UNIT_PET
 function XPerl_Player_Events:UNIT_PET()
-	self.partyid = (not IsClassic and UnitHasVehicleUI("player")) and "pet" or "player"
+	self.partyid = (not IsVanillaClassic and UnitHasVehicleUI("player")) and "pet" or "player"
 	XPerl_Player_UpdateDisplay(self)
 end
 
@@ -2010,7 +2010,7 @@ end
 -- XPerl_Player_Set_Bits()
 function XPerl_Player_Set_Bits(self)
 	if (XPerl_ArcaneBar_RegisterFrame and not self.nameFrame.castBar) then
-		XPerl_ArcaneBar_RegisterFrame(self.nameFrame, (not IsClassic and UnitHasVehicleUI("player")) and "vehicle" or "player")
+		XPerl_ArcaneBar_RegisterFrame(self.nameFrame, (not IsVanillaClassic and UnitHasVehicleUI("player")) and "vehicle" or "player")
 	end
 
 	if not InCombatLockdown() then

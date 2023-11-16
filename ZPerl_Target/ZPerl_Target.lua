@@ -75,7 +75,6 @@ local NotifyInspect = NotifyInspect
 local PlaySound = PlaySound
 local RegisterUnitWatch = RegisterUnitWatch
 local UnitAffectingCombat = UnitAffectingCombat
-local UnitBattlePet = UnitIsBattlePet
 local UnitBattlePetType = UnitBattlePetType
 local UnitCanAssist = UnitCanAssist
 local UnitCanAttack = UnitCanAttack
@@ -1390,7 +1389,7 @@ local missIndex = {
 }
 
 -- DoEvent
-local function DoEvent(self, timestamp, event, hideCaster, srcGUID, srcName, srcFlags, srcRaidFlags, dstGUID, dstName, dstFlags, destRaidFlags, ...)
+--[[local function DoEvent(self, timestamp, event, hideCaster, srcGUID, srcName, srcFlags, srcRaidFlags, dstGUID, dstName, dstFlags, destRaidFlags, ...)
 	if (bit_band(dstFlags, self.combatMask) ~= 0 and bit_band(srcFlags, 0x00000001) ~= 0) or (UnitIsUnit("player", self.partyid) and bit_band(dstFlags, 0x00000001)) then
 		local feedbackText = self.feedbackText
 		local fontHeight = self.feedbackFontHeight
@@ -1445,14 +1444,14 @@ local function DoEvent(self, timestamp, event, hideCaster, srcGUID, srcName, src
 			feedbackText:Show()
 		end
 	end
-end
+end--]]
 
 -- COMBAT_LOG_EVENT_UNFILTERED
-function XPerl_Target_Events:COMBAT_LOG_EVENT_UNFILTERED()
+--[[function XPerl_Target_Events:COMBAT_LOG_EVENT_UNFILTERED()
 	if (self.conf.hitIndicator and self.conf.portrait) then
 		DoEvent(self, CombatLogGetCurrentEventInfo())
 	end
-end
+end--]]
 
 -- UNIT_COMBAT
 function XPerl_Target_Events:UNIT_COMBAT(unitID, action, descriptor, damage, damageType)
@@ -1867,11 +1866,11 @@ function XPerl_Target_Set_Bits(self)
 
 	XPerl_StatsFrameSetup(self)
 
-	if (not self.conf.ownDamageOnly and self.conf.hitIndicator and self.conf.portrait) then
+	--[[if (not self.conf.ownDamageOnly and self.conf.hitIndicator and self.conf.portrait) then
 		self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 	else
 		self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-	end
+	end--]]
 
 	self.buffFrame:ClearAllPoints()
 	if (self.conf.buffs.above) then
