@@ -33,6 +33,7 @@ local deg = math.deg
 local error = error
 local floor = floor
 local format = format
+local hooksecurefunc = hooksecurefunc
 local ipairs = ipairs
 local max = max
 local min = min
@@ -392,98 +393,132 @@ local function DoRangeCheck(unit, opt)
 			range = nil
 		else--]]
 		if (opt.interact) then
-			if (opt.interact == 6) then -- 45y
-				local checkedRange
-				if UnitCanAssist("player", unit) then
-					-- Wrangling Rope (45y)
-					range = IsItemInRange(32698, unit)
-					if range == nil then
-						-- Fallback (40y)
-						range, checkedRange = UnitInRange(unit)
-						if not checkedRange then
-							range = 1
-						end
+			if IsRetail then
+				if (opt.interact == 6) then -- 45y
+					local checkedRange
+					range, checkedRange = UnitInRange(unit)
+					if not checkedRange then
+						range = 1
 					end
-				else
-					-- Goblin Rocket Launcher (45y)
-					range = IsItemInRange(23836, unit)
-					if range == nil then
-						-- Fallback (40y)
-						range, checkedRange = UnitInRange(unit)
-						if not checkedRange then
-							range = 1
-						end
+				elseif (opt.interact == 5) then -- 40y
+					local checkedRange
+					range, checkedRange = UnitInRange(unit)
+					if not checkedRange then
+						range = 1
 					end
-				end
-			elseif (opt.interact == 5) then -- 40y
-				local checkedRange
-				if UnitCanAssist("player", unit) then
-					-- Vial of the Sunwell (40y)
-					range = IsItemInRange(not IsClassic and 34471 or 1713 --[[Ankh of Life]], unit)
-					if range == nil then
-						-- Fallback (40y)
-						range, checkedRange = UnitInRange(unit)
-						if not checkedRange then
-							range = 1
-						end
+				elseif (opt.interact == 3) then -- 10y
+					local checkedRange
+					range, checkedRange = UnitInRange(unit)
+					if not checkedRange then
+						range = 1
 					end
-				else
-					-- The Decapitator (40y)
-					range = IsItemInRange(28767, unit)
-					if range == nil then
-						-- Fallback (40y)
-						range, checkedRange = UnitInRange(unit)
-						if not checkedRange then
-							range = 1
-						end
+				elseif (opt.interact == 2) then -- 20y
+					local checkedRange
+					range, checkedRange = UnitInRange(unit)
+					if not checkedRange then
+						range = 1
+					end
+				elseif (opt.interact == 1) then -- 30y
+					local checkedRange
+					range, checkedRange = UnitInRange(unit)
+					if not checkedRange then
+						range = 1
 					end
 				end
-			elseif (opt.interact == 3) then -- 10y
-				if UnitCanAssist("player", unit) then
-					-- Sparrowhawk Net (10y)
-					range = IsItemInRange(not IsVanillaClassic and 32321 or 17689 --[[Stormpike Training Collar]], unit)
-					if range == nil then
-						-- Fallback (8y) (BCC = 8y) (Vanilla = 10 yards)
-						range = CheckInteractDistance(unit, IsVanillaClassic and 1 or 2)
+			else
+				if (opt.interact == 6) then -- 45y
+					local checkedRange
+					if UnitCanAssist("player", unit) then
+						-- Wrangling Rope (45y)
+						range = IsItemInRange(32698, unit)
+						if range == nil then
+							-- Fallback (40y)
+							range, checkedRange = UnitInRange(unit)
+							if not checkedRange then
+								range = 1
+							end
+						end
+					else
+						-- Goblin Rocket Launcher (45y)
+						range = IsItemInRange(23836, unit)
+						if range == nil then
+							-- Fallback (40y)
+							range, checkedRange = UnitInRange(unit)
+							if not checkedRange then
+								range = 1
+							end
+						end
 					end
-				else
-					-- Sparrowhawk Net (10y)
-					range = IsItemInRange(not IsVanillaClassic and 32321 or 9618 --[[Wildkin Muisek Vessel]], unit)
-					if range == nil then
-						-- Fallback (8y) (BCC = 8y) (Vanilla = 10 yards)
-						range = CheckInteractDistance(unit, IsVanillaClassic and 1 or 2)
+				elseif (opt.interact == 5) then -- 40y
+					local checkedRange
+					if UnitCanAssist("player", unit) then
+						-- Vial of the Sunwell (40y)
+						range = IsItemInRange(not IsClassic and 34471 or 1713 --[[Ankh of Life]], unit)
+						if range == nil then
+							-- Fallback (40y)
+							range, checkedRange = UnitInRange(unit)
+							if not checkedRange then
+								range = 1
+							end
+						end
+					else
+						-- The Decapitator (40y)
+						range = IsItemInRange(28767, unit)
+						if range == nil then
+							-- Fallback (40y)
+							range, checkedRange = UnitInRange(unit)
+							if not checkedRange then
+								range = 1
+							end
+						end
 					end
-				end
-			elseif (opt.interact == 2) then -- 20y
-				if UnitCanAssist("player", unit) then
-					-- Mistletoe (20y)
-					range = IsItemInRange(21519, unit)
-					if range == nil then
-						-- Fallback (28y) (BCC = 28y) (Vanilla = 21 yards)
-						range = CheckInteractDistance(unit, 4)
+				elseif (opt.interact == 3) then -- 10y
+					if UnitCanAssist("player", unit) then
+						-- Sparrowhawk Net (10y)
+						range = IsItemInRange(not IsVanillaClassic and 32321 or 17689 --[[Stormpike Training Collar]], unit)
+						if range == nil then
+							-- Fallback (8y) (BCC = 8y) (Vanilla = 10 yards)
+							range = CheckInteractDistance(unit, IsVanillaClassic and 1 or 2)
+						end
+					else
+						-- Sparrowhawk Net (10y)
+						range = IsItemInRange(not IsVanillaClassic and 32321 or 9618 --[[Wildkin Muisek Vessel]], unit)
+						if range == nil then
+							-- Fallback (8y) (BCC = 8y) (Vanilla = 10 yards)
+							range = CheckInteractDistance(unit, IsVanillaClassic and 1 or 2)
+						end
 					end
-				else
-					-- Gnomish Death Ray (20y)
-					range = IsItemInRange(not IsClassic and 10645 or 1191 --[[Bag of Marbles]], unit)
-					if range == nil then
-						-- Fallback (28y) (BCC = 28y) (Vanilla = 21 yards)
-						range = CheckInteractDistance(unit, 4)
+				elseif (opt.interact == 2) then -- 20y
+					if UnitCanAssist("player", unit) then
+						-- Mistletoe (20y)
+						range = IsItemInRange(21519, unit)
+						if range == nil then
+							-- Fallback (28y) (BCC = 28y) (Vanilla = 28 yards)
+							range = CheckInteractDistance(unit, 4)
+						end
+					else
+						-- Gnomish Death Ray (20y)
+						range = IsItemInRange(not IsClassic and 10645 or 1191 --[[Bag of Marbles]], unit)
+						if range == nil then
+							-- Fallback (28y) (BCC = 28y) (Vanilla = 28 yards)
+							range = CheckInteractDistance(unit, 4)
+						end
 					end
-				end
-			elseif (opt.interact == 1) then -- 30y
-				if UnitCanAssist("player", unit) then
-					-- Handful of Snowflakes (30y)
-					range = IsItemInRange(not IsClassic and 34191 or 1180 --[[Scroll of Stamina]], unit)
-					if range == nil then
-						-- Fallback (28y) (BCC = 28y) (Vanilla = 21 yards)
-						range = CheckInteractDistance(unit, 4)
-					end
-				else
-					-- Handful of Snowflakes (30y)
-					range = IsItemInRange(not IsClassic and 34191 or 835 --[[Large Rope Net]], unit)
-					if range == nil then
-						-- Fallback (28y) (BCC = 28y) (Vanilla = 21 yards)
-						range = CheckInteractDistance(unit, 4)
+				elseif (opt.interact == 1) then -- 30y
+					if UnitCanAssist("player", unit) then
+						-- Handful of Snowflakes (30y)
+						range = IsItemInRange(not IsClassic and 34191 or 1180 --[[Scroll of Stamina]], unit)
+						if range == nil then
+							-- Fallback (28y) (BCC = 28y) (Vanilla = 28 yards)
+							range = CheckInteractDistance(unit, 4)
+						end
+					else
+						-- Handful of Snowflakes (30y)
+						range = IsItemInRange(not IsClassic and 34191 or 835 --[[Large Rope Net]], unit)
+						if range == nil then
+							-- Fallback (28y) (BCC = 28y) (Vanilla = 28 yards)
+							range = CheckInteractDistance(unit, 4)
+						end
 					end
 				end
 			end
@@ -491,27 +526,34 @@ local function DoRangeCheck(unit, opt)
 			-- 1 = Inspect = 28 yards (BCC = 28 yards) (Vanilla = 10 yards)
 			-- 2 = Trade = 8 yards (BCC = 8 yards) (Vanilla = 11 yards)
 			-- 3 = Duel = 7 yards (BCC = 7 yards) (Vanilla = 10 yards)
-			-- 4 = Follow = 28 yards (BCC = 28 yards) (Vanilla = 21 yards)
+			-- 4 = Follow = 28 yards (BCC = 28 yards) (Vanilla = 28 yards)
 			-- 5 = Pet-battle Duel = 7 yards (BCC = 7 yards) (Vanilla = 10 yards)
-		elseif (opt.spell) then
-			if UnitCanAssist("player", unit) then
-				range = IsSpellInRange(opt.spell, unit)
-				if range == nil then
-					-- Fallback (28y) (BCC = 28y) (Vanilla = 21 yards)
-					range = CheckInteractDistance(unit, 4)
-				end
-			elseif UnitCanAttack("player", unit) then
-				range = IsSpellInRange(opt.spell, unit)
-				if range == nil then
-					-- Fallback (28y) (BCC = 28y) (Vanilla = 21 yards)
-					range = CheckInteractDistance(unit, 4)
+		elseif opt.spell or opt.spell2 then
+			if IsRetail then
+				if UnitCanAssist("player", unit) and opt.spell then
+					range = IsSpellInRange(opt.spell, unit)
+				elseif UnitCanAttack("player", unit) and opt.spell2 then
+					range = IsSpellInRange(opt.spell2, unit)
 				end
 			else
-				-- Fallback (28y) (BCC = 28y) (Vanilla = 21 yards)
+				if UnitCanAssist("player", unit) and opt.spell then
+					range = IsSpellInRange(opt.spell, unit)
+				elseif UnitCanAttack("player", unit) and opt.spell2 then
+					range = IsSpellInRange(opt.spell2, unit)
+				else
+					-- Fallback (28y) (BCC = 28y) (Vanilla = 28 yards)
+					range = CheckInteractDistance(unit, 4)
+				end
+			end
+		elseif not IsRetail and (opt.item or opt.item2) then
+			if UnitCanAssist("player", unit) and opt.item then
+				range = IsItemInRange(opt.item, unit)
+			elseif UnitCanAttack("player", unit) and opt.item2 then
+				range = IsItemInRange(opt.item2, unit)
+			else
+				-- Fallback (28y) (BCC = 28y) (Vanilla = 28 yards)
 				range = CheckInteractDistance(unit, 4)
 			end
-		elseif (opt.item and UnitCanAssist("player", unit)) then
-			range = IsItemInRange(opt.item, unit)
 		else
 			range = 1
 		end
@@ -561,7 +603,7 @@ function XPerl_UpdateSpellRange2(self, overrideUnit, isRaidFrame)
 
 				if (rf.NameFrame.enabled) then
 					-- check for same item/spell. Saves doing the check multiple times
-					if (rf.Main.enabled and (rf.Main.spell == rf.NameFrame.spell) and (rf.Main.item == rf.NameFrame.item) and (rf.Main.PlusHealth == rf.NameFrame.PlusHealth)) then
+					if (rf.Main.enabled and (rf.Main.spell == rf.NameFrame.spell) and (rf.Main.item == rf.NameFrame.item) and (rf.Main.spell2 == rf.NameFrame.spell2) and (rf.Main.item2 == rf.NameFrame.item2) and (rf.Main.PlusHealth == rf.NameFrame.PlusHealth)) then
 						if (mainA) then
 							nameA = rf.NameFrame.FadeAmount
 						end
@@ -575,7 +617,7 @@ function XPerl_UpdateSpellRange2(self, overrideUnit, isRaidFrame)
 				end
 				if (rf.StatsFrame.enabled) then
 					-- check for same item/spell. Saves doing the check multiple times
-					if (rf.Main.enabled and (rf.Main.spell == rf.StatsFrame.spell) and (rf.Main.item == rf.StatsFrame.item) and (rf.Main.PlusHealth == rf.StatsFrame.PlusHealth)) then
+					if (rf.Main.enabled and (rf.Main.spell == rf.StatsFrame.spell) and (rf.Main.item == rf.StatsFrame.item) and (rf.Main.spell2 == rf.StatsFrame.spell2) and (rf.Main.item2 == rf.StatsFrame.item2) and (rf.Main.PlusHealth == rf.StatsFrame.PlusHealth)) then
 						if (mainA) then
 							statsA = rf.StatsFrame.FadeAmount
 						end
@@ -622,16 +664,15 @@ end
 
 -- XPerl_StartupSpellRange()
 function XPerl_StartupSpellRange()
-	local _
-	_, playerClass = UnitClass("player")
+	local _, playerClass = UnitClass("player")
 
 	if (not XPerl_DefaultRangeSpells.ANY) then
 		XPerl_DefaultRangeSpells.ANY = {}
 	end
 
-	local b = FindABandage()
-	if (b) then
-		XPerl_DefaultRangeSpells.ANY.item = b
+	local bandage = FindABandage()
+	if bandage then
+		XPerl_DefaultRangeSpells.ANY.item = bandage
 	end
 
 	local rf = conf.rangeFinder
@@ -641,6 +682,12 @@ function XPerl_StartupSpellRange()
 			self.spell = XPerl_DefaultRangeSpells[playerClass] and XPerl_DefaultRangeSpells[playerClass].spell
 			if type(self.item) ~= "string" then
 				self.item = (XPerl_DefaultRangeSpells.ANY and XPerl_DefaultRangeSpells.ANY.item) or ""
+			end
+		end
+		if type(self.spell2) ~= "string" then
+			self.spell2 = XPerl_DefaultRangeSpells[playerClass] and XPerl_DefaultRangeSpells[playerClass].spell2
+			if type(self.item2) ~= "string" then
+				self.item2 = (XPerl_DefaultRangeSpells.ANY and XPerl_DefaultRangeSpells.ANY.item2) or ""
 			end
 		end
 
@@ -788,6 +835,7 @@ function XPerl_GetClassColour(class)
 	return (class and (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[class]) or defaultColour
 end
 
+local hookedFrames = {}
 local hiddenParent = CreateFrame("Frame")
 hiddenParent:Hide()
 
@@ -806,7 +854,7 @@ function XPerl_BlizzFrameDisable(self)
 	self:UnregisterAllEvents()
 
 	if self == PlayerFrame then
-		local events = {
+		--[[local events = {
 			"PLAYER_ENTERING_WORLD",
 			"UNIT_ENTERING_VEHICLE",
 			"UNIT_ENTERED_VEHICLE",
@@ -818,7 +866,7 @@ function XPerl_BlizzFrameDisable(self)
 			if pcall(self.RegisterEvent, self, event) then
 				self:RegisterEvent(event)
 			end
-		end
+		end--]]
 
 		if AlternatePowerBar then
 			AlternatePowerBar:UnregisterAllEvents()
@@ -838,14 +886,22 @@ function XPerl_BlizzFrameDisable(self)
 
 	if not InCombatLockdown() then
 		self:Hide()
+		self:SetParent(hiddenParent)
 	end
-	self:SetParent(hiddenParent)
 
-	self:HookScript("OnShow", function(self)
-		if not InCombatLockdown() then
-			self:Hide()
-		end
-	end)
+	if not hookedFrames[self] then
+		local ignoreParent
+		hooksecurefunc(self, "SetParent", function()
+			if ignoreParent then
+				return
+			end
+			ignoreParent = true
+			self:SetParent(hiddenParent)
+			ignoreParent = nil
+		end)
+
+		hookedFrames[self] = true
+	end
 
 	local health = self.healthBar or self.healthbar or self.HealthBar
 	if health then

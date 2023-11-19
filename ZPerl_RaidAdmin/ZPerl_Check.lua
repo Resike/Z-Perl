@@ -9,6 +9,55 @@ if type(C_ChatInfo.RegisterAddonMessagePrefix) == "function" then
 end
 
 ZPerl_CheckItems = {}
+
+local IsRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
+
+-- Upvalues
+local _G = _G
+local floor = floor
+local format = format
+local ipairs = ipairs
+local pairs = pairs
+local setmetatable = setmetatable
+local sort = sort
+local strfind = strfind
+local string = string
+local strlen = strlen
+local strlower = strlower
+local strmatch = strmatch
+local strsub = strsub
+local tinsert = tinsert
+local tonumber = tonumber
+local tremove = tremove
+local type = type
+local unpack = unpack
+
+local ChatTypeInfo = ChatTypeInfo
+local CheckInteractDistance = CheckInteractDistance
+local ClearCursor = ClearCursor
+local CursorHasItem = CursorHasItem
+local DressUpItemLink = DressUpItemLink
+local GetChannelName = GetChannelName
+local GetContainerItemLink = GetContainerItemLink
+local GetInventoryItemLink = GetInventoryItemLink
+local GetItemInfo = GetItemInfo
+local GetNumGroupMembers = GetNumGroupMembers
+local GetRaidRosterInfo = GetRaidRosterInfo
+local GetRealZoneText = GetRealZoneText
+local GetTime = GetTime
+local IsControlKeyDown = IsControlKeyDown
+local IsInRaid = IsInRaid
+local IsShiftKeyDown = IsShiftKeyDown
+local SecondsToTime = SecondsToTime
+local SendChatMessage = SendChatMessage
+local UnitClass = UnitClass
+local UnitInRaid = UnitInRaid
+local UnitIsConnected = UnitIsConnected
+local UnitIsGroupAssistant = UnitIsGroupAssistant
+local UnitName = UnitName
+
+local C_ChatInfo = C_ChatInfo
+
 local XPerl_ItemResults = {["type"] = "item"}
 local XPerl_ResistResults = {["type"] = "res", count = 0}
 local XPerl_DurResults = {["type"] = "dur", count = 0}
@@ -25,12 +74,8 @@ local outputChannelIndex = nil
 local outputChannelSelection
 local outputChannelColour
 
-local GetNumGroupMembers = GetNumGroupMembers
-
-local UnitIsGroupAssistant = UnitIsGroupAssistant
-
-local ITEMLISTSIZE		= 12
-local PLAYERLISTSIZE		= 10
+local ITEMLISTSIZE = 12
+local PLAYERLISTSIZE = 10
 
 -- XPerl_CheckOnLoad
 function XPerl_CheckOnLoad(self)
@@ -1913,7 +1958,7 @@ function XPerl_Check_ActiveScan()
 				myScan.changed = nil
 			end
 			any = true
-			if (CheckInteractDistance(unit, 1)) then		-- Checks to see if in inspect range
+			if (not IsRetail and CheckInteractDistance(unit, 1)) then		-- Checks to see if in inspect range
 				local eq
 				if (type(ActiveScanItem.slot) == "table") then
 					for k,v in pairs(ActiveScanItem.slot) do

@@ -88,6 +88,7 @@ local UnitGUID = UnitGUID
 local UnitHasVehicleUI = UnitHasVehicleUI
 local UnitInParty = UnitInParty
 local UnitInRaid = UnitInRaid
+local UnitInRange = UnitInRange
 local UnitInVehicle = UnitInVehicle
 local UnitIsAFK = UnitIsAFK
 local UnitIsBattlePet = UnitIsBattlePet
@@ -363,7 +364,7 @@ end
 -- Combo Points
 ---------------
 function XPerl_Target_UpdateCombo(self)
-	local comboPoints = IsClassic and GetComboPoints("player", "target") or UnitPower(UnitHasVehicleUI("player") and "vehicle" or "player", Enum.PowerType.ComboPoints)
+	local comboPoints = IsVanillaClassic and GetComboPoints("player", "target") or UnitPower(UnitHasVehicleUI("player") and "vehicle" or "player", Enum.PowerType.ComboPoints)
 	local r, g, b = GetComboColour(comboPoints)
 	if (tconf.combo.enable) then
 		--self.cpFrame:Hide()
@@ -681,7 +682,7 @@ do
 		LTQ:RegisterCallback("TalentQuery_Ready", TalentQuery_Ready)
 	else
 		hooksecurefunc("NotifyInspect", function(unit)
-			if (UnitIsUnit("player", unit) or (not IsClassic and UnitInVehicle(unit)) or not (UnitExists(unit) and CanInspect(unit) and UnitIsVisible(unit) and UnitIsConnected(unit) and CheckInteractDistance(unit, 4))) then
+			if (IsRetail or UnitIsUnit("player", unit) or (not IsVanillaClassic and UnitInVehicle(unit)) or not (UnitExists(unit) and CanInspect(unit) and UnitIsVisible(unit) and UnitIsConnected(unit) and CheckInteractDistance(unit, 4))) then
 				return
 			end
 			lastInspectUnit = unit
@@ -745,7 +746,7 @@ do
 							LTQ:Query(partyid)
 						else
 							if (lastInspectPending == 0 or GetTime() > lastInspectTime + 15) then
-								if (UnitExists(partyid) and UnitIsVisible(partyid) and CheckInteractDistance(partyid, 4)) then
+								if (not IsRetail and UnitExists(partyid) and UnitIsVisible(partyid) and CheckInteractDistance(partyid, 4)) then
 									if (not UnitIsUnit("player", partyid)) then
 										inspectReady = nil
 										lastInspectInvalid = nil
@@ -894,7 +895,7 @@ end
 -- XPerl_Target_SetComboBar
 function XPerl_Target_SetComboBar(self)
 	if (tconf.combo.enable) then
-		local comboPoints = IsClassic and GetComboPoints("player", "target") or UnitPower(UnitHasVehicleUI("player") and "vehicle" or "player", Enum.PowerType.ComboPoints)
+		local comboPoints = IsVanillaClassic and GetComboPoints("player", "target") or UnitPower(UnitHasVehicleUI("player") and "vehicle" or "player", Enum.PowerType.ComboPoints)
 		local maxComboPoints = UnitPowerMax("player", Enum.PowerType.ComboPoints)
 		self.nameFrame.cpMeter:SetMinMaxValues(0, IsClassic and 5 or maxComboPoints)
 		self.nameFrame.cpMeter:SetValue(comboPoints)
@@ -1132,7 +1133,23 @@ end
 
 -- XPerl_Target_Update_Range
 function XPerl_Target_Update_Range(self)
-	if (not tconf.range30yard or CheckInteractDistance(self.partyid, 4) or not UnitIsConnected(self.partyid)) then
+	if not self.partyid then
+		return
+	end
+	if not tconf.range30yard then
+		self.nameFrame.rangeIcon:Hide()
+		return
+	end
+	local inRange = false
+	if IsRetail then
+		local range, checkedRange = UnitInRange(self.partyid)
+		if not checkedRange then
+			inRange = true
+		end
+	else
+		inRange = CheckInteractDistance(self.partyid, 4)
+	end
+	if not UnitIsConnected(self.partyid) or inRange then
 		self.nameFrame.rangeIcon:Hide()
 	else
 		self.nameFrame.rangeIcon:Show()
@@ -1216,67 +1233,77 @@ end
 -- XPerl_Target_UpdateDisplay
 function XPerl_Target_UpdateDisplay(self)
 	local partyid = self.partyid
-	if (UnitExists(partyid)) then
-		XPerl_NoFadeBars(true)
-
-		XPerl_Target_UpdateName(self)
-		XPerl_Target_UpdateClassification(self)
-		XPerl_Target_UpdateLevel(self)
-		XPerl_Target_UpdateType(self)
-		XPerl_Target_SetManaType(self)
-		XPerl_Target_SetMana(self)
-		XPerl_Target_UpdateHealth(self)
-		XPerl_Target_Update_Combat(self)
-		XPerl_Target_UpdateLeader(self)
-		XPerl_Unit_ThreatStatus(self, partyid == "target" and "player" or nil, true)
-
-		RaidTargetUpdate(self)
-
-		if (self.conf.defer) then
-			self.portraitFrame.portrait:Hide()
-			self.portraitFrame.portrait3D:Hide()
-			self.nameFrame.masterIcon:Hide()
-			self.cpFrame:Hide()
-			self.nameFrame.cpMeter:Hide()
-			self.deferring = true
-			self.time = -0.3
-		else
-			XPerl_Target_UpdateCombo(self)
-			XPerl_Unit_UpdatePortrait(self)
-		end
-
-		XPerl_Highlight:SetHighlight(self, UnitGUID(partyid))
-
-		XPerl_Target_Update_Range(self)
-		XPerl_UpdateSpellRange(self, partyid)
-
-		XPerl_NoFadeBars()
-
-		-- Some optimizing here to limit the amount of work done on a target change
-		local buffOptionString = tostring(self.statsFrame.manaBar:IsVisible() or 0)..tostring(self.bossFrame:IsVisible() or 0)..tostring(self.creatureTypeFrame:IsVisible() or 0)..tostring(self.statsFrame:GetWidth())
-		if (self.buffOptionString ~= buffOptionString) then
-			self.buffOptionString = buffOptionString
-			-- Work out where all our buffs can fit, we only do this for a fresh target
-			XPerl_Target_BuffPositions(self)
-		end
-
-		XPerl_Targets_BuffUpdate(self)
-		--XPerl_Target_DebuffUpdate(self)
-		if (self.conf.highlightDebuffs.enable) then
-			XPerl_Target_CheckDebuffs(self)
-		end
-
-		XPerl_Target_UpdatePVP(self)
+	if not UnitExists(partyid) then
+		return
 	end
+
+	XPerl_NoFadeBars(true)
+
+	XPerl_Target_UpdateName(self)
+	XPerl_Target_UpdateClassification(self)
+	XPerl_Target_UpdateLevel(self)
+	XPerl_Target_UpdateType(self)
+	XPerl_Target_SetManaType(self)
+	XPerl_Target_SetMana(self)
+	XPerl_Target_UpdateHealth(self)
+	XPerl_Target_Update_Combat(self)
+	XPerl_Target_UpdateLeader(self)
+	XPerl_Unit_ThreatStatus(self, partyid == "target" and "player" or nil, true)
+
+	RaidTargetUpdate(self)
+
+	if (self.conf.defer) then
+		self.portraitFrame.portrait:Hide()
+		self.portraitFrame.portrait3D:Hide()
+		self.nameFrame.masterIcon:Hide()
+		self.cpFrame:Hide()
+		self.nameFrame.cpMeter:Hide()
+		self.deferring = true
+		self.time = -0.3
+	else
+		XPerl_Target_UpdateCombo(self)
+		XPerl_Unit_UpdatePortrait(self)
+	end
+
+	XPerl_Highlight:SetHighlight(self, UnitGUID(partyid))
+
+	if tconf.range30yard then
+		XPerl_Target_Update_Range(self)
+	else
+		self.nameFrame.rangeIcon:Hide()
+	end
+	XPerl_UpdateSpellRange(self, partyid)
+
+	XPerl_NoFadeBars()
+
+	-- Some optimizing here to limit the amount of work done on a target change
+	local buffOptionString = tostring(self.statsFrame.manaBar:IsVisible() or 0)..tostring(self.bossFrame:IsVisible() or 0)..tostring(self.creatureTypeFrame:IsVisible() or 0)..tostring(self.statsFrame:GetWidth())
+	if (self.buffOptionString ~= buffOptionString) then
+		self.buffOptionString = buffOptionString
+		-- Work out where all our buffs can fit, we only do this for a fresh target
+		XPerl_Target_BuffPositions(self)
+	end
+
+	XPerl_Targets_BuffUpdate(self)
+	--XPerl_Target_DebuffUpdate(self)
+	if (self.conf.highlightDebuffs.enable) then
+		XPerl_Target_CheckDebuffs(self)
+	end
+
+	XPerl_Target_UpdatePVP(self)
 end
 
 -- XPerl_Target_OnUpdate
 function XPerl_Target_OnUpdate(self, elapsed)
+	local partyid = self.partyid
+	if not partyid then
+		return
+	end
+
 	if (tconf.hitIndicator and tconf.portrait) or (fconf.hitIndicator and fconf.portrait) then
 		CombatFeedback_OnUpdate(self, elapsed)
 	end
 
-	local partyid = self.partyid
 	local newAFK = UnitIsAFK(partyid)
 
 	if (conf.showAFK and newAFK ~= self.afk) then
@@ -1887,7 +1914,7 @@ end
 
 function XPerl_Target_ComboFrame_Update()
 	local comboPoints = IsClassic and GetComboPoints("player", "target") or UnitPower(UnitHasVehicleUI("player") and "vehicle" or "player", Enum.PowerType.ComboPoints)
-	if comboPoints > 0 and UnitCanAttack((not IsClassic and UnitHasVehicleUI("player")) and "vehicle" or "player", "target") then
+	if comboPoints > 0 and UnitCanAttack((not IsVanillaClassic and UnitHasVehicleUI("player")) and "vehicle" or "player", "target") then
 		if not ComboFrame:IsShown() then
 			ComboFrame:Show()
 			UIFrameFadeIn(ComboFrame, COMBOFRAME_FADE_IN)

@@ -1,3 +1,10 @@
+**7.1.2**
+* Fixed range checks on Retail, all range checks are defaulting to 40 yards for now.
+* Added a new spell/item range check for assistable/attackable targets.
+* Fixed some vehicle and vehicle combo point based checks for Wrath Classic.
+* Fixed some player frame related taints.
+* Some performance optimizations.
+
 **7.1.1**
 * Updated for 1.15.0.
 * Fixed alternate power bar taint.

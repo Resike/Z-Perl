@@ -1019,15 +1019,25 @@ local function GetItem()
 	return XPerlDB and XPerlDB.rangeFinder[XPerl_Options.optRange].item
 end
 
+-- GetSpellEnemy
+local function GetSpellEnemy()
+	return XPerlDB and XPerlDB.rangeFinder[XPerl_Options.optRange].spell2
+end
+
+-- GetItemEnemy
+local function GetItemEnemy()
+	return XPerlDB and XPerlDB.rangeFinder[XPerl_Options.optRange].item2
+end
+
 -- XPerl_Options_GetRangeTexture
-function XPerl_Options_GetRangeTexture(self)
-	local spell = GetSpell()
+function XPerl_Options_GetRangeTexture(self, isEnemy)
+	local spell = GetSpell(isEnemy)
 	if spell then
 		local tex = GetSpellTexture(spell)
 		return tex, spell
 	end
 
-	local item = GetItem()
+	local item = GetItem(isEnemy)
 	if item then
 		local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, invTexture = GetItemInfo(item)
 		if itemName then
@@ -1035,7 +1045,26 @@ function XPerl_Options_GetRangeTexture(self)
 		end
 	end
 
-	return ""
+	return
+end
+
+-- XPerl_Options_GetRangeTexture
+function XPerl_Options_GetRangeTextureEnemy(self)
+	local spell = GetSpellEnemy()
+	if spell then
+		local tex = GetSpellTexture(spell)
+		return tex, spell
+	end
+
+	local item = GetItemEnemy()
+	if item then
+		local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, invTexture = GetItemInfo(item)
+		if itemName then
+			return invTexture, itemName
+		end
+	end
+
+	return
 end
 
 -- XPerl_Options_DoRangeTooltip
@@ -1060,11 +1089,15 @@ function XPerl_Options_DoRangeTooltip(self)
 		end
 
 		GameTooltip:AddLine(" ")
-		if (XPerlDB.rangeFinder[XPerl_Options.optRange].spell) then
+		if XPerlDB.rangeFinder[XPerl_Options.optRange].spell then
 			GameTooltip:AddLine(XPERL_CONF_CUSTOMSPELL_DESC, 0.5, 1, 0.5)
 		else
 			GameTooltip:AddLine(XPERL_CONF_CUSTOMSPELL_DESC2, 0.5, 1, 0.5)
 		end
+		GameTooltip:Show()
+		return
+	else
+		GameTooltip:AddLine(XPERL_CONF_CUSTOMSPELL_DESC2, 0.5, 1, 0.5)
 		GameTooltip:Show()
 		return
 	end
@@ -1087,6 +1120,68 @@ function XPerl_Options_DoRangeTooltip(self)
 				GameTooltip:Show()
 			end
 		end
+	else
+		GameTooltip:AddLine(XPERL_CONF_CUSTOMSPELL_DESC2, 0.5, 1, 0.5)
+		GameTooltip:Show()
+	end
+end
+
+-- XPerl_Options_DoRangeTooltipEnemy
+function XPerl_Options_DoRangeTooltipEnemy(self)
+	GameTooltip:SetOwner(self, "ANCHOR_RIGHT", -15, 0)
+
+	local spell = GetSpellEnemy()
+	if spell then
+		local link = GetSpellLink(spell)
+		if link then
+			if IsClassic then
+				local _, _, _, _, _, _, spellID = GetSpellInfo(spell)
+				if spellID then
+					local newLink = format("spell:%d:0:0:0", spellID)
+					GameTooltip:SetHyperlink(newLink)
+				end
+			else
+				GameTooltip:SetHyperlink(link)
+			end
+		else
+			GameTooltip:SetText(spell or UNKNOWN, 1, 1, 1)
+		end
+
+		GameTooltip:AddLine(" ")
+		if XPerlDB.rangeFinder[XPerl_Options.optRange].spell2 then
+			GameTooltip:AddLine(XPERL_CONF_CUSTOMSPELL_DESC, 0.5, 1, 0.5)
+		else
+			GameTooltip:AddLine(XPERL_CONF_CUSTOMSPELL_ENEMY_DESC2, 0.5, 1, 0.5)
+		end
+		GameTooltip:Show()
+		return
+	else
+		GameTooltip:AddLine(XPERL_CONF_CUSTOMSPELL_ENEMY_DESC2, 0.5, 1, 0.5)
+		GameTooltip:Show()
+		return
+	end
+
+	local item = GetItemEnemy()
+	if item then
+		local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, invTexture = GetItemInfo(item)
+		if itemName then
+			local itemId = strmatch(itemLink, "item:(%d+):")
+			if itemId then
+				local newLink = format("item:%d:0:0:0", itemId)
+				GameTooltip:SetHyperlink(newLink)
+
+				GameTooltip:AddLine(" ")
+				if XPerlDB.rangeFinder[XPerl_Options.optRange].item2 then
+					GameTooltip:AddLine(XPERL_CONF_CUSTOMSPELL_DESC, 0.5, 1, 0.5)
+				else
+					GameTooltip:AddLine(XPERL_CONF_CUSTOMSPELL_ENEMY_DESC2, 0.5, 1, 0.5)
+				end
+				GameTooltip:Show()
+			end
+		end
+	else
+		GameTooltip:AddLine(XPERL_CONF_CUSTOMSPELL_ENEMY_DESC2, 0.5, 1, 0.5)
+		GameTooltip:Show()
 	end
 end
 

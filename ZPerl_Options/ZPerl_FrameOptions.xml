@@ -3916,7 +3916,7 @@
 								self:OnBackdropLoaded()
 								self:SetScale(0.9)
 								self.Refresh = function(self)
-									local a = {"Enable", "FadeAmount", "CustomSpell", "CombineWithHealth", "RangeHealthAmount", "DebuffCheck", "InteractNone", "Interact10", "Interact20", "Interact30", "Interact40"}
+									local a = {"Enable", "FadeAmount", "CustomSpell", "CustomSpellEnemy", "CombineWithHealth", "RangeHealthAmount", "DebuffCheck", "InteractNone", "Interact10", "Interact20", "Interact30", "Interact40", "Interact45"}
 									for k, v in pairs(a) do
 										local f = _G[self:GetName().."_"..v]
 										if (f) then
@@ -3961,12 +3961,12 @@
 											XPerl_Options_EnableSibling(self, "NameFrame")
 											XPerl_Options_EnableSibling(self, "StatsFrame")
 											XPerl_Options_EnableSibling(self, "Enable")
-											XPerl_Options_EnableSibling(self, "InteractNone")
-											XPerl_Options_EnableSibling(self, "Interact10")
-											XPerl_Options_EnableSibling(self, "Interact20")
-											XPerl_Options_EnableSibling(self, "Interact30")
-											XPerl_Options_EnableSibling(self, "Interact40")
-											XPerl_Options_EnableSibling(self, "Interact45")
+											XPerl_Options_EnableSibling(self, "InteractNone", "Enable")
+											XPerl_Options_EnableSibling(self, "Interact10", "Enable")
+											XPerl_Options_EnableSibling(self, "Interact20", "Enable")
+											XPerl_Options_EnableSibling(self, "Interact30", "Enable")
+											XPerl_Options_EnableSibling(self, "Interact40", "Enable")
+											XPerl_Options_EnableSibling(self, "Interact45", "Enable")
 										end
 									</OnLoad>
 									<OnShow>
@@ -4072,69 +4072,40 @@
 								<Anchors>
 									<Anchor point="LEFT" relativeTo="$parent_On" relativePoint="RIGHT">
 										<Offset>
-											<AbsDimension x="60" y="0"/>
+											<AbsDimension x="110" y="0"/>
 										</Offset>
 									</Anchor>
 								</Anchors>
 								<Scripts>
 									<OnLoad>
 										XPerl_OptionsSetMyText(self, "XPERL_CONF_RANGE_ENABLE")
+										self.Validate = function()
+											XPerl_Options_EnableSibling(self, "InteractNone")
+											XPerl_Options_EnableSibling(self, "Interact10")
+											XPerl_Options_EnableSibling(self, "Interact20")
+											XPerl_Options_EnableSibling(self, "Interact30")
+											XPerl_Options_EnableSibling(self, "Interact40")
+											XPerl_Options_EnableSibling(self, "Interact45")
+										end
 									</OnLoad>
 									<OnShow>
-										local t = XPerl_Options_GetSibling("On",self)
-										local t2 = _G[t:GetName().."Text"]
-										self:SetPoint("LEFT", t, "RIGHT", t2:GetStringWidth() + 10, 0)
 										self:SetChecked(XPerlDB.rangeFinder[XPerl_Options.optRange].enabled)
 										XPerl_Options_EnableCheck(self, XPerlDB.rangeFinder.enabled)
+										self:Validate()
 									</OnShow>
 									<OnClick>
 										XPerlDB.rangeFinder[XPerl_Options.optRange].enabled = self:GetChecked()
 										self:GetParent():Refresh()
+										self:Validate()
 									</OnClick>
 								</Scripts>
 							</CheckButton>
 
-							<Slider name="$parent_FadeAmount" inherits="XPerlSlider">
-								<Size>
-									<AbsDimension x="75" y="16"/>
-								</Size>
+							<Button name="$parent_CustomSpell" inherits="ActionButtonTemplate">
 								<Anchors>
 									<Anchor point="TOP">
 										<Offset>
-											<AbsDimension x="7" y="-22"/>
-										</Offset>
-									</Anchor>
-								</Anchors>
-								<Scripts>
-									<OnLoad>
-										XPerl_SliderSetup(self)
-										XPerl_OptionsSetMyText(self, "XPERL_CONF_RANGEFADEAMOUNT")
-										_G[self:GetName().."Low"]:SetText(" ")
-										_G[self:GetName().."High"]:SetText(" ")
-										self:SetMinMaxValues(0.1, 0.8)
-										self:SetValueStep(0.1)
-										self:SetObeyStepOnDrag(true)
-									</OnLoad>
-									<OnShow>
-										self:SetValue(XPerlDB.rangeFinder[XPerl_Options.optRange].FadeAmount)
-										if (XPerlDB.rangeFinder.enabled and XPerlDB.rangeFinder[XPerl_Options.optRange].enabled) then
-											self:EnableSlider()
-										else
-											self:DisableSlider()
-										end
-									</OnShow>
-									<OnValueChanged>
-										XPerlDB.rangeFinder[XPerl_Options.optRange].FadeAmount = floor((value + 0.05) * 10) / 10
-										_G[self:GetName().."Current"]:SetText(string.format("%d%%", XPerlDB.rangeFinder[XPerl_Options.optRange].FadeAmount * 100))
-									</OnValueChanged>
-								</Scripts>
-							</Slider>
-
-							<Button name="$parent_CustomSpell" inherits="ActionButtonTemplate">
-								<Anchors>
-									<Anchor point="TOPLEFT" relativeTo="$parent_FadeAmount" relativePoint="BOTTOMLEFT">
-										<Offset>
-											<AbsDimension x="5" y="-15"/>
+											<AbsDimension x="-20" y="-10"/>
 										</Offset>
 									</Anchor>
 								</Anchors>
@@ -4151,12 +4122,12 @@
 												GameTooltip:Show()
 											end
 
-											if (tex) then
+											if tex and name then
 												label:SetText(name)
 												icon:SetTexture(tex)
-												return
 											else
 												label:SetText(XPERL_CONF_CUSTOMSPELL)
+												icon:SetTexture(nil)
 											end
 										end
 
@@ -4166,53 +4137,44 @@
 												XPerlDB.rangeFinder[XPerl_Options.optRange].item = nil
 												XPerl_StartupSpellRange()
 												self:ShowMe()
+											else
+												self:ReceiveDrag()
 											end
 										end
 
-										if (GetCursorInfo) then
-											self.ReceiveDrag = function(self)
-												if (XPerlDB.rangeFinder.enabled and XPerlDB.rangeFinder[XPerl_Options.optRange].enabled) then
-													local type, detail, subdetail = GetCursorInfo()
-													if (type) then
-														local ret
-														if (type == "spell") then
-															local spellName, subSpellName = GetSpellBookItemName(detail, subdetail)
-															if (spellName and SpellHasRange(spellName) and not IsAttackSpell(spellName) and not IsPassiveSpell(spellName)) then
-																XPerlDB.rangeFinder[XPerl_Options.optRange].spell = spellName
-																XPerlDB.rangeFinder[XPerl_Options.optRange].item = nil
-																ret = true
-															end
-														elseif (type == "item") then
-															local itemName = GetItemInfo(detail)
-															if (ItemHasRange(itemName)) then
-																XPerlDB.rangeFinder[XPerl_Options.optRange].spell = nil
-																XPerlDB.rangeFinder[XPerl_Options.optRange].item = itemName
-																ret = true
-															end
+										self.ReceiveDrag = function(self)
+											if (XPerlDB.rangeFinder.enabled and XPerlDB.rangeFinder[XPerl_Options.optRange].enabled) then
+												local type, detail, subdetail = GetCursorInfo()
+												if (type) then
+													local ret
+													if (type == "spell") then
+														local spellName, subSpellName = GetSpellBookItemName(detail, subdetail)
+														if (spellName and SpellHasRange(spellName) and not IsAttackSpell(spellName) and not IsPassiveSpell(spellName)) then
+															XPerlDB.rangeFinder[XPerl_Options.optRange].spell = spellName
+															XPerlDB.rangeFinder[XPerl_Options.optRange].item = nil
+															ret = true
 														end
-														ClearCursor()
-														self:ShowMe()
-														return ret
+													elseif (type == "item") then
+														local itemName = GetItemInfo(detail)
+														if (ItemHasRange(itemName)) then
+															XPerlDB.rangeFinder[XPerl_Options.optRange].spell = nil
+															XPerlDB.rangeFinder[XPerl_Options.optRange].item = itemName
+															ret = true
+														end
 													end
+													ClearCursor()
+													self:ShowMe()
+													return ret
 												end
 											end
 										end
 									</OnLoad>
 									<OnReceiveDrag>
-										if (GetCursorInfo) then
-											self:ReceiveDrag()
-										end
+										self:ReceiveDrag()
 									</OnReceiveDrag>
 									<OnMouseUp>
 										if (button == "LeftButton") then
-											if (GetCursorInfo) then
-												if (not self:ReceiveDrag()) then
-													self:CheckReset()
-												end
-
-											else
-												self:CheckReset()
-											end
+											self:CheckReset()
 										end
 									</OnMouseUp>
 									<OnEnter>
@@ -4250,11 +4212,122 @@
 								</Layers>
 							</Button>
 
+							<Button name="$parent_CustomSpellEnemy" inherits="ActionButtonTemplate">
+								<Anchors>
+									<Anchor point="TOPLEFT" relativeTo="$parent_CustomSpell" relativePoint="BOTTOMLEFT">
+										<Offset>
+											<AbsDimension x="0" y="-5"/>
+										</Offset>
+									</Anchor>
+								</Anchors>
+								<Scripts>
+									<OnLoad>
+										self.ShowMe = function(self)
+											local icon = _G[self:GetName().."Icon"]
+											local label = _G[self:GetName().."Text"]
+
+											local tex, name = XPerl_Options_GetRangeTextureEnemy(self)
+
+											if (GameTooltip:IsOwned(self)) then
+												XPerl_Options_DoRangeTooltipEnemy(self)
+												GameTooltip:Show()
+											end
+
+											if tex and name then
+												label:SetText(name)
+												icon:SetTexture(tex)
+											else
+												label:SetText(XPERL_CONF_CUSTOMSPELL_ENEMY)
+												icon:SetTexture(nil)
+											end
+										end
+
+										self.CheckReset = function(self)
+											if (IsAltKeyDown()) then
+												XPerlDB.rangeFinder[XPerl_Options.optRange].spell2 = nil
+												XPerlDB.rangeFinder[XPerl_Options.optRange].item2 = nil
+												XPerl_StartupSpellRange()
+												self:ShowMe()
+											else
+												self:ReceiveDrag()
+											end
+										end
+
+										self.ReceiveDrag = function(self)
+											if (XPerlDB.rangeFinder.enabled and XPerlDB.rangeFinder[XPerl_Options.optRange].enabled) then
+												local type, detail, subdetail = GetCursorInfo()
+												if (type) then
+													local ret
+													if (type == "spell") then
+														local spellName, subSpellName = GetSpellBookItemName(detail, subdetail)
+														if (spellName and SpellHasRange(spellName) and not IsAttackSpell(spellName) and not IsPassiveSpell(spellName)) then
+															XPerlDB.rangeFinder[XPerl_Options.optRange].spell2 = spellName
+															XPerlDB.rangeFinder[XPerl_Options.optRange].item2 = nil
+															ret = true
+														end
+													elseif (type == "item") then
+														local itemName = GetItemInfo(detail)
+														if (ItemHasRange(itemName)) then
+															XPerlDB.rangeFinder[XPerl_Options.optRange].spell2 = nil
+															XPerlDB.rangeFinder[XPerl_Options.optRange].item2 = itemName
+															ret = true
+														end
+													end
+													ClearCursor()
+													self:ShowMe()
+													return ret
+												end
+											end
+										end
+									</OnLoad>
+									<OnReceiveDrag>
+										self:ReceiveDrag()
+									</OnReceiveDrag>
+									<OnMouseUp>
+										if (button == "LeftButton") then
+											self:CheckReset()
+										end
+									</OnMouseUp>
+									<OnEnter>
+										_G[self:GetName().."Text"]:SetTextColor(HIGHLIGHT_FONT_COLOR.r, HIGHLIGHT_FONT_COLOR.g, HIGHLIGHT_FONT_COLOR.b)
+										XPerl_Options_DoRangeTooltipEnemy(self)
+									</OnEnter>
+									<OnLeave>
+										_G[self:GetName().."Text"]:SetTextColor(NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b)
+										GameTooltip:Hide()
+									</OnLeave>
+									<OnShow>
+										self:ShowMe()
+										XPerl_Options_EnableCheck(self, XPerlDB.rangeFinder.enabled and XPerlDB.rangeFinder[XPerl_Options.optRange].enabled and not XPerlDB.rangeFinder[XPerl_Options.optRange].interact)
+									</OnShow>
+								</Scripts>
+
+								<Layers>
+									<Layer level="ARTWORK">
+										<FontString name="$parentText" inherits="GameFontNormalSmall" justifyH="LEFT">
+											<Anchors>
+												<Anchor point="TOPLEFT" relativePoint="TOPRIGHT">
+													<Offset>
+														<AbsDimension x="6" y="0"/>
+													</Offset>
+												</Anchor>
+												<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMRIGHT">
+													<Offset>
+														<AbsDimension x="130" y="0"/>
+													</Offset>
+												</Anchor>
+											</Anchors>
+											<Color r="1" g="1" b="1"/>
+										</FontString>
+									</Layer>
+								</Layers>
+							</Button>
+
 							<CheckButton name="$parent_InteractNone" inherits="XPerlRadioButtonTemplate">
 								<Anchors>
-									<Anchor point="LEFT" relativeTo="$parent_OnlyInRaid" relativePoint="RIGHT">
+									<Anchor point="LEFT" relativeTo="$parent_Enable" relativePoint="RIGHT">
 										<Offset>
-											<AbsDimension x="50" y="20"/>
+											<AbsDimension x="40" y="0"/>
 										</Offset>
 									</Anchor>
 								</Anchors>
@@ -4264,9 +4337,6 @@
 										XPerl_OptionsSetMyText(self, "XPERL_CONF_RANGE_INTERACTNONE")
 									</OnLoad>
 									<OnShow>
-										local t = XPerl_Options_GetSibling("OnlyInRaid", self)
-										local t2 = _G[t:GetName().."Text"]
-										self:SetPoint("LEFT", t, "RIGHT", t2:GetStringWidth() + 50, 20)
 										self:SetChecked(XPerlDB.rangeFinder[XPerl_Options.optRange].interact == nil)
 									</OnShow>
 									<OnClick>
@@ -4397,11 +4467,47 @@
 								</Scripts>
 							</CheckButton>
 
-							<CheckButton name="$parent_CombineWithHealth" inherits="XPerlCheckButtonTemplate">
+							<Slider name="$parent_FadeAmount" inherits="XPerlSlider">
+								<Size>
+									<AbsDimension x="75" y="16"/>
+								</Size>
 								<Anchors>
 									<Anchor point="TOPRIGHT">
 										<Offset>
-											<AbsDimension x="-150" y="0"/>
+											<AbsDimension x="-100" y="-15"/>
+										</Offset>
+									</Anchor>
+								</Anchors>
+								<Scripts>
+									<OnLoad>
+										XPerl_SliderSetup(self)
+										XPerl_OptionsSetMyText(self, "XPERL_CONF_RANGEFADEAMOUNT")
+										_G[self:GetName().."Low"]:SetText(" ")
+										_G[self:GetName().."High"]:SetText(" ")
+										self:SetMinMaxValues(0.1, 0.8)
+										self:SetValueStep(0.1)
+										self:SetObeyStepOnDrag(true)
+									</OnLoad>
+									<OnShow>
+										self:SetValue(XPerlDB.rangeFinder[XPerl_Options.optRange].FadeAmount)
+										if (XPerlDB.rangeFinder.enabled and XPerlDB.rangeFinder[XPerl_Options.optRange].enabled) then
+											self:EnableSlider()
+										else
+											self:DisableSlider()
+										end
+									</OnShow>
+									<OnValueChanged>
+										XPerlDB.rangeFinder[XPerl_Options.optRange].FadeAmount = floor((value + 0.05) * 10) / 10
+										_G[self:GetName().."Current"]:SetText(string.format("%d%%", XPerlDB.rangeFinder[XPerl_Options.optRange].FadeAmount * 100))
+									</OnValueChanged>
+								</Scripts>
+							</Slider>
+
+							<CheckButton name="$parent_CombineWithHealth" inherits="XPerlCheckButtonTemplate">
+								<Anchors>
+									<Anchor point="TOPLEFT" relativeTo="$parent_FadeAmount" relativePoint="BOTTOMLEFT">
+										<Offset>
+											<AbsDimension x="-4" y="-4"/>
 										</Offset>
 									</Anchor>
 								</Anchors>
@@ -4458,7 +4564,7 @@
 								<Anchors>
 									<Anchor point="TOPRIGHT" relativeTo="$parent_RangeHealthAmount" relativePoint="BOTTOMLEFT">
 										<Offset>
-											<AbsDimension x="5" y="-13"/>
+											<AbsDimension x="4" y="-4"/>
 										</Offset>
 									</Anchor>
 								</Anchors>

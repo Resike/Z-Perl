@@ -1,4 +1,4 @@
-## Interface: 100200
+## Interface: 11500
 ## Author: Resike
 ## Title: Z-Perl |cffeda55fTarget's Target|r
 ## Title-itIT: Z-Perl |cffeda55fBersaglio del Bersaglio|r

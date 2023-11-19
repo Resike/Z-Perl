@@ -170,9 +170,9 @@ XPERL_CONF_RANGE_RAIDONLY				= "Raid Frames Only"
 XPERL_CONF_RANGE_RAIDONLY_DESC			= "Only allow the range finder to affect raid frames"
 XPERL_CONF_RANGE_INTERACTNONE			= "Spell/Item"
 XPERL_CONF_RANGE_INTERACTNONE_DESC		= "Use the specified spell or item to check range of players"
-XPERL_CONF_RANGE_INTERACT10				= "10 Yards"
+XPERL_CONF_RANGE_INTERACT10				= "10 yards"
 XPERL_CONF_RANGE_INTERACT10_DESC		= "Use a fixed 10 yard range check regardless of item/spell selection"
-XPERL_CONF_RANGE_INTERACT30				= "30 Yards"
+XPERL_CONF_RANGE_INTERACT30				= "30 yards"
 XPERL_CONF_RANGE_INTERACT30_DESC		= "Use a fixed 30 yard range check regardless of item/spell selection"
 
 if (GetCursorInfo) then

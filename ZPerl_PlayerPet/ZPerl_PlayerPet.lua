@@ -14,6 +14,7 @@ end, "$Revision: @file-revision@ $")
 
 local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
 local IsWrathClassic = WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC
+local IsVanillaClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 
 -- Upvalues
 local _G = _G
@@ -203,7 +204,7 @@ function XPerl_Player_Pet_OnLoad(self)
 	self:SetScript("OnShow", XPerl_Unit_UpdatePortrait)
 
 	if (XPerl_ArcaneBar_RegisterFrame) then
-		XPerl_ArcaneBar_RegisterFrame(self.nameFrame, (not IsClassic and UnitHasVehicleUI("player")) and "player" or "pet")
+		XPerl_ArcaneBar_RegisterFrame(self.nameFrame, (not IsVanillaClassic and UnitHasVehicleUI("player")) and "player" or "pet")
 	end
 
 	XPerl_RegisterHighlight(self.highlight, 2)
@@ -417,7 +418,7 @@ end
 
 -- XPerl_Player_Pet_Update_Control
 local function XPerl_Player_Pet_Update_Control(self)
-	if (UnitIsCharmed(self.partyid) and not IsClassic and not UnitInVehicle("player")) then
+	if (UnitIsCharmed(self.partyid) and not IsVanillaClassic and not UnitInVehicle("player")) then
 		self.nameFrame.warningIcon:Show()
 	else
 		self.nameFrame.warningIcon:Hide()
