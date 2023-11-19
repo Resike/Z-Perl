@@ -1012,9 +1012,9 @@ function XPerl_Player_Events:PLAYER_ENTERING_WORLD(event, initialLogin, reloadin
 
 	if (not IsVanillaClassic and UnitHasVehicleUI("player")) then
 		self.partyid = "vehicle"
-		self.unit = "vehicle"
-		if self.runes and self.runes.child then
-			self.runes.child.unit = "vehicle"
+		self.unit = self.partyid
+		if self.runes and self.runes.child and self.runes.child.unit then
+			self.runes.child.unit = self.partyid
 		end
 		self:SetAttribute("unit", "vehicle")
 		if (XPerl_ArcaneBar_SetUnit) then
@@ -1022,9 +1022,9 @@ function XPerl_Player_Events:PLAYER_ENTERING_WORLD(event, initialLogin, reloadin
 		end
 	else
 		self.partyid = "player"
-		self.unit = "player"
-		if self.runes and self.runes.child then
-			self.runes.child.unit = "player"
+		self.unit = self.partyid
+		if self.runes and self.runes.child and self.runes.child.unit then
+			self.runes.child.unit = self.partyid
 		end
 		self:SetAttribute("unit", "player")
 		if (XPerl_ArcaneBar_SetUnit) then
@@ -1868,7 +1868,7 @@ end
 
 -- PLAYER_CONTROL_LOST
 function XPerl_Player_Events:PLAYER_CONTROL_LOST()
-	if (pconf.fullScreen.enable and not UnitOnTaxi("player")) then
+	if pconf.fullScreen.enable and not UnitOnTaxi("player") then
 		isOutOfControl = true
 	end
 end
@@ -1883,14 +1883,19 @@ end
 
 -- UNIT_ENTERED_VEHICLE
 function XPerl_Player_Events:UNIT_ENTERED_VEHICLE(showVehicle)
-	if (showVehicle) then
+	if showVehicle then
 		self.partyid = "vehicle"
 		self.unit = self.partyid
-		if pconf.showRunes and self.runes and self.runes.child then
-			self.runes.child.unit = self.partyid
-			self.runes.child:Setup()
+		if pconf.showRunes and self.runes then
+			if self.runes.child then
+				self.runes.child.unit = self.partyid
+				self.runes.child:Setup()
+			end
+			if self.runes.child2 then
+				self.runes.child2:Hide()
+			end
 		end
-		if (XPerl_ArcaneBar_SetUnit) then
+		if XPerl_ArcaneBar_SetUnit then
 			XPerl_ArcaneBar_SetUnit(self.nameFrame, "vehicle")
 		end
 		--[[if (not InCombatLockdown()) then
@@ -1903,14 +1908,26 @@ end
 
 -- UNIT_EXITING_VEHICLE
 function XPerl_Player_Events:UNIT_EXITING_VEHICLE()
-	if (self.partyid ~= "player") then
+	if self.partyid ~= "player" then
 		self.partyid = "player"
 		self.unit = self.partyid
-		if pconf.showRunes and self.runes and self.runes.child then
-			self.runes.child.unit = self.partyid
-			self.runes.child:Setup()
+		if pconf.showRunes and self.runes then
+			if self.runes.child then
+				self.runes.child.unit = self.partyid
+				self.runes.child:Setup()
+			end
+			if self.runes.child2 then
+				local _, playerClass = UnitClass(self.partyid)
+				if playerClass == self.runes.child2.requiredClass then
+					if playerClass == "MONK" and GetSpecialization() == self.runes.child2.requiredSpec then
+						self.runes.child2:Show()
+					elseif playerClass == "DEATHKNIGHT" then
+						self.runes.child2:Show()
+					end
+				end
+			end
 		end
-		if (XPerl_ArcaneBar_SetUnit) then
+		if XPerl_ArcaneBar_SetUnit then
 			XPerl_ArcaneBar_SetUnit(self.nameFrame, "player")
 		end
 		--[[if (not InCombatLockdown()) then
@@ -1921,10 +1938,10 @@ function XPerl_Player_Events:UNIT_EXITING_VEHICLE()
 end
 
 -- UNIT_PET
-function XPerl_Player_Events:UNIT_PET()
+--[[function XPerl_Player_Events:UNIT_PET()
 	self.partyid = (not IsVanillaClassic and UnitHasVehicleUI("player")) and "pet" or "player"
 	XPerl_Player_UpdateDisplay(self)
-end
+end--]]
 
 function XPerl_Player_Events:UNIT_HEAL_PREDICTION(unit)
 	if pconf.healprediction and unit == self.partyid then
@@ -2460,12 +2477,11 @@ function XPerl_Player_InitMonk(self, playerClass)
 	self.runes:SetPoint("TOPLEFT", self.statsFrame, "BOTTOMLEFT", 0, 2)
 	self.runes:SetPoint("BOTTOMRIGHT", self.statsFrame, "BOTTOMRIGHT", 0, -22)
 	self.runes.child = CreateFrame("Frame", "ZPerlMonkHarmonyBarFrame", self.runes, "MonkHarmonyBarFrameTemplate")
-	self.runes.child.tooltip1 = CHI_POWER
+	--[[self.runes.child.tooltip1 = CHI_POWER
 	self.runes.child.tooltip2 = CHI_TOOLTIP
-	self.runes.child:SetTooltip(self.runes.child.tooltip1, self.runes.child.tooltip2)
+	self.runes.child:SetTooltip(self.runes.child.tooltip1, self.runes.child.tooltip2)--]]
 	self.runes.child.unit = "player"
 	self.runes.child2 = CreateFrame("StatusBar", "ZPerlMonkStaggerBar", self.runes, "PlayerFrameAlternatePowerBarBaseTemplate, MonkStaggerBarTemplate")
-	self.runes.child2.unit = "player"
 
 	if pconf.lockRunes then
 		local moving
@@ -2609,16 +2625,16 @@ function XPerl_Player_InitDK(self, playerClass)
 	self.runes = CreateFrame("Frame", "XPerl_Runes", self)
 	self.runes:SetPoint("TOPLEFT", self.statsFrame, "BOTTOMLEFT", 0, 2)
 	self.runes:SetPoint("BOTTOMRIGHT", self.statsFrame, "BOTTOMRIGHT", 0, -22)
-	self.runes.child = CreateFrame("Frame", "ZPerlRuneFrame", self.runes, "RuneFrameTemplate")
-	--[[Mixin(self.runes.child, ClassPowerBar)
-	self.runes.child.tooltip1 = COMBAT_TEXT_RUNE_DEATH
-	self.runes.child.tooltip2 = RUNES_TOOLTIP
-	self.runes.child:SetTooltip(self.runes.child.tooltip1, self.runes.child.tooltip2)--]]
-	self.runes.child.unit = "player"
+	self.runes.child2 = CreateFrame("Frame", "ZPerlRuneFrame", self.runes, "RuneFrameTemplate")
+	self.runes.child2.requiredClass = playerClass
+	--[[Mixin(self.runes.child2, ClassPowerBar)
+	self.runes.child2.tooltip1 = COMBAT_TEXT_RUNE_DEATH
+	self.runes.child2.tooltip2 = RUNES_TOOLTIP
+	self.runes.child2:SetTooltip(self.runes.child.tooltip1, self.runes.child.tooltip2)--]]
 
 	if pconf.lockRunes then
 		local moving
-		hooksecurefunc(self.runes.child, "SetPoint", function(self)
+		hooksecurefunc(self.runes.child2, "SetPoint", function(self)
 			if moving or not pconf.showRunes or not pconf.lockRunes then
 				return
 			end
@@ -2631,7 +2647,7 @@ function XPerl_Player_InitDK(self, playerClass)
 			moving = nil
 		end)
 		local parenting
-		hooksecurefunc(self.runes.child, "SetParent", function(self)
+		hooksecurefunc(self.runes.child2, "SetParent", function(self)
 			if parenting or not pconf.showRunes or not pconf.lockRunes then
 				return
 			end
@@ -2645,9 +2661,9 @@ function XPerl_Player_InitDK(self, playerClass)
 		end)
 	end
 
-	self.runes.child:SetParent(self.runes)
-	self.runes.child:ClearAllPoints()
-	self.runes.child:SetPoint("TOP", self.runes, "TOP", 0, -6)
+	self.runes.child2:SetParent(self.runes)
+	self.runes.child2:ClearAllPoints()
+	self.runes.child2:SetPoint("TOP", self.runes, "TOP", 0, -6)
 end
 
 --XPerl_Player_InitEvoker
