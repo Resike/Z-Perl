@@ -1,3 +1,6 @@
+**7.1.3**
+* Revamped player special power bar, the addon is no longer relying on the default frames.
+
 **7.1.2**
 * Fixed range checks on Retail, all range checks are defaulting to 40 yards for now.
 * Added a new spell/item range check for assistable/attackable targets.
