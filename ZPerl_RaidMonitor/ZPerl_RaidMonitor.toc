@@ -1,6 +1,4 @@
 ## Interface: 11500
-## Interface: 11500
-## Interface: 30403
 ## Author: Resike
 ## Title: Z-Perl |cffeda55fRaid Monitor|r
 ## Title-itIT: Z-Perl |cffeda55fMonitor Incursione|r

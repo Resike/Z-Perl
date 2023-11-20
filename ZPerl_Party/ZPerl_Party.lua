@@ -1854,7 +1854,7 @@ function XPerl_Party_SetInitialAttributes()
 
 		--self:SetAttribute("initial-height", CalcHeight())
 		--self:SetAttribute("initial-width", CalcWidth())
-	end--]]
+	end]]
 
 	-- Fix Secure Header taint in combat
 	--[[local maxColumns = partyHeader:GetAttribute("maxColumns") or 1
@@ -1864,7 +1864,7 @@ function XPerl_Party_SetInitialAttributes()
 
 	partyHeader:Show()
 	partyHeader:SetAttribute("startingIndex", - maxUnits + 1)
-	partyHeader:SetAttribute("startingIndex", startingIndex)--]]
+	partyHeader:SetAttribute("startingIndex", startingIndex)]]
 
 	partyHeader:Hide()
 
@@ -1874,6 +1874,7 @@ end
 
 -- XPerl_Party_SetMainAttributes
 function XPerl_Party_SetMainAttributes()
+
 	partyAnchor:StopMovingOrSizing()
 
 	partyHeader:ClearAllPoints()
