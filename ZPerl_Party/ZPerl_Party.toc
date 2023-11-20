@@ -1,4 +1,6 @@
 ## Interface: 11500
+## Interface: 11500
+## Interface: 30403
 ## Author: Resike
 ## Title: Z-Perl |cffeda55fParty|r
 ## Title-itIT: Z-Perl |cffeda55fGruppo|r
