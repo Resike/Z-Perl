@@ -1,3 +1,6 @@
+**7.1.5**
+* Fix tags.
+
 **7.1.4**
 * Fixes for Death Knight runes and Monk stagger special bars.
 
