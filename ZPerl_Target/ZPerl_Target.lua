@@ -962,7 +962,7 @@ end
 
 -- XPerl_Target_UpdateHotsPrediction
 local function XPerl_Target_UpdateHotsPrediction(self)
-	if not IsWrathClassic then
+	if IsClassic then
 		return
 	end
 	if self == XPerl_Target then

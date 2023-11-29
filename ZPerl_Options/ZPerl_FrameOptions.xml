@@ -7851,7 +7851,7 @@
 						</Anchors>
 						<Scripts>
 							<OnLoad>
-								if WOW_PROJECT_ID ~= WOW_PROJECT_WRATH_CLASSIC then
+								if WOW_PROJECT_ID ~= WOW_PROJECT_WRATH_CLASSIC and WOW_PROJECT_ID ~= WOW_PROJECT_CLASSIC then
 									self:Hide()
 									return
 								end
@@ -14842,7 +14842,7 @@
 								</Anchors>
 								<Scripts>
 									<OnLoad>
-										if WOW_PROJECT_ID ~= WOW_PROJECT_WRATH_CLASSIC then
+										if WOW_PROJECT_ID ~= WOW_PROJECT_WRATH_CLASSIC and WOW_PROJECT_ID ~= WOW_PROJECT_CLASSIC then
 											self:Hide()
 											return
 										end
@@ -14880,7 +14880,7 @@
 								</Anchors>
 								<Scripts>
 									<OnLoad>
-										if WOW_PROJECT_ID ~= WOW_PROJECT_WRATH_CLASSIC then
+										if WOW_PROJECT_ID ~= WOW_PROJECT_WRATH_CLASSIC and WOW_PROJECT_ID ~= WOW_PROJECT_CLASSIC then
 											self:SetPoint("TOPLEFT", self:GetParent():GetName().."_ColourHealPredictionBar", "BOTTOMLEFT", 0, -2)
 										end
 										XPerl_OptionsSetMyText(self, "XPERL_CONF_COLOUR_MANA")

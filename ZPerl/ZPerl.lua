@@ -4111,7 +4111,7 @@ end
 
 -- XPerl_SetExpectedHots
 function XPerl_SetExpectedHots(self)
-	if WOW_PROJECT_ID ~= WOW_PROJECT_WRATH_CLASSIC then
+	if WOW_PROJECT_ID ~= WOW_PROJECT_WRATH_CLASSIC and WOW_PROJECT_ID ~= WOW_PROJECT_CLASSIC then
 		return
 	end
 	local bar

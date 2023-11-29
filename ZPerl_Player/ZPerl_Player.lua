@@ -1947,7 +1947,7 @@ function XPerl_Player_Events:UNIT_HEAL_PREDICTION(unit)
 	if pconf.healprediction and unit == self.partyid then
 		XPerl_SetExpectedHealth(self)
 	end
-	if not IsWrathClassic then
+	if not IsClassic then
 		return
 	end
 	if pconf.hotPrediction and unit == self.partyid then
