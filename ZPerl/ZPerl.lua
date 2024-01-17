@@ -1654,11 +1654,11 @@ function XPerl_MinimapButton_Details(tt, ldb)
 end
 
 function XPerl_GetDisplayedPowerType(unitID) -- copied from CompactUnitFrame.lua
-	local _, _, _, _, _, _, showOnRaid, _, _, _, _, _, _, _, _ = not IsClassic and GetUnitPowerBarInfo(unitID)
-	if ( showOnRaid and UnitHasVehicleUI(unitID) and (UnitInParty(unitID) or UnitInRaid(unitID)) ) then
+	local barInfo = not IsClassic and GetUnitPowerBarInfo(unitID)
+	if ( barInfo and barInfo.showOnRaid and UnitHasVehicleUI(unitID) and (UnitInParty(unitID) or UnitInRaid(unitID)) ) then
 		return ALTERNATE_POWER_INDEX
 	else
-		return UnitPowerType(unitID)
+		return (UnitPowerType(unitID)) or 0
 	end
 end
 
