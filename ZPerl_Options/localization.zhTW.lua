@@ -1,6 +1,7 @@
 --[[
-Localisation file
+	Localisation file
 ]]
+
 local IsRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
 local IsWrathClassic = WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC
 

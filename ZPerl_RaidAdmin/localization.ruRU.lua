@@ -1,4 +1,5 @@
 --[[
+	Localisation file
 	Translated by StingerSoft
 ]]
 

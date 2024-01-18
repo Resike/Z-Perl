@@ -891,7 +891,7 @@ local function XPerl_Party_UpdateMana(self)
 	self.statsFrame.manaBar:SetMinMaxValues(0, Partymanamax)
 	self.statsFrame.manaBar:SetValue(Partymana)
 
-	if (XPerl_GetDisplayedPowerType(partyid) >= 1) then
+	if pType then
 		self.statsFrame.manaBar.percent:SetText(Partymana)
 	else
 		self.statsFrame.manaBar.percent:SetFormattedText(percD, 100 * percent)

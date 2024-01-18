@@ -84,7 +84,7 @@ local isTBC = build == 2
 local isWrath = build == 3
 
 local spellRankTableData = {
-	[1] = { 774, 8936, 5185, 740, 635, 19750, 139, 2060, 596, 2061, 2054, 2050, 1064, 331, 8004, 136, 755, 689, 746, 33763, 32546, 37563, 48438, 61295, 51945, 50464, 47757 },
+	[1] = { 774, 8936, 5185, 740, 635, 19750, 139, 2060, 596, 2061, 2054, 2050, 1064, 331, 8004, 136, 755, 689, 746, 33763, 32546, 37563, 48438, 61295, 51945, 50464, 47757, 408120, 408124 },
 	[2] = { 1058, 8938, 5186, 8918, 639, 19939, 6074, 10963, 996, 9472, 2055, 2052, 10622, 332, 8008, 3111, 3698, 699, 1159, 53248, 61299, 51990, 48450, 52986, 48119 },
 	[3] = { 1430, 8939, 5187, 9862, 647, 19940, 6075, 10964, 10960, 9473, 6063, 2053, 10623, 547, 8010, 3661, 3699, 709, 3267, 53249, 61300, 51997, 48451, 52987, 48120 },
 	[4] = { 2090, 8940, 5188, 9863, 1026, 19941, 6076, 10965, 10961, 9474, 6064, 913, 10466, 3662, 3700, 7651, 3268, 25422, 53251, 61301, 51998, 52988 },
@@ -844,9 +844,34 @@ if( playerClass == "DRUID" ) then
 			hotData[Rejuvenation] = { interval = 3, levels = { 4, 10, 16, 22, 28, 34, 40, 46, 52, 58, 60, 63, 69, 75, 80 }, averages = { 40, 70, 145, 225, 305, 380, 485, 610, 760, 945, 1110, 1165, 1325, 1490, 1690 }}
 			hotData[Lifebloom] = {interval = 1, ticks = 7, coeff = 0.66626, dhCoeff = 0.517928287, levels = {64, 72, 80}, averages = {224, 287, 371}, bomb = {480, 616, 776}}
 			hotData[WildGrowth] = {interval = 1, ticks = 7, coeff = 0.8056, levels = {60, 70, 75, 80}, averages = {686, 861, 1239, 1442}}
-		else
+		elseif isTBC then
 			hotData[Rejuvenation] = { interval = 3, levels = { 4, 10, 16, 22, 28, 34, 40, 46, 52, 58, 60, 63, 69 }, averages = { 32, 56, 116, 180, 244, 304, 388, 488, 608, 756, 888, 932, 1060 }}
 			hotData[Lifebloom] = {interval = 1, ticks = 7, coeff = 0.52, dhCoeff = 0.34335, levels = {64}, averages = {273}, bomb = {600}}
+		else
+			hotData[Rejuvenation] = { interval = 3, levels = { 4, 10, 16, 22, 28, 34, 40, 46, 52, 58, 60, 63, 69 }, averages = { 32, 56, 116, 180, 244, 304, 388, 488, 608, 756, 888, 932, 1060 }}
+			hotData[Lifebloom] = {interval = 1, ticks = 7, coeff = 0.35699999335, dhCoeff = 0.27399998903, levels = {1}, averages = {{
+				11, 11, 12, 12, 13, 14, 14, 15, 16, 17,
+				18, 20, 21, 22, 24, 26, 27, 29, 31, 33,
+				35, 37, 40, 42, 45, 47, 50, 52, 55, 58,
+				61, 64, 68, 71, 74, 78, 82, 85, 89, 93,
+				97, 101, 105, 109, 114, 118, 123, 127, 132, 137,
+				142, 147, 152, 157, 162, 168, 173, 179, 184, 190,
+			}}, bomb = {{
+				23, 23, 24, 25, 26, 28, 29, 31, 33, 35,
+				38, 40, 43, 46, 49, 52, 56, 59, 63, 67,
+				72, 76, 81, 86, 91, 96, 101, 107, 113, 119,
+				125, 131, 138, 145, 151, 159, 166, 173, 181, 189,
+				197, 205, 214, 223, 231, 240, 250, 259, 269, 279,
+				289, 299, 309, 320, 331, 341, 353, 364, 376, 387,
+			}}}
+			hotData[WildGrowth] = {interval = 1, ticks = 7, coeff = 0.42700000483, levels = {1}, averages = {{
+				95, 97, 101, 105, 110, 116, 122, 130, 138, 147,
+				157, 168, 179, 191, 204, 218, 233, 248, 264, 281,
+				299, 318, 337, 357, 378, 400, 423, 446, 470, 495,
+				521, 548, 575, 603, 632, 662, 693, 724, 756, 789,
+				823, 858, 893, 929, 966, 1004, 1043, 1082, 1122, 1163,
+				1205, 1248, 1291, 1335, 1380, 1426, 1472, 1520, 1568, 1617,
+			}}}
 		end
 		if isWrath then
 			spellData[HealingTouch] = { levels = {1, 8, 14, 20, 26, 32, 38, 44, 50, 56, 60, 62, 69, 74, 79}, averages = {
@@ -952,7 +977,7 @@ if( playerClass == "DRUID" ) then
 				local playerGroup = guidToGroup[playerGUID]
 
 				for groupGUID, id in pairs(guidToGroup) do
-					if( id == playerGroup and playerGUID ~= groupGUID and not UnitHasVehicleUI(guidToUnit[groupID]) and IsSpellInRange(MarkoftheWild, guidToUnit[groupGUID]) == 1 ) then
+					if( id == playerGroup and playerGUID ~= groupGUID and not UnitHasVehicleUI(guidToUnit[groupGUID]) and IsSpellInRange(MarkoftheWild, guidToUnit[groupGUID]) == 1 ) then
 						targets = targets .. "," .. compressGUID[groupGUID]
 					end
 				end
@@ -965,6 +990,12 @@ if( playerClass == "DRUID" ) then
 		-- Calculate hot heals
 		local wgTicks = {}
 		CalculateHotHealing = function(guid, spellID)
+
+			-- Treat Druid T10 Rejuvenation like a rank 15 Rejuvenation
+			if spellID == 70691 then
+				spellID = 48441
+			end
+
 			local spellName, spellRank = GetSpellInfo(spellID), SpellIDToRank[spellID]
 			local healAmount = getBaseHealAmount(hotData, spellName, spellID, spellRank)
 			local spellPower = GetSpellBonusHealing()
@@ -1031,7 +1062,11 @@ if( playerClass == "DRUID" ) then
 				end
 
 				local bombSpell = bombSpellPower * hotData[spellName].dhCoeff * (1 + talentData[EmpoweredRejuv].current)
-				bombAmount = ceil(calculateGeneralAmount(hotData[spellName].levels[spellRank], hotData[spellName].bomb[spellRank], bombSpell, spModifier, healModifier))
+				local bombBase = hotData[spellName].bomb[spellRank]
+				if type(bombBase) == "table" then
+					bombBase = bombBase[min(playerLevel, #bombBase)]
+				end
+				bombAmount = ceil(calculateGeneralAmount(hotData[spellName].levels[spellRank], bombBase, bombSpell, spModifier, healModifier))
 
 				-- Figure out the hot tick healing
 				spellPower = spellPower * (hotData[spellName].coeff * (1 + talentData[EmpoweredRejuv].current))
@@ -2428,7 +2463,7 @@ local function parseHotHeal(casterGUID, wasUpdated, spellID, tickAmount, totalTi
 	pending.tickInterval = totalTicks and duration / totalTicks or tickInterval
 	pending.spellID = spellID
 	pending.hasVariableTicks = type(tickAmount) == "string"
-	pending.isMutliTarget = (select("#", ...) / inc) > 1
+	pending.isMultiTarget = (select("#", ...) / inc) > 1
 	pending.bitType = HOT_HEALS
 
 	-- As you can't rely on a hot being the absolutely only one up, have to apply the total amount now :<
@@ -2458,7 +2493,7 @@ local function parseHotBomb(casterGUID, wasUpdated, spellID, amount, ...)
 	pending.endTime = hotPending.endTime
 	pending.spellID = spellID
 	pending.bitType = BOMB_HEALS
-	pending.stack = isWrath and hotPending.stack or 1 -- TBC Lifebloom bomb heal does not stack
+	pending.stack = not isTBC and hotPending.stack or 1 -- TBC Lifebloom bomb heal does not stack
 
 	loadHealList(pending, amount, pending.stack, pending.endTime, nil, ...)
 

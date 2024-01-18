@@ -1,5 +1,3 @@
--- Local stuff
-
 if (GetLocale() == "zhTW") then
 	XPERL_RAID_MONITOR_TITLE		= "施法監視 |c00A04040(BETA)|r"
 	XPERL_RAID_MONITOR_TOTALS		= "切換顯示所有狀態監視"

@@ -1,6 +1,4 @@
 if ( GetLocale() == "koKR") then
-
-
 	XPERL_TOOLTIP_ASSISTING	= "플레이어 지원:"
 	XPERL_TOOLTIP_HEALERS	= "나를 지원한 힐러:"
 	XPERL_TOOLTIP_ALLONME	= "나를 타겟한 모두:"
@@ -36,5 +34,4 @@ if ( GetLocale() == "koKR") then
 	XPERL_AGGRO_PLAYER		= "- 어그로 -"
 	XPERL_AGGRO_PET			= "- 소환수 어그로 -"
 	XPERL_AGGRO_DRAGTIP		= "어그로 경고의 위치 이동"
-
 end

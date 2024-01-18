@@ -1,4 +1,5 @@
 --[[
+	Localisation file
 	Translation Updated by Xgale @20090222
 ]]
 

@@ -1,5 +1,3 @@
--- Local stuff
-
 if (GetLocale() == "koKR") then
 	XPERL_RAID_MONITOR_TITLE		= "시전 현황 |c00A04040(BETA)|r"
 	XPERL_RAID_MONITOR_TOTALS		= "총계와 현황의 표시를 켜고 끕니다."

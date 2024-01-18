@@ -1,5 +1,4 @@
-if ( GetLocale() == "deDE") then
-
+if (GetLocale() == "deDE") then
 	XPERL_TOOLTIP_ASSISTING		= "Spieler, die mir assistieren:"
 	XPERL_TOOLTIP_HEALERS		= "Heiler, die mich als Ziel haben:"
 	XPERL_TOOLTIP_ALLONME		= "Alle, die mich als Ziel haben:"
@@ -35,5 +34,4 @@ if ( GetLocale() == "deDE") then
 	XPERL_AGGRO_PLAYER			= "- AGGRO -"
 	XPERL_AGGRO_PET				= "- BEGLEITER AGGRO -"
 	XPERL_AGGRO_DRAGTIP			= "Verschiebe die Position der Aggro Warnung"
-
 end

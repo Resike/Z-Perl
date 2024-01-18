@@ -1,6 +1,6 @@
 --[[
-	-- Localisation file
-	-- Traduit par Marillar
+	Localisation file
+	Traduit par Marillar
 --]]
 
 

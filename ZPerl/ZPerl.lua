@@ -1653,12 +1653,12 @@ function XPerl_MinimapButton_Details(tt, ldb)
 	--tt.updateTooltip = 1
 end
 
-function XPerl_GetDisplayedPowerType(unitID) -- copied from CompactUnitFrame.lua
+function XPerl_GetDisplayedPowerType(unitID)
 	local barInfo = not IsClassic and GetUnitPowerBarInfo(unitID)
-	if ( barInfo and barInfo.showOnRaid and UnitHasVehicleUI(unitID) and (UnitInParty(unitID) or UnitInRaid(unitID)) ) then
+	if barInfo and barInfo.showOnRaid and UnitHasVehicleUI(unitID) and (UnitInParty(unitID) or UnitInRaid(unitID)) then
 		return ALTERNATE_POWER_INDEX
 	else
-		return (UnitPowerType(unitID)) or 0
+		return UnitPowerType(unitID) or 0
 	end
 end
 
@@ -1930,9 +1930,10 @@ local MagicCureTalentsClassic = {
 
 local MagicCureTalents = {
 	["DRUID"] = 4, -- Resto
-	["PALADIN"] = 1, --Holy
+	["PALADIN"] = 1, -- Holy
 	["SHAMAN"] = 3, -- Resto
 	["MONK"] = 2, -- Mistweaver
+	["EVOKER"] = 2 -- Preservation
 }
 
 local function CanClassCureMagic(class)
@@ -2023,6 +2024,18 @@ function ZPerl_DebufHighlightInit()
 				show = Curses.Magic or Curses.Curse or Curses.Poison or Curses.Disease
 			end
 			return Curses.Poison or show
+		end
+	elseif (playerClass == "EVOKER") then
+		getShow = function(Curses)
+			local show
+			if (not conf.highlightDebuffs.class) then
+				show = Curses.Magic or Curses.Curse or Curses.Poison or Curses.Disease
+			end
+			local magic
+			if (CanClassCureMagic(playerClass)) then
+				magic = Curses.Magic
+			end
+			return Curses.Curse or Curses.Poison or Curses.Disease or magic or show
 		end
 	else
 		getShow = function(Curses)

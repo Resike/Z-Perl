@@ -1,5 +1,3 @@
--- Local stuff
-
 if (GetLocale() == "zhCN") then
 	XPERL_RAID_MONITOR_TITLE		= "施法监视"
 	XPERL_RAID_MONITOR_TOTALS		= "切换显示所有状态监视"
@@ -17,6 +15,5 @@ if (GetLocale() == "zhCN") then
 	XPERL_MONITOR_INNERVATE		= "激活"
 	XPERL_MONITOR_MANATIDE		= "法力之潮图腾"
 
-XPERL_LOC_OOR				= "n/a"
-
+	XPERL_LOC_OOR				= "n/a"
 end

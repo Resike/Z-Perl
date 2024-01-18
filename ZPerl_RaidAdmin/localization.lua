@@ -1,4 +1,6 @@
-
+--[[
+	Localisation file
+]]
 
 XPERL_ADMIN_TITLE	= XPerl_ShortProductName.." Raid Admin"
 

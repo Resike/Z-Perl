@@ -1,6 +1,4 @@
--- Local stuff
-
-if (GetLocale() == "esES") then
+if (GetLocale() == "esES") or (GetLocale() == "esMX") then
 	XPERL_RAID_MONITOR_TITLE		= "Monitor Casteo |c00A04040(BETA)|r"
 	XPERL_RAID_MONITOR_TOTALS		= "Alternar visualización de Totales y Estadísticas"
 

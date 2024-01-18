@@ -1562,7 +1562,7 @@ function XPerl_Player_Events:PLAYER_ENTERING_WORLD(event, initialLogin, reloadin
 			end
 		]])
 
-		RegisterStateDriver(self.state, "petbattleupdate", "[petbattle] inpetbattle; [stance:0] 0; [stance:1] 1; [stance:2] 2; [stance:3] 3; [stance:4] 4; none")
+		RegisterStateDriver(self.state, "petbattleupdate", "[petbattle] inpetbattle; [form:0] 0; [form:1] 1; [form:2] 2; [form:3] 3; [form:4] 4; none")
 	end
 
 	XPerl_Player_UpdateDisplay(self)

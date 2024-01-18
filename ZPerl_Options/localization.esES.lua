@@ -1,6 +1,6 @@
 --[[
 	Localisation file
-	ranslation by Hastings
+	Translation by Hastings
 ]]
 
 if (GetLocale() == "esES") or (GetLocale() == "esMX") then

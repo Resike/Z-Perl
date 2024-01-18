@@ -1,5 +1,4 @@
 if (GetLocale() == "deDE") then
-
 	XPERL_RAID_MONITOR_TITLE				= "Casting-Monitor |c00A04040(BETA)|r"
 	XPERL_RAID_MONITOR_TOTALS				= "Anzeige zwischen Gesamt und Statistik umschalten"
 
@@ -17,5 +16,4 @@ if (GetLocale() == "deDE") then
 	XPERL_MONITOR_MANATIDE					= "Totem der Manaflut"
 
 	XPERL_LOC_OOR							= "n/a"
-
 end

@@ -1,3 +1,9 @@
+**7.1.7**
+* Updated for 10.2.5.
+* Added Evoker dispels.
+* Fixed player frame for lower level Druids or Druids with missing forms.
+* Updated libraries.
+
 **7.1.6**
 * Fix Death Knight runes for Wrath Classic.
 

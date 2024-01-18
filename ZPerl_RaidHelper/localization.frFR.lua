@@ -1,5 +1,4 @@
-if ( GetLocale() == "frFR" ) then
-
+if (GetLocale() == "frFR" ) then
 	XPERL_MSG_PREFIX 		= "|c00C05050X-Perl|r "
 
 	XPERL_TOOLTIP_ASSISTING 	= "Assistance de joueurs"
@@ -37,5 +36,4 @@ if ( GetLocale() == "frFR" ) then
 	XPERL_AGGRO_PLAYER 		= "- AGGRO -"
 	XPERL_AGGRO_PET 		= "- AGGRO DU FAMILIER -"
 		XPERL_AGGRO_DRAGTIP		= "D\195\169place l'endroit de l'avertissement d'Aggro"
-
 end

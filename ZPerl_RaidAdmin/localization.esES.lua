@@ -1,8 +1,9 @@
 --[[
+	Localisation file
 	Translation by Hastings
 ]]
 
-if (GetLocale() == "esES") then
+if (GetLocale() == "esES") or (GetLocale() == "esMX") then
 XPERL_ADMIN_TITLE	= "X-Perl Administración de banda"
 
 XPERL_MSG_PREFIX	= "|c00C05050X-Perl|r "

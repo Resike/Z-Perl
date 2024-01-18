@@ -1,6 +1,7 @@
 -- X-Perl UnitFrames
 -- Author: Resike
 -- License: GNU GPL v3, 29 June 2007 (see LICENSE.txt)
+
 if (GetLocale() == "itIT") then
 	XPerl_ProductName		= "|cFFD00000X-Perl|r UnitFrames"
 	XPerl_ShortProductName	= "|cFFD00000X-Perl|r"

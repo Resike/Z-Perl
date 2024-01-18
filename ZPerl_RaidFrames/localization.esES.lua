@@ -1,9 +1,4 @@
--- X-Perl UnitFrames
--- Author: Resike
--- License: GNU GPL v3, 29 June 2007 (see LICENSE.txt)
-
-if ( GetLocale() == "esES" ) then
-
+if (GetLocale() == "esES") or (GetLocale() == "esMX") then
 XPERL_RAID_GROUP		= "Grupo %d"
 XPERL_RAID_TOOLTIP_OFFLINE	= "Desconectado durante %s"
 XPERL_RAID_TOOLTIP_AFK		= "AUS durante %s"
@@ -27,5 +22,4 @@ XPERL_RAID_AFK			= "AUS"
 XPERL_RAID_DND			= "NoMolestar"
 XPERL_RAID_AUTOPROMOTE		= "Auto-Promover"
 XPERL_RAID_RESSER_AVAIL		= "Resurrectores disponibles: "
-
 end
