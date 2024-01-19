@@ -867,34 +867,33 @@ local function XPerl_Party_UpdateMana(self)
 		XPerl_Party_UpdatePlayerFlags(self)
 	end
 
-	local pType = XPerl_GetDisplayedPowerType(partyid)
+	local powerType = XPerl_GetDisplayedPowerType(partyid)
+	local unitPower = UnitPower(partyid, powerType)
+	local unitPowerMax = UnitPowerMax(partyid, powerType)
 
-	local Partymana = UnitPower(partyid, pType)
-	local Partymanamax = UnitPowerMax(partyid, pType)
-
-	--Begin 4.3 division by 0 work around to ensure we don't divide if max is 0
-	local percent
-	if Partymana > 0 and Partymanamax == 0 then --We have current mana but max mana failed.
-		Partymanamax = Partymana --Make max mana at least equal to current health
-		percent = 1 --And percent 100% cause a number divided by itself is 1, duh.
-	elseif Partymana == 0 and Partymanamax == 0 then--Probably doesn't use mana or is oom?
-		percent = 0 --So just automatically set percent to 0 and avoid division of 0/0 all together in this situation.
+	-- Begin 4.3 division by 0 work around to ensure we don't divide if max is 0
+	local powerPercent
+	if unitPower > 0 and unitPowerMax == 0 then -- We have current mana but max mana failed.
+		unitPowerMax = unitPower -- Make max mana at least equal to current health
+		powerPercent = 1 -- And percent 100% cause a number divided by itself is 1, duh.
+	elseif unitPower == 0 and unitPowerMax == 0 then -- Probably doesn't use mana or is oom?
+		powerPercent = 0 -- So just automatically set percent to 0 and avoid division of 0/0 all together in this situation.
 	else
-		percent = Partymana / Partymanamax--Everything is dandy, so just do it right way.
+		powerPercent = unitPower / unitPowerMax -- Everything is dandy, so just do it right way.
 	end
-	--end division by 0 check
+	-- end division by 0 check
 
 	--[[if (Partymanamax == 1 and Partymana > Partymanamax) then
 		Partymanamax = Partymana
 	end--]]
 
-	self.statsFrame.manaBar:SetMinMaxValues(0, Partymanamax)
-	self.statsFrame.manaBar:SetValue(Partymana)
+	self.statsFrame.manaBar:SetMinMaxValues(0, unitPowerMax)
+	self.statsFrame.manaBar:SetValue(unitPower)
 
-	if pType then
-		self.statsFrame.manaBar.percent:SetText(Partymana)
+	if powerType >= 1 then
+		self.statsFrame.manaBar.percent:SetText(unitPower)
 	else
-		self.statsFrame.manaBar.percent:SetFormattedText(percD, 100 * percent)
+		self.statsFrame.manaBar.percent:SetFormattedText(percD, 100 * powerPercent)
 	end
 
 	--[[if (pconf.values) then
@@ -903,7 +902,7 @@ local function XPerl_Party_UpdateMana(self)
 		self.statsFrame.manaBar.text:Hide()
 	end]]
 
-	self.statsFrame.manaBar.text:SetFormattedText("%d/%d", Partymana, Partymanamax)
+	self.statsFrame.manaBar.text:SetFormattedText("%d/%d", unitPower, unitPowerMax)
 
 	if (not UnitIsConnected(partyid)) then
 		self.statsFrame.healthBar.text:SetText(XPERL_LOC_OFFLINE)

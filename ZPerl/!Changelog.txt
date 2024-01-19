@@ -1,3 +1,7 @@
+**7.1.8**
+* Fixed special power bars disappearing in some special cases.
+* Fixed party mana percentages.
+
 **7.1.7**
 * Updated for 10.2.5.
 * Added Evoker dispels.

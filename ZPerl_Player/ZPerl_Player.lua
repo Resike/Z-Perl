@@ -722,43 +722,42 @@ end
 
 -- XPerl_Player_UpdateMana
 local function XPerl_Player_UpdateMana(self)
-	local mb = self.statsFrame.manaBar
-	local pType = XPerl_GetDisplayedPowerType(self.partyid)
-	local playermana = UnitPower(self.partyid, pType)
-	local playermanamax = UnitPowerMax(self.partyid, pType)
+	local powerType = XPerl_GetDisplayedPowerType(self.partyid)
+	local unitPower = UnitPower(self.partyid, powerType)
+	local unitPowerMax = UnitPowerMax(self.partyid, powerType)
 
-	mb:SetMinMaxValues(0, playermanamax)
-	mb:SetValue(playermana)
+	self.statsFrame.manaBar:SetMinMaxValues(0, unitPowerMax)
+	self.statsFrame.manaBar:SetValue(unitPower)
 
 	-- Begin 4.3 division by 0 work around to ensure we don't divide if max is 0
-	local percent
-	if playermana > 0 and playermanamax == 0 then -- We have current mana but max mana failed.
-		playermanamax = playermana -- Make max mana at least equal to current health
-		percent = 1 -- And percent 100% cause a number divided by itself is 1, duh.
-	elseif playermana == 0 and playermanamax == 0 then -- Probably doesn't use mana or is oom?
-		percent = 0 -- So just automatically set percent to 0 and avoid division of 0/0 all together in this situation.
+	local powerPercent
+	if unitPower > 0 and unitPowerMax == 0 then -- We have current mana but max mana failed.
+		unitPowerMax = unitPower -- Make max mana at least equal to current health
+		powerPercent = 1 -- And percent 100% cause a number divided by itself is 1, duh.
+	elseif unitPower == 0 and unitPowerMax == 0 then -- Probably doesn't use mana or is oom?
+		powerPercent = 0 -- So just automatically set percent to 0 and avoid division of 0/0 all together in this situation.
 	else
-		percent = playermana / playermanamax -- Everything is dandy, so just do it right way.
+		powerPercent = unitPower / unitPowerMax -- Everything is dandy, so just do it right way.
 	end
 	-- end division by 0 check
 
-	--mb.text:SetFormattedText("%d/%d", playermana, playermanamax)
-	XPerl_SetValuedText(mb.text, playermana, playermanamax)
+	--self.statsFrame.manaBar.text:SetFormattedText("%d/%d", playermana, playermanamax)
+	XPerl_SetValuedText(self.statsFrame.manaBar.text, unitPower, unitPowerMax)
 
-	if (pType >= 1 or UnitPowerMax(self.partyid, pType) < 1) then
-		mb.percent:SetText(playermana)
+	if (powerType >= 1 or UnitPowerMax(self.partyid, powerType) < 1) then
+		self.statsFrame.manaBar.percent:SetText(unitPower)
 	else
-		mb.percent:SetFormattedText(percD, percent * 100)
+		self.statsFrame.manaBar.percent:SetFormattedText(percD, powerPercent * 100)
 	end
 
-	mb.tex:SetTexCoord(0, max(0, (percent)), 0, 1)
+	self.statsFrame.manaBar.tex:SetTexCoord(0, max(0, (powerPercent)), 0, 1)
 
 	if (not self.statsFrame.greyMana) then
 		if (pconf.values) then
-			mb.text:Show()
+			self.statsFrame.manaBar.text:Show()
 		end
 		if (pconf.percent) then
-			mb.percent:Show()
+			self.statsFrame.manaBar.percent:Show()
 		end
 	end
 
@@ -2296,20 +2295,21 @@ function XPerl_Player_InitDruid(self, playerClass)
 			self:SetMovable(false)
 			moving = nil
 		end)
-		local parenting
-		hooksecurefunc(self.runes.child, "SetParent", function(self)
-			if parenting or not pconf.showRunes or not pconf.lockRunes then
-				return
-			end
-			parenting = true
-			self:SetMovable(true)
-			self:SetParent(XPerl_Player.runes)
-			self:ClearAllPoints()
-			self:SetPoint("TOP", XPerl_Player.runes, "TOP", 0, -6)
-			self:SetMovable(false)
-			parenting = nil
-		end)
 	end
+
+	local parenting
+	hooksecurefunc(self.runes.child, "SetParent", function(self)
+		if parenting or not pconf.showRunes then
+			return
+		end
+		parenting = true
+		self:SetMovable(true)
+		self:SetParent(XPerl_Player.runes)
+		self:ClearAllPoints()
+		self:SetPoint("TOP", XPerl_Player.runes, "TOP", 0, -6)
+		self:SetMovable(false)
+		parenting = nil
+	end)
 
 	self.runes.child:SetParent(self.runes)
 	self.runes.child:ClearAllPoints()
@@ -2345,20 +2345,21 @@ function XPerl_Player_InitRogue(self, playerClass)
 			self:SetMovable(false)
 			moving = nil
 		end)
-		local parenting
-		hooksecurefunc(self.runes.child, "SetParent", function(self)
-			if parenting or not pconf.showRunes or not pconf.lockRunes then
-				return
-			end
-			parenting = true
-			self:SetMovable(true)
-			self:SetParent(XPerl_Player.runes)
-			self:ClearAllPoints()
-			self:SetPoint("TOP", XPerl_Player.runes, "TOP", 0, -8)
-			self:SetMovable(false)
-			parenting = nil
-		end)
 	end
+
+	local parenting
+	hooksecurefunc(self.runes.child, "SetParent", function(self)
+		if parenting or not pconf.showRunes then
+			return
+		end
+		parenting = true
+		self:SetMovable(true)
+		self:SetParent(XPerl_Player.runes)
+		self:ClearAllPoints()
+		self:SetPoint("TOP", XPerl_Player.runes, "TOP", 0, -8)
+		self:SetMovable(false)
+		parenting = nil
+	end)
 
 	self.runes.child:SetParent(self.runes)
 	self.runes.child:ClearAllPoints()
@@ -2394,20 +2395,21 @@ function XPerl_Player_InitWarlock(self, playerClass)
 			self:SetMovable(false)
 			moving = nil
 		end)
-		local parenting
-		hooksecurefunc(self.runes.child, "SetParent", function(self)
-			if parenting or not pconf.showRunes or not pconf.lockRunes then
-				return
-			end
-			parenting = true
-			self:SetMovable(true)
-			self:SetParent(XPerl_Player.runes)
-			self:ClearAllPoints()
-			self:SetPoint("TOP", XPerl_Player.runes, "TOP", 0, -2)
-			self:SetMovable(false)
-			parenting = nil
-		end)
 	end
+
+	local parenting
+	hooksecurefunc(self.runes.child, "SetParent", function(self)
+		if parenting or not pconf.showRunes then
+			return
+		end
+		parenting = true
+		self:SetMovable(true)
+		self:SetParent(XPerl_Player.runes)
+		self:ClearAllPoints()
+		self:SetPoint("TOP", XPerl_Player.runes, "TOP", 0, -2)
+		self:SetMovable(false)
+		parenting = nil
+	end)
 
 	self.runes.child:SetParent(self.runes)
 	self.runes.child:ClearAllPoints()
@@ -2445,20 +2447,21 @@ function XPerl_Player_InitPaladin(self, playerClass)
 			self:SetMovable(false)
 			moving = nil
 		end)
-		local parenting
-		hooksecurefunc(self.runes.child, "SetParent", function(self)
-			if parenting or not pconf.showRunes or not pconf.lockRunes then
-				return
-			end
-			parenting = true
-			self:SetMovable(true)
-			self:SetParent(XPerl_Player.runes)
-			self:ClearAllPoints()
-			self:SetPoint("TOP", XPerl_Player.runes, "TOP", 0, 3)
-			self:SetMovable(false)
-			parenting = nil
-		end)
 	end
+
+	local parenting
+	hooksecurefunc(self.runes.child, "SetParent", function(self)
+		if parenting or not pconf.showRunes then
+			return
+		end
+		parenting = true
+		self:SetMovable(true)
+		self:SetParent(XPerl_Player.runes)
+		self:ClearAllPoints()
+		self:SetPoint("TOP", XPerl_Player.runes, "TOP", 0, 3)
+		self:SetMovable(false)
+		parenting = nil
+	end)
 
 	self.runes.child:SetParent(self.runes)
 	self.runes.child:ClearAllPoints()
@@ -2497,20 +2500,21 @@ function XPerl_Player_InitMonk(self, playerClass)
 			self:SetMovable(false)
 			moving = nil
 		end)
-		local parenting
-		hooksecurefunc(self.runes.child, "SetParent", function(self)
-			if parenting or not pconf.showRunes or not pconf.lockRunes then
-				return
-			end
-			parenting = true
-			self:SetMovable(true)
-			self:SetParent(XPerl_Player.runes)
-			self:ClearAllPoints()
-			self:SetPoint("TOP", XPerl_Player.runes, "TOP", 0, -5)
-			self:SetMovable(false)
-			parenting = nil
-		end)
 	end
+
+	local parenting
+	hooksecurefunc(self.runes.child, "SetParent", function(self)
+		if parenting or not pconf.showRunes then
+			return
+		end
+		parenting = true
+		self:SetMovable(true)
+		self:SetParent(XPerl_Player.runes)
+		self:ClearAllPoints()
+		self:SetPoint("TOP", XPerl_Player.runes, "TOP", 0, -5)
+		self:SetMovable(false)
+		parenting = nil
+	end)
 
 	self.runes.child:SetParent(self.runes)
 	self.runes.child:SetFrameLevel(0)
@@ -2533,20 +2537,21 @@ function XPerl_Player_InitMonk(self, playerClass)
 			self:SetMovable(false)
 			moving = nil
 		end)
-		local parenting
-		hooksecurefunc(self.runes.child2, "SetParent", function(self)
-			if parenting or not pconf.showRunes or not pconf.lockRunes then
-				return
-			end
-			parenting = true
-			self:SetMovable(true)
-			self:SetParent(XPerl_Player.runes)
-			self:ClearAllPoints()
-			self:SetPoint("TOP", XPerl_Player.runes, "TOP", 0, 0)
-			self:SetMovable(false)
-			parenting = nil
-		end)
 	end
+
+	local parenting
+	hooksecurefunc(self.runes.child2, "SetParent", function(self)
+		if parenting or not pconf.showRunes then
+			return
+		end
+		parenting = true
+		self:SetMovable(true)
+		self:SetParent(XPerl_Player.runes)
+		self:ClearAllPoints()
+		self:SetPoint("TOP", XPerl_Player.runes, "TOP", 0, 0)
+		self:SetMovable(false)
+		parenting = nil
+	end)
 
 	self.runes.child2:SetParent(self.runes)
 	self.runes.child2:ClearAllPoints()
@@ -2594,20 +2599,21 @@ function XPerl_Player_InitMage(self, playerClass)
 			self:SetMovable(false)
 			moving = nil
 		end)
-		local parenting
-		hooksecurefunc(self.runes.child, "SetParent", function(self)
-			if parenting or not pconf.showRunes or not pconf.lockRunes then
-				return
-			end
-			parenting = true
-			self:SetMovable(true)
-			self:SetParent(XPerl_Player.runes)
-			self:ClearAllPoints()
-			self:SetPoint("TOP", XPerl_Player.runes, "TOP", 0, -7)
-			self:SetMovable(false)
-			parenting = nil
-		end)
 	end
+
+	local parenting
+	hooksecurefunc(self.runes.child, "SetParent", function(self)
+		if parenting or not pconf.showRunes then
+			return
+		end
+		parenting = true
+		self:SetMovable(true)
+		self:SetParent(XPerl_Player.runes)
+		self:ClearAllPoints()
+		self:SetPoint("TOP", XPerl_Player.runes, "TOP", 0, -7)
+		self:SetMovable(false)
+		parenting = nil
+	end)
 
 	self.runes.child:SetParent(self.runes)
 	self.runes.child:ClearAllPoints()
@@ -2647,20 +2653,21 @@ function XPerl_Player_InitDK(self, playerClass)
 				self:SetMovable(false)
 				moving = nil
 			end)
-			local parenting
-			hooksecurefunc(self.runes.child2, "SetParent", function(self)
-				if parenting or not pconf.showRunes or not pconf.lockRunes then
-					return
-				end
-				parenting = true
-				self:SetMovable(true)
-				self:SetParent(XPerl_Player.runes)
-				self:ClearAllPoints()
-				self:SetPoint("TOP", XPerl_Player.runes, "TOP", 0, -6)
-				self:SetMovable(false)
-				parenting = nil
-			end)
 		end
+
+		local parenting
+		hooksecurefunc(self.runes.child2, "SetParent", function(self)
+			if parenting or not pconf.showRunes then
+				return
+			end
+			parenting = true
+			self:SetMovable(true)
+			self:SetParent(XPerl_Player.runes)
+			self:ClearAllPoints()
+			self:SetPoint("TOP", XPerl_Player.runes, "TOP", 0, -6)
+			self:SetMovable(false)
+			parenting = nil
+		end)
 
 		self.runes.child2:SetParent(self.runes)
 		self.runes.child2:ClearAllPoints()
@@ -2686,20 +2693,21 @@ function XPerl_Player_InitDK(self, playerClass)
 				self:SetMovable(false)
 				moving = nil
 			end)
-			local parenting
-			hooksecurefunc(self.runes.child2, "SetParent", function(self)
-				if parenting or not pconf.showRunes or not pconf.lockRunes then
-					return
-				end
-				parenting = true
-				self:SetMovable(true)
-				self:SetParent(XPerl_Player.runes)
-				self:ClearAllPoints()
-				self:SetPoint("TOP", XPerl_Player.runes, "TOP", 3, -3)
-				self:SetMovable(false)
-				parenting = nil
-			end)
 		end
+
+		local parenting
+		hooksecurefunc(self.runes.child2, "SetParent", function(self)
+			if parenting or not pconf.showRunes then
+				return
+			end
+			parenting = true
+			self:SetMovable(true)
+			self:SetParent(XPerl_Player.runes)
+			self:ClearAllPoints()
+			self:SetPoint("TOP", XPerl_Player.runes, "TOP", 3, -3)
+			self:SetMovable(false)
+			parenting = nil
+		end)
 
 		self.runes.child2:SetParent(self.runes)
 		self.runes.child2:ClearAllPoints()
@@ -2735,20 +2743,21 @@ function XPerl_Player_InitEvoker(self, playerClass)
 			self:SetMovable(false)
 			moving = nil
 		end)
-		local parenting
-		hooksecurefunc(self.runes.child, "SetParent", function(self)
-			if parenting or not pconf.showRunes or not pconf.lockRunes then
-				return
-			end
-			parenting = true
-			self:SetMovable(true)
-			self:SetParent(XPerl_Player.runes)
-			self:ClearAllPoints()
-			self:SetPoint("TOP", XPerl_Player.runes, "TOP", 0, -2)
-			self:SetMovable(false)
-			parenting = nil
-		end)
 	end
+
+	local parenting
+	hooksecurefunc(self.runes.child, "SetParent", function(self)
+		if parenting or not pconf.showRunes then
+			return
+		end
+		parenting = true
+		self:SetMovable(true)
+		self:SetParent(XPerl_Player.runes)
+		self:ClearAllPoints()
+		self:SetPoint("TOP", XPerl_Player.runes, "TOP", 0, -2)
+		self:SetMovable(false)
+		parenting = nil
+	end)
 
 	self.runes.child:SetParent(self.runes)
 	self.runes.child:ClearAllPoints()

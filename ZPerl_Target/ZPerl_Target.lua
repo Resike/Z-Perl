@@ -825,9 +825,9 @@ end
 
 -- XPerl_Target_SetManaType
 function XPerl_Target_SetManaType(self)
-	local targetmanamax = UnitPowerMax(self.partyid)
+	local unitPowerMax = UnitPowerMax(self.partyid)
 
-	if (targetmanamax == 0 or not self.conf.mana) then
+	if (unitPowerMax == 0 or not self.conf.mana) then
 		if (self.statsFrame.manaBar:IsShown()) then
 			self.statsFrame.manaBar:Hide()
 
@@ -860,36 +860,36 @@ function XPerl_Target_SetMana(self)
 		return
 	end
 
-	local targetmana, targetmanamax = UnitPower(self.partyid), UnitPowerMax(self.partyid)
-	local mb = self.statsFrame.manaBar
+	local powerType = XPerl_GetDisplayedPowerType(partyid)
+	local unitPower = UnitPower(partyid, powerType)
+	local unitPowerMax = UnitPowerMax(partyid, powerType)
 
-	self.targetmana = targetmana
-	self.targetmanamax = targetmanamax
+	self.targetmana = unitPower
+	self.targetmanamax = unitPowerMax
 
-	--Begin 4.3 division by 0 work around to ensure we don't divide if max is 0
-	local pmanaPct
-	if targetmana > 0 and targetmanamax == 0 then --We have current mana but max mana failed.
-		targetmanamax = targetmana --Make max mana at least equal to current mana
-		pmanaPct = 1 --And percent 100% cause a number divided by itself is 1, duh.
-	elseif targetmana == 0 and targetmanamax == 0 then--Probably doesn't use mana or is oom?
-		pmanaPct = 0 --So just automatically set percent to 0 and avoid division of 0/0 all together in this situation.
+	-- Begin 4.3 division by 0 work around to ensure we don't divide if max is 0
+	local powerPercent
+	if unitPower > 0 and unitPowerMax == 0 then -- We have current mana but max mana failed.
+		unitPowerMax = unitPower -- Make max mana at least equal to current mana
+		powerPercent = 1 -- And percent 100% cause a number divided by itself is 1, duh.
+	elseif unitPower == 0 and unitPowerMax == 0 then -- Probably doesn't use mana or is oom?
+		powerPercent = 0 -- So just automatically set percent to 0 and avoid division of 0/0 all together in this situation.
 	else
-		pmanaPct = targetmana / targetmanamax--Everything is dandy, so just do it right way.
+		powerPercent = unitPower / unitPowerMax -- Everything is dandy, so just do it right way.
 	end
-	--end division by 0 check
+	-- end division by 0 check
 
-	mb:SetMinMaxValues(0, targetmanamax)
-	mb:SetValue(targetmana)
+	self.statsFrame.manaBar:SetMinMaxValues(0, unitPowerMax)
+	self.statsFrame.manaBar:SetValue(unitPower)
 
-	local p = XPerl_GetDisplayedPowerType(self.partyid)
-	if p == 0 then
-		mb.percent:SetFormattedText(percD, 100 * pmanaPct)	--	XPerl_Percent[floor(100 * (targetmana / targetmanamax))])
+	if powerType >= 1 then
+		self.statsFrame.manaBar.percent:SetText(unitPower)
 	else
-		mb.percent:SetText(targetmana)
+		self.statsFrame.manaBar.percent:SetFormattedText(percD, 100 * powerPercent)	--	XPerl_Percent[floor(100 * (unitPower / unitPowerMax))])
 	end
 
-	XPerl_SetValuedText(mb.text, targetmana, targetmanamax)
-	--mb.text:SetFormattedText("%d/%d", targetmana, targetmanamax)
+	XPerl_SetValuedText(self.statsFrame.manaBar.text, unitPower, unitPowerMax)
+	--self.statsFrame.manaBar.text:SetFormattedText("%d/%d", unitPower, unitPowerMax)
 end
 
 -- XPerl_Target_SetComboBar
@@ -1018,8 +1018,6 @@ function XPerl_Target_UpdateHealth(self)
 		return
 	end
 
-	local hb = self.statsFrame.healthBar
-	local hbt = self.statsFrame.healthBar.text
 	local hp, hpMax, percent = XPerl_Target_GetHealth(self)
 
 	self.targethp = hp
@@ -1052,9 +1050,9 @@ function XPerl_Target_UpdateHealth(self)
 
 	if (percent) then
 		if UnitIsDeadOrGhost(partyid) or hpMax == 0 then -- 4.3+ fix so if for some dumb reason max HP is 0, prevent any division by 0.
-			hbt:SetFormattedText(percD, 0)
+			self.statsFrame.healthBar.text:SetFormattedText(percD, 0)
 		else
-			hbt:SetFormattedText(percD, 100 * hp / hpMax)
+			self.statsFrame.healthBar.text:SetFormattedText(percD, 100 * hp / hpMax)
 		end
 	end
 
@@ -1062,34 +1060,34 @@ function XPerl_Target_UpdateHealth(self)
 	if (self.conf.percent) then
 		if (UnitIsGhost(partyid)) then
 			self.statsFrame.manaBar.percent:Hide()
-			hb.percent:SetText(XPERL_LOC_GHOST)
+			self.statsFrame.healthBar.percent:SetText(XPERL_LOC_GHOST)
 		--[[elseif (conf.showFD and UnitBuff(partyid, feignDeath)) then
 			--self.statsFrame.manaBar.percent:Hide()
 			--hb.percent:SetText(XPERL_LOC_DEAD)
 			hbt:SetText(XPERL_LOC_FEIGNDEATH)--]]
 		elseif (UnitIsDead(partyid)) then
 			--self.statsFrame.manaBar.percent:Hide()
-			hb.percent:SetText(XPERL_LOC_DEAD)
+			self.statsFrame.healthBar.percent:SetText(XPERL_LOC_DEAD)
 		elseif (UnitExists(partyid) and not UnitIsConnected(partyid)) then
 			self.statsFrame.manaBar.percent:Hide()
-			hb.percent:SetText(XPERL_LOC_OFFLINE)
+			self.statsFrame.healthBar.percent:SetText(XPERL_LOC_OFFLINE)
 		elseif (UnitIsAFK(partyid) and conf.showAFK) --[[and (self == XPerl_Target or self == XPerl_Focus))]] then
-			hb.percent:SetText(CHAT_MSG_AFK)
+			self.statsFrame.healthBar.percent:SetText(CHAT_MSG_AFK)
 		else
 			self.statsFrame.manaBar.percent:Show()
 			color = true
 		end
 	else
 		if (UnitIsGhost(partyid)) then
-			hbt:SetText(XPERL_LOC_GHOST)
+			self.statsFrame.healthBar.text:SetText(XPERL_LOC_GHOST)
 		--[[elseif (conf.showFD and UnitBuff(partyid, feignDeath)) then
 			hbt:SetText(XPERL_LOC_FEIGNDEATH)--]]
 		elseif (UnitIsDead(partyid)) then
-			hbt:SetText(XPERL_LOC_DEAD)
+			self.statsFrame.healthBar.text:SetText(XPERL_LOC_DEAD)
 		elseif (UnitExists(partyid) and not UnitIsConnected(partyid)) then
-			hbt:SetText(XPERL_LOC_OFFLINE)
+			self.statsFrame.healthBar.text:SetText(XPERL_LOC_OFFLINE)
 		elseif (UnitIsAFK(partyid) and conf.showAFK) then
-			hbt:SetText(CHAT_MSG_AFK)
+			self.statsFrame.healthBar.text:SetText(CHAT_MSG_AFK)
 		else
 			color = true
 		end
