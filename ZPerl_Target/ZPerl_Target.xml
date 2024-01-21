@@ -112,7 +112,7 @@
 						</Layers>
 					</Frame>
 					<!-- Combo Point Meter -->
-					<StatusBar name="$parentcpMeter">
+					<StatusBar name="$parentcpMeter" hidden="true">
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>

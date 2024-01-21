@@ -1702,25 +1702,8 @@ function XPerl_Player_Events:PLAYER_DEAD()
 end
 
 -- UNIT_POWER_FREQUENT
-function XPerl_Player_Events:UNIT_POWER_FREQUENT(powerType)
+function XPerl_Player_Events:UNIT_POWER_FREQUENT()
 	XPerl_Player_UpdateMana(self)
-
-	if powerType == "COMBO_POINTS" then
-		if XPerl_Target_UpdateCombo then
-			if UnitExists("target") and XPerl_Target:IsVisible() then
-				XPerl_Target_UpdateCombo(XPerl_Target)
-			end
-			if UnitExists("focus") and XPerl_Focus:IsVisible() then
-				XPerl_Target_UpdateCombo(XPerl_Focus)
-			end
-		end
-
-		if conf.target.combo.blizzard then
-			if XPerl_Target_ComboFrame_Update then
-				XPerl_Target_ComboFrame_Update()
-			end
-		end
-	end
 end
 
 -- UNIT_MAXPOWER

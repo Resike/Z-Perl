@@ -2258,7 +2258,7 @@ local function XPerl_RegisterConfigDefault(configFunc, configSection)
 end
 
 local function XPerl_MakeDefaultConfig(new)
-	for k,v in pairs(defaultConfig) do
+	for k, v in pairs(defaultConfig) do
 		v.func(new, v.section)
 	end
 end
@@ -3254,6 +3254,9 @@ if (XPerl_UpgradeSettings) then
 		if (not old.pet) then
 			old.pet = {}
 			XPerl_Pet_ConfigDefault(old)
+		elseif (not old.pettarget) then
+			old.pettarget = {}
+			XPerl_TargetTarget_ConfigDefault(old, "pettarget")
 		elseif (not old.pet.castBar) then
 			old.pet.castBar = {enable = 1}
 		end
