@@ -12218,7 +12218,18 @@
 								end
 								self.configBase = "XPerlDB.raid"
 								self.configIndex = "enable"
-								self.configClick = XPerl_Raid_OptionActions
+								self.configClick = function()
+									if (not ZPerl_Custom) then
+										LoadAddOn("ZPerl_CustomHighlight")
+									end
+									if (ZPerl_Custom) then
+										ZPerl_Custom:PLAYER_ENTERING_WORLD()
+										if not XPerlDB.raid.enable or not XPerlDB.custom.enable then
+											ZPerl_Custom:ClearAll()
+										end
+									end
+									XPerl_Raid_OptionActions()
+								end
 								XPerl_Options_RegisterProtected(self)
 							</OnLoad>
 						</Scripts>
@@ -13638,10 +13649,12 @@
 										self.configBase = "XPerlDB.custom"
 										self.configIndex = "enable"
 										self.configClick = function()
+											if (not ZPerl_Custom) then
+												LoadAddOn("ZPerl_CustomHighlight")
+											end
 											if (ZPerl_Custom) then
-												if (XPerlDB.custom.enable) then
-													ZPerl_Custom:PLAYER_ENTERING_WORLD()
-												else
+												ZPerl_Custom:PLAYER_ENTERING_WORLD()
+												if not XPerlDB.custom.enable then
 													ZPerl_Custom:ClearAll()
 												end
 											end

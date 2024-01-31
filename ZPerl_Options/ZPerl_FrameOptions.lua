@@ -2803,7 +2803,7 @@ end
 function XPerl_Custom_Config_OnShow(self)
 	if (not XPerlDB.custom) then
 		XPerlDB.custom = {
-			enable = true,
+			enable = false,
 			alpha = 0.5,
 			blend = "ADD"
 		}
@@ -3397,7 +3397,7 @@ if (XPerl_UpgradeSettings) then
 
 			if (not old.custom) then
 				old.custom = {
-					enable = true,
+					enable = false,
 					alpha = 0.5,
 					blend = "ADD"
 				}

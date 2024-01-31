@@ -18,10 +18,11 @@ local SkipHighlightUpdate
 
 --local taintFrames = { }
 
-local conf, rconf
+local conf, rconf, cconf
 XPerl_RequestConfig(function(newConf)
 	conf = newConf
 	rconf = conf.raid
+	cconf = conf.custom
 end, "$Revision: @file-revision@ $")
 
 --[[if type(RegisterAddonMessagePrefix) == "function" then
@@ -1075,16 +1076,13 @@ end
 -- XPerl_Raid_OnUpdate
 function XPerl_Raid_OnUpdate(self, elapsed)
 	if (rosterUpdated) then
-		if (not ZPerl_Custom) then
-			LoadAddOn("ZPerl_CustomHighlight")
-		end
 		rosterUpdated = nil
 		if InCombatLockdown() then
 			XPerl_OutOfCombatQueue[XPerl_Raid_Position] = self
 		else
 			XPerl_Raid_Position(self)
 		end
-		if (ZPerl_Custom) then
+		if ZPerl_Custom and rconf.enable and cconf.enable then
 			ZPerl_Custom:UpdateUnits()
 		end
 		if (not IsInRaid() or (not IsInGroup() and rconf.inParty)) then
@@ -1470,7 +1468,7 @@ function XPerl_Raid_Events:PLAYER_ENTERING_WORLD()
 		XPerl_Raid_Frame:Show()
 	end
 
-	if (IsInInstance()) then
+	if not ZPerl_Custom and rconf.enable and cconf.enable then
 		LoadAddOn("ZPerl_CustomHighlight")
 	end
 

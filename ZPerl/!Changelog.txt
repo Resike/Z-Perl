@@ -1,3 +1,7 @@
+**7.2.0**
+* Fixed various combo point issues on Classic.
+* Revamped Custom Highlight.
+
 **7.1.9**
 * Rewamped blizzard style target combo points.
 * Attempt to reset non-exsiting saved variables to their default values.

@@ -6,9 +6,10 @@ if (not XPerl_RequestConfig) then
 	return
 end
 
-local conf
+local conf, rconf
 XPerl_RequestConfig(function(new)
 	conf = new.custom
+	rconf = new.raid
 end, "$Revision: @file-revision@ $")
 
 local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
@@ -24,29 +25,14 @@ local UnitAura = UnitAura
 
 local SecureButton_GetUnit = SecureButton_GetUnit
 
-local ch = CreateFrame("Frame", "ZPerl_Custom")
-ch.active = {}
-ch:RegisterEvent("PLAYER_ENTERING_WORLD")
-ch:RegisterEvent("UNIT_AURA")
-ch:RegisterEvent("ZONE_CHANGED_NEW_AREA")
---ch:RegisterEvent("MINIMAP_ZONE_CHANGED")
+local CustomHighlight = CreateFrame("Frame", "ZPerl_Custom")
+CustomHighlight.active = {}
+CustomHighlight:RegisterEvent("PLAYER_ENTERING_WORLD")
+CustomHighlight:SetScript("OnEvent", function(self, event, ...)
+	self[event](self, ...)
+end)
 
-ch.RaidFrameArray = XPerl_Raid_GetFrameArray()
-
--- ch:OnEvent(event, a, b, c)
-function ch:OnEvent(event, a, b, c)
-	self[event](self, a, b, c)
-end
-
--- ch:AddDebuff
-function ch:AddDebuff(debuffName)
-	local zoneName = GetRealZoneText()
-end
-
--- ch:AddDebuff
-function ch:AddBuff(buffName)
-	local zoneName = GetRealZoneText()
-end
+CustomHighlight.RaidFrameArray = XPerl_Raid_GetFrameArray()
 
 -- Pull zone names from encounter journal so they don't need to be localized.
 -- Cataclysm Raids
@@ -80,7 +66,7 @@ local XPERL_LOC_ZONE_TERRACE_OF_ENDLESS_SPRING = EJ_GetInstanceInfo(320)
 local XPERL_LOC_ZONE_HEART_OF_FEAR = EJ_GetInstanceInfo(1009)
 --]]
 -- DefaultZoneData
-function ch:DefaultZoneData()
+function CustomHighlight:DefaultZoneData()
 	return {
 		[XPERL_LOC_ZONE_ANTORUS] =
 			{
@@ -380,8 +366,8 @@ function ch:DefaultZoneData()
 end
 
 -- SetDefaultZoneData
-function ch:SetDefaultZoneData()
-	if (conf) then
+function CustomHighlight:SetDefaultZoneData()
+	if conf then
 		conf.zones = self:DefaultZoneData()
 		XPerlDB.custom.zones = conf.zones
 		self:PLAYER_ENTERING_WORLD()
@@ -389,24 +375,28 @@ function ch:SetDefaultZoneData()
 end
 
 -- SetDefaultZoneData
-function ch:SetDefaults()
-	if (conf) then
+function CustomHighlight:SetDefaults()
+	if conf then
 		conf.alpha = 0.5
 		conf.blend = "ADD"
 		self:SetDefaultZoneData()
 	end
 end
 
--- ch:PLAYER_ENTERING_WORLD
-function ch:PLAYER_ENTERING_WORLD()
-	if (conf and conf.enable) then
-		if (not conf.zones) then
+-- CustomHighlight:PLAYER_ENTERING_WORLD
+function CustomHighlight:PLAYER_ENTERING_WORLD()
+	if conf.enable and rconf.enable then
+		self:RegisterEvent("UNIT_AURA")
+		self:RegisterEvent("ZONE_CHANGED_NEW_AREA")
+		--self:RegisterEvent("MINIMAP_ZONE_CHANGED")
+
+		if not conf.zones then
 			conf.zones = self:DefaultZoneData()
 		end
 		local zoneName = GetRealZoneText()
 		self.zoneDataRaw = conf and conf.zones[zoneName]
 
-		if (self.zoneDataRaw) then
+		if self.zoneDataRaw then
 			self.zoneData = {}
 			for spellid in pairs(self.zoneDataRaw) do
 				local spellName, _, icon = GetSpellInfo(spellid)
@@ -418,33 +408,38 @@ function ch:PLAYER_ENTERING_WORLD()
 			self.zoneData = nil
 		end
 	else
+		self:UnregisterAllEvents()
 		self.zoneData = nil
 	end
 end
 
-ch.ZONE_CHANGED_NEW_AREA = ch.PLAYER_ENTERING_WORLD
---ch.MINIMAP_ZONE_CHANGED = ch.PLAYER_ENTERING_WORLD
+CustomHighlight.ZONE_CHANGED_NEW_AREA = CustomHighlight.PLAYER_ENTERING_WORLD
+--CustomHighlight:.MINIMAP_ZONE_CHANGED = CustomHighlight:.PLAYER_ENTERING_WORLD
 
--- UpdateRoster
-function ch:UpdateUnits()
+-- CustomHighlight:UpdateRoster
+function CustomHighlight:UpdateUnits()
+	if not conf.enable or not rconf.enable then
+		return
+	end
+
 	for unit, frame in pairs(self.RaidFrameArray) do
-		if (frame:IsShown()) then
+		if frame:IsShown() then
 			self:Check(frame, unit)
 		end
 	end
 end
 
--- IconAcquire
-function ch:IconAcquire()
-	if (not self.icons) then
-		self.icons = { }
+-- CustomHighlight:IconAcquire
+function CustomHighlight:IconAcquire()
+	if not self.icons then
+		self.icons = {}
 	end
-	if (not self.usedIcons) then
-		self.usedIcons = { }
+	if not self.usedIcons then
+		self.usedIcons = {}
 	end
 
 	local icon = self.icons[1]
-	if (not icon) then
+	if not icon then
 		icon = CreateFrame("Frame", nil)
 		icon:SetFrameStrata("MEDIUM")
 		icon.tex = icon:CreateTexture(nil, "OVERLAY")
@@ -456,23 +451,24 @@ function ch:IconAcquire()
 	end
 
 	self.usedIcons[icon] = true
+
 	return icon
 end
 
--- IconFree
-function ch:IconFree(icon)
+-- CustomHighlight:IconFree
+function CustomHighlight:IconFree(icon)
 	icon:Hide()
 	tinsert(self.icons, icon)
 	self.usedIcons[icon] = nil
 end
 
--- ch:Highlight
-function ch:Highlight(frame, mode, unit, debuff, buffIcon)
-	if (not self.active[frame]) then
+-- CustomHighlight:Highlight
+function CustomHighlight:Highlight(frame, mode, unit, debuff, buffIcon)
+	if not self.active[frame] then
 		self.active[frame] = buffIcon
 		local c = frame.customHighlight
-		if (not c) then
-			c = { }
+		if not c then
+			c = {}
 			frame.customHighlight = c
 		end
 		c.type = mode
@@ -492,20 +488,20 @@ function ch:Highlight(frame, mode, unit, debuff, buffIcon)
 	end
 end
 
--- Clear
-function ch:Clear(frame)
-	if (self.active[frame]) then
+-- CustomHighlight:Clear
+function CustomHighlight:Clear(frame)
+	if self.active[frame] then
 		self.active[frame] = nil
 		local c = frame.customHighlight
-		if (c) then
+		if c then
 			self:IconFree(c.icon)
 			c.icon = nil
 		end
 	end
 end
 
--- Clear
-function ch:ClearAll()
+-- CustomHighlight:Clear
+function CustomHighlight:ClearAll()
 	if not self.usedIcons then
 		return
 	end
@@ -518,25 +514,29 @@ function ch:ClearAll()
 	end
 end
 
--- UNIT_AURA
-function ch:UNIT_AURA(unit)
+-- CustomHighlight:UNIT_AURA
+function CustomHighlight:UNIT_AURA(unit)
+	if not strmatch(unit, "raid%d+") then
+		return
+	end
+
 	local frame = XPerl_Raid_GetUnitFrameByUnit(unit)
-	if (frame) then
+	if frame then
 		self:Check(frame, unit)
 	end
 end
 
--- ch:Check
-function ch:Check(frame, unit)
-	if conf and (not conf.enable) then
+-- CustomHighlight:Check
+function CustomHighlight:Check(frame, unit)
+	if not conf.enable or not rconf.enable then
 		return
 	end
 
 	local z = self.zoneData
-	if (z) then
-		if (not unit) then
+	if z then
+		if not unit then
 			unit = frame:GetAttribute("unit")
-			if (not unit) then
+			if not unit then
 				unit = SecureButton_GetUnit(frame)
 				if (not unit) then
 					return
@@ -546,10 +546,10 @@ function ch:Check(frame, unit)
 
 		for i = 1, 40 do
 			local name, icon = UnitAura(unit, i, "HARMFUL")
-			if (not name) then
+			if not name then
 				break
 			end
-			if (z[name]) then
+			if z[name] then
 				self:Highlight(frame, "debuff", unit, name, icon)
 				return
 			end
@@ -559,13 +559,11 @@ function ch:Check(frame, unit)
 	self:Clear(frame)
 end
 
-if (not conf) then
+if not conf then
 	conf = {
-		enable = true,
-		zones = ch:DefaultZoneData(),
+		enable = false,
+		zones = CustomHighlight:DefaultZoneData(),
 	}
 end
 
-ch:SetScript("OnEvent", ch.OnEvent)
-
-ch:PLAYER_ENTERING_WORLD()
+CustomHighlight:PLAYER_ENTERING_WORLD()

@@ -202,8 +202,6 @@ function XPerl_Target_OnLoad(self, partyid)
 		end
 
 		self.nameFrame.cpMeter:SetFrameLevel(2)
-		local maxComboPoints = UnitPowerMax("player", Enum.PowerType.ComboPoints)
-		self.nameFrame.cpMeter:SetMinMaxValues(0, maxComboPoints)
 		self.nameFrame.cpMeter:GetStatusBarTexture():SetHorizTile(false)
 		self.nameFrame.cpMeter:GetStatusBarTexture():SetVertTile(false)
 
@@ -376,7 +374,7 @@ end
 -- Combo Points
 ---------------
 local function XPerl_Target_UpdateCombo(self)
-	local comboPoints = UnitPower(UnitHasVehicleUI("player") and "vehicle" or "player", Enum.PowerType.ComboPoints)
+	local comboPoints = IsClassic and GetComboPoints("player", "target") or UnitPower(UnitHasVehicleUI("player") and "vehicle" or "player", Enum.PowerType.ComboPoints)
 	local r, g, b = GetComboColor(comboPoints)
 	if tconf.combo.enable and not UnitIsDeadOrGhost("target") and UnitCanAttack(UnitHasVehicleUI("player") and "vehicle" or "player", "target") then
 		self.nameFrame.cpMeter:SetValue(comboPoints)
@@ -389,10 +387,7 @@ local function XPerl_Target_UpdateCombo(self)
 	else
 		self.nameFrame.cpMeter:Hide()
 	end
-	--[[if (tconf.combo.blizzard) then
-		self.cpFrame:Hide()
-	else
-		--self.nameFrame.cpMeter:Hide()]]
+
 	if tconf.comboindicator.enable and not UnitIsDeadOrGhost("target") and UnitCanAttack(UnitHasVehicleUI("player") and "vehicle" or "player", "target") then
 		self.cpFrame:Show()
 		self.cpFrame.text:SetText(comboPoints)
@@ -905,12 +900,14 @@ end
 
 -- XPerl_Target_SetComboBar
 local function XPerl_Target_SetComboBar(self)
-	if tconf.combo.enable then
-		local comboPoints = UnitPower(UnitHasVehicleUI("player") and "vehicle" or "player", Enum.PowerType.ComboPoints)
-		local maxComboPoints = UnitPowerMax("player", Enum.PowerType.ComboPoints)
-		self.nameFrame.cpMeter:SetMinMaxValues(0, maxComboPoints)
-		self.nameFrame.cpMeter:SetValue(comboPoints)
+	if not tconf.combo.enable then
+		return
 	end
+
+	local comboPoints = IsClassic and GetComboPoints("player", "target") or UnitPower(UnitHasVehicleUI("player") and "vehicle" or "player", Enum.PowerType.ComboPoints)
+	local maxComboPoints = UnitPowerMax("player", Enum.PowerType.ComboPoints)
+	self.nameFrame.cpMeter:SetMinMaxValues(0, maxComboPoints)
+	self.nameFrame.cpMeter:SetValue(comboPoints)
 end
 
 -- XPerl_Target_UpdateHealPrediction
@@ -1240,7 +1237,7 @@ local function XPerl_Target_CheckDebuffs(self)
 end
 
 local function XPerl_Target_ComboFrame_Update()
-	local comboPoints = UnitPower(UnitHasVehicleUI("player") and "vehicle" or "player", Enum.PowerType.ComboPoints)
+	local comboPoints = IsClassic and GetComboPoints("player", "target") or UnitPower(UnitHasVehicleUI("player") and "vehicle" or "player", Enum.PowerType.ComboPoints)
 	if tconf.combo.blizzard and comboPoints > 0 and not UnitIsDeadOrGhost("target") and UnitCanAttack(UnitHasVehicleUI("player") and "vehicle" or "player", "target") then
 		if not ComboFrame:IsShown() then
 			ComboFrame:Show()
@@ -1302,7 +1299,7 @@ function XPerl_Target_UpdateDisplay(self)
 	XPerl_Target_UpdateLeader(self)
 	XPerl_Unit_ThreatStatus(self, partyid == "target" and "player" or nil, true)
 
-	if self == XPerl_Target and tconf.combo.blizzard then
+	if IsRetail and self == XPerl_Target and tconf.combo.blizzard then
 		XPerl_Target_ComboFrame_Update()
 	end
 
@@ -1317,7 +1314,7 @@ function XPerl_Target_UpdateDisplay(self)
 		self.deferring = true
 		self.time = -0.3
 	else
-		if self == XPerl_Target then
+		if self == XPerl_Target and (tconf.combo.enable or tconf.comboindicator.enable) then
 			XPerl_Target_UpdateCombo(self)
 		end
 		XPerl_Unit_UpdatePortrait(self)
@@ -1335,7 +1332,7 @@ function XPerl_Target_UpdateDisplay(self)
 	XPerl_NoFadeBars()
 
 	-- Some optimizing here to limit the amount of work done on a target change
-	local buffOptionString = tostring(self.statsFrame.manaBar:IsVisible() or 0)..tostring(self.bossFrame:IsVisible() or 0)..tostring(self.creatureTypeFrame:IsVisible() or 0)..tostring(self.statsFrame:GetWidth())
+	local buffOptionString = tostring(self.statsFrame.manaBar:IsShown() or 0)..tostring(self.bossFrame:IsShown() or 0)..tostring(self.creatureTypeFrame:IsShown() or 0)..tostring(self.statsFrame:GetWidth())
 	if (self.buffOptionString ~= buffOptionString) then
 		self.buffOptionString = buffOptionString
 		-- Work out where all our buffs can fit, we only do this for a fresh target
@@ -1382,7 +1379,7 @@ function XPerl_Target_OnUpdate(self, elapsed)
 			if (self.deferring) then
 				self.deferring = nil
 				XPerl_Target_Update_Combat(self)
-				if self == XPerl_Target then
+				if self == XPerl_Target and (tconf.combo.enable or tconf.comboindicator.enable) then
 					XPerl_Target_UpdateCombo(self)
 				end
 				XPerl_Unit_UpdatePortrait(self)
@@ -1970,6 +1967,58 @@ function XPerl_Target_Set_Bits(self)
 	end
 end
 
+-- XPerl_Target_RegisterComboEvents
+local function XPerl_Target_RegisterComboEvents(self)
+	if not tconf.combo.blizzard and not tconf.combo.enable and not tconf.comboindicator.enable then
+		ComboEventFrame:UnregisterAllEvents()
+
+		if IsClassic then
+			ComboFrame:UnregisterAllEvents()
+		end
+
+		ComboFrame:Hide()
+		self.nameFrame.cpMeter:Hide()
+		self.cpFrame:Hide()
+		return
+	end
+
+	ComboEventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+	ComboEventFrame:RegisterUnitEvent("UNIT_POWER_FREQUENT", "player", "vehicle")
+	ComboEventFrame:RegisterUnitEvent("UNIT_MAXPOWER", "player", "vehicle")
+	ComboEventFrame:RegisterUnitEvent("UNIT_ENTERED_VEHICLE", "player")
+	ComboEventFrame:RegisterUnitEvent("UNIT_EXITED_VEHICLE", "player")
+
+	if IsClassic and tconf.combo.blizzard then
+		ComboFrame:RegisterEvent("PLAYER_TARGET_CHANGED")
+		ComboFrame:RegisterEvent("UNIT_POWER_FREQUENT")
+		ComboFrame:RegisterEvent("UNIT_MAXPOWER")
+		ComboFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+		ComboFrame:RegisterUnitEvent("UNIT_ENTERED_VEHICLE", "player")
+		ComboFrame:RegisterUnitEvent("UNIT_EXITED_VEHICLE", "player")
+
+		ComboFrame.unit = UnitHasVehicleUI("player") and "vehicle" or "player"
+
+		ComboFrame_UpdateMax(ComboFrame)
+	end
+
+	if not tconf.combo.blizzard then
+		if IsClassic then
+			ComboFrame:UnregisterAllEvents()
+		end
+		ComboFrame:Hide()
+	end
+
+	if not tconf.combo.enable then
+		self.nameFrame.cpMeter:Hide()
+	else
+		XPerl_Target_SetComboBar(self)
+	end
+
+	if not tconf.comboindicator.enable then
+		self.cpFrame:Hide()
+	end
+end
+
 -- Using the Blizzard Combo Point frame, but we move the buttons around a little
 function XPerl_Target_Set_BlizzCPFrame(self)
 	if tconf.combo.blizzard then
@@ -2051,62 +2100,29 @@ function XPerl_Target_Set_BlizzCPFrame(self)
 				ComboPoint8:SetPoint("TOPLEFT", ComboPoint4, "BOTTOMLEFT", 0, 0)
 			end
 		end
-
-		if IsRetail then
-			ComboEventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
-			ComboEventFrame:RegisterUnitEvent("UNIT_POWER_FREQUENT", "player", "vehicle")
-			ComboEventFrame:RegisterUnitEvent("UNIT_MAXPOWER", "player", "vehicle")
-			ComboEventFrame:RegisterUnitEvent("UNIT_ENTERED_VEHICLE", "player")
-			ComboEventFrame:RegisterUnitEvent("UNIT_EXITED_VEHICLE", "player")
-		else
-			ComboFrame:RegisterEvent("PLAYER_TARGET_CHANGED")
-			ComboFrame:RegisterEvent("UNIT_POWER_FREQUENT")
-			ComboFrame:RegisterEvent("UNIT_MAXPOWER")
-			ComboFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
-			ComboFrame:RegisterUnitEvent("UNIT_ENTERED_VEHICLE", "player")
-			ComboFrame:RegisterUnitEvent("UNIT_EXITED_VEHICLE", "player")
-
-			ComboFrame.unit = UnitHasVehicleUI("player") and "vehicle" or "player"
-
-			ComboFrame_UpdateMax(ComboFrame)
-		end
-	else
-		if IsRetail then
-			ComboEventFrame:UnregisterAllEvents()
-		else
-			ComboFrame:UnregisterAllEvents()
-		end
-
-		ComboFrame:Hide()
 	end
+
+	XPerl_Target_RegisterComboEvents(self)
 end
 
 ComboEventFrame:SetScript("OnEvent", function(self, event, unit, ...)
 	local powerType = ...
 	if event == "UNIT_POWER_FREQUENT" then
 		if powerType == "COMBO_POINTS" then
-			if UnitExists("target") and XPerl_Target:IsVisible() then
-				if XPerl_Target_UpdateCombo then
-					XPerl_Target_UpdateCombo(XPerl_Target)
-				end
+			if UnitExists("target") and XPerl_Target:IsShown() then
+				XPerl_Target_UpdateCombo(XPerl_Target)
 				if IsRetail and conf.target.combo.blizzard then
-					if XPerl_Target_ComboFrame_Update then
-						XPerl_Target_ComboFrame_Update()
-					end
+					XPerl_Target_ComboFrame_Update()
 				end
 			end
 
 		end
 	elseif event == "PLAYER_ENTERING_WORLD" or event == "UNIT_MAXPOWER" or event == "UNIT_ENTERED_VEHICLE" or event == "UNIT_EXITED_VEHICLE" then
 		if powerType == "COMBO_POINTS" then
-			if UnitExists("target") and XPerl_Target:IsVisible() then
-				if XPerl_Target_SetComboBar then
-					XPerl_Target_SetComboBar(XPerl_Target)
-				end
+			if UnitExists("target") and XPerl_Target:IsShown() then
+				XPerl_Target_SetComboBar(XPerl_Target)
 				if IsRetail and conf.target.combo.blizzard then
-					if XPerl_Target_ComboFrame_Update then
-						XPerl_Target_ComboFrame_Update()
-					end
+					XPerl_Target_ComboFrame_Update()
 				end
 			end
 
