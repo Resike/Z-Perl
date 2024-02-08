@@ -184,13 +184,13 @@ local function UpdateUnit(self,forcedUpdate)
 			self.raidIcon:Hide()
 		end
 
-		if (UnitAffectingCombat(xunit)) then
+		if UnitAffectingCombat(xunit) then
 			self.combatIcon:Show()
 		else
 			self.combatIcon:Hide()
 		end
 
-		if (UnitIsCharmed(xunit)) then
+		if UnitIsCharmed(xunit) and UnitIsPlayer(xunit) and (not IsVanillaClassic and not UnitInVehicle("player") or true) then
 			self.warningIcon:Show()
 		else
 			self.warningIcon:Hide()

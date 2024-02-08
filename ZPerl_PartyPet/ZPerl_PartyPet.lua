@@ -470,7 +470,7 @@ end
 -- XPerl_Party_Pet_Update_Control
 local function XPerl_Party_Pet_Update_Control(self)
 	local partyid = self.partyid
-	if (partyid and UnitIsVisible(partyid) and UnitIsCharmed(partyid) and (not IsClassic and not UnitUsingVehicle(self.ownerid))) then
+	if partyid and UnitIsVisible(partyid) and UnitIsCharmed(partyid) and UnitIsPlayer(partyid) and (not IsClassic and not UnitUsingVehicle(partyid) or true) then
 		self.nameFrame.warningIcon:Show()
 	else
 		self.nameFrame.warningIcon:Hide()
@@ -565,56 +565,55 @@ end
 
 -- XPerl_Party_Pet_OnEvent
 function XPerl_Party_Pet_OnEvent(self, event, unit, ...)
-	local func = XPerl_Party_Pet_Events[event]
-	if func then
-		if (strfind(event, "^UNIT_") or strfind(event, "^INCOMING_")) then
-			local f = PartyPetFrames[unit]
-			if f then
-				if event == "UNIT_HEAL_PREDICTION" or event == "UNIT_ABSORB_AMOUNT_CHANGED" or event == "INCOMING_RESURRECT_CHANGED" then
-					if not UnitIsUnit(f.partyid, unit) then
-						return
-					end
-
-					func(f, unit, ...)
-				else
-					if not UnitIsUnit(f.partyid, unit) then
-						return
-					end
-
-					func(f, ...)
-				end
-			end
-		elseif event == "PARTY_MEMBER_ENABLE" or event == "PARTY_MEMBER_DISABLE" then
-			local pet = string.gsub(unit, "(%a+)(%d+)", "%1pet%2")
-			local f = PartyPetFrames[pet]
-			if f then
-				local owner
-				local unitID = f.partyid
-				if unitID == "pet" or unitID == "playerpet" then
-					owner = "player"
-				else
-					owner = string.gsub(unitID, "(%a+)pet(%d+)", "%1%2")
-				end
-
-				if owner ~= "player" then
-					if not UnitIsUnit(owner, unit) then
-						return
-					end
-				else
+	if (strfind(event, "^UNIT_") or strfind(event, "^INCOMING_")) then
+		local frame = PartyPetFrames[unit]
+		if frame then
+			if event == "UNIT_HEAL_PREDICTION" or event == "UNIT_ABSORB_AMOUNT_CHANGED" or event == "INCOMING_RESURRECT_CHANGED" or event == "UNIT_COMBAT" then
+				if not UnitIsUnit(frame.partyid, unit) then
 					return
 				end
 
-				func(f, unit, ...)
+				XPerl_Party_Pet_Events[event](frame, unit, ...)
+			else
+				if not UnitIsUnit(frame.partyid, unit) then
+					return
+				end
+
+				XPerl_Party_Pet_Events[event](frame, ...)
 			end
-		else
-			func(unit, ...)
 		end
+	elseif event == "PARTY_MEMBER_ENABLE" or event == "PARTY_MEMBER_DISABLE" then
+		local pet = string.gsub(unit, "(%a+)(%d+)", "%1pet%2")
+		local frame = PartyPetFrames[pet]
+		if frame then
+			local owner
+			local unitID = frame.partyid
+			if unitID == "pet" or unitID == "playerpet" then
+				owner = "player"
+			else
+				owner = string.gsub(unitID, "(%a+)pet(%d+)", "%1%2")
+			end
+
+			if owner ~= "player" then
+				if not UnitIsUnit(owner, unit) then
+					return
+				end
+			else
+				return
+			end
+
+			XPerl_Party_Pet_Events[event](frame, unit, ...)
+		end
+	else
+		XPerl_Party_Pet_Events[event](unit, ...)
 	end
 end
 
 -- UNIT_COMBAT
-function XPerl_Party_Pet_Events:UNIT_COMBAT(...)
-	local action, descriptor, damage, damageType = ...
+function XPerl_Party_Pet_Events:UNIT_COMBAT(unit, action, descriptor, damage, damageType)
+	if unit ~= self.partyid then
+		return
+	end
 
 	if (action == "HEAL") then
 		XPerl_Party_Pet_CombatFlash(self, 0, true, true)
@@ -855,6 +854,7 @@ function XPerl_Party_Pet_Set_Bits()
 		end
 	end--]]
 
+	-- Classic gets updated OnUpdate instead of events
 	if not IsClassic then
 		RegisterEvents(XPerl_Party_Pet_EventFrame, petconf.mana, {"UNIT_POWER_FREQUENT", "UNIT_MAXPOWER", "UNIT_MANA", "UNIT_DISPLAYPOWER"})
 		--RegisterEvents(XPerl_Party_Pet_EventFrame, petconf.name, {"UNIT_NAME_UPDATE"})

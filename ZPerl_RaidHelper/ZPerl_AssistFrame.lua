@@ -310,9 +310,6 @@ function XPerl_Assists_OnEvent(self, event, unit)
 		MakeFriendlyUnitList()
 		XPerl_UpdateAssists()
 		XPerl_ShowAssists()
-		if (XPerl_SavePosition) then
-			XPerl_SavePosition(XPerl_Assists_FrameAnchor)
-		end
 
 		if ZPerlConfigHelper and ZPerlConfigHelper.sizeAssistsX and ZPerlConfigHelper.sizeAssistsY then
 			self:SetWidth(ZPerlConfigHelper.sizeAssistsX)

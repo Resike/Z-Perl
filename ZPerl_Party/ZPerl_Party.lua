@@ -826,14 +826,14 @@ end
 -- XPerl_Party_UpdateCombat
 local function XPerl_Party_UpdateCombat(self)
 	local partyid = self.partyid
-	if (UnitIsVisible(partyid)) then
+	if UnitIsVisible(partyid) then
 		if (UnitAffectingCombat(partyid)) then
 			self.nameFrame.combatIcon:Show()
 		else
 			self.nameFrame.combatIcon:Hide()
 		end
 
-		if (UnitIsCharmed(partyid)) then
+		if UnitIsCharmed(partyid) and UnitIsPlayer(partyid) and (not IsClassic and not UnitUsingVehicle(self.ownerid) or true) then
 			self.nameFrame.warningIcon:Show()
 		else
 			self.nameFrame.warningIcon:Hide()
@@ -1235,20 +1235,25 @@ end
 -- Event Handler --
 -------------------
 function XPerl_Party_OnEvent(self, event, unit, ...)
-	local func = XPerl_Party_Events[event]
-	if (func) then
-		if (strfind(event, "^UNIT_") and event ~= "UNIT_THREAT_LIST_UPDATE") then
-			local f = PartyFrames[unit]
-			if f then
-				if event == "UNIT_CONNECTION" or event == "UNIT_PHASE" or event == "UNIT_HEAL_PREDICTION" or event == "UNIT_ABSORB_AMOUNT_CHANGED" then
-					func(f, unit, ...)
-				else
-					func(f, ...)
+	if (strfind(event, "^UNIT_") and event ~= "UNIT_THREAT_LIST_UPDATE") then
+		local frame = PartyFrames[unit]
+		if frame then
+			if event == "UNIT_CONNECTION" or event == "UNIT_PHASE" or event == "UNIT_HEAL_PREDICTION" or event == "UNIT_ABSORB_AMOUNT_CHANGED" or event == "UNIT_COMBAT" then
+				if not UnitIsUnit(frame.partyid, unit) then
+					return
 				end
+
+				XPerl_Party_Events[event](frame, unit, ...)
+			else
+				if not UnitIsUnit(frame.partyid, unit) then
+					return
+				end
+
+				XPerl_Party_Events[event](frame, ...)
 			end
-		else
-			func(self, unit, ...)
 		end
+	else
+		XPerl_Party_Events[event](self, unit, ...)
 	end
 end
 
@@ -1321,8 +1326,10 @@ XPerl_Party_Events.READY_CHECK_CONFIRM = XPerl_Party_Events.READY_CHECK
 XPerl_Party_Events.READY_CHECK_FINISHED = XPerl_Party_Events.READY_CHECK
 
 -- UNIT_COMBAT
-function XPerl_Party_Events:UNIT_COMBAT(...)
-	local action, descriptor, damage, damageType = ...
+function XPerl_Party_Events:UNIT_COMBAT(unit, action, descriptor, damage, damageType)
+	if unit ~= self.partyid then
+		return
+	end
 
 	if (pconf.hitIndicator and pconf.portrait) then
 		CombatFeedback_OnCombatEvent(self, action, descriptor, damage, damageType)

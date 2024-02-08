@@ -1,3 +1,10 @@
+**7.2.1**
+* Updated for 1.15.1.
+* Some performance tweaks.
+* Party frame should properly update in combat.
+* Fix assist frame's position getting reset.
+* Charm warning icon should only show on players.
+
 **7.2.0**
 * Fixed various combo point issues on Classic.
 * Revamped Custom Highlight.

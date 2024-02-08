@@ -570,7 +570,7 @@
 				self:SetAttribute("partyEnabled", XPerlDB.party.enable)
 				self:SetAttribute("partyInRaid", XPerlDB.party.inRaid)
 				self:SetAttribute("partySmallRaid", XPerlDB.party.smallRaid)
-				RegisterStateDriver(self, "partymonitor", "[petbattle] petbattle; [group:raid] raid; [group:party] party; hide")
+				RegisterStateDriver(self, "partymonitor", "[petbattle] petbattle; [@raid1, exists] raid; [@party1, exists] party; hide")
 			</OnLoad>
 		</Scripts>
 	</Frame>

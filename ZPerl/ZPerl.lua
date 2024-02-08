@@ -393,7 +393,7 @@ local function DoRangeCheck(unit, opt)
 			range = nil
 		else--]]
 		if (opt.interact) then
-			if IsRetail then
+			if IsRetail or IsVanillaClassic then
 				if (opt.interact == 6) then -- 45y
 					local checkedRange
 					range, checkedRange = UnitInRange(unit)
@@ -529,7 +529,7 @@ local function DoRangeCheck(unit, opt)
 			-- 4 = Follow = 28 yards (BCC = 28 yards) (Vanilla = 28 yards)
 			-- 5 = Pet-battle Duel = 7 yards (BCC = 7 yards) (Vanilla = 10 yards)
 		elseif opt.spell or opt.spell2 then
-			if IsRetail then
+			if IsRetail or IsVanillaClassic then
 				if UnitCanAssist("player", unit) and opt.spell then
 					range = IsSpellInRange(opt.spell, unit)
 				elseif UnitCanAttack("player", unit) and opt.spell2 then
@@ -545,7 +545,7 @@ local function DoRangeCheck(unit, opt)
 					range = CheckInteractDistance(unit, 4)
 				end
 			end
-		elseif not IsRetail and (opt.item or opt.item2) then
+		elseif not IsRetail and not IsVanillaClassic and (opt.item or opt.item2) then
 			if UnitCanAssist("player", unit) and opt.item then
 				range = IsItemInRange(opt.item, unit)
 			elseif UnitCanAttack("player", unit) and opt.item2 then
@@ -2982,7 +2982,6 @@ end
 
 -- XPerl_Unit_BuffSpacing
 local function XPerl_Unit_BuffSpacing(self)
-
 	local w = self.statsFrame:GetWidth()
 	if (self.portraitFrame and self.portraitFrame:IsShown()) then
 		w = w - 2 + self.portraitFrame:GetWidth()

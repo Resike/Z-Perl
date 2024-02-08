@@ -483,7 +483,7 @@ local function XPerl_Target_UpdatePVP(self)
 		XPerl_SetUnitNameColor(self.nameFrame.text, partyid)
 	end
 
-	if (UnitIsVisible(partyid) and UnitIsCharmed(partyid)) then
+	if UnitIsVisible(partyid) and UnitIsCharmed(partyid) and UnitIsPlayer(partyid) and (not IsClassic and not UnitUsingVehicle(partyid) or true) then
 		self.nameFrame.warningIcon:Show()
 	else
 		self.nameFrame.warningIcon:Hide()
@@ -1538,19 +1538,21 @@ end--]]
 end--]]
 
 -- UNIT_COMBAT
-function XPerl_Target_Events:UNIT_COMBAT(unitID, action, descriptor, damage, damageType)
-	if (unitID == self.partyid) then
-		XPerl_Target_Update_Combat(self)
+function XPerl_Target_Events:UNIT_COMBAT(unit, action, descriptor, damage, damageType)
+	if unit ~= self.partyid then
+		return
+	end
 
-		if (self.conf.hitIndicator and self.conf.portrait) then
-			CombatFeedback_OnCombatEvent(self, action, descriptor, damage, damageType)
-		end
+	XPerl_Target_Update_Combat(self)
 
-		if (action == "HEAL") then
-			XPerl_Target_CombatFlash(self, 0, true, true)
-		elseif (damage and damage > 0) then
-			XPerl_Target_CombatFlash(self, 0, true)
-		end
+	if (self.conf.hitIndicator and self.conf.portrait) then
+		CombatFeedback_OnCombatEvent(self, action, descriptor, damage, damageType)
+	end
+
+	if (action == "HEAL") then
+		XPerl_Target_CombatFlash(self, 0, true, true)
+	elseif (damage and damage > 0) then
+		XPerl_Target_CombatFlash(self, 0, true)
 	end
 end
 

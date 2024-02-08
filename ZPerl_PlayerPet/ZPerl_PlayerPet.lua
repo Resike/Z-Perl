@@ -157,7 +157,7 @@ function XPerl_Player_Pet_OnLoad(self)
 		--"PLAYER_REGEN_ENABLED",
 		"PLAYER_ENTERING_WORLD",
 		"UNIT_ENTERED_VEHICLE",
-		"UNIT_EXITED_VEHICLE",
+		"UNIT_EXITING_VEHICLE",
 		"UNIT_THREAT_LIST_UPDATE",
 		"PLAYER_TARGET_CHANGED",
 		"UNIT_TARGET",
@@ -171,6 +171,14 @@ function XPerl_Player_Pet_OnLoad(self)
 			if event == "UNIT_THREAT_LIST_UPDATE" then
 				if pcall(self.RegisterUnitEvent, self, event, "target") then
 					self:RegisterUnitEvent(event, "target")
+				end
+			elseif event == "UNIT_PET" or event == "UNIT_ENTERED_VEHICLE" or event == "UNIT_EXITING_VEHICLE" then
+				if pcall(self.RegisterUnitEvent, self, event, "player") then
+					self:RegisterUnitEvent(event, "player")
+				end
+			elseif event == "UNIT_TARGET" then
+				if pcall(self.RegisterUnitEvent, self, event, "pet") then
+					self:RegisterUnitEvent(event, "pet")
 				end
 			elseif IsClassic and event == "UNIT_HAPPINESS" and classFileName == "HUNTER" then
 				if pcall(self.RegisterUnitEvent, self, event, "pet") then
@@ -418,7 +426,7 @@ end
 
 -- XPerl_Player_Pet_Update_Control
 local function XPerl_Player_Pet_Update_Control(self)
-	if (UnitIsCharmed(self.partyid) and not IsVanillaClassic and not UnitInVehicle("player")) then
+	if UnitIsCharmed(self.partyid) and UnitIsPlayer(self.partyid) and (not IsVanillaClassic and not UnitInVehicle("player") or true) then
 		self.nameFrame.warningIcon:Show()
 	else
 		self.nameFrame.warningIcon:Hide()
@@ -472,14 +480,17 @@ end
 -------------------
 -- Event Handler --
 -------------------
-function XPerl_Player_Pet_OnEvent(self, event, unitID, ...)
-	local func = XPerl_Player_Pet_Events[event]
+function XPerl_Player_Pet_OnEvent(self, event, unit, ...)
 	if string.find(event, "^UNIT_") then
-		if (unitID == "pet" or unitID == "player") then
-			func(self, unitID, ...)
+		if (unit == "pet" or unit == "player") then
+			if event == "UNIT_HEAL_PREDICTION" or event == "UNIT_ABSORB_AMOUNT_CHANGED" or event == "UNIT_COMBAT"  then
+				XPerl_Player_Pet_Events[event](self, unit, ...)
+			else
+				XPerl_Player_Pet_Events[event](self, ...)
+			end
 		end
 	else
-		func(self, unitID, ...)
+		XPerl_Player_Pet_Events[event](self, event, unit, ...)
 	end
 end
 
@@ -582,18 +593,19 @@ function XPerl_Player_Pet_Events:PET_ATTACK_START()
 end
 
 -- UNIT_COMBAT
+function XPerl_Player_Pet_Events:UNIT_COMBAT(unit, action, descriptor, damage, damageType)
+	if unit ~= self.partyid then
+		return
+	end
 
-function XPerl_Player_Pet_Events:UNIT_COMBAT(unitID, action, descriptor, damage, damageType)
-	if (unitID == self.partyid) then
-		if (pconf.hitIndicator and pconf.portrait) then
-			CombatFeedback_OnCombatEvent(self, action, descriptor, damage, damageType)
-		end
+	if (pconf.hitIndicator and pconf.portrait) then
+		CombatFeedback_OnCombatEvent(self, action, descriptor, damage, damageType)
+	end
 
-		if (action == "HEAL") then
-			XPerl_Player_Pet_CombatFlash(XPerl_Player_Pet, 0, true, true)
-		elseif (damage and damage > 0) then
-			XPerl_Player_Pet_CombatFlash(XPerl_Player_Pet, 0, true)
-		end
+	if (action == "HEAL") then
+		XPerl_Player_Pet_CombatFlash(XPerl_Player_Pet, 0, true, true)
+	elseif (damage and damage > 0) then
+		XPerl_Player_Pet_CombatFlash(XPerl_Player_Pet, 0, true)
 	end
 end
 
@@ -614,19 +626,22 @@ end
 
 -- PLAYER_ENTERING_WORLD
 function XPerl_Player_Pet_Events:PLAYER_ENTERING_WORLD()
-	if (not IsClassic and UnitHasVehicleUI("player")) then
+	if (not IsVanillaClassic and UnitHasVehicleUI("player")) then
 		self.partyid = "player"
+		self.unit = self.partyid
 		self:SetAttribute("unit", "player")
 	else
 		self.partyid = "pet"
+		self.unit = self.partyid
 		self:SetAttribute("unit", "pet")
 	end
 end
 
 -- UNIT_ENTERED_VEHICLE
-function XPerl_Player_Pet_Events:UNIT_ENTERED_VEHICLE(unit, showVehicle)
-	if (unit == "player" and showVehicle) then
+function XPerl_Player_Pet_Events:UNIT_ENTERED_VEHICLE(showVehicle)
+	if showVehicle then
 		self.partyid = "player"
+		self.unit = self.partyid
 		if (XPerl_ArcaneBar_SetUnit) then
 			XPerl_ArcaneBar_SetUnit(self.nameFrame, "player")
 		end
@@ -634,31 +649,26 @@ function XPerl_Player_Pet_Events:UNIT_ENTERED_VEHICLE(unit, showVehicle)
 			self:SetAttribute("unit", "player")
 		end]]
 		XPerl_Player_Pet_UpdateDisplay(self)
-	else
-		XPerl_Player_Pet_Events.UNIT_EXITED_VEHICLE(self, unit)
 	end
 end
 
--- UNIT_EXITED_VEHICLE
-function XPerl_Player_Pet_Events:UNIT_EXITED_VEHICLE(unit)
-	if (unit == "player") then
-		if (self.partyid ~= "pet") then
-			self.partyid = "pet"
-			if (XPerl_ArcaneBar_SetUnit) then
-				XPerl_ArcaneBar_SetUnit(self.nameFrame, "pet")
-			end
-			--[[if (not InCombatLockdown()) then
-				self:SetAttribute("unit", "pet")
-			end]]
-			XPerl_Player_Pet_UpdateDisplay(self)
+-- UNIT_EXITING_VEHICLE
+function XPerl_Player_Pet_Events:UNIT_EXITING_VEHICLE()
+	if (self.partyid ~= "pet") then
+		self.partyid = "pet"
+		self.unit = self.partyid
+		if (XPerl_ArcaneBar_SetUnit) then
+			XPerl_ArcaneBar_SetUnit(self.nameFrame, "pet")
 		end
+		--[[if (not InCombatLockdown()) then
+			self:SetAttribute("unit", "pet")
+		end]]
+		XPerl_Player_Pet_UpdateDisplay(self)
 	end
 end
 
-function XPerl_Player_Pet_Events:UNIT_THREAT_LIST_UPDATE(unit)
-	if unit == "target" then
-		XPerl_Unit_ThreatStatus(self)
-	end
+function XPerl_Player_Pet_Events:UNIT_THREAT_LIST_UPDATE()
+	XPerl_Unit_ThreatStatus(self)
 end
 
 function XPerl_Player_Pet_Events:PLAYER_TARGET_CHANGED()
@@ -695,7 +705,10 @@ function XPerl_Player_Pet_Events:UNIT_HEAL_PREDICTION(unit)
 	if pconf.healprediction and unit == self.partyid then
 		XPerl_SetExpectedHealth(self)
 	end
-	if IsWrathClassic and pconf.hotPrediction and unit == self.partyid then
+	if not IsWrathClassic then
+		return
+	end
+	if pconf.hotPrediction and unit == self.partyid then
 		XPerl_SetExpectedHots(self)
 	end
 end
@@ -843,7 +856,7 @@ function XPerl_Player_Pet_Set_Bits(self)
 	pconf.buffs.size = tonumber(pconf.buffs.size) or 20
 	XPerl_SetBuffSize(self)
 
-	XPerl_Register_Prediction(self, pconf, function (guid)
+	XPerl_Register_Prediction(self, pconf, function(guid)
 		if guid == UnitGUID("pet") then
 			return "pet"
 		end

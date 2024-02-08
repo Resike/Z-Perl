@@ -986,17 +986,17 @@ end
 -------------------
 -- Event Handler --
 -------------------
-function XPerl_Player_OnEvent(self, event, unitID, ...)
+function XPerl_Player_OnEvent(self, event, unit, ...)
 	if string.find(event, "^UNIT_") then
-		if (unitID == "player" or unitID == "vehicle") then
-			if event == "UNIT_HEAL_PREDICTION" or event == "UNIT_ABSORB_AMOUNT_CHANGED" then
-				XPerl_Player_Events[event](self, unitID, ...)
+		if (unit == "player" or unit == "vehicle") then
+			if event == "UNIT_HEAL_PREDICTION" or event == "UNIT_ABSORB_AMOUNT_CHANGED" or event == "UNIT_COMBAT" then
+				XPerl_Player_Events[event](self, unit, ...)
 			else
 				XPerl_Player_Events[event](self, ...)
 			end
 		end
 	else
-		XPerl_Player_Events[event](self, event, unitID, ...)
+		XPerl_Player_Events[event](self, event, unit, ...)
 	end
 end
 
@@ -1570,7 +1570,11 @@ function XPerl_Player_Events:PLAYER_ENTERING_WORLD(event, initialLogin, reloadin
 end
 
 -- UNIT_COMBAT
-function XPerl_Player_Events:UNIT_COMBAT(action, descriptor, damage, damageType)
+function XPerl_Player_Events:UNIT_COMBAT(unit, action, descriptor, damage, damageType)
+	if unit ~= self.partyid then
+		return
+	end
+
 	if (pconf.hitIndicator and pconf.portrait) then
 		CombatFeedback_OnCombatEvent(self, action, descriptor, damage, damageType)
 	end
@@ -1635,8 +1639,14 @@ function XPerl_Player_Events:VARIABLES_LOADED()
 
 	for i, event in pairs(events) do
 		if string.find(event, "^UNIT_") or string.find(event, "^INCOMING") then
-			if pcall(self.RegisterUnitEvent, self, event, "player", "vehicle") then
-				self:RegisterUnitEvent(event, "player", "vehicle")
+			if event == "UNIT_ENTERED_VEHICLE" or event == "UNIT_EXITING_VEHICLE" then
+				if pcall(self.RegisterUnitEvent, self, event, "player") then
+					self:RegisterUnitEvent(event, "player")
+				end
+			else
+				if pcall(self.RegisterUnitEvent, self, event, "player", "vehicle") then
+					self:RegisterUnitEvent(event, "player", "vehicle")
+				end
 			end
 		else
 			if pcall(self.RegisterEvent, self, event) then

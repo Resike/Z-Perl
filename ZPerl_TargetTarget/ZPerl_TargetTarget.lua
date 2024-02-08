@@ -21,6 +21,7 @@ local UnitClassification = UnitClassification
 local UnitExists = UnitExists
 local UnitFactionGroup = UnitFactionGroup
 local UnitGUID = UnitGUID
+local UnitHealthMax = UnitHealthMax
 local UnitIsAFK = UnitIsAFK
 local UnitIsCharmed = UnitIsCharmed
 local UnitIsConnected = UnitIsConnected
@@ -28,6 +29,7 @@ local UnitIsDead = UnitIsDead
 local UnitIsDeadOrGhost = UnitIsDeadOrGhost
 local UnitIsFriend = UnitIsFriend
 local UnitIsGhost = UnitIsGhost
+local UnitIsPlayer = UnitIsPlayer
 local UnitIsPVP = UnitIsPVP
 local UnitIsPVPFreeForAll = UnitIsPVPFreeForAll
 local UnitIsVisible = UnitIsVisible
@@ -35,6 +37,8 @@ local UnitLevel = UnitLevel
 local UnitName = UnitName
 local UnitPower = UnitPower
 local UnitPowerMax = UnitPowerMax
+local UnitPowerType = UnitPowerType
+local UnitUsingVehicle = UnitUsingVehicle
 local UnregisterUnitWatch = UnregisterUnitWatch
 
 local UIParent = UIParent
@@ -361,7 +365,7 @@ end
 -- XPerl_TargetTarget_Update_Control
 local function XPerl_TargetTarget_Update_Control(self)
 	local partyid = self.partyid
-	if UnitIsVisible(partyid) and UnitIsCharmed(partyid) then
+	if UnitIsVisible(partyid) and UnitIsCharmed(partyid) and UnitIsPlayer(self.partyid) and (not IsClassic and not UnitUsingVehicle(partyid) or true) then
 		self.nameFrame.warningIcon:Show()
 	else
 		self.nameFrame.warningIcon:Hide()

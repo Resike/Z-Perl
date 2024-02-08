@@ -1010,12 +1010,12 @@ local function XPerl_Raid_UpdateCombat(self)
 	if not partyid then
 		return
 	end
-	if (UnitExists(partyid) and UnitAffectingCombat(partyid)) then
+	if UnitExists(partyid) and UnitAffectingCombat(partyid) then
 		self.nameFrame.combatIcon:Show()
 	else
 		self.nameFrame.combatIcon:Hide()
 	end
-	if (UnitIsVisible(partyid) and UnitIsCharmed(partyid)) then
+	if UnitIsVisible(partyid) and UnitIsCharmed(partyid) and UnitIsPlayer(partyid) and (not IsClassic and not UnitUsingVehicle(partyid) or true) then
 		self.nameFrame.warningIcon:Show()
 	else
 		self.nameFrame.warningIcon:Hide()
@@ -1553,7 +1553,11 @@ function XPerl_Raid_Events:UNIT_FACTION()
 end
 
 -- UNIT_COMBAT
-function XPerl_Raid_Events:UNIT_COMBAT(unitID, action, descriptor, damage, damageType)
+function XPerl_Raid_Events:UNIT_COMBAT(unit, action, descriptor, damage, damageType)
+	if unit ~= self.partyid then
+		return
+	end
+
 	if (action == "HEAL") then
 		XPerl_Raid_CombatFlash(self, 0, true, true)
 	elseif (damage and damage > 0) then
