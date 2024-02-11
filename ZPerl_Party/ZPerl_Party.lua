@@ -923,13 +923,13 @@ local function XPerl_Party_Update_Range(self, overrideUnit)
 		return
 	end
 	local inRange = false
-	if IsRetail then
+	if IsWrathClassic then
+		inRange = CheckInteractDistance(partyid, 4)
+	else
 		local range, checkedRange = UnitInRange(partyid)
 		if not checkedRange then
 			inRange = true
 		end
-	else
-		inRange = CheckInteractDistance(partyid, 4)
 	end
 	if not UnitIsConnected(partyid) or inRange then
 		self.nameFrame.rangeIcon:Hide()

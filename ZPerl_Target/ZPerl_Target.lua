@@ -29,6 +29,7 @@ local IsRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
 local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
 local IsWrathClassic = WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC
 local IsVanillaClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
+
 local LCD = IsVanillaClassic and LibStub and LibStub("LibClassicDurations", true)
 if LCD then
 	LCD.RegisterCallback("ZPerl", "UNIT_BUFF", function(event, unit)
@@ -687,19 +688,21 @@ do
 		end
 		LTQ:RegisterCallback("TalentQuery_Ready", TalentQuery_Ready)
 	else
-		hooksecurefunc("NotifyInspect", function(unit)
-			if (IsRetail or UnitIsUnit("player", unit) or (not IsVanillaClassic and UnitInVehicle(unit)) or not (UnitExists(unit) and CanInspect(unit) and UnitIsVisible(unit) and UnitIsConnected(unit) and CheckInteractDistance(unit, 4))) then
-				return
-			end
-			lastInspectUnit = unit
-			lastInspectPending = lastInspectPending + 1
-			if (lastInspectPending > 1) then
-				lastInspectInvalid = true
-			end
-			lastInspectTime = GetTime()
-			lastInspectGUID = UnitGUID(unit)
-			lastInspectName = UnitFullName(unit)
-		end)
+		if IsWrathClassic and NotifyInspect then
+			hooksecurefunc("NotifyInspect", function(unit)
+				if (IsRetail or UnitIsUnit("player", unit) or (not IsVanillaClassic and UnitInVehicle(unit)) or not (UnitExists(unit) and CanInspect(unit) and UnitIsVisible(unit) and UnitIsConnected(unit) and CheckInteractDistance(unit, 4))) then
+					return
+				end
+				lastInspectUnit = unit
+				lastInspectPending = lastInspectPending + 1
+				if (lastInspectPending > 1) then
+					lastInspectInvalid = true
+				end
+				lastInspectTime = GetTime()
+				lastInspectGUID = UnitGUID(unit)
+				lastInspectName = UnitFullName(unit)
+			end)
+		end
 
 		-- INSPECT_READY
 		function XPerl_Target_Events:INSPECT_READY(guid)
@@ -1147,13 +1150,13 @@ function XPerl_Target_Update_Range(self)
 		return
 	end
 	local inRange = false
-	if IsRetail then
+	if IsWrathClassic then
+		inRange = CheckInteractDistance(self.partyid, 4)
+	else
 		local range, checkedRange = UnitInRange(self.partyid)
 		if not checkedRange then
 			inRange = true
 		end
-	else
-		inRange = CheckInteractDistance(self.partyid, 4)
 	end
 	if not UnitIsConnected(self.partyid) or inRange then
 		self.nameFrame.rangeIcon:Hide()
