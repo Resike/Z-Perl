@@ -510,7 +510,7 @@ end
 
 -- XPerl_Raid_UpdateHotsPrediction
 local function XPerl_Raid_UpdateHotsPrediction(self)
-	if not IsWrathClassic then
+	if not IsClassic then
 		return
 	end
 	if rconf.hotPrediction then

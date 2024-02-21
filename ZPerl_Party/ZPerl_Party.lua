@@ -360,7 +360,7 @@ local function XPerl_Party_UpdateAbsorbPrediction(self)
 end
 -- XPerl_Party_UpdateHotsPrediction
 local function XPerl_Party_UpdateHotsPrediction(self)
-	if not IsWrathClassic then
+	if not IsClassic then
 		return
 	end
 	if pconf.hotPrediction then
