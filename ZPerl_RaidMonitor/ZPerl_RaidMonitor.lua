@@ -8,17 +8,13 @@ local TableUnits = {}			-- Dynamic list of units indexed by raid id, changed on 
 ZPerlRaidMonConfig = {}
 local config = ZPerlRaidMonConfig
 
-local UnitCastingInfo, UnitChannelInfo = UnitCastingInfo, UnitChannelInfo
-local LCC = LibStub("LibClassicCasterino", true)
-if LCC then
-	UnitCastingInfo = function(unit) return LCC:UnitCastingInfo(unit); end
-	UnitChannelInfo = function(unit) return LCC:UnitChannelInfo(unit); end
-end
-
+local IsRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
 local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
 
 local GetNumGroupMembers = GetNumGroupMembers
 local GetNumSubgroupMembers = GetNumSubgroupMembers
+local UnitCastingInfo = UnitCastingInfo
+local UnitChannelInfo = UnitChannelInfo
 
 
 XPerl_SetModuleRevision("$Revision: @file-revision@ $")
@@ -47,6 +43,13 @@ function XPerl_RaidMonitor_OnLoad(self)
 	self:RegisterEvent("GROUP_ROSTER_UPDATE")
 	self:SetScript("OnEvent", XPerl_RaidMonitor_OnEvent)
 	self:SetScript("OnUpdate", self.OnUpdate)
+
+	if IsRetail then
+		XPerl_RaidMonitor_Frame_TitleBarCloseButton:SetScale(0.66)
+		XPerl_RaidMonitor_Frame_TitleBarCloseButton:SetPoint("TOPRIGHT", 2, 2)
+		XPerl_RaidMonitor_Frame_TitleBarPin:SetPoint("RIGHT", XPerl_RaidMonitor_Frame_TitleBarCloseButton, "LEFT", 0, 0)
+		XPerl_RaidMonitor_Frame_TitleBarTotals:SetPoint("RIGHT", XPerl_RaidMonitor_Frame_TitleBarPin, "LEFT", 0, 0)
+	end
 
 	if (XPerl_RegisterPerlFrames) then
 		XPerl_RegisterPerlFrames(XPerl_RaidMonitor_Frame)
@@ -1016,18 +1019,10 @@ function XPerl_RaidMonitor_Init(self)
 		end
 
 		for k, v in pairs(events) do
-			if LCC and strfind(v, "^UNIT_SPELLCAST") then
-				if (self:IsShown()) then
-					LCC.RegisterCallback(self, v, CastbarEventHandler)
-				else
-					LCC.UnregisterCallback(self, v)
-				end
+			if (self:IsShown()) then
+				self:RegisterEvent(v)
 			else
-				if (self:IsShown()) then
-					self:RegisterEvent(v)
-				else
-					self:UnregisterEvent(v)
-				end
+				self:UnregisterEvent(v)
 			end
 		end
 	end

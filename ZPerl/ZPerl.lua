@@ -15,12 +15,6 @@ local IsRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
 local IsWrathClassic = WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC
 local IsVanillaClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
-local LCD = IsVanillaClassic and LibStub and LibStub("LibClassicDurations", true)
-local UnitAuraDirect
-if LCD then
-	LCD:Register("ZPerl")
-	UnitAuraDirect = LCD.UnitAuraDirect
-end
 local HealComm = IsClassic and LibStub and LibStub("LibHealComm-4.0", true)
 
 -- Upvalues
@@ -2279,12 +2273,24 @@ function XPerl_RestoreAllPositions()
 						frame:SetUserPlaced(false)
 						frame:ClearAllPoints()
 						frame:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", v.left / frame:GetScale(), v.top / frame:GetScale())
-						if v.height and v.width then
-							if frame:IsResizable() then
-								frame:SetHeight(v.height)
-								frame:SetWidth(v.width)
-							else
-								v.height, v.width = nil, nil
+						if k == "XPerl_Assists_FrameAnchor" then
+							if ZPerlConfigHelper then
+								if ZPerlConfigHelper.sizeAssistsX and ZPerlConfigHelper.sizeAssistsY then
+									XPerl_Assists_Frame:SetWidth(ZPerlConfigHelper.sizeAssistsX)
+									XPerl_Assists_Frame:SetHeight(ZPerlConfigHelper.sizeAssistsY)
+								end
+								if ZPerlConfigHelper.sizeAssistsS then
+									XPerl_Assists_Frame:SetScale(ZPerlConfigHelper.sizeAssistsS)
+								end
+							end
+						else
+							if v.height and v.width then
+								if frame:IsResizable() then
+									frame:SetHeight(v.height)
+									frame:SetWidth(v.width)
+								else
+									v.height, v.width = nil, nil
+								end
 							end
 						end
 						--[[if (k == "XPerl_Runes") then
@@ -2574,21 +2580,21 @@ end
 
 -- XPerl_UnitBuff
 function XPerl_UnitBuff(unit, index, filter, raidFrames)
-	return BuffException(unit, index, filter, (IsClassic and unit == "target") and UnitAuraDirect or UnitAura, BuffExceptions, raidFrames)
+	return BuffException(unit, index, filter, UnitAura, BuffExceptions, raidFrames)
 end
 
 -- XPerl_UnitDebuff
 function XPerl_UnitDebuff(unit, index, filter, raidFrames)
 	if (conf.buffs.ignoreSeasonal or raidFrames) then
-		return DebuffException(unit, index, filter, (IsClassic and unit == "target") and UnitAuraDirect or UnitAura, raidFrames)
+		return DebuffException(unit, index, filter, UnitAura, raidFrames)
 	end
-	return BuffException(unit, index, filter, (IsClassic and unit == "target") and UnitAuraDirect or UnitAura, DebuffExceptions, raidFrames)
+	return BuffException(unit, index, filter, UnitAura, DebuffExceptions, raidFrames)
 end
 
 -- XPerl_TooltipSetUnitBuff
 -- Retreives the index of the actual unfiltered buff, and uses this on unfiltered tooltip call
 function XPerl_TooltipSetUnitBuff(self, unit, ind, filter, raidFrames)
-	local name, icon, count, debuffType, duration, expirationTime, unitCaster, canStealOrPurge, nameplateShowPersonal, spellID, index = BuffException(unit, ind, filter, (IsClassic and unit == "target") and UnitAuraDirect or UnitAura, BuffExceptions, raidFrames)
+	local name, icon, count, debuffType, duration, expirationTime, unitCaster, canStealOrPurge, nameplateShowPersonal, spellID, index = BuffException(unit, ind, filter, UnitAura, BuffExceptions, raidFrames)
 	if (name and index) then
 		if (Utopia_SetUnitBuff) then
 			Utopia_SetUnitBuff(self, unit, index)
@@ -3921,19 +3927,23 @@ local function scaleMouseUp(self)
 
 	XPerl_SavePosition(self.anchor)
 
-	if (self.resizeTop) then
+	if self.resizeTop then
 		XPerl_SwitchAnchor(self.anchor, "BOTTOMLEFT")
 	end
 
-	if (self.scaling) then
-		if (self.onScaleChanged) then
+	if self.scaling then
+		if self.onScaleChanged then
 			self:onScaleChanged(self.frame:GetScale())
-		elseif (self.onSizeChanged) then
+		end
+	end
+
+	if self.sizing then
+		if self.onSizeChanged then
 			self:onSizeChanged(self.frame:GetWidth(), self.frame:GetHeight())
 		end
 	end
 
-	if (self.oldBdBorder) then
+	if self.oldBdBorder then
 		self.frame:SetBackdropBorderColor(unpack(self.oldBdBorder))
 		self.oldBdBorder = nil
 	end

@@ -10,6 +10,7 @@ end
 
 ZPerl_CheckItems = {}
 
+local IsRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
 local IsWrathClassic = WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC
 
 -- Upvalues
@@ -88,6 +89,13 @@ function XPerl_CheckOnLoad(self)
 	XPerl_CheckListItemsScrollBar.offset = 0
 	XPerl_CheckListPlayersScrollBar.offset = 0
 
+	if IsRetail then
+		XPerl_CheckTitleBarClose:SetScale(0.66)
+		XPerl_CheckTitleBarClose:SetPoint("TOPRIGHT", 2, 2)
+		XPerl_CheckTitleBarPin:SetPoint("RIGHT", XPerl_CheckTitleBarClose, "LEFT", 0, 0)
+		XPerl_CheckTitleBarLockOpen:SetPoint("RIGHT", XPerl_CheckTitleBarPin, "LEFT", 0, 0)
+	end
+
 	if (XPerl_RegisterPerlFrames) then
 		XPerl_RegisterPerlFrames(self)
 	end
@@ -100,7 +108,7 @@ function XPerl_CheckOnLoad(self)
 	self.corner:SetParent(XPerl_CheckList)
 
 	XPerl_Check:SetWidth(130)
-		XPerl_Check:SetHeight(18)
+	XPerl_Check:SetHeight(18)
 
 	XPerl_CheckOnLoad = nil
 end

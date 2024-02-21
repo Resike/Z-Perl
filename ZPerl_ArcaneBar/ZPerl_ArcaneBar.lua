@@ -41,16 +41,6 @@ local CASTING_BAR_HOLD_TIME = CASTING_BAR_HOLD_TIME
 local FAILED = FAILED
 local SPELL_FAILED_INTERRUPTED = SPELL_FAILED_INTERRUPTED
 
-local LCC = IsVanillaClassic and LibStub("LibClassicCasterino", true)
-if LCC then
-	UnitCastingInfo = function(unit)
-		return LCC:UnitCastingInfo(unit)
-	end
-	UnitChannelInfo = function(unit)
-		return LCC:UnitChannelInfo(unit)
-	end
-end
-
 -- Registers frame to spellcast events.
 local barColours = {
 	main = {r = 1.0, g = 0.7, b = 0.0},
@@ -71,12 +61,8 @@ local function enableToggle(self, value)
 				return XPerl_ArcaneBar_OnEvent(self, event, ...)
 			end
 			for i, event in pairs(events) do
-				if LCC and strfind(event, "^UNIT_SPELLCAST") and (IsClassic and event ~= "UNIT_SPELLCAST_INTERRUPTIBLE" and event ~= "UNIT_SPELLCAST_NOT_INTERRUPTIBLE") then
-					LCC.RegisterCallback(self, event, CastbarEventHandler)
-				else
-					if pcall(self.RegisterEvent, self, event) then
-						self:RegisterEvent(event)
-					end
+				if pcall(self.RegisterEvent, self, event) then
+					self:RegisterEvent(event)
 				end
 			end
 
@@ -95,9 +81,6 @@ local function enableToggle(self, value)
 		end
 	else
 		if (self.Enabled) then
-			if LCC then
-				LCC.UnregisterAllCallbacks(self)
-			end
 			self:UnregisterAllEvents()
 			self:SetScript("OnUpdate", nil)
 			self.Enabled = nil
@@ -115,20 +98,12 @@ local function overrideToggle(value)
 				local CastbarEventHandler = function(event, ...)
 					return XPerl_ArcaneBar_OnEvent(CastingBarFrame, event, ...)
 				end
-				if LCC then
-					for i, event in pairs(events) do
-						if strfind(event, "^UNIT_SPELLCAST") and (IsClassic and event ~= "UNIT_SPELLCAST_INTERRUPTIBLE" and event ~= "UNIT_SPELLCAST_NOT_INTERRUPTIBLE") then
-							LCC.RegisterCallback(CastingBarFrame, event, CastbarEventHandler)
-						end
-					end
-				else
-					for i, event in pairs(events) do
-						if IsRetail then
-							PlayerCastingBarFrame:RegisterEvent(event)
-						else
-							if event ~= "UNIT_SPELLCAST_INTERRUPTIBLE" and event ~= "UNIT_SPELLCAST_NOT_INTERRUPTIBLE" then
-								CastingBarFrame:RegisterEvent(event)
-							end
+				for i, event in pairs(events) do
+					if IsRetail then
+						PlayerCastingBarFrame:RegisterEvent(event)
+					else
+						if event ~= "UNIT_SPELLCAST_INTERRUPTIBLE" and event ~= "UNIT_SPELLCAST_NOT_INTERRUPTIBLE" then
+							CastingBarFrame:RegisterEvent(event)
 						end
 					end
 				end
@@ -139,15 +114,9 @@ local function overrideToggle(value)
 				if IsRetail then
 					PlayerCastingBarFrame:Hide()
 					PlayerCastingBarFrame:UnregisterAllEvents()
-					if LCC then
-						LCC.UnregisterAllCallbacks(PlayerCastingBarFrame)
-					end
 				else
 					CastingBarFrame:Hide()
 					CastingBarFrame:UnregisterAllEvents()
-					if LCC then
-						LCC.UnregisterAllCallbacks(CastingBarFrame)
-					end
 				end
 				pconf.bar.Overrided = 1
 			end

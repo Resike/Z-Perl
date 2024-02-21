@@ -206,21 +206,6 @@
 		<KeyValues>
 			<KeyValue key="backdropInfo" value="XPerl_Raid_Backdrop_16_9_3333" type="global"/>
 		</KeyValues>
-		<Scripts>
-			<OnLoad function="XPerl_RaidHelper_OnLoad"/>
-			<OnEvent function="XPerl_RaidHelper_OnEvent"/>
-			<OnDragStart>
-				if (not ZPerlConfigHelper or not ZPerlConfigHelper.Pinned or (IsAltKeyDown() and IsControlKeyDown() and IsShiftKeyDown())) then
-					XPerl_MTList_Anchor:StartMoving()
-				end
-			</OnDragStart>
-			<OnDragStop>
-				XPerl_MTList_Anchor:StopMovingOrSizing()
-				if (XPerl_SavePosition) then
-					XPerl_SavePosition(XPerl_MTList_Anchor)
-				end
-			</OnDragStop>
-		</Scripts>
 		<Size>
 			<AbsDimension x="206" y="80"/>
 		</Size>
@@ -536,5 +521,20 @@
 				</Layers>
 			</Frame>
 		</Frames>
+		<Scripts>
+			<OnLoad function="XPerl_RaidHelper_OnLoad"/>
+			<OnEvent function="XPerl_RaidHelper_OnEvent"/>
+			<OnDragStart>
+				if (not ZPerlConfigHelper or not ZPerlConfigHelper.Pinned or (IsAltKeyDown() and IsControlKeyDown() and IsShiftKeyDown())) then
+					XPerl_MTList_Anchor:StartMoving()
+				end
+			</OnDragStart>
+			<OnDragStop>
+				XPerl_MTList_Anchor:StopMovingOrSizing()
+				if (XPerl_SavePosition) then
+					XPerl_SavePosition(XPerl_MTList_Anchor)
+				end
+			</OnDragStop>
+		</Scripts>
 	</Frame>
 </Ui>

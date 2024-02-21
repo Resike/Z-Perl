@@ -46,6 +46,8 @@ local format = format
 local strsub = strsub
 
 local GetNumGroupMembers = GetNumGroupMembers
+local UnitCastingInfo = UnitCastingInfo
+local UnitChannelInfo = UnitChannelInfo
 local UnitGUID = UnitGUID
 local UnitHealth = UnitHealth
 local UnitHealthMax = UnitHealthMax
@@ -63,12 +65,6 @@ local XPerl_CheckDebuffs = XPerl_CheckDebuffs
 local XPerl_ColourFriendlyUnit = XPerl_ColourFriendlyUnit
 local XPerl_ColourHealthBar = XPerl_ColourHealthBar
 
-local UnitCastingInfo, UnitChannelInfo = UnitCastingInfo, UnitChannelInfo
-local LCC = LibStub("LibClassicCasterino", true)
-if LCC then
-	UnitCastingInfo = function(unit) return LCC:UnitCastingInfo(unit); end
-	UnitChannelInfo = function(unit) return LCC:UnitChannelInfo(unit); end
-end
 
 -- TODO - Watch for:	 ERR_FRIEND_OFFLINE_S = "%s has gone offline."
 
@@ -160,12 +156,8 @@ function XPerl_Raid_OnLoad(self)
 		return XPerl_Raid_OnEvent(self, event, ...)
 	end
 	for i, event in pairs(events) do
-		if LCC and strfind(event, "^UNIT_SPELLCAST") then
-			LCC.RegisterCallback(self, event, CastbarEventHandler)
-		else
-			if pcall(self.RegisterEvent, self, event) then
-				self:RegisterEvent(event)
-			end
+		if pcall(self.RegisterEvent, self, event) then
+			self:RegisterEvent(event)
 		end
 	end
 
