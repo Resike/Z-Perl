@@ -496,13 +496,13 @@ local function XPerl_Player_UpdateXP(self)
 						if (playerxprest >= 1000000) then
 							suffix = format(" +%.1fM", playerxprest / 1000000)
 						else
-							suffix = format(" +%.1fK", playerxprest / 1000)
+							suffix = format(" +%.1fk", playerxprest / 1000)
 						end
 					else
 						if (playerxprest >= 1000000) then
 							suffix = format(" +%dM", playerxprest / 1000000)
 						else
-							suffix = format(" +%dK", playerxprest / 1000)
+							suffix = format(" +%dk", playerxprest / 1000)
 						end
 					end
 
