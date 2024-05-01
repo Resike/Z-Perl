@@ -3,13 +3,13 @@
 -- License: GNU GPL v3, 29 June 2007 (see LICENSE.txt)
 
 local IsRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
-local IsWrathClassic = WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC
+local IsCataClassic = WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC
 
 XPerl_ProductName		= "|cFFD00000Z-Perl|r UnitFrames"
 XPerl_ShortProductName	= "|cFFD00000Z-Perl|r"
 XPerl_Author			= "|cFFFF8080Resike|r"
 XPerl_Description		= XPerl_ProductName.." by "..XPerl_Author
-XPerl_VersionNumber		= GetAddOnMetadata and GetAddOnMetadata("ZPerl", "Version") or "7.2.3"
+XPerl_VersionNumber		= GetAddOnMetadata and GetAddOnMetadata("ZPerl", "Version") or "7.2.4"
 XPerl_Version			= XPerl_Description.." - "..XPerl_VersionNumber
 XPerl_LongDescription	= "UnitFrame replacement for new look Player, Pet, Party, Target, Target's Target, Focus, Raid"
 XPerl_ModMenuIcon		= "Interface\\Icons\\INV_Misc_Gem_Pearl_02"
@@ -175,7 +175,7 @@ if IsRetail then
 			--[GetSpellInfo(974)] = 600			-- Earth Shield	(old id 32594)
 		},
 	}
-elseif IsWrathClassic then
+elseif IsCataClassic then
 	XPERL_HIGHLIGHT_SPELLS = {
 		hotSpells  = {
 			[GetSpellInfo(774)] = 12,			-- Rejuvenation (old id 26982)
@@ -246,7 +246,7 @@ if IsRetail then
 		WARLOCK	= {spell = GetSpellInfo(5697)},				-- Unending Breath
 		ANY		= {item = GetItemInfo(173191)}				-- Heavy Shrouded Cloth Bandage
 	}
-elseif IsWrathClassic then
+elseif IsCataClassic then
 	XPerl_DefaultRangeSpells = {
 		DRUID	= {spell = GetSpellInfo(774)},				-- Rejuvenation
 		PALADIN = {spell = GetSpellInfo(19750)},			-- Flash of Light
@@ -293,7 +293,7 @@ if IsRetail then
 		[GetSpellInfo(38913)] = {ROGUE = true},				-- Silence
 		[GetSpellInfo(31555)] = {ROGUE = true, WARRIOR = true},	-- Decayed Intellect
 	}
-elseif IsWrathClassic then
+elseif IsCataClassic then
 	XPerl_ArcaneExclusions = {
 		--[GetSpellInfo(63559)] = true,						-- Bind Life
 		--[GetSpellInfo(30451)] = true,						-- Arcane Blast (again) (old 42897)

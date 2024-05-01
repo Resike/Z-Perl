@@ -11,7 +11,7 @@ end
 ZPerl_CheckItems = {}
 
 local IsRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
-local IsWrathClassic = WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC
+local IsCataClassic = WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC
 
 -- Upvalues
 local _G = _G
@@ -1966,7 +1966,7 @@ function XPerl_Check_ActiveScan()
 				myScan.changed = nil
 			end
 			any = true
-			if (IsWrathClassic and CheckInteractDistance(unit, 1)) then		-- Checks to see if in inspect range
+			if (IsCataClassic and CheckInteractDistance(unit, 1)) then		-- Checks to see if in inspect range
 				local eq
 				if (type(ActiveScanItem.slot) == "table") then
 					for k,v in pairs(ActiveScanItem.slot) do

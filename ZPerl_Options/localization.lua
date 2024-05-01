@@ -3,7 +3,7 @@
 ]]
 
 local IsRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
-local IsWrathClassic = WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC
+local IsCataClassic = WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC
 
 -- Tabs
 XPERL_CONF_TITLE1						= "Global"
@@ -418,7 +418,7 @@ XPERL_CONF_TARGET_PVPICON				= "PVP Flag"
 XPERL_CONF_TARGET_PVPICON_DESC			= "Enable display of target's PVP status."
 XPERL_CONF_TARGET_RAIDICON_ALT			= "Alternate Raid Icon Location"
 XPERL_CONF_TARGET_RAIDICON_ALT_DESC		= "Display raid icon in corner of portrait, rather than center of name plate."
-if IsWrathClassic then
+if IsCataClassic then
 XPERL_CONF_TARGET_30YD					= "30 yard range indicator"
 XPERL_CONF_TARGET_30YD_DESC				= "Enable the out of range 'reaching hand' indicator on target frame to show if in 30 yard range of target."
 else
@@ -756,7 +756,7 @@ XPERL_CONF_PARTY_DEBUFFSBELOW			= "Party Debuffs Below Members"
 XPERL_CONF_PARTY_DEBUFFSBELOW_DESC		= "Toggle displaying of party member debuffs below instead of to the right of their frame."
 XPERL_CONF_PARTY_DEBUFFSHALFSIZE		= "Wrap Lots"
 XPERL_CONF_PARTY_DEBUFFSHALFSIZE_DESC	= "Show half sized and wrapped debuffs when more than frame width to be shown."
-if IsWrathClassic then
+if IsCataClassic then
 	XPERL_CONF_PARTY_30YD					= "30 yard range indicator"
 	XPERL_CONF_PARTY_30YD_DESC				= "Enable the out of range 'reaching hand' indicator on party frames to show if in 30 yard range of party members."
 else
@@ -866,7 +866,7 @@ if IsRetail then
 	XPERL_CONF_RAID_HIGHLIGHTS_RENEWING_DESC	= "Enable the "..GetSpellInfo(115151).." tracking. With sparkles enabled, this will show a bouncing graphic to make it easier to follow the buff."
 	--XPERL_CONF_RAID_HIGHLIGHTS_BEACON		= GetSpellInfo(157007) -- Beacon of Insight
 	--XPERL_CONF_RAID_HIGHLIGHTS_BEACON_DESC	= "Enable the "..GetSpellInfo(157007).." tracking. With sparkles enabled, this will show a bouncing graphic to make it easier to follow the buff."
-elseif IsWrathClassic then
+elseif IsCataClassic then
 	XPERL_CONF_RAID_HIGHLIGHTS_MENDING		= GetSpellInfo(33076) -- Prayer of Mending
 	XPERL_CONF_RAID_HIGHLIGHTS_MENDING_DESC	= "Enable the "..GetSpellInfo(33076).." tracking. With sparkles enabled, this will show a bouncing graphic to make it easier to follow the buff."
 end

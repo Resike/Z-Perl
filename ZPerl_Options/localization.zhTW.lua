@@ -3,7 +3,7 @@
 ]]
 
 local IsRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
-local IsWrathClassic = WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC
+local IsCataClassic = WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC
 
 if (GetLocale() == "zhTW") then
 -- Tabs
@@ -835,7 +835,7 @@ if IsRetail then
 	XPERL_CONF_RAID_HIGHLIGHTS_RENEWING_DESC= "啟用"..GetSpellInfo(115151).."追蹤. 若啟用閃爍效果，將會以彈跳的圖示的方式來追蹤此 buff。"
 	--XPERL_CONF_RAID_HIGHLIGHTS_BEACON		= GetSpellInfo(157007) -- Beacon of Insight
 	--XPERL_CONF_RAID_HIGHLIGHTS_BEACON_DESC	= "Enable the "..GetSpellInfo(157007).." tracking. With sparkles enabled, this will show a bouncing graphic to make it easier to follow the buff."
-elseif IsWrathClassic then
+elseif IsCataClassic then
 	XPERL_CONF_RAID_HIGHLIGHTS_MENDING		= GetSpellInfo(33076)				-- Prayer of Mending
 	XPERL_CONF_RAID_HIGHLIGHTS_MENDING_DESC	= "啟用"..GetSpellInfo(33076).."追蹤。若啟用閃爍效果，將會以彈跳的圖示的方式來追蹤此 buff。"
 end
