@@ -1460,7 +1460,7 @@ function XPerl_Raid_Events:PLAYER_ENTERING_WORLD()
 		XPerl_Raid_Frame:Show()
 	end
 
-	if not ZPerl_Custom and rconf.enable and cconf.enable then
+	if not ZPerl_Custom and rconf.enable then
 		LoadAddOn("ZPerl_CustomHighlight")
 	end
 

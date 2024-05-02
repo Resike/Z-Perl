@@ -30,6 +30,16 @@ local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
 local IsWrathClassic = WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC
 local IsVanillaClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 
+local LCD = IsVanillaClassic and LibStub and LibStub("LibClassicDurations", true)
+if LCD then
+	LCD.RegisterCallback("ZPerl", "UNIT_BUFF", function(event, unit)
+		if unit ~= "target" then
+			return
+		end
+		XPerl_Target_Events:UNIT_AURA(event, unit)
+	end)
+end
+
 -- Upvalues
 local _G = _G
 local bit_band = bit.band

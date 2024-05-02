@@ -15,6 +15,13 @@ local IsRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
 local IsWrathClassic = WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC
 local IsVanillaClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
+
+local UnitAuraWithBuffs
+local LCD = IsVanillaClassic and LibStub and LibStub("LibClassicDurations", true)
+if LCD then
+	LCD:Register("ZPerl")
+	UnitAuraWithBuffs = LCD.UnitAuraWithBuffs
+end
 local HealComm = IsClassic and LibStub and LibStub("LibHealComm-4.0", true)
 
 -- Upvalues
@@ -2580,7 +2587,7 @@ end
 
 -- XPerl_UnitBuff
 function XPerl_UnitBuff(unit, index, filter, raidFrames)
-	return BuffException(unit, index, filter, UnitAura, BuffExceptions, raidFrames)
+	return BuffException(unit, index, filter, (IsVanillaClassic and unit == "target") and UnitAuraWithBuffs or UnitAura, BuffExceptions, raidFrames)
 end
 
 -- XPerl_UnitDebuff
@@ -2594,7 +2601,7 @@ end
 -- XPerl_TooltipSetUnitBuff
 -- Retreives the index of the actual unfiltered buff, and uses this on unfiltered tooltip call
 function XPerl_TooltipSetUnitBuff(self, unit, ind, filter, raidFrames)
-	local name, icon, count, debuffType, duration, expirationTime, unitCaster, canStealOrPurge, nameplateShowPersonal, spellID, index = BuffException(unit, ind, filter, UnitAura, BuffExceptions, raidFrames)
+	local name, icon, count, debuffType, duration, expirationTime, unitCaster, canStealOrPurge, nameplateShowPersonal, spellID, index = BuffException(unit, ind, filter, (IsVanillaClassic and unit == "target") and UnitAuraWithBuffs or UnitAura, BuffExceptions, raidFrames)
 	if (name and index) then
 		if (Utopia_SetUnitBuff) then
 			Utopia_SetUnitBuff(self, unit, index)
@@ -3827,14 +3834,28 @@ end
 -- XPerl_Unit_UpdateReadyState
 function XPerl_Unit_UpdateReadyState(self)
 	local status = conf.showReadyCheck and self.partyid and GetReadyCheckStatus(self.partyid)
-	if (status) then
+	if status then
 		self.statsFrame.ready:Show()
-		if (status == "ready") then
-			self.statsFrame.ready.check:SetTexture(READY_CHECK_READY_TEXTURE)
-		elseif (status == "waiting") then
-			self.statsFrame.ready.check:SetTexture(READY_CHECK_WAITING_TEXTURE)
-		else -- "notready"
-			self.statsFrame.ready.check:SetTexture(READY_CHECK_NOT_READY_TEXTURE)
+		if status == "ready" then
+			if IsRetail then
+				self.statsFrame.ready.check:SetAtlas(READY_CHECK_READY_TEXTURE)
+			else
+				self.statsFrame.ready.check:SetTexture(READY_CHECK_READY_TEXTURE)
+			end
+		elseif status == "waiting" then
+			if IsRetail then
+				self.statsFrame.ready.check:SetAtlas(READY_CHECK_WAITING_TEXTURE)
+			else
+				self.statsFrame.ready.check:SetTexture(READY_CHECK_WAITING_TEXTURE)
+			end
+		elseif status == "notready" then
+			if IsRetail then
+				self.statsFrame.ready.check:SetAtlas(READY_CHECK_NOT_READY_TEXTURE)
+			else
+				self.statsFrame.ready.check:SetTexture(READY_CHECK_NOT_READY_TEXTURE)
+			end
+		else
+			self.statsFrame.ready:Hide()
 		end
 	else
 		self.statsFrame.ready:Hide()
