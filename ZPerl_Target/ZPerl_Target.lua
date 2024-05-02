@@ -27,7 +27,7 @@ end, "$Revision: @file-revision@ $")
 
 local IsRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
 local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
-local IsWrathClassic = WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC
+local IsCataClassic = WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC
 local IsVanillaClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 
 local LCD = IsVanillaClassic and LibStub and LibStub("LibClassicDurations", true)
@@ -689,7 +689,7 @@ do
 		end
 		LTQ:RegisterCallback("TalentQuery_Ready", TalentQuery_Ready)
 	else
-		if IsWrathClassic and NotifyInspect then
+		if IsCataClassic and NotifyInspect then
 			hooksecurefunc("NotifyInspect", function(unit)
 				if (IsRetail or UnitIsUnit("player", unit) or (not IsVanillaClassic and UnitInVehicle(unit)) or not (UnitExists(unit) and CanInspect(unit) and UnitIsVisible(unit) and UnitIsConnected(unit) and CheckInteractDistance(unit, 4))) then
 					return
@@ -974,7 +974,7 @@ end
 
 -- XPerl_Target_UpdateHotsPrediction
 local function XPerl_Target_UpdateHotsPrediction(self)
-	if not IsWrathClassic then
+	if not IsCataClassic then
 		return
 	end
 	if self == XPerl_Target then
@@ -1151,7 +1151,7 @@ function XPerl_Target_Update_Range(self)
 		return
 	end
 	local inRange = false
-	if IsWrathClassic then
+	if IsCataClassic then
 		inRange = CheckInteractDistance(self.partyid, 4)
 	else
 		local range, checkedRange = UnitInRange(self.partyid)

@@ -38,7 +38,7 @@ end
 --local new, del, copy = XPerl_GetReusableTable, XPerl_FreeTable, XPerl_CopyTable
 
 local IsRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
-local IsWrathClassic = WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC
+local IsCataClassic = WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC
 local IsVanillaClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
 
@@ -510,7 +510,7 @@ end
 
 -- XPerl_Raid_UpdateHotsPrediction
 local function XPerl_Raid_UpdateHotsPrediction(self)
-	if not IsWrathClassic then
+	if not IsCataClassic then
 		return
 	end
 	if rconf.hotPrediction then
@@ -1733,7 +1733,7 @@ function XPerl_Raid_Events:UNIT_HEAL_PREDICTION(unit)
 	if rconf.healprediction and unit == self.partyid then
 		XPerl_SetExpectedHealth(self)
 	end
-	if not IsWrathClassic then
+	if not IsCataClassic then
 		return
 	end
 	if rconf.hotPrediction and unit == self.partyid then
@@ -2521,7 +2521,7 @@ local function DefaultRaidClasses()
 			{enable = true, name = "DEMONHUNTER"},
 			{enable = true, name = "EVOKER"}
 		}
-	elseif IsWrathClassic then
+	elseif IsCataClassic then
 		return {
 			{enable = true, name = "WARRIOR"},
 			{enable = true, name = "DEATHKNIGHT"},
@@ -2596,7 +2596,7 @@ function XPerl_Raid_ChangeAttributes()
 
 	rconf.anchor = (rconf and rconf.anchor) or "TOP"
 
-	for i = 1, rconf.sortByClass and CLASS_COUNT or (IsVanillaClassic and 9 or (IsWrathClassic and 10 or 13)) do
+	for i = 1, rconf.sortByClass and CLASS_COUNT or (IsVanillaClassic and 9 or (IsCataClassic and 10 or 13)) do
 		local groupHeader = raidHeaders[i]
 
 		-- Hide this when we change attributes, so the whole re-calc is only done once, instead of for every attribute change

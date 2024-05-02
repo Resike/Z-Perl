@@ -18,7 +18,7 @@ end, "$Revision: @file-revision@ $")
 local percD = "%d"..PERCENT_SYMBOL
 
 local IsRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
-local IsWrathClassic = WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC
+local IsCataClassic = WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC
 local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
 local IsVanillaClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 
@@ -360,7 +360,7 @@ local function XPerl_Party_UpdateAbsorbPrediction(self)
 end
 -- XPerl_Party_UpdateHotsPrediction
 local function XPerl_Party_UpdateHotsPrediction(self)
-	if not IsWrathClassic then
+	if not IsCataClassic then
 		return
 	end
 	if pconf.hotPrediction then
@@ -923,7 +923,7 @@ local function XPerl_Party_Update_Range(self, overrideUnit)
 		return
 	end
 	local inRange = false
-	if IsWrathClassic then
+	if IsCataClassic then
 		inRange = CheckInteractDistance(partyid, 4)
 	else
 		local range, checkedRange = UnitInRange(partyid)
@@ -1529,7 +1529,7 @@ function XPerl_Party_Events:UNIT_HEAL_PREDICTION(unit)
 	if pconf.healprediction and unit == self.partyid then
 		XPerl_SetExpectedHealth(self)
 	end
-	if not IsWrathClassic then
+	if not IsCataClassic then
 		return
 	end
 	if pconf.hotPrediction and unit == self.partyid then

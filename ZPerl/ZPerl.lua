@@ -12,7 +12,7 @@ end, "$Revision: @project-revision@ $")
 XPerl_SetModuleRevision("$Revision: @project-revision@ $")
 
 local IsRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
-local IsWrathClassic = WOW_PROJECT_ID == WOW_PROJECT_WRATH_CLASSIC
+local IsCataClassic = WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC
 local IsVanillaClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
 
@@ -2340,7 +2340,7 @@ if IsClassic then
 			[GetSpellInfo(5118)] = true,				-- Aspect of the Cheetah
 			[GetSpellInfo(13159)] = true,				-- Aspect of the Pack
 			--[GetSpellInfo(61648)] = true,				-- Aspect of the Beast
-			[GetSpellInfo(13163)] = true,			-- Aspect of the Monkey
+			--[GetSpellInfo(13163)] = true,				-- Aspect of the Monkey
 			[GetSpellInfo(19506)] = true,				-- Trueshot Aura
 			[GetSpellInfo(5384)] = true,				-- Feign Death
 		},
@@ -2356,8 +2356,8 @@ if IsClassic then
 			[GetSpellInfo(20165)] = true,				-- Seal of Insight
 			[GetSpellInfo(20164)] = true,				-- Seal of Justice
 			--[GetSpellInfo(31801)] = true,				-- Seal of Truth
-			[GetSpellInfo(20375)] = true,				-- Seal of Command
-			[GetSpellInfo(20166)] = true,				-- Seal of Wisdom
+			--[GetSpellInfo(20375)] = true,				-- Seal of Command
+			--[GetSpellInfo(20166)] = true,				-- Seal of Wisdom
 			[GetSpellInfo(20165)] = true,				-- Seal of Light
 			--[GetSpellInfo(53736)] = true,				-- Seal of Corruption
 			--[GetSpellInfo(31892)] = true,				-- Seal of Blood
@@ -4154,7 +4154,7 @@ end
 
 -- XPerl_SetExpectedHots
 function XPerl_SetExpectedHots(self)
-	if WOW_PROJECT_ID ~= WOW_PROJECT_WRATH_CLASSIC then
+	if WOW_PROJECT_ID ~= WOW_PROJECT_CATACLYSM_CLASSIC then
 		return
 	end
 	local bar
@@ -4383,7 +4383,7 @@ function XPerl_Register_Prediction(self, conf, g2u, ...)
 			self:UnregisterEvent("UNIT_HEAL_PREDICTION")
 		end
 
-		if not IsWrathClassic then
+		if not IsCataClassic then
 			if conf.absorbs then
 				self:RegisterUnitEvent("UNIT_ABSORB_AMOUNT_CHANGED", ...)
 			else

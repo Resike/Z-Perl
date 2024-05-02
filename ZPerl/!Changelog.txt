@@ -1,3 +1,6 @@
+**7.2.4**
+* Added support for Cataclysm Wrath
+
 **7.2.3**
 * Fixes and tweaks with assist window.
 * Removed LibClassicCasterino.
