@@ -4371,7 +4371,7 @@ function XPerl_Unit_ThreatStatus(self, relative, immediate)
 	end
 end
 
-function XPerl_Register_Prediction(self, conf, g2u, ...)
+function XPerl_Register_Prediction(self, conf, guidToUnit, ...)
 	if not self then
 		return
 	end
@@ -4390,10 +4390,10 @@ function XPerl_Register_Prediction(self, conf, g2u, ...)
 				self:UnregisterEvent("UNIT_ABSORB_AMOUNT_CHANGED")
 			end
 		else
-			-- HoT predictions do not work properly on Wrath Classic so use HealComm
+			-- HoT predictions do not work properly on Wrath/Cata Classic so use HealComm
 			if conf.hotPrediction then
 				local UpdateHealth = function(event, ...)
-					local unit = g2u(select(select("#", ...), ...))
+					local unit = guidToUnit(select(select("#", ...), ...))
 					if unit then
 						local f = self:GetScript("OnEvent")
 						f(self, "UNIT_HEAL_PREDICTION", unit)
@@ -4417,7 +4417,7 @@ function XPerl_Register_Prediction(self, conf, g2u, ...)
 	else
 		if conf.healprediction then
 			local UpdateHealth = function(event, ...)
-				local unit = g2u(select(select("#", ...), ...))
+				local unit = guidToUnit(select(select("#", ...), ...))
 				if unit then
 					local f = self:GetScript("OnEvent")
 					f(self, "UNIT_HEAL_PREDICTION", unit)

@@ -1,7 +1,6 @@
-if WOW_PROJECT_ID == WOW_PROJECT_MAINLINE then return end
-
+if WOW_PROJECT_ID ~= WOW_PROJECT_CLASSIC then return end
 local major = "LibHealComm-4.0"
-local minor = 113
+local minor = 117
 assert(LibStub, format("%s requires LibStub.", major))
 
 local HealComm = LibStub:NewLibrary(major, minor)
@@ -89,10 +88,10 @@ local isTBC = build == 2
 local isWrath = build == 3
 local isClassicEra = build == 1
 --https://warcraft.wiki.gg/wiki/Enum.SeasonID
-local isSoD = HasActiveSeason() and GetActiveSeason() == (Enum.SeasonID.SeasonOfDiscovery or Enum.SeasonID.Placeholder) and isClassicEra
+local isSoD = HasActiveSeason() and GetActiveSeason() == Enum.SeasonID.Placeholder and isClassicEra
 
 local spellRankTableData = {
-	[1] = { 774, 8936, 5185, 740, 635, 19750, 139, 2060, 596, 2061, 2054, 2050, 1064, 331, 8004, 136, 755, 689, 746, 33763, 32546, 37563, 48438, 61295, 51945, 50464, 47757, 408120, 408124, 402277, 415236, 415240, 412510, 401417, 417057, 425268, 436937 },
+	[1] = { 774, 8936, 5185, 740, 635, 19750, 139, 2060, 596, 2061, 2054, 2050, 1064, 331, 8004, 136, 755, 689, 746, 33763, 32546, 37563, 48438, 61295, 51945, 50464, 47757, 408120, 408124, 402277, 415236, 415240, 412510, 401417, 417057, 425268, 436937, 408247  },
 	[2] = { 1058, 8938, 5186, 8918, 639, 19939, 6074, 10963, 996, 9472, 2055, 2052, 10622, 332, 8008, 3111, 3698, 699, 1159, 53248, 61299, 51990, 48450, 52986, 48119, 417058, 425269, 436938 },
 	[3] = { 1430, 8939, 5187, 9862, 647, 19940, 6075, 10964, 10960, 9473, 6063, 2053, 10623, 547, 8010, 3661, 3699, 709, 3267, 53249, 61300, 51997, 48451, 52987, 48120, 417059, 425270, 436939 },
 	[4] = { 2090, 8940, 5188, 9863, 1026, 19941, 6076, 10965, 10961, 9474, 6064, 913, 10466, 3662, 3700, 7651, 3268, 25422, 53251, 61301, 51998, 52988, 417060, 425271, 436940 },
@@ -181,7 +180,7 @@ if( not HealComm.compressGUID  ) then
 			end
 			rawset(tbl, guid, str)
 			return str
-		end})
+	end})
 
 	HealComm.decompressGUID = setmetatable({}, {
 		__index = function(tbl, str)
@@ -199,7 +198,7 @@ if( not HealComm.compressGUID  ) then
 
 			rawset(tbl, str, guid)
 			return guid
-		end})
+	end})
 end
 
 local compressGUID, decompressGUID = HealComm.compressGUID, HealComm.decompressGUID
@@ -441,8 +440,8 @@ function HealComm:GetTimeframeHealAmount(guid, bitFlag, startTime, time, ignoreG
 								local endTime = pending[i + 3]
 								endTime = endTime > 0 and endTime or pending.endTime
 								-- Direct heals are easy, if they match the filter then return them
-								if( ( pending.bitType == DIRECT_HEALS or pending.bitType == BOMB_HEALS ) and ( not time or not startTime 
-																			or (startTime <= endTime and endTime <= time) ) ) then 										
+								if( ( pending.bitType == DIRECT_HEALS or pending.bitType == BOMB_HEALS ) and ( not time or not startTime
+																			or (startTime <= endTime and endTime <= time) ) ) then
 									if not healTime or (endTime < healTime) then
 										healTime = endTime
 										healFrom = casterGUID
@@ -462,8 +461,8 @@ function HealComm:GetTimeframeHealAmount(guid, bitFlag, startTime, time, ignoreG
 
 									healAmount = healAmount + (amount * stack) * min(ticks, ticksLeft)
 								end
-								
-								
+
+
 							end
 						end
 					end
@@ -888,7 +887,7 @@ local function getBaseHealAmount(spellData, spellName, spellID, spellRank)
 end
 
 --Values for SOD have been taken from https://github.com/jezzi23/stat_weights_classic
-local function generateSODAverages(baseAmount, levelCoeff, levelScaling, levelScalingSquared) 
+local function generateSODAverages(baseAmount, levelCoeff, levelScaling, levelScalingSquared)
 	local averages = {}
 	for lvl=1,60 do
 		averages[lvl] = levelCoeff * (baseAmount + levelScaling * lvl + levelScalingSquared * lvl * lvl)
@@ -994,7 +993,6 @@ if( playerClass == "DRUID" ) then
 		elseif isWrath then
 			spellData[Nourish] = {coeff = 0.358005, levels = {80}, averages = {avg(1883, 2187)}}
 		end
-		
 
 		talentData[GiftofNature] = {mod = 0.02, current = 0}
 		talentData[ImprovedRejuv] = {mod = 0.05, current = 0}
@@ -1093,7 +1091,7 @@ if( playerClass == "DRUID" ) then
 				end
 
 				totalTicks = ticks
-				
+
 				spellPower = spellPower * (((duration / 15) * (isWrath and 1.88 or 1)) * (1 + talentData[EmpoweredRejuv].current))
 				spellPower = spellPower / ticks
 				healAmount = healAmount / ticks
@@ -1146,7 +1144,7 @@ if( playerClass == "DRUID" ) then
 				spellPower = spellPower * (hotData[spellName].coeff * (1 + talentData[EmpoweredRejuv].current))
 				spellPower = spellPower / hotData[spellName].ticks
 				healAmount = healAmount / hotData[spellName].ticks
-				
+
 				healModifier = healModifier + talentData[Genesis].current
 
 				table.wipe(wgTicks)
@@ -1212,25 +1210,25 @@ if( playerClass == "DRUID" ) then
 				if( playerCurrentRelic == 46138 ) then
 					spellPower = spellPower + 187
 				end
-			
+
 				-- Apply any hot specific bonuses
 				local hots = hotTotals[guid]
 				if( hots and hots > 0 ) then
 					local bonus = 1.20
-					
+
 					-- T7 Resto, +5% healing per each of the players hot on their target
 					if( equippedSetCache["Dreamwalker"] >= 2 ) then
 						bonus = bonus + 0.05 * hots
 					end
-					
+
 					-- Glyph of Nourish - 6% per HoT
 					if( glyphCache[62971] ) then
 						bonus = bonus + 0.06 * hots
 					end
-					
+
 					healModifier = healModifier * bonus
 				end
-			
+
 				spellPower = spellPower * ((spellData[spellName].coeff * (isWrath and 1.88 or 1)) + talentData[EmpoweredTouch].current)
 			-- Healing Touch
 			elseif( spellName == HealingTouch ) then
@@ -1408,7 +1406,7 @@ if( playerClass == "PALADIN" ) then
 			if( activeBeaconGUID and activeBeaconGUID ~= guid and guidToUnit[activeBeaconGUID] and UnitIsVisible(guidToUnit[activeBeaconGUID]) ) then
 				return string.format("%s,%s", compressGUID[guid], compressGUID[activeBeaconGUID])
 			end
-			
+
 			return compressGUID[guid]
 		end
 
@@ -1609,7 +1607,6 @@ if( playerClass == "PRIEST" ) then
 					local unit = isWrath and "player" or guidToUnit[groupGUID]
 					local testUnit = guidToUnit[groupGUID]
 					-- Dispel Magic is chosen because it's learned before PoH and maintains 30y range through the expansions
-
 					-- Patch 1.15.1 CheckInteractDistance is not able to be used on friendly targets in combat
 					local InCombatLockdownRestriction
 					if isClassicEra then
@@ -1727,7 +1724,7 @@ if( playerClass == "PRIEST" ) then
 				spellPower = spellPower * ((spellData[spellName].coeff * (isWrath and 1.88 or 1)) * (1 + talentData[EmpoweredHealing].current))
 				-- Penance
 			elseif( spellName == Penance ) then
-				spellPower = spellPower * spellData[spellName].coeff * (isWrath and 1.88 or 1)
+				spellPower = spellPower * spellData[spellName].coeff * (isSoD and 1 or 1.88)
 				spellPower = spellPower / spellData[spellName].ticks
 				healModifier = healModifier + talentData[TwinDisciplines].current
 				-- Prayer of Healing
@@ -1835,14 +1832,14 @@ if( playerClass == "SHAMAN" ) then
 		itemSetsData["T7 Resto"] = {40508, 40509, 40510, 40512, 40513, 39583, 39588, 39589, 39590, 39591}
 		itemSetsData["T9 Resto"] = {48280, 48281, 48282, 48283, 48284, 48295, 48296, 48297, 48298, 48299, 48301, 48302, 48303, 48304, 48300, 48306, 48307, 48308, 48309, 48305, 48286, 48287, 48288, 48289, 48285, 48293, 48292, 48291, 48290, 48294}
 
-		local lhwTotems = {[42598] = 320, [42597] = 267, [42596] = 236, [42595] = 204, [25645] = 79, [22396] = 80, [23200] = 53, [186072] = 10}	
+		local lhwTotems = {[42598] = 320, [42597] = 267, [42596] = 236, [42595] = 204, [25645] = 79, [22396] = 80, [23200] = 53, [186072] = 10}
 		local chTotems = {[45114] = 243, [38368] = 102, [28523] = 87}
 
 		-- Keep track of who has riptide on them
 		local riptideData, earthshieldList = {}, {}
 		AuraHandler = function(unit, guid)
 			riptideData[guid] = unitHasAura(unit, Riptide) and true or nil
-			
+
 			-- Currently, Glyph of Lesser Healing Wave + Any Earth Shield increase the healing not just the players own
 			if( unitHasAura(unit, EarthShield) ) then
 				earthshieldList[guid] = true
@@ -1869,7 +1866,7 @@ if( playerClass == "SHAMAN" ) then
 				-- Healing Rain can only be applied to party members of healing rain target
 				if(guidToGroup[healingRainTargetGUID] ~= guidToGroup[guid]) then return nil	end
 			end
-		
+
 			return compressGUID[guid]
 		end
 
@@ -1879,7 +1876,7 @@ if( playerClass == "SHAMAN" ) then
 			local spellPower = GetSpellBonusHealing()
 			local healModifier, spModifier = playerHealModifier, 1
 			local totalTicks = hotData[spellName].ticks
-	
+
 			healModifier = healModifier * (1 + talentData[Purification].current)
 
 			-- Riptide
@@ -1888,21 +1885,21 @@ if( playerClass == "SHAMAN" ) then
 					spModifier = spModifier * 1.20
 				end
 				-- Glyph of Riptide, +6 seconds
-				if( glyphCache[63273] ) then totalTicks = totalTicks + 2 end	
+				if( glyphCache[63273] ) then totalTicks = totalTicks + 2 end
 			end
 			spellPower = spellPower * hotData[spellName].coeff * (isWrath and 1.88 or 1)
 			spellPower = spellPower / hotData[spellName].ticks
 			healAmount = healAmount / hotData[spellName].ticks
-		
+
 			healAmount = calculateGeneralAmount(hotData[spellName].levels[spellRank], healAmount, spellPower, spModifier, healModifier)
-			
+
 			if(isSoD and spellName == HealingRain) then
 				--HoT duration is equal to remaining duration of aura
 				local  _,_,_,_,_,expiration = unitHasAura("player", HealingRain)
 				local ticksLeft = ceil(expiration - GetTime());
 				totalTicks = ticksLeft
 			end
-			
+
 			return HOT_HEALS, healAmount, totalTicks, hotData[spellName].interval
 		end
 
@@ -2208,7 +2205,7 @@ if isWrath then
 	HealComm.healingModifiers[45241] = 1.04 -- Focused Will Rank 2
 	HealComm.healingModifiers[45242] = 1.05 -- Focused Will Rank 3
 end
-	
+
 
 HealComm.healingStackMods = HealComm.healingStackMods or {
 	-- Mortal Wound
@@ -2386,13 +2383,13 @@ end
 -- Monitor glyph changes
 function HealComm:GlyphsUpdated(id)
 	local spellID = glyphCache[id]
-	
+
 	-- Invalidate the old cache value
 	if( spellID ) then
 		glyphCache[spellID] = nil
 		glyphCache[id] = nil
 	end
-	
+
 	-- Cache the new one if any
 	local enabled, _, glyphID = GetGlyphSocketInfo(id)
 	if( enabled and glyphID ) then
@@ -2606,7 +2603,7 @@ local function parseHotHeal(casterGUID, wasUpdated, spellID, tickAmount, totalTi
 	pending.tickInterval = totalTicks and duration / totalTicks or tickInterval
 	pending.spellID = spellID
 	pending.hasVariableTicks = type(tickAmount) == "string"
-	pending.isMutliTarget = (select("#", ...) / inc) > 1
+	pending.isMultiTarget = (select("#", ...) / inc) > 1
 	pending.bitType = HOT_HEALS
 
 	-- As you can't rely on a hot being the absolutely only one up, have to apply the total amount now :<
@@ -2859,9 +2856,9 @@ function HealComm:COMBAT_LOG_EVENT_UNFILTERED(...)
 
 	local _, spellName = select(12, ...)
 	local destUnit = guidToUnit[destGUID]
-	
+
 	if not destUnit then return end -- We only handle own group units
-	
+
 	local spellID = destUnit and select(10, unitHasAura(destUnit, spellName)) or select(7, GetSpellInfo(spellName))
 
 	-- Heal or hot ticked that the library is tracking
@@ -3041,9 +3038,9 @@ function HealComm:UNIT_SPELLCAST_START(unit, cast, spellID)
 	if( unit ~= "player") then return end
 
 	local spellName = GetSpellInfo(spellID)
-	
-	--Save target of healing rain cast	
-	if(isSoD and spellName == "Healing Rain") then	healingRainTargetGUID = castGUIDs[spellID] end	
+
+	--Save target of healing rain cast
+	if(isSoD and spellName == "Healing Rain") then	healingRainTargetGUID = castGUIDs[spellID] end
 
 	if (not spellData[spellName] or UnitIsCharmed("player") or not UnitPlayerControlled("player") ) then return end
 
@@ -3246,7 +3243,6 @@ end
 
 -- Spell was cast somehow
 function HealComm:CastSpell(arg, unit)
-
 	--Macro Heals with /stopcasting do not trigger UNIT_SPELLCAST_SENT
 	--so we must set lastSentID here
 	local spellID
@@ -3256,6 +3252,7 @@ function HealComm:CastSpell(arg, unit)
 		lastSentID = penanceIDs[spellID] or spellID
 		guidPriorities[lastSentID] = nil
 	end
+	-- guidPriorities[lastSentID] = nil
 
 	-- If the spell is waiting for a target and it's a spell action button then we know that the GUID has to be mouseover or a key binding cast.
 	if( unit and UnitCanAssist("player", unit)  ) then

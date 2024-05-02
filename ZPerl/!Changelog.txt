@@ -1,5 +1,11 @@
 **7.2.4**
-* Added support for Cataclysm Wrath
+* Updated for 10.2.6.
+* Updated for 4.4.0.
+* Updated for 1.15.2.
+* Ready check texture fixes.
+* Fix login errors with `ZPerl_CustomHighlight` disabled.
+* Readded LibClassicDurations.
+* Updated LibHealComm.
 
 **7.2.3**
 * Fixes and tweaks with assist window.
