@@ -1625,9 +1625,9 @@ function XPerl_MinimapButton_Details(tt, ldb)
 				if (showDiff) then
 					diff = usedKB - xpStartupMemory[v]
 					diffKB = diffKB + diff
-					tt:AddDoubleLine(format(" %s", v), format("%.1fkb (%s%.1fkb|r)%s", usedKB, DiffColour(diff / 1000), diff, cpuText), 1, 1, 0.5, 1, 1, 1)
+					tt:AddDoubleLine(format(" %s", v), format("%.1fkB (%s%.1fkB|r)%s", usedKB, DiffColour(diff / 1000), diff, cpuText), 1, 1, 0.5, 1, 1, 1)
 				else
-					tt:AddDoubleLine(format(" %s", v), format("%.1fkb%s", usedKB, cpuText), 1, 1, 0.5, 1, 1, 1)
+					tt:AddDoubleLine(format(" %s", v), format("%.1fkB%s", usedKB, cpuText), 1, 1, 0.5, 1, 1, 1)
 				end
 			end
 		end
@@ -1635,14 +1635,14 @@ function XPerl_MinimapButton_Details(tt, ldb)
 		if (showDiff) then
 			local color = DiffColour(diffKB / 3000)
 
-			tt:AddDoubleLine("Total", format("%.1fkb (%s%.1fkb|r)", totalKB, color, diffKB), 1, 1, 1, 1, 1, 1)
+			tt:AddDoubleLine("Total", format("%.1fkB (%s%.1fkB|r)", totalKB, color, diffKB), 1, 1, 1, 1, 1, 1)
 		else
-			tt:AddDoubleLine("Total", format("%.1fkb", totalKB), 1, 1, 1, 1, 1, 1)
+			tt:AddDoubleLine("Total", format("%.1fkB", totalKB), 1, 1, 1, 1, 1, 1)
 		end
 
 		local usedKB = GetAddOnMemoryUsage("ZPerl_Options")
 		if ((usedKB or 0) > 0) then
-			tt:AddDoubleLine(" ZPerl_Options", format("%.1fkb", usedKB), 0.5, 0.5, 0.5, 0.5, 0.5, 0.5)
+			tt:AddDoubleLine(" ZPerl_Options", format("%.1fkB", usedKB), 0.5, 0.5, 0.5, 0.5, 0.5, 0.5)
 		end
 
 		if (totalCPU > 0) then
