@@ -1,4 +1,4 @@
-## Interface: 40400
+## Interface: 100206
 ## Version: 7.2.4
 ## Author: Resike
 ## Title: Z-Perl UnitFrames
