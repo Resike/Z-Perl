@@ -1,3 +1,9 @@
+**7.2.5**
+* Updated for 10.2.7.
+* Removed LibHealComm for Cata Classic.
+* Added special power bars for Cata Classic.
+* Fixed Monk stagger bar on Retail.
+
 **7.2.4**
 * Updated for 10.2.6.
 * Updated for 4.4.0.

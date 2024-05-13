@@ -22,7 +22,7 @@ if LCD then
 	LCD:Register("ZPerl")
 	UnitAuraWithBuffs = LCD.UnitAuraWithBuffs
 end
-local HealComm = IsClassic and LibStub and LibStub("LibHealComm-4.0", true)
+local HealComm = IsVanillaClassic and LibStub and LibStub("LibHealComm-4.0", true)
 
 -- Upvalues
 local _G = _G
@@ -4171,7 +4171,7 @@ function XPerl_SetExpectedHots(self)
 		end
 
 		local amount
-		if IsClassic then
+		if IsVanillaClassic then
 			local guid = UnitGUID(unit)
 			amount = (HealComm:GetHealAmount(guid, HealComm.OVERTIME_HEALS, GetTime() + 3) or 0) * HealComm:GetHealModifier(guid)
 		end
@@ -4212,11 +4212,11 @@ function XPerl_SetExpectedHealth(self)
 		end
 
 		local amount
-		if not IsVanillaClassic then
-			amount = UnitGetIncomingHeals(unit)
-		else
+		if IsVanillaClassic then
 			local guid = UnitGUID(unit)
 			amount = (HealComm:GetHealAmount(guid, HealComm.CASTED_HEALS, GetTime() + 3) or 0) * HealComm:GetHealModifier(guid)
+		else
+			amount = UnitGetIncomingHeals(unit)
 		end
 		if (amount and amount > 0 and not UnitIsDeadOrGhost(unit)) then
 			local healthMax = UnitHealthMax(unit)
@@ -4389,7 +4389,7 @@ function XPerl_Register_Prediction(self, conf, guidToUnit, ...)
 			else
 				self:UnregisterEvent("UNIT_ABSORB_AMOUNT_CHANGED")
 			end
-		else
+		--[[else
 			-- HoT predictions do not work properly on Wrath/Cata Classic so use HealComm
 			if conf.hotPrediction then
 				local UpdateHealth = function(event, ...)
@@ -4412,7 +4412,7 @@ function XPerl_Register_Prediction(self, conf, guidToUnit, ...)
 				HealComm.UnregisterCallback(self, "HealComm_HealUpdated")
 				HealComm.UnregisterCallback(self, "HealComm_ModifierChanged")
 				HealComm.UnregisterCallback(self, "HealComm_GUIDDisappeared")
-			end
+			end--]]
 		end
 	else
 		if conf.healprediction then

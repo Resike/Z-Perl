@@ -22,7 +22,7 @@ function ZPerl:ADDON_LOADED(addon)
 	self:RegisterEvents()
 
 	self.playerName = string.gsub(UnitName("player").."-"..GetRealmName(), "%s+", "")
-	self.version = GetAddOnMetadata and GetAddOnMetadata("ZPerl", "Version") or "7.2.4"
+	self.version = GetAddOnMetadata and GetAddOnMetadata("ZPerl", "Version") or "7.2.5"
 
 	self:UnregisterEvent("ADDON_LOADED")
 end

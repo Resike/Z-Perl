@@ -1,4 +1,4 @@
-if WOW_PROJECT_ID == WOW_PROJECT_MAINLINE then return end
+if WOW_PROJECT_ID ~= WOW_PROJECT_CLASSIC then return end
 local major = "LibHealComm-4.0"
 local minor = 117
 assert(LibStub, format("%s requires LibStub.", major))
