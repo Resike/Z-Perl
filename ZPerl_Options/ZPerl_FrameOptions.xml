@@ -1404,7 +1404,8 @@
 				XPerl_Options:SetFrameStrata("DIALOG")
 			</OnHide>
 			<OnUpdate>
-				if (not MouseIsOver(self) and GetMouseFocus() ~= self:GetParent()) then
+				local f = GetMouseFoci and GetMouseFoci()[1] or GetMouseFocus()
+				if (not MouseIsOver(self) and f ~= self:GetParent()) then
 					self:Hide()
 				end
 			</OnUpdate>
@@ -1794,7 +1795,7 @@
 					XPerl_OptionsAnchor:SetWidth(width)
 					XPerl_OptionsAnchor:SetHeight(self:GetHeight())
 
-					XPerl_RegisterScalableFrame(self, XPerl_OptionsAnchor, 0.5, 1.2)
+					XPerl_RegisterScalableFrame(self, XPerl_OptionsAnchor, 0.5, 1.5)
 
 					self.initWidth = width
 					self.initDone = true
@@ -2083,7 +2084,7 @@
 				</Anchors>
 				<Scripts>
 					<OnShow>
-						if (not IsAddOnLoaded("ZPerl_PartyPet")) then
+						if (not C_AddOns.IsAddOnLoaded("ZPerl_PartyPet")) then
 							_G[self:GetName().."_ScalePets"]:Hide()
 						end
 					</OnShow>
@@ -5020,7 +5021,7 @@
 						self:SetScale(0.9)
 					</OnLoad>
 					<OnShow>
-						if (not IsAddOnLoaded("ZPerl_ArcaneBar")) then
+						if (not C_AddOns.IsAddOnLoaded("ZPerl_ArcaneBar")) then
 							local n = self:GetName().."_"
 							XPerl_Options_EnableCheck(_G[n.."ArcaneBar"])
 							XPerl_Options_EnableCheck(_G[n.."PreCast"])
@@ -5698,7 +5699,7 @@
 						</KeyValues>
 						<Scripts>
 							<OnShow>
-								if (not IsAddOnLoaded("ZPerl_PlayerBuffs")) then
+								if (not C_AddOns.IsAddOnLoaded("ZPerl_PlayerBuffs")) then
 									self:Hide()
 								end
 							</OnShow>
@@ -6677,7 +6678,7 @@
 						</KeyValues>
 						<Scripts>
 							<OnShow>
-								if (not IsAddOnLoaded("ZPerl_TargetTarget")) then
+								if (not C_AddOns.IsAddOnLoaded("ZPerl_TargetTarget")) then
 									self:Hide()
 								end
 							</OnShow>
@@ -7369,7 +7370,7 @@
 						self:SetScale(0.9)
 					</OnLoad>
 					<OnShow>
-						if (not IsAddOnLoaded("ZPerl_ArcaneBar")) then
+						if (not C_AddOns.IsAddOnLoaded("ZPerl_ArcaneBar")) then
 							XPerl_Options_EnableCheck(_G[self:GetName().."_".."ArcaneBar"])
 						end
 					</OnShow>
@@ -9303,7 +9304,7 @@
 						self:SetScale(0.9)
 					</OnLoad>
 					<OnShow>
-						if (not IsAddOnLoaded("ZPerl_ArcaneBar")) then
+						if (not C_AddOns.IsAddOnLoaded("ZPerl_ArcaneBar")) then
 							XPerl_Options_EnableCheck(_G[self:GetName().."_".."ArcaneBar"])
 						end
 					</OnShow>
@@ -10912,7 +10913,7 @@
 						self:SetScale(0.9)
 					</OnLoad>
 					<OnShow>
-						if (not IsAddOnLoaded("ZPerl_ArcaneBar")) then
+						if (not C_AddOns.IsAddOnLoaded("ZPerl_ArcaneBar")) then
 							XPerl_Options_EnableCheck(_G[self:GetName().."_".."ArcaneBar"])
 						end
 					</OnShow>
@@ -11898,7 +11899,7 @@
 								self:SetScale(0.9)
 							</OnLoad>
 							<OnShow>
-								if (not IsAddOnLoaded("ZPerl_PartyPet")) then
+								if (not C_AddOns.IsAddOnLoaded("ZPerl_PartyPet")) then
 									self:Hide()
 								end
 							</OnShow>
@@ -12220,7 +12221,7 @@
 								self.configIndex = "enable"
 								self.configClick = function()
 									if (not ZPerl_Custom) then
-										LoadAddOn("ZPerl_CustomHighlight")
+										C_AddOns.LoadAddOn("ZPerl_CustomHighlight")
 									end
 									if (ZPerl_Custom) then
 										ZPerl_Custom:PLAYER_ENTERING_WORLD()
@@ -13533,7 +13534,7 @@
 						<Scripts>
 							<OnLoad>
 								self:OnBackdropLoaded()
-								local _, _, _, _, reason = GetAddOnInfo("ZPerl_RaidPets")
+								local _, _, _, _, reason = C_AddOns.GetAddOnInfo("ZPerl_RaidPets")
 								if (reason == "DISABLED" or reason == "MISSING") then
 									self:Hide()
 								end
@@ -13616,7 +13617,7 @@
 						<Scripts>
 							<OnLoad>
 								self:OnBackdropLoaded()
-								local _, _, _, _, reason = GetAddOnInfo("ZPerl_CustomHighlight")
+								local _, _, _, _, reason = C_AddOns.GetAddOnInfo("ZPerl_CustomHighlight")
 								if (reason == "DISABLED" or reason == "MISSING") then
 									self:Hide()
 								end
@@ -13650,7 +13651,7 @@
 										self.configIndex = "enable"
 										self.configClick = function()
 											if (not ZPerl_Custom) then
-												LoadAddOn("ZPerl_CustomHighlight")
+												C_AddOns.LoadAddOn("ZPerl_CustomHighlight")
 											end
 											if (ZPerl_Custom) then
 												ZPerl_Custom:PLAYER_ENTERING_WORLD()
@@ -14190,13 +14191,13 @@
 										end
 									</OnLoad>
 									<OnShow>
-										self:SetChecked(IsAddOnLoaded("ZPerl_Player"))
+										self:SetChecked(C_AddOns.IsAddOnLoaded("ZPerl_Player"))
 									</OnShow>
 									<OnClick>
 										if (self:GetChecked()) then
-											EnableAddOn("ZPerl_Player")
+											C_AddOns.EnableAddOn("ZPerl_Player")
 										else
-											DisableAddOn("ZPerl_Player")
+											C_AddOns.DisableAddOn("ZPerl_Player")
 										end
 										self:Validate()
 									</OnClick>
@@ -14216,13 +14217,13 @@
 										XPerl_OptionsSetMyText(self, "XPERL_CONF_ADDON_PLAYERBUFFS")
 									</OnLoad>
 									<OnShow>
-										self:SetChecked(IsAddOnLoaded("ZPerl_PlayerBuffs"))
+										self:SetChecked(C_AddOns.IsAddOnLoaded("ZPerl_PlayerBuffs"))
 									</OnShow>
 									<OnClick>
 										if (self:GetChecked()) then
-											EnableAddOn("ZPerl_PlayerBuffs")
+											C_AddOns.EnableAddOn("ZPerl_PlayerBuffs")
 										else
-											DisableAddOn("ZPerl_PlayerBuffs")
+											C_AddOns.DisableAddOn("ZPerl_PlayerBuffs")
 										end
 									</OnClick>
 								</Scripts>
@@ -14241,13 +14242,13 @@
 										XPerl_OptionsSetMyText(self, "XPERL_CONF_ADDON_PET")
 									</OnLoad>
 									<OnShow>
-										self:SetChecked(IsAddOnLoaded("ZPerl_PlayerPet"))
+										self:SetChecked(C_AddOns.IsAddOnLoaded("ZPerl_PlayerPet"))
 									</OnShow>
 									<OnClick>
 										if (self:GetChecked()) then
-											EnableAddOn("ZPerl_PlayerPet")
+											C_AddOns.EnableAddOn("ZPerl_PlayerPet")
 										else
-											DisableAddOn("ZPerl_PlayerPet")
+											C_AddOns.DisableAddOn("ZPerl_PlayerPet")
 										end
 									</OnClick>
 								</Scripts>
@@ -14269,13 +14270,13 @@
 										end
 									</OnLoad>
 									<OnShow>
-										self:SetChecked(IsAddOnLoaded("ZPerl_Target"))
+										self:SetChecked(C_AddOns.IsAddOnLoaded("ZPerl_Target"))
 									</OnShow>
 									<OnClick>
 										if (self:GetChecked()) then
-											EnableAddOn("ZPerl_Target")
+											C_AddOns.EnableAddOn("ZPerl_Target")
 										else
-											DisableAddOn("ZPerl_Target")
+											C_AddOns.DisableAddOn("ZPerl_Target")
 										end
 										self:Validate()
 									</OnClick>
@@ -14295,13 +14296,13 @@
 										XPerl_OptionsSetMyText(self, "XPERL_CONF_ADDON_TARGETTARGET")
 									</OnLoad>
 									<OnShow>
-										self:SetChecked(IsAddOnLoaded("ZPerl_TargetTarget"))
+										self:SetChecked(C_AddOns.IsAddOnLoaded("ZPerl_TargetTarget"))
 									</OnShow>
 									<OnClick>
 										if (self:GetChecked()) then
-											EnableAddOn("ZPerl_TargetTarget")
+											C_AddOns.EnableAddOn("ZPerl_TargetTarget")
 										else
-											DisableAddOn("ZPerl_TargetTarget")
+											C_AddOns.DisableAddOn("ZPerl_TargetTarget")
 										end
 									</OnClick>
 								</Scripts>
@@ -14323,13 +14324,13 @@
 										end
 									</OnLoad>
 									<OnShow>
-										self:SetChecked(IsAddOnLoaded("ZPerl_Party"))
+										self:SetChecked(C_AddOns.IsAddOnLoaded("ZPerl_Party"))
 									</OnShow>
 									<OnClick>
 										if (self:GetChecked()) then
-											EnableAddOn("ZPerl_Party")
+											C_AddOns.EnableAddOn("ZPerl_Party")
 										else
-											DisableAddOn("ZPerl_Party")
+											C_AddOns.DisableAddOn("ZPerl_Party")
 										end
 										self:Validate()
 									</OnClick>
@@ -14349,13 +14350,13 @@
 										XPerl_OptionsSetMyText(self, "XPERL_CONF_ADDON_PARTYPET")
 									</OnLoad>
 									<OnShow>
-										self:SetChecked(IsAddOnLoaded("ZPerl_PartyPet"))
+										self:SetChecked(C_AddOns.IsAddOnLoaded("ZPerl_PartyPet"))
 									</OnShow>
 									<OnClick>
 										if (self:GetChecked()) then
-											EnableAddOn("ZPerl_PartyPet")
+											C_AddOns.EnableAddOn("ZPerl_PartyPet")
 										else
-											DisableAddOn("ZPerl_PartyPet")
+											C_AddOns.DisableAddOn("ZPerl_PartyPet")
 										end
 									</OnClick>
 								</Scripts>
@@ -14374,13 +14375,13 @@
 										XPerl_OptionsSetMyText(self, "XPERL_CONF_ADDON_ARCANE")
 									</OnLoad>
 									<OnShow>
-										self:SetChecked(IsAddOnLoaded("ZPerl_ArcaneBar"))
+										self:SetChecked(C_AddOns.IsAddOnLoaded("ZPerl_ArcaneBar"))
 									</OnShow>
 									<OnClick>
 										if (self:GetChecked()) then
-											EnableAddOn("ZPerl_ArcaneBar")
+											C_AddOns.EnableAddOn("ZPerl_ArcaneBar")
 										else
-											DisableAddOn("ZPerl_ArcaneBar")
+											C_AddOns.DisableAddOn("ZPerl_ArcaneBar")
 										end
 									</OnClick>
 								</Scripts>
@@ -14402,13 +14403,13 @@
 										end
 									</OnLoad>
 									<OnShow>
-										self:SetChecked(IsAddOnLoaded("ZPerl_RaidFrames"))
+										self:SetChecked(C_AddOns.IsAddOnLoaded("ZPerl_RaidFrames"))
 									</OnShow>
 									<OnClick>
 										if (self:GetChecked()) then
-											EnableAddOn("ZPerl_RaidFrames")
+											C_AddOns.EnableAddOn("ZPerl_RaidFrames")
 										else
-											DisableAddOn("ZPerl_RaidFrames")
+											C_AddOns.DisableAddOn("ZPerl_RaidFrames")
 										end
 										self:Validate()
 									</OnClick>
@@ -14428,13 +14429,13 @@
 										XPerl_OptionsSetMyText(self, "XPERL_CONF_ADDON_RAIDPETS")
 									</OnLoad>
 									<OnShow>
-										self:SetChecked(IsAddOnLoaded("ZPerl_RaidPets"))
+										self:SetChecked(C_AddOns.IsAddOnLoaded("ZPerl_RaidPets"))
 									</OnShow>
 									<OnClick>
 										if (self:GetChecked()) then
-											EnableAddOn("ZPerl_RaidPets")
+											C_AddOns.EnableAddOn("ZPerl_RaidPets")
 										else
-											DisableAddOn("ZPerl_RaidPets")
+											C_AddOns.DisableAddOn("ZPerl_RaidPets")
 										end
 									</OnClick>
 								</Scripts>
@@ -14453,13 +14454,13 @@
 										XPerl_OptionsSetMyText(self, "XPERL_CONF_ADDON_RAIDHELP")
 									</OnLoad>
 									<OnShow>
-										self:SetChecked(IsAddOnLoaded("ZPerl_RaidHelper"))
+										self:SetChecked(C_AddOns.IsAddOnLoaded("ZPerl_RaidHelper"))
 									</OnShow>
 									<OnClick>
 										if (self:GetChecked()) then
-											EnableAddOn("ZPerl_RaidHelper")
+											C_AddOns.EnableAddOn("ZPerl_RaidHelper")
 										else
-											DisableAddOn("ZPerl_RaidHelper")
+											C_AddOns.DisableAddOn("ZPerl_RaidHelper")
 										end
 									</OnClick>
 								</Scripts>
@@ -14478,13 +14479,13 @@
 										XPerl_OptionsSetMyText(self, "XPERL_CONF_ADDON_RAIDMONITOR")
 									</OnLoad>
 									<OnShow>
-										self:SetChecked(IsAddOnLoaded("ZPerl_RaidMonitor"))
+										self:SetChecked(C_AddOns.IsAddOnLoaded("ZPerl_RaidMonitor"))
 									</OnShow>
 									<OnClick>
 										if (self:GetChecked()) then
-											EnableAddOn("ZPerl_RaidMonitor")
+											C_AddOns.EnableAddOn("ZPerl_RaidMonitor")
 										else
-											DisableAddOn("ZPerl_RaidMonitor")
+											C_AddOns.DisableAddOn("ZPerl_RaidMonitor")
 										end
 									</OnClick>
 								</Scripts>
@@ -14503,13 +14504,13 @@
 										XPerl_OptionsSetMyText(self, "XPERL_CONF_ADDON_RAIDADMIN")
 									</OnLoad>
 									<OnShow>
-										self:SetChecked(IsAddOnLoaded("ZPerl_RaidAdmin"))
+										self:SetChecked(C_AddOns.IsAddOnLoaded("ZPerl_RaidAdmin"))
 									</OnShow>
 									<OnClick>
 										if (self:GetChecked()) then
-											EnableAddOn("ZPerl_RaidAdmin")
+											C_AddOns.EnableAddOn("ZPerl_RaidAdmin")
 										else
-											DisableAddOn("ZPerl_RaidAdmin")
+											C_AddOns.DisableAddOn("ZPerl_RaidAdmin")
 										end
 									</OnClick>
 								</Scripts>
@@ -17625,7 +17626,7 @@
 							</OnLoad>
 							<OnClick>
 								if (not ZPerl_Custom) then
-									LoadAddOn("ZPerl_CustomHighlight")
+									C_AddOns.LoadAddOn("ZPerl_CustomHighlight")
 								end
 								if (ZPerl_Custom) then
 									ZPerl_Custom:SetDefaults()

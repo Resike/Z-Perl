@@ -246,7 +246,7 @@ end
 
 do
 	local function DisableOther(modName, issues)
-		local name, title, notes, enabled = GetAddOnInfo(modName)
+		local name, title, notes, enabled = C_AddOns.GetAddOnInfo(modName)
 		if (name and enabled) then
 			DisableAddOn(modName)
 			local notice = "Disabled '"..modName.."' addon. It is not compatible or needed with X-Perl"
@@ -260,14 +260,14 @@ do
 	DisableOther("PerlButton")		-- PerlButton was made for Nymbia's Perl UnitFrames. We have our own minimap button
 	DisableOther("WT_ZoningTimeFix", true)
 
-	local name, _, _, enabled, loadable = GetAddOnInfo("XPerl_Party")
+	local name, _, _, enabled, loadable = C_AddOns.GetAddOnInfo("XPerl_Party")
 	if (enabled) then
 		DisableOther("CT_PartyBuffs", true)
 	end
 
-	local name, _, _, enabled, loadable = GetAddOnInfo("XPerl_GrimReaper")
+	local name, _, _, enabled, loadable = C_AddOns.GetAddOnInfo("XPerl_GrimReaper")
 	if (enabled) then
-		DisableAddOn("XPerl_GrimReaper")
+		C_AddOns.DisableAddOn("XPerl_GrimReaper")
 		XPerl_Notice("Disabled XPerl_GrimReaper. This has been replaced by a standalone version 'GrimReaper' available on the WoW Ace Updater or from files.wowace.com")
 	end
 end
@@ -512,7 +512,7 @@ local function startupCheckSettings(self,event)
 end
 
 function ZPerl_ForceImportAll()
-	if IsAddOnLoaded("XPerl") then
+	if C_AddOns.IsAddOnLoaded("XPerl") then
 		if (XPerlConfig) then
 			ZPerlConfig = XPerlConfig
 		end
@@ -525,7 +525,7 @@ function ZPerl_ForceImportAll()
 		if (XPerlConfigSavePerCharacter) then
 			ZPerlConfigSavePerCharacter = XPerlConfigSavePerCharacter
 		end
-		DisableAddOn("XPerl")
+		C_AddOns.DisableAddOn("XPerl")
 		print("Z-Perl: Profile importing done, please reload you UI for the process to complete.")
 	else
 		print("X-Perl is not loaded. You must load it first, to access it's variables for the import.")
@@ -590,10 +590,10 @@ end
 -- XPerl_Globals_OnEvent
 function XPerl_Globals_OnEvent(self, event, arg1, ...)
 	if (event == "ADDON_LOADED" and arg1 == "ZPerl") then
-		if not IsAddOnLoaded("XPerl") and (not ZPerlConfig and not ZPerlConfig_Global and not ZPerlConfigNew and not ZPerlConfigSavePerCharacter) then
-			EnableAddOn("XPerl")
+		if not C_AddOns.IsAddOnLoaded("XPerl") and (not ZPerlConfig and not ZPerlConfig_Global and not ZPerlConfigNew and not ZPerlConfigSavePerCharacter) then
+			C_AddOns.EnableAddOn("XPerl")
 		end
-		if IsAddOnLoaded("XPerl") and not ZPerlImportDone then
+		if C_AddOns.IsAddOnLoaded("XPerl") and not ZPerlImportDone then
 			if (XPerlConfig) then
 				ZPerlConfig = XPerlConfig
 			end
@@ -606,12 +606,12 @@ function XPerl_Globals_OnEvent(self, event, arg1, ...)
 			if (XPerlConfigSavePerCharacter) then
 				ZPerlConfigSavePerCharacter = XPerlConfigSavePerCharacter
 			end
-			DisableAddOn("XPerl")
+			C_AddOns.DisableAddOn("XPerl")
 			ZPerlImportDone = true
 			print("Z-Perl: Profile importing done, please reload you UI for the process to complete.")
 		end
-		if IsAddOnLoaded("XPerl") then
-			DisableAddOn("XPerl")
+		if C_AddOns.IsAddOnLoaded("XPerl") then
+			C_AddOns.DisableAddOn("XPerl")
 		end
 		self:UnregisterEvent(event)
 		settingspart1(self, event)
@@ -664,9 +664,9 @@ end
 
 -- XPerl_LoadOptions
 function XPerl_LoadOptions()
-	if (not IsAddOnLoaded("ZPerl_Options")) then
-		EnableAddOn("ZPerl_Options")
-		local ok, reason = LoadAddOn("ZPerl_Options")
+	if (not C_AddOns.IsAddOnLoaded("ZPerl_Options")) then
+		C_AddOns.EnableAddOn("ZPerl_Options")
+		local ok, reason = C_AddOns.LoadAddOn("ZPerl_Options")
 
 		if (not ok) then
 			XPerl_Notice("Failed to load Z-Perl Options ("..tostring(reason)..")")

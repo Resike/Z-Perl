@@ -305,7 +305,7 @@ function mod:MakePacket(response, versionOnly)
 	end
 
 	local addon
-	if IsAddOnLoaded("ZPerl") then
+	if C_AddOns.IsAddOnLoaded("ZPerl") then
 		addon = 1
 	else
 		addon = 0
@@ -317,7 +317,7 @@ function mod:MakePacket(response, versionOnly)
 		local modules = ""
 		for k, v in pairs(xpModList) do
 			local loaded
-			if IsAddOnLoaded(v) then
+			if C_AddOns.IsAddOnLoaded(v) then
 				loaded = 1
 			else
 				loaded = 0

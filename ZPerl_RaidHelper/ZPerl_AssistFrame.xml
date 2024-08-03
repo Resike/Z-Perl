@@ -217,7 +217,7 @@
 		<Scripts>
 			<OnLoad>
 				self:OnBackdropLoaded()
-				if IsAddOnLoaded("ZPerl_Player") then
+				if C_AddOns.IsAddOnLoaded("ZPerl_Player") then
 					self:SetParent(XPerl_Player)
 					self:SetPoint("TOPRIGHT", XPerl_PlayerportraitFrame, "TOPLEFT", 2, -19)
 				end

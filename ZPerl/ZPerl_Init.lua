@@ -468,7 +468,7 @@ function ZPerl_Init()
 		hooksecurefunc(GameTooltip, "SetUnitDebuff", XPerl_GameTooltipSetUnitDebuff)
 	end
 
-	DisableAddOn("XPerl_TeamSpeak")
+	C_AddOns.DisableAddOn("XPerl_TeamSpeak")
 
 	-- Check for eCastbar and disable old frame if used.
 	if (eCastingBar_Saved and eCastingBar_Player and eCastingBar_Saved[eCastingBar_Player].Enabled == 1) then
@@ -532,25 +532,25 @@ function ZPerl_Init()
 		end
 	end
 
-	local name, title, notes, enabled = GetAddOnInfo("SupportFuncs")
+	local name, title, notes, enabled = C_AddOns.GetAddOnInfo("SupportFuncs")
 	if (name and enabled) then
-		local ver = GetAddOnMetadata and GetAddOnMetadata(name, "Version")
+		local ver = GetAddOnMetadata and C_AddOns.GetAddOnMetadata(name, "Version")
 		if (tonumber(ver) < 20000.2) then
 			XPerl_Notice("Out-dated version of SupportFuncs detected. This will break the X-Perl Range Finder by replacing standard Blizzard API functions.")
 		end
 	end
 
-	name, title, notes, enabled = GetAddOnInfo("AutoBar")
+	name, title, notes, enabled = C_AddOns.GetAddOnInfo("AutoBar")
 	if (name and enabled) then
-		local ver = GetAddOnMetadata and GetAddOnMetadata(name, "Version")
+		local ver = GetAddOnMetadata and C_AddOns.GetAddOnMetadata(name, "Version")
 		if (ver < "2.01.00.02") then
 			XPerl_Notice("Out-dated version of AutoBar detected. This will taint the Targetting system for all mods that use them, including X-Perl.")
 		end
 	end
 
-	name, title, notes, enabled = GetAddOnInfo("TrinityBars")
+	name, title, notes, enabled = C_AddOns.GetAddOnInfo("TrinityBars")
 	if (name and enabled) then
-		local ver = GetAddOnMetadata and GetAddOnMetadata(name, "Version")
+		local ver = GetAddOnMetadata and C_AddOns.GetAddOnMetadata(name, "Version")
 		if (ver <= "20003.14") then
 			XPerl_Notice("Out-dated version of TrinityBars detected. This will taint the Targetting system for all mods that use them, including X-Perl.")
 		end

@@ -959,7 +959,7 @@
 					<OnUpdate>
 						XPerl_Check_ShowInfo()
 						if (not XPerl_Check.forcedOpen and not ZPerl_Admin.CheckLockOpen) then
-							local f = GetMouseFocus()
+							local f = GetMouseFoci and GetMouseFoci()[1] or GetMouseFocus()
 							if (f) then
 								while (f:GetParent() and f:GetParent() ~= UIParent and f:GetParent() ~= XPerl_CheckAnchor) do
 									f = f:GetParent()

@@ -409,7 +409,7 @@ function XPerl_Options_OnUpdate(self, arg1)
 			self.Fading = nil
 		end
 	else
-		local f = GetMouseFocus()
+		local f = GetMouseFoci and GetMouseFoci()[1] or GetMouseFocus()
 		if (f) then
 			local n = f:GetName()
 			if (n) then

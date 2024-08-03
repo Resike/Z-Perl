@@ -1074,7 +1074,7 @@ function XPerl_Raid_OnUpdate(self, elapsed)
 		else
 			XPerl_Raid_Position(self)
 		end
-		if ZPerl_Custom and rconf.enable and cconf.enable then
+		if ZPerl_Custom and rconf.enable and ZPerl_Custom and cconf and cconf.enable then
 			ZPerl_Custom:UpdateUnits()
 		end
 		if (not IsInRaid() or (not IsInGroup() and rconf.inParty)) then
@@ -1411,7 +1411,7 @@ end
 
 	if (IsInInstance()) then
 		ZPerl_CustomHighlight = true
-		LoadAddOn("ZPerl_CustomHighlight")
+		C_AddOns.LoadAddOn("ZPerl_CustomHighlight")
 	end
 end]]
 
@@ -1461,7 +1461,7 @@ function XPerl_Raid_Events:PLAYER_ENTERING_WORLD()
 	end
 
 	if not ZPerl_Custom and rconf.enable then
-		LoadAddOn("ZPerl_CustomHighlight")
+		C_AddOns.LoadAddOn("ZPerl_CustomHighlight")
 	end
 
 	XPerl_Raid_UpdateDisplayAll()

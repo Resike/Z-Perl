@@ -1407,7 +1407,7 @@ function XPerl_MinimapMenu_Initialize(self, level)
 	info.text = XPERL_MINIMENU_OPTIONS
 	MSA_DropDownMenu_AddButton(info)
 
-	if (IsAddOnLoaded("ZPerl_RaidHelper")) then
+	if (C_AddOns.IsAddOnLoaded("ZPerl_RaidHelper")) then
 		if (XPerl_Assists_Frame and not XPerl_Assists_Frame:IsShown()) then
 			info = MSA_DropDownMenu_CreateInfo()
 			info.notCheckable = 1
@@ -1421,7 +1421,7 @@ function XPerl_MinimapMenu_Initialize(self, level)
 		end
 	end
 
-	if (IsAddOnLoaded("ZPerl_RaidMonitor")) then
+	if (C_AddOns.IsAddOnLoaded("ZPerl_RaidMonitor")) then
 		if (XPerl_RaidMonitor_Frame and not XPerl_RaidMonitor_Frame:IsShown()) then
 			info = MSA_DropDownMenu_CreateInfo()
 			info.notCheckable = 1
@@ -1434,7 +1434,7 @@ function XPerl_MinimapMenu_Initialize(self, level)
 		end
 	end
 
-	if (IsAddOnLoaded("ZPerl_RaidAdmin")) then
+	if (C_AddOns.IsAddOnLoaded("ZPerl_RaidAdmin")) then
 		if (XPerl_AdminFrame and not XPerl_AdminFrame:IsShown()) then
 			info = MSA_DropDownMenu_CreateInfo()
 			info.notCheckable = 1
@@ -1578,7 +1578,7 @@ function XPerl_MinimapButton_Details(tt, ldb)
 	if (not ldb) then
 		tt:AddLine(XPERL_MINIMAP_HELP2)
 	end
-	if (UpdateAddOnMemoryUsage) then
+	if UpdateAddOnMemoryUsage then
 		if (IsAltKeyDown()) then
 			tt:AddLine(XPERL_MINIMAP_HELP6)
 		elseif (not IsShiftKeyDown()) then
@@ -1598,7 +1598,7 @@ function XPerl_MinimapButton_Details(tt, ldb)
 		end
 	end]==]
 
-	if (UpdateAddOnMemoryUsage and IsAltKeyDown()) then
+	if UpdateAddOnMemoryUsage and IsAltKeyDown() then
 		local showDiff = IsShiftKeyDown()
 
 		local allAddonsCPU = 0

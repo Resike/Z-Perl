@@ -1,3 +1,7 @@
+**7.2.6**
+* Updated for 11.0.0.
+* Updated for 1.15.3.
+
 **7.2.5**
 * Updated for 10.2.7.
 * Removed LibHealComm for Cata Classic.
