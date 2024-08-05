@@ -397,13 +397,27 @@ local function XPerl_Player_UpdateClass(self)
 	end
 end
 
+-- There are two different functions to get faction info, used in retail/classic/era. 
+-- To maintain compatibility, we fake the original function if it's not there.
+local GetWatchedFactionInfo
+if _G.GetWatchedFactionInfo then
+	GetWatchedFactionInfo = _G.GetWatchedFactionInfo
+else
+	GetWatchedFactionInfo = function()
+		local data = C_Reputation.GetWatchedFactionData()
+		if data then
+			return data.name, data.reaction, data.currentReactionThreshold, data.nextReactionThreshold, data.currentStanding, data.factionID
+		end
+		return nil, nil, nil, nil, nil, nil
+	end
+end
+
 -- XPerl_Player_UpdateRep
 local function XPerl_Player_UpdateRep(self)
 	if (pconf and pconf.repBar) then
 		local rb = self.statsFrame.repBar
 		if (rb) then
-			local factiondata = C_Reputation.GetWatchedFactionData()
-			local name, reaction, min, max, value, factionID = factiondata.name, factiondata.reaction, factiondata.currentReactionThreshold, factiondata.nextReactionThreshold, factiondata.currentStanding, factiondata.factionID
+			local name, reaction, min, max, value, factionID = GetWatchedFactionInfo()
 			local color
 			local perc
 
