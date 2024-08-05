@@ -408,7 +408,7 @@ else
 		if data then
 			return data.name, data.reaction, data.currentReactionThreshold, data.nextReactionThreshold, data.currentStanding, data.factionID
 		end
-		return nil, nil, nil, nil, nil, nil
+		return nil, nil, nil, nil, nil, nil -- documenting that there should be six returns.
 	end
 end
 
