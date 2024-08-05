@@ -402,7 +402,8 @@ local function XPerl_Player_UpdateRep(self)
 	if (pconf and pconf.repBar) then
 		local rb = self.statsFrame.repBar
 		if (rb) then
-			local name, reaction, min, max, value, factionID = GetWatchedFactionInfo()
+			local factiondata = C_Reputation.GetWatchedFactionData()
+			local name, reaction, min, max, value, factionID = factiondata.name, factiondata.reaction, factiondata.currentReactionThreshold, factiondata.nextReactionThreshold, factiondata.currentStanding, factiondata.factionID
 			local color
 			local perc
 
