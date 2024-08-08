@@ -47,7 +47,6 @@ local GetRaidRosterInfo = GetRaidRosterInfo
 local GetShapeshiftForm = GetShapeshiftForm
 local GetSpecialization = GetSpecialization
 local GetSpellInfo = GetSpellInfo
-local GetWatchedFactionInfo = GetWatchedFactionInfo
 local GetXPExhaustion = GetXPExhaustion
 local InCombatLockdown = InCombatLockdown
 local IsInInstance = IsInInstance
@@ -56,7 +55,6 @@ local IsPVPTimerRunning = IsPVPTimerRunning
 local IsResting = IsResting
 local UnitAffectingCombat = UnitAffectingCombat
 local UnitClass = UnitClass
-local UnitExists = UnitExists
 local UnitFactionGroup = UnitFactionGroup
 local UnitGroupRolesAssigned = UnitGroupRolesAssigned
 local UnitGUID = UnitGUID
@@ -79,7 +77,6 @@ local UnitIsUnit = UnitIsUnit
 local UnitLevel = UnitLevel
 local UnitName = UnitName
 local UnitOnTaxi = UnitOnTaxi
-local UnitPower = UnitPower
 local UnitPower = UnitPower
 local UnitPowerMax = UnitPowerMax
 local UnitPowerType = UnitPowerType
@@ -397,6 +394,21 @@ local function XPerl_Player_UpdateClass(self)
 		self.classFrame:Show()
 	else
 		self.classFrame:Hide()
+	end
+end
+
+-- There are two different functions to get faction info, used in retail/classic/era. 
+-- To maintain compatibility, we fake the original function if it's not there.
+local GetWatchedFactionInfo
+if _G.GetWatchedFactionInfo then
+	GetWatchedFactionInfo = _G.GetWatchedFactionInfo
+else
+	GetWatchedFactionInfo = function()
+		local data = C_Reputation.GetWatchedFactionData()
+		if data then
+			return data.name, data.reaction, data.currentReactionThreshold, data.nextReactionThreshold, data.currentStanding, data.factionID
+		end
+		return nil, nil, nil, nil, nil, nil -- documenting that there should be six returns.
 	end
 end
 
