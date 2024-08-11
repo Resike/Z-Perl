@@ -285,7 +285,7 @@
 					</OnShow>
 					<OnUpdate>
 						if (not ZPerl_Admin.LockOpen) then
-							local f = GetMouseFoci and GetMouseFoci()[1] or GetMouseFocus()
+							local f = (GetMouseFoci and GetMouseFoci()[1]) or (GetMouseFocus and GetMouseFocus())
 							if (f) then
 								while (f:GetParent() and f:GetParent() ~= UIParent and f:GetParent() ~= XPerl_AdminFrameAnchor) do
 									f = f:GetParent()

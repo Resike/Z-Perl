@@ -1404,7 +1404,7 @@
 				XPerl_Options:SetFrameStrata("DIALOG")
 			</OnHide>
 			<OnUpdate>
-				local f = GetMouseFoci and GetMouseFoci()[1] or GetMouseFocus()
+				local f = (GetMouseFoci and GetMouseFoci()[1]) or (GetMouseFocus and GetMouseFocus())
 				if (not MouseIsOver(self) and f ~= self:GetParent()) then
 					self:Hide()
 				end
