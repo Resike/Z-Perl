@@ -350,10 +350,10 @@ end
 
 function XPerl_PlayerBuffs_Update(self)
 	local slot = self:GetAttribute("target-slot")
-	if (slot) then
+	if slot then
 		-- Weapon Enchant
 		local hasMainHandEnchant, mainHandExpiration, mainHandCharges, mainHandEnchantID, hasOffHandEnchant, offHandExpiration, offHandCharges, offHandEnchantId = GetWeaponEnchantInfo()
-		if (slot == 16) then
+		if slot == 16 then
 			DoEnchant(self, 16, hasMainHandEnchant, mainHandExpiration, mainHandCharges)
 		else
 			DoEnchant(self, 17, hasOffHandEnchant, offHandExpiration, offHandCharges)
@@ -364,31 +364,45 @@ function XPerl_PlayerBuffs_Update(self)
 		local filter = self:GetAttribute("filter")
 		local unit = SecureButton_GetUnit(self:GetParent()) or "player"
 
-		if (filter and unit) then
-			local name, icon, count, debuffType, duration, expirationTime, unitCaster, canStealOrPurge = UnitAura(unit, index, filter)
+		if filter and unit then
+			local name, icon, applications, dispelName, duration, expirationTime, sourceUnit
+			if C_UnitAuras then
+				local auraData = C_UnitAuras.GetAuraDataByIndex(unit, index, filter)
+				if auraData then
+					name = auraData.name
+					icon = auraData.icon
+					applications = auraData.applications
+					dispelName = auraData.dispelName
+					duration = auraData.duration
+					expirationTime = auraData.expirationTime
+					sourceUnit = auraData.sourceUnit
+				end
+			else
+				name, icon, applications, dispelName, duration, expirationTime, sourceUnit = UnitAura(unit, index, filter)
+			end
 			self.filter = filter
 			self:SetAlpha(1)
 
-			if (name and filter == "HARMFUL") then
+			if name and filter == "HARMFUL" then
 				self.border:Show()
-				local borderColor = DebuffTypeColor[(debuffType or "none")]
+				local borderColor = DebuffTypeColor[(dispelName or "none")]
 				self.border:SetVertexColor(borderColor.r, borderColor.g, borderColor.b)
 			else
 				self.border:Hide()
 			end
 
 			self.icon:SetTexture(icon)
-			if ((count or 0) > 1) then
-				self.count:SetText(count)
+			if (applications or 0) > 1 then
+				self.count:SetText(applications)
 				self.count:Show()
 			else
 				self.count:Hide()
 			end
 
 			-- Handle cooldowns
-			if (self.cooldown and (duration or 0) ~= 0 and conf.buffs.cooldown and (unitCaster or conf.buffs.cooldownAny)) then
+			if self.cooldown and (duration or 0) ~= 0 and conf.buffs.cooldown and (sourceUnit or conf.buffs.cooldownAny) then
 				local start = expirationTime - duration
-				XPerl_CooldownFrame_SetTimer(self.cooldown, start, duration, 1, unitCaster)
+				XPerl_CooldownFrame_SetTimer(self.cooldown, start, duration, 1, sourceUnit)
 				--[[if (pconf.buffs.flash) then
 					self.endTime = expirationTime
 					self:SetScript("OnUpdate", AuraButton_OnUpdate)

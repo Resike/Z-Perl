@@ -43,7 +43,7 @@ local UnregisterUnitWatch = UnregisterUnitWatch
 
 local UIParent = UIParent
 
-local feignDeath = GetSpellInfo(5384)
+--local feignDeath = GetSpellInfo and GetSpellInfo(5384) or (C_Spell.GetSpellInfo(5384) and C_Spell.GetSpellInfo(5384).name)
 
 local conf
 XPerl_RequestConfig(function(new)
@@ -547,8 +547,20 @@ function XPerl_TargetTarget_Update(self)
 					offset = 0
 				end
 				offset = offset + 20
-				if UnitAura("targettarget", 9, "HELPFUL") then
-					offset = offset + 20
+				local name
+				if C_UnitAuras then
+					local auraData = C_UnitAuras.GetAuraDataByIndex("targettarget", 9, "HELPFUL")
+					if auraData then
+						name = auraData.name
+						if name then
+							offset = offset + 20
+						end
+					end
+				else
+					name = UnitAura("targettarget", 9, "HELPFUL")
+					if name then
+						offset = offset + 20
+					end
 				end
 			end
 			if XPerl_UnitDebuff("targettarget", 1) then

@@ -42,28 +42,74 @@ local IsCataClassic = WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC
 local IsVanillaClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
 
+local _G = _G
+local abs = abs
 local format = format
+local gsub = gsub
+local hooksecurefunc = hooksecurefunc
+local ipairs = ipairs
+local pairs = pairs
+local pcall = pcall
+local sort = sort
+local strfind = strfind
+local strmatch = strmatch
+local strsplit = strsplit
 local strsub = strsub
+local tinsert = tinsert
+local tonumber = tonumber
+local tostring = tostring
+local type = type
 
+local CreateFrame = CreateFrame
+local GetInventoryItemBroken = GetInventoryItemBroken
+local GetItemCount = GetItemCount
 local GetNumGroupMembers = GetNumGroupMembers
+local GetRaidRosterInfo = GetRaidRosterInfo
+local GetRaidTargetIndex = GetRaidTargetIndex
+local GetSpellInfo = GetSpellInfo
+local GetTime = GetTime
+local InCombatLockdown = InCombatLockdown
+local IsInGroup = IsInGroup
+local IsInInstance = IsInInstance
+local IsInRaid = IsInRaid
+local RegisterStateDriver = RegisterStateDriver
+local SecondsToTime = SecondsToTime
+local SendAddonMessage = SendAddonMessage
+local SetRaidRoster = SetRaidRoster
+local UnitAffectingCombat = UnitAffectingCombat
 local UnitCastingInfo = UnitCastingInfo
 local UnitChannelInfo = UnitChannelInfo
+local UnitClass = UnitClass
+local UnitExists = UnitExists
+local UnitGroupRolesAssigned = UnitGroupRolesAssigned
 local UnitGUID = UnitGUID
 local UnitHealth = UnitHealth
 local UnitHealthMax = UnitHealthMax
+local UnitInRaid = UnitInRaid
+local UnitIsAFK = UnitIsAFK
+local UnitIsCharmed = UnitIsCharmed
 local UnitIsConnected = UnitIsConnected
 local UnitIsDead = UnitIsDead
 local UnitIsDeadOrGhost = UnitIsDeadOrGhost
+local UnitIsDND = UnitIsDND
 local UnitIsGhost = UnitIsGhost
+local UnitIsPlayer = UnitIsPlayer
+local UnitIsUnit = UnitIsUnit
+local UnitIsVisible = UnitIsVisible
 local UnitName = UnitName
 local UnitPower = UnitPower
 local UnitPowerMax = UnitPowerMax
+local UnitResistance = UnitResistance
+local UnitUsingVehicle = UnitUsingVehicle
 
 local XPerl_UnitBuff = XPerl_UnitBuff
 local XPerl_UnitDebuff = XPerl_UnitDebuff
 local XPerl_CheckDebuffs = XPerl_CheckDebuffs
 local XPerl_ColourFriendlyUnit = XPerl_ColourFriendlyUnit
 local XPerl_ColourHealthBar = XPerl_ColourHealthBar
+
+--local feignDeath = (C_Spell and C_Spell.GetSpellInfo(5384)) and C_Spell.GetSpellInfo(5384).name or GetSpellInfo(5384)
+--local spiritOfRedemption = (C_Spell and C_Spell.GetSpellInfo(27827)) and C_Spell.GetSpellInfo(27827).name or GetSpellInfo(27827)
 
 
 -- TODO - Watch for:	 ERR_FRIEND_OFFLINE_S = "%s has gone offline."
@@ -88,15 +134,15 @@ for k, v in pairs(LOCALIZED_CLASS_NAMES_MALE) do
 end
 
 local resSpells
-if IsClassic then
+if IsRetail then
 	resSpells = {
-		[GetSpellInfo(2006)] = true,			-- Resurrection
-		[GetSpellInfo(2008)] = true,			-- Ancestral Spirit
-		[GetSpellInfo(20484)] = true,			-- Rebirth
-		[GetSpellInfo(7328)] = true,			-- Redemption
-		--[GetSpellInfo(50769)] = true,			-- Revive
-		--[GetSpellInfo(83968)] = true,			-- Mass Resurrection
-		--[GetSpellInfo(115178)] = true,			-- Resuscitate
+		[C_Spell.GetSpellInfo(2006) and C_Spell.GetSpellInfo(2006).name] = true,			-- Resurrection
+		[C_Spell.GetSpellInfo(2008) and C_Spell.GetSpellInfo(2008).name] = true,			-- Ancestral Spirit
+		[C_Spell.GetSpellInfo(20484) and C_Spell.GetSpellInfo(20484).name] = true,			-- Rebirth
+		[C_Spell.GetSpellInfo(7328) and C_Spell.GetSpellInfo(7328).name] = true,			-- Redemption
+		[C_Spell.GetSpellInfo(50769) and C_Spell.GetSpellInfo(50769).name] = true,			-- Revive
+		--[C_Spell.GetSpellInfo(83968) and C_Spell.GetSpellInfo(83968).name] = true,			-- Mass Resurrection
+		[C_Spell.GetSpellInfo(115178) and C_Spell.GetSpellInfo(115178).name] = true,		-- Resuscitate
 	}
 else
 	resSpells = {
@@ -104,9 +150,6 @@ else
 		[GetSpellInfo(2008)] = true,			-- Ancestral Spirit
 		[GetSpellInfo(20484)] = true,			-- Rebirth
 		[GetSpellInfo(7328)] = true,			-- Redemption
-		[GetSpellInfo(50769)] = true,			-- Revive
-		--[GetSpellInfo(83968)] = true,			-- Mass Resurrection
-		[GetSpellInfo(115178)] = true,			-- Resuscitate
 	}
 end
 
@@ -527,9 +570,6 @@ local function XPerl_Raid_UpdateResurrectionStatus(self)
 		self.statsFrame.resurrect:Hide()
 	end
 end
-
-local feignDeath = GetSpellInfo(5384)
-local spiritOfRedemption = GetSpellInfo(27827)
 
 -- XPerl_Raid_UpdateHealth
 local function XPerl_Raid_UpdateHealth(self)
@@ -2093,8 +2133,6 @@ function XPerl_RaidTitles()
 		if (rconf.sortByClass) then
 			if (LOCALIZED_CLASS_NAMES_MALE[confClass]) then
 				titleFrame:SetText(LOCALIZED_CLASS_NAMES_MALE[confClass])
-			else
-				titleFrame:SetText(localGroups[confClass])
 			end
 		else
 			titleFrame:SetFormattedText(XPERL_RAID_GROUP, i)

@@ -754,7 +754,6 @@ XPERL_CONF_RAID_HIGHLIGHTS_HOTCOUNT_DESC	= "Будет отображать на
 XPERL_CONF_RAID_HIGHLIGHTS_TARGET		= "Моя цель"
 XPERL_CONF_RAID_HIGHLIGHTS_TARGET_DESC	= "Показывать вашу цель в группе и в рейд фреймах"
 if not IsClassic then
-	XPERL_CONF_RAID_HIGHLIGHTS_MENDING		= GetSpellInfo(33076) -- Prayer of Mending
 	XPERL_CONF_RAID_HIGHLIGHTS_MENDING_DESC	= "Включить отслеживание Молитвы восстановления. Вмести с включенным сверканием, будет отображаться хорошей графикой для облегчения слежение за баффом."
 end
 XPERL_CONF_RAID_HIGHLIGHTS_SPARKLES		= "Сверкание"

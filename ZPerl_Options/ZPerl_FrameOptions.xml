@@ -14534,7 +14534,7 @@
 											local list = {"Player", "PlayerBuffs", "PlayerPet", "Target", "TargetTarget", "Party", "PartyPet", "ArcaneBar", "RaidFrames", "RaidPets", "RaidHelper", "RaidMonitor", "RaidAdmin"}
 											local enable
 											for i, name in pairs(list) do
-												if XPerl_Options_GetSiblingChecked(name, self) ~= IsAddOnLoaded("ZPerl_"..name) then
+												if XPerl_Options_GetSiblingChecked(name, self) ~= C_AddOns.IsAddOnLoaded("ZPerl_"..name) then
 													enable = true
 													break
 												end

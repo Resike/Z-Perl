@@ -99,6 +99,9 @@ local XPerl_Player_InitWarlock
 local XPerl_PlayerStatus_OnUpdate
 local XPerl_Player_HighlightCallback
 
+--local feignDeath = (C_Spell and C_Spell.GetSpellInfo(5384)) and C_Spell.GetSpellInfo(5384).name or GetSpellInfo(5384)
+--local spiritOfRedemption = (C_Spell and C_Spell.GetSpellInfo(27827)) and C_Spell.GetSpellInfo(27827).name or GetSpellInfo(27827)
+
 
 ----------------------
 -- Loading Function --
@@ -397,7 +400,7 @@ local function XPerl_Player_UpdateClass(self)
 	end
 end
 
--- There are two different functions to get faction info, used in retail/classic/era. 
+-- There are two different functions to get faction info, used in retail/classic/era.
 -- To maintain compatibility, we fake the original function if it's not there.
 local GetWatchedFactionInfo
 if _G.GetWatchedFactionInfo then
@@ -823,9 +826,6 @@ local function XPerl_Player_UpdateResurrectionStatus(self)
 		end
 	end
 end
-
-local feignDeath = GetSpellInfo(5384)
-local spiritOfRedemption = GetSpellInfo(27827)
 
 -- XPerl_Player_UpdateHealth
 local function XPerl_Player_UpdateHealth(self)

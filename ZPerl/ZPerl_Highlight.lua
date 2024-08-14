@@ -115,44 +115,86 @@ local function getRankAmount(self, spellId)
 	end
 end
 
-local absorbSpells = {
-	-- Shield Barrier
-	--[[[GetSpellInfo(174926)] = {
-		ranks = {
-			[174926] = 4459 --level 85 (4459 + $SPFR * 0.807)
-		},
-		school = "PHYSICAL",
-		class = "WARRIOR",
-		GetModifier = getTalentModifier,
-		GetRankAmount = getRankAmount,
-	},]]
-	-- Ice Barrier
-	[GetSpellInfo(11426)] = {
-		ranks = {
-			[11426]	= 3686 --level 85 (3686 + $SPFR * 0.807)
-		},
-		school = "FROST",
-		class = "MAGE",
-		GetModifier = getTalentModifier,
-		GetRankAmount = getRankAmount,
-	},
-	-- Power Word: Shield
-	[GetSpellInfo(17)] = {
-		ranks = {
-			[17] = 3906 --level 85 (3906 + ($SP * 0.418))
-		},
-		class = "PRIEST",
-		targetable = true,
-		school = "HOLY",
-		--[[improved = {
-			name = GetSpellInfo(14748),
-			ranks = 2,
-			percentPerRank = 5,
+local absorbSpells
+if IsRetail then
+	absorbSpells = {
+		-- Shield Barrier
+		--[[[C_Spell.GetSpellInfo(174926) and C_Spell.GetSpellInfo(174926).name] = {
+			ranks = {
+				[174926] = 4459 --level 85 (4459 + $SPFR * 0.807)
+			},
+			school = "PHYSICAL",
+			class = "WARRIOR",
+			GetModifier = getTalentModifier,
+			GetRankAmount = getRankAmount,
 		},]]
-		GetModifier = getTalentModifier,
-		GetRankAmount = getRankAmount,
-	},
-}
+		-- Ice Barrier
+		[C_Spell.GetSpellInfo(11426) and C_Spell.GetSpellInfo(11426).name] = {
+			ranks = {
+				[11426]	= 3686 --level 85 (3686 + $SPFR * 0.807)
+			},
+			school = "FROST",
+			class = "MAGE",
+			GetModifier = getTalentModifier,
+			GetRankAmount = getRankAmount,
+		},
+		-- Power Word: Shield
+		[C_Spell.GetSpellInfo(17) and C_Spell.GetSpellInfo(17).name] = {
+			ranks = {
+				[17] = 3906 --level 85 (3906 + ($SP * 0.418))
+			},
+			class = "PRIEST",
+			targetable = true,
+			school = "HOLY",
+			--[[improved = {
+				name = C_Spell.GetSpellInfo(14748) and C_Spell.GetSpellInfo(14748).name,
+				ranks = 2,
+				percentPerRank = 5,
+			},]]
+			GetModifier = getTalentModifier,
+			GetRankAmount = getRankAmount,
+		},
+	}
+else
+	absorbSpells = {
+		-- Shield Barrier
+		--[[[GetSpellInfo(174926)] = {
+			ranks = {
+				[174926] = 4459 --level 85 (4459 + $SPFR * 0.807)
+			},
+			school = "PHYSICAL",
+			class = "WARRIOR",
+			GetModifier = getTalentModifier,
+			GetRankAmount = getRankAmount,
+		},]]
+		-- Ice Barrier
+		[GetSpellInfo(11426)] = {
+			ranks = {
+				[11426]	= 3686 --level 85 (3686 + $SPFR * 0.807)
+			},
+			school = "FROST",
+			class = "MAGE",
+			GetModifier = getTalentModifier,
+			GetRankAmount = getRankAmount,
+		},
+		-- Power Word: Shield
+		[GetSpellInfo(17)] = {
+			ranks = {
+				[17] = 3906 --level 85 (3906 + ($SP * 0.418))
+			},
+			class = "PRIEST",
+			targetable = true,
+			school = "HOLY",
+			--[[improved = {
+				name = GetSpellInfo(14748),
+				ranks = 2,
+				percentPerRank = 5,
+			},]]
+			GetModifier = getTalentModifier,
+			GetRankAmount = getRankAmount,
+		},
+	}
+end
 
 local colours = {
 	HOT = {r = 0.2, g = 0.4, b = 0.8, canFlash = true},
@@ -648,15 +690,26 @@ end
 function xpHigh:GetMyHotTime(unit)
 	local maxDur, maxTimeLeft = 0, 0
 	for i = 1, 40 do
-		local name, _, _, _, dur, endTime = UnitAura(unit, i, "HELPFUL|PLAYER")
+		local name, duration, expirationTime
+		if C_UnitAuras then
+			local auraData = C_UnitAuras.GetAuraDataByIndex(unit, i, "HELPFUL|PLAYER")
+			if auraData then
+				name = auraData.name
+				duration = auraData.duration
+				expirationTime = auraData.expirationTime
+			end
+		else
+			local _
+			name, _, _, _, duration, expirationTime = UnitAura(unit, i, "HELPFUL|PLAYER")
+		end
 		if (not name) then
 			break
 		end
 
 		if (hotSpells[name]) then
-			local timeLeft = endTime - GetTime()
+			local timeLeft = expirationTime - GetTime()
 			if (timeLeft > maxTimeLeft) then
-				maxDur, maxTimeLeft = dur, timeLeft
+				maxDur, maxTimeLeft = duration, timeLeft
 			end
 		end
 	end
@@ -726,11 +779,19 @@ end
 -- xpHigh:HasMyHOT(unit)
 function xpHigh:HasMyHOT(unit)
 	for i = 1, 40 do
-		local name = UnitAura(unit, i, "HELPFUL|PLAYER")
-		if (not name) then
+		local name
+		if C_UnitAuras then
+			local auraData = C_UnitAuras.GetAuraDataByIndex(unit, i, "HELPFUL|PLAYER")
+			if auraData then
+				name = auraData.name
+			end
+		else
+			name = UnitAura(unit, i, "HELPFUL|PLAYER")
+		end
+		if not name then
 			break
 		end
-		if (hotSpells[name]) then
+		if hotSpells[name] then
 			return true
 		end
 	end
@@ -766,12 +827,22 @@ end
 -- GetMyPomEndTime
 function xpHigh:GetMyPomEndTime(unit)
 	for i = 1, 40 do
-		local name, _, _, _, _, endTime = UnitAura(unit, i, "HELPFUL|PLAYER")
+		local name, expirationTime
+		if C_UnitAuras then
+			local auraData = C_UnitAuras.GetAuraDataByIndex(unit, i, "HELPFUL|PLAYER")
+			if auraData then
+				name = auraData.name
+				expirationTime = auraData.expirationTime
+			end
+		else
+			local _
+			name, _, _, _, _, expirationTime = UnitAura(unit, i, "HELPFUL|PLAYER")
+		end
 		if (not name) then
 			break
 		end
 		if (pomSpells[name]) then
-			return endTime
+			return expirationTime
 		end
 	end
 end
@@ -871,14 +942,35 @@ function xpHigh:CreateMendingIcon(frame)
 			icon.tex:SetAllPoints()
 			local _, class = UnitClass("player")
 			if class == "MONK" then
-				local _, _, texture = GetSpellInfo(115151)
-				icon.tex:SetTexture(texture)
+				if IsRetail then
+					local itemInfo = C_Spell.GetSpellInfo(115151)
+					if itemInfo and itemInfo.iconID then
+						icon.tex:SetTexture(itemInfo.iconID)
+					end
+				else
+					local _, _, texture = GetSpellInfo(115151)
+					icon.tex:SetTexture(texture)
+				end
 			elseif class == "PALADIN" then
-				local _, _, texture = GetSpellInfo(157007)
-				icon.tex:SetTexture(texture)
+				if IsRetail then
+					local itemInfo = C_Spell.GetSpellInfo(157007)
+					if itemInfo and itemInfo.iconID then
+						icon.tex:SetTexture(itemInfo.iconID)
+					end
+				else
+					local _, _, texture = GetSpellInfo(157007)
+					icon.tex:SetTexture(texture)
+				end
 			else
-				local _, _, texture = GetSpellInfo(33076)
-				icon.tex:SetTexture(texture)
+				if IsRetail then
+					local itemInfo = C_Spell.GetSpellInfo(33076)
+					if itemInfo and itemInfo.iconID then
+						icon.tex:SetTexture(itemInfo.iconID)
+					end
+				else
+					local _, _, texture = GetSpellInfo(33076)
+					icon.tex:SetTexture(texture)
+				end
 			end
 			icon.tex:SetTexCoord(0.1, 0.9, 0.1, 0.9)
 
@@ -1413,14 +1505,14 @@ end
 
 -- COMBATLOG:SPELL_PERIODIC_HEAL
 function xpHigh.clEvents:SPELL_PERIODIC_HEAL(timestamp, event, srcGUID, srcName, srcFlags, dstGUID, dstName, dstFlags, ...)
-	if (srcGUID == playerGUID and conf.highlight.HOT ) then
-		if (self:checkEventFlags(dstFlags)) then
+	if srcGUID == playerGUID and conf.highlight.HOT then
+		if self:checkEventFlags(dstFlags) then
 			local spellID, spellName, spellSchool, amount = ...
-			if (hotSpells[spellName]) then
+			if hotSpells[spellName] then
 				-- Our HOT actually healed someone, so we'll do something pretty
-				if (self:HasEffect(dstGUID, "HOT") and conf.highlight.extraSparkles) then
+				if self:HasEffect(dstGUID, "HOT") and conf.highlight.extraSparkles then
 					self:Add(dstGUID, "HOTSPARKS", 0.1)
-				elseif (not self:HasEffect(dstGUID, "HOT")) then
+				elseif not self:HasEffect(dstGUID, "HOT") then
 					-- Spikeles: Our HOT has healed someone but there is no HOT notification,
 					-- so, add our flashy. BUT if there is a HOT, then there is a buff on them, and that HOT has an expiration time, so lets grab
 					-- it and use it as the time left for the flashy otherwise we can't be sure of the exact time of the spell left when this
@@ -1429,7 +1521,7 @@ function xpHigh.clEvents:SPELL_PERIODIC_HEAL(timestamp, event, srcGUID, srcName,
 					-- Find our HOT and get the duration left for it, then add a flashy!
 					local checkName = dstName
 					-- If the dstName is NOT in our party/raid but it IS target/focus we MUST use target/focus instead of their name
-					if (not UnitInParty(dstName) and not UnitPlayerOrPetInRaid(dstName) and not UnitPlayerOrPetInParty(dstName)) then
+					if not UnitInParty(dstName) and not UnitPlayerOrPetInRaid(dstName) and not UnitPlayerOrPetInParty(dstName) then
 						-- ok, now figure out which it is, target or focus?
 						-- NOTE: The first GetUnitName should handle cross-realm raid/bg (i think) but this should be double checked
 						if (GetUnitName("target", true) == dstName or GetUnitName("target", false) == dstName) then
@@ -1441,18 +1533,37 @@ function xpHigh.clEvents:SPELL_PERIODIC_HEAL(timestamp, event, srcGUID, srcName,
 
 					local index = 40
 					for i = 1, 39 do
-						local _, _, _, _, _, _, _, _, _, ID = UnitAura(checkName, i, "HELPFUL|PLAYER")
+						local ID
+						if C_UnitAuras then
+							local auraData = C_UnitAuras.GetAuraDataByIndex(checkName, i, "HELPFUL|PLAYER")
+							if auraData then
+								ID = auraData.spellId
+							end
+						else
+							local _
+							_, _, _, _, _, _, _, _, _, ID = UnitAura(checkName, i, "HELPFUL|PLAYER")
+						end
 						if ID == spellID then
 							index = i
 							break
 						end
 					end
 
-					local _, _, _, _, _, endTime, isMine = UnitAura(checkName, index, "HELPFUL|PLAYER")
+					local expirationTime, sourceUnit
+					if C_UnitAuras then
+						local auraData = C_UnitAuras.GetAuraDataByIndex(checkName, index, "HELPFUL|PLAYER")
+						if auraData then
+							expirationTime = auraData.expirationTime
+							sourceUnit = auraData.sourceUnit
+						end
+					else
+						local _
+						_, _, _, _, _, expirationTime, sourceUnit = UnitAura(checkName, index, "HELPFUL|PLAYER")
+					end
 
-					if (isMine) then
+					if sourceUnit then
 						-- Figure out how many seconds are left in the HOT so we can ensure the flashy only stays up as long as the HOT is active
-						local secondsLeft = endTime - GetTime()
+						local secondsLeft = expirationTime - GetTime()
 						self:Add(dstGUID, "HOT", secondsLeft)
 						if (conf.highlight.extraSparkles) then
 							self:Add(dstGUID, "HOTSPARKS", 0.1)
@@ -1644,12 +1755,22 @@ end
 -- xpHigh:HasMyPomPom(unit)
 function xpHigh:HasMyPomPom(unit)
 	for i = 1, 40 do
-		local name, _, _, _, _, endTime = UnitAura(unit, i, "HELPFUL|PLAYER")
-		if (not name) then
+		local name, expirationTime
+		if C_UnitAuras then
+			local auraData = C_UnitAuras.GetAuraDataByIndex(unit, i, "HELPFUL|PLAYER")
+			if auraData then
+				name = auraData.name
+				expirationTime = auraData.expirationTime
+			end
+		else
+			local _
+			name, _, _, _, _, expirationTime = UnitAura(unit, i, "HELPFUL|PLAYER")
+		end
+		if not name then
 			break
 		end
-		if (pomSpells[name]) then
-			return endTime - GetTime()
+		if pomSpells[name] then
+			return expirationTime - GetTime()
 		end
 	end
 end
@@ -1657,8 +1778,18 @@ end
 -- xpHigh:HasMyShield(unit)
 function xpHigh:HasMyShield(unit)
 	for i = 1, 40 do
-		local name, _, _, _, _, endTime = UnitAura(unit, i, "HELPFUL|PLAYER")
-		if (not name) then
+		local name, expirationTime
+		if C_UnitAuras then
+			local auraData = C_UnitAuras.GetAuraDataByIndex(unit, i, "HELPFUL|PLAYER")
+			if auraData then
+				name = auraData.name
+				expirationTime = auraData.expirationTime
+			end
+		else
+			local _
+			name, _, _, _, _, expirationTime = UnitAura(unit, i, "HELPFUL|PLAYER")
+		end
+		if not name then
 			break
 		end
 		if (shieldSpells[name]) then
@@ -1688,7 +1819,7 @@ end
 -- RemoveAllFromGUID
 function xpHigh:RemoveAllFromGUID(unit)
 	local guid = UnitGUID(unit)
-	if (guid and self.list[guid]) then
+	if guid and self.list[guid] then
 		self.list[guid] = nil
 		self:Send(guid)
 	end
@@ -1696,34 +1827,33 @@ end
 
 -- xpHigh:UNIT_AURA
 function xpHigh:UNIT_AURA(unit)
-	if (not UnitInParty(unit) and not UnitPlayerOrPetInRaid(unit) and not UnitPlayerOrPetInParty(unit)) then
+	if not UnitInParty(unit) and not UnitPlayerOrPetInRaid(unit) and not UnitPlayerOrPetInParty(unit) then
 		return
 	end
 
 	local guid = UnitGUID(unit)
-
-	if (UnitIsDeadOrGhost(unit)) then
+	if UnitIsDeadOrGhost(unit) then
 		self:RemoveAllFromGUID(guid)
 		return
 	end
 
-	if (playerClass == "PRIEST" or playerClass == "MONK" or playerClass == "PALADIN") then
+	if playerClass == "PRIEST" or playerClass == "MONK" or playerClass == "PALADIN" then
 		-- Check pom movement
-		if (self:HasEffect(guid, "POM")) then
-			if (not self:HasMyPomPom(unit)) then
+		if self:HasEffect(guid, "POM") then
+			if not self:HasMyPomPom(unit) then
 				self.pomSourceGUID = guid
 				self:Remove(guid, "POM")
 				self.expectingPOM = GetTime()
 			end
 		end
 
-		if (self.expectingPOM) then
+		if self.expectingPOM then
 			local findGUID, timeLeft = self:FindMyPomPom()
-			if (findGUID) then
+			if findGUID then
 				self.expectingPOM = nil
 				self:Add(findGUID, "POM", timeLeft)
 				self:TriggerMendingAnimation(self.pomSourceGUID, findGUID)
-			elseif (GetTime() > self.expectingPOM + 2) then
+			elseif GetTime() > self.expectingPOM + 2 then
 				self.expectingPOM = nil
 				self:StopMendingAnimation()
 			end
@@ -1731,27 +1861,35 @@ function xpHigh:UNIT_AURA(unit)
 	end
 
 	-- Check for pre-mature end of shield buff (Power Word: Shield, Earth Shield)
-	if (playerClass == "SHAMAN") then	-- or playerClass == "PRIEST") then
-		if (self:HasEffect(guid, "SHIELD")) then
-			if (not self:HasMyShield(unit)) then
+	if playerClass == "SHAMAN" then	-- or playerClass == "PRIEST") then
+		if self:HasEffect(guid, "SHIELD") then
+			if not self:HasMyShield(unit) then
 				self:Remove(guid, "SHIELD")
 			end
 		end
 	end
 
-	if (conf.highlight.HOTCOUNT) then
+	if conf.highlight.HOTCOUNT then
 		local hotCount = 0
 		for i = 1, 40 do
-			local name = UnitAura(unit, i, "HELPFUL")
-			if (not name) then
+			local name
+			if C_UnitAuras then
+				local auraData = C_UnitAuras.GetAuraDataByIndex(unit, i, "HELPFUL")
+				if auraData then
+					name = auraData.name
+				end
+			else
+				name = UnitAura(unit, i, "HELPFUL")
+			end
+			if not name then
 				break
 			end
-			if (hotSpells[name]) then
+			if hotSpells[name] then
 				hotCount = hotCount + 1
 			end
 		end
 
-		if (hotCount == 0) then
+		if hotCount == 0 then
 			self:Remove(guid, "HOTCOUNT")
 		else
 			self:Add(guid, "HOTCOUNT", hotCount)
@@ -1770,7 +1908,7 @@ xpHigh.GROUP_ROSTER_UPDATE = xpHigh.GROUP_ROSTER_UPDATE
 -- PLAYER_TARGET_CHANGED
 function xpHigh:PLAYER_TARGET_CHANGED()
 	self:ClearAll("TARGET")
-	if (UnitExists("target") and UnitPlayerOrPetInParty("target") or UnitPlayerOrPetInRaid("target")) then
+	if UnitExists("target") and UnitPlayerOrPetInParty("target") or UnitPlayerOrPetInRaid("target") then
 		self:Add(UnitGUID("target"), "TARGET", 0)
 	end
 end

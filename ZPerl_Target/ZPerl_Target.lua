@@ -126,7 +126,7 @@ local percD = "%d"..PERCENT_SYMBOL
 local buffSetup
 local lastInspectPending = 0
 
-local feignDeath = GetSpellInfo(5384)
+--local feignDeath = GetSpellInfo and GetSpellInfo(5384) or (C_Spell.GetSpellInfo(5384) and C_Spell.GetSpellInfo(5384).name)
 
 local ComboEventFrame = CreateFrame("Frame")
 

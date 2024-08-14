@@ -860,15 +860,15 @@ XPERL_CONF_RAID_HIGHLIGHTS_HOTCOUNT_DESC	= "Will indicate on a unit how many act
 XPERL_CONF_RAID_HIGHLIGHTS_TARGET		= "My Target"
 XPERL_CONF_RAID_HIGHLIGHTS_TARGET_DESC	= "Indicate your target on party and raid frames."
 if IsRetail then
-	XPERL_CONF_RAID_HIGHLIGHTS_MENDING		= GetSpellInfo(33076) -- Prayer of Mending
-	XPERL_CONF_RAID_HIGHLIGHTS_MENDING_DESC	= "Enable the "..GetSpellInfo(33076).." tracking. With sparkles enabled, this will show a bouncing graphic to make it easier to follow the buff."
-	XPERL_CONF_RAID_HIGHLIGHTS_RENEWING			= GetSpellInfo(115151) -- Renewing Mist
-	XPERL_CONF_RAID_HIGHLIGHTS_RENEWING_DESC	= "Enable the "..GetSpellInfo(115151).." tracking. With sparkles enabled, this will show a bouncing graphic to make it easier to follow the buff."
+	XPERL_CONF_RAID_HIGHLIGHTS_MENDING		= C_Spell.GetSpellInfo(33076) and C_Spell.GetSpellInfo(33076).name -- Prayer of Mending
+	XPERL_CONF_RAID_HIGHLIGHTS_MENDING_DESC	= "Enable the "..(C_Spell.GetSpellInfo(33076) and C_Spell.GetSpellInfo(33076).name).." tracking. With sparkles enabled, this will show a bouncing graphic to make it easier to follow the buff."
+	XPERL_CONF_RAID_HIGHLIGHTS_RENEWING			= C_Spell.GetSpellInfo(115151) and C_Spell.GetSpellInfo(115151).name -- Renewing Mist
+	XPERL_CONF_RAID_HIGHLIGHTS_RENEWING_DESC	= "Enable the "..(C_Spell.GetSpellInfo(115151) and C_Spell.GetSpellInfo(115151).name).." tracking. With sparkles enabled, this will show a bouncing graphic to make it easier to follow the buff."
 	--XPERL_CONF_RAID_HIGHLIGHTS_BEACON		= GetSpellInfo(157007) -- Beacon of Insight
 	--XPERL_CONF_RAID_HIGHLIGHTS_BEACON_DESC	= "Enable the "..GetSpellInfo(157007).." tracking. With sparkles enabled, this will show a bouncing graphic to make it easier to follow the buff."
 elseif IsCataClassic then
-	XPERL_CONF_RAID_HIGHLIGHTS_MENDING		= GetSpellInfo(33076) -- Prayer of Mending
-	XPERL_CONF_RAID_HIGHLIGHTS_MENDING_DESC	= "Enable the "..GetSpellInfo(33076).." tracking. With sparkles enabled, this will show a bouncing graphic to make it easier to follow the buff."
+	XPERL_CONF_RAID_HIGHLIGHTS_MENDING		= GetSpellInfo and GetSpellInfo(33076) or C_Spell.GetSpellInfo(33076).name -- Prayer of Mending
+	XPERL_CONF_RAID_HIGHLIGHTS_MENDING_DESC	= "Enable the "..(GetSpellInfo and GetSpellInfo(33076) or C_Spell.GetSpellInfo(33076).name).." tracking. With sparkles enabled, this will show a bouncing graphic to make it easier to follow the buff."
 end
 XPERL_CONF_RAID_HIGHLIGHTS_SPARKLES			= "Sparkles"
 XPERL_CONF_RAID_HIGHLIGHTS_SPARKLES_DESC	= "Use the new-look sparkles for a more apparent and vivid approach to highlighting. Disable for the old style border colours."

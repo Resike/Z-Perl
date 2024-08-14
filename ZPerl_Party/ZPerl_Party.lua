@@ -87,7 +87,8 @@ local partyAnchor
 
 local XPerl_Party_HighlightCallback
 
-local feignDeath = GetSpellInfo(5384)
+--local feignDeath = (C_Spell and C_Spell.GetSpellInfo(5384)) and C_Spell.GetSpellInfo(5384).name or GetSpellInfo(5384)
+--local spiritOfRedemption = (C_Spell and C_Spell.GetSpellInfo(27827)) and C_Spell.GetSpellInfo(27827).name or GetSpellInfo(27827)
 
 ----------------------
 -- Loading Function --
@@ -385,8 +386,6 @@ local function XPerl_Party_UpdateResurrectionStatus(self)
 		end
 	end
 end
-
-local spiritOfRedemption = GetSpellInfo(27827)
 
 -- XPerl_Party_UpdateHealth
 local function XPerl_Party_UpdateHealth(self)

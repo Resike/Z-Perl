@@ -9,7 +9,7 @@ XPerl_ProductName		= "|cFFD00000Z-Perl|r UnitFrames"
 XPerl_ShortProductName	= "|cFFD00000Z-Perl|r"
 XPerl_Author			= "|cFFFF8080Resike|r"
 XPerl_Description		= XPerl_ProductName.." by "..XPerl_Author
-XPerl_VersionNumber		= C_AddOns.GetAddOnMetadata and C_AddOns.GetAddOnMetadata("ZPerl", "Version") or "7.3.0"
+XPerl_VersionNumber		= C_AddOns.GetAddOnMetadata and C_AddOns.GetAddOnMetadata("ZPerl", "Version") or "7.3.1"
 XPerl_Version			= XPerl_Description.." - "..XPerl_VersionNumber
 XPerl_LongDescription	= "UnitFrame replacement for new look Player, Pet, Party, Target, Target's Target, Focus, Raid"
 XPerl_ModMenuIcon		= "Interface\\Icons\\INV_Misc_Gem_Pearl_02"
@@ -150,29 +150,29 @@ XPERL_DOWNLOAD_LOCATION = "https://mods.curse.com/addons/wow/zperl"
 if IsRetail then
 	XPERL_HIGHLIGHT_SPELLS = {
 		hotSpells  = {
-			[GetSpellInfo(774)] = 12,			-- Rejuvenation (old id 26982)
-			[GetSpellInfo(155777)] = 12,		-- Rejuvenation Germination
-			[GetSpellInfo(8936)] = 6,			-- Regrowth (old id 26980)
-			[GetSpellInfo(139)] = 12,			-- Renew (old id 25222)
-			[GetSpellInfo(48438)] = 7,			-- Wild Growth
-			[GetSpellInfo(33763)] = 8,			-- Lifebloom
-			[GetSpellInfo(28880)] = 15,			-- Gift of the Naaru (Racial)
-			[GetSpellInfo(61295)] = 15,			-- Riptide
-			[GetSpellInfo(119611)] = 18,		-- Renewing Mist
-			[GetSpellInfo(115175)] = 8,			-- Soothing Mist
-			[GetSpellInfo(124682)] = 6,			-- Enveloping Mist
-			--[GetSpellInfo(114163)] = 30			-- Eternal Flame
+			[C_Spell.GetSpellInfo(774) and C_Spell.GetSpellInfo(774).name] = 12,			-- Rejuvenation (old id 26982)
+			[C_Spell.GetSpellInfo(155777) and C_Spell.GetSpellInfo(155777).name] = 12,		-- Rejuvenation Germination
+			[C_Spell.GetSpellInfo(8936) and C_Spell.GetSpellInfo(8936).name] = 6,			-- Regrowth (old id 26980)
+			[C_Spell.GetSpellInfo(139) and C_Spell.GetSpellInfo(139).name] = 12,			-- Renew (old id 25222)
+			[C_Spell.GetSpellInfo(48438) and C_Spell.GetSpellInfo(48438).name] = 7,			-- Wild Growth
+			[C_Spell.GetSpellInfo(33763) and C_Spell.GetSpellInfo(33763).name] = 8,			-- Lifebloom
+			[C_Spell.GetSpellInfo(28880) and C_Spell.GetSpellInfo(28880).name] = 15,			-- Gift of the Naaru (Racial)
+			[C_Spell.GetSpellInfo(61295) and C_Spell.GetSpellInfo(61295).name] = 15,			-- Riptide
+			[C_Spell.GetSpellInfo(119611) and C_Spell.GetSpellInfo(119611).name] = 18,		-- Renewing Mist
+			[C_Spell.GetSpellInfo(115175) and C_Spell.GetSpellInfo(115175).name] = 8,			-- Soothing Mist
+			[C_Spell.GetSpellInfo(124682) and C_Spell.GetSpellInfo(124682).name] = 6,			-- Enveloping Mist
+			--[C_Spell.GetSpellInfo(114163) and C_Spell.GetSpellInfo(114163).name] = 30			-- Eternal Flame
 		},
 		pomSpells = {
-			[GetSpellInfo(33076)] = 30,			-- Prayer of Mending
-			[GetSpellInfo(81749)] = 15,			-- Atonement
-			[GetSpellInfo(115151)] = 18,		-- Renewing Mist
-			--[GetSpellInfo(157007)] = 60,		-- Beacon of Insight
+			[C_Spell.GetSpellInfo(33076) and C_Spell.GetSpellInfo(33076).name] = 30,			-- Prayer of Mending
+			[C_Spell.GetSpellInfo(81749) and C_Spell.GetSpellInfo(81749).name] = 15,			-- Atonement
+			[C_Spell.GetSpellInfo(115151) and C_Spell.GetSpellInfo(115151).name] = 18,		-- Renewing Mist
+			--[C_Spell.GetSpellInfo(157007) and C_Spell.GetSpellInfo(157007).name] = 60,		-- Beacon of Insight
 		},
 		shieldSpells = {
-			[GetSpellInfo(17)] = 15,			-- Power Word: Shield
-			--[GetSpellInfo(76669)] = 15,			-- Illuminated Healing
-			--[GetSpellInfo(974)] = 600			-- Earth Shield	(old id 32594)
+			[C_Spell.GetSpellInfo(17) and C_Spell.GetSpellInfo(17).name] = 15,			-- Power Word: Shield
+			--[C_Spell.GetSpellInfo(76669) and C_Spell.GetSpellInfo(76669).name] = 15,			-- Illuminated Healing
+			--[C_Spell.GetSpellInfo(974) and C_Spell.GetSpellInfo(974).name] = 600			-- Earth Shield	(old id 32594)
 		},
 	}
 elseif IsCataClassic then
@@ -237,14 +237,14 @@ end
 -- Default spells for range checking in the healer visual out-of-range cues.
 if IsRetail then
 	XPerl_DefaultRangeSpells = {
-		DRUID	= {spell = GetSpellInfo(774)},				-- Rejuvenation
-		PALADIN = {spell = GetSpellInfo(19750)},			-- Flash of Light
-		PRIEST	= {spell = GetSpellInfo(2061)},				-- Flash Heal
-		SHAMAN	= {spell = GetSpellInfo(8004)},				-- Healing Surge
-		--MAGE	= {spell = GetSpellInfo(475)},				-- Remove Lesser Curse
-		ROGUE	= {spell = GetSpellInfo(57934)},			-- Trick of the Trade
-		WARLOCK	= {spell = GetSpellInfo(5697)},				-- Unending Breath
-		ANY		= {item = GetItemInfo(173191)}				-- Heavy Shrouded Cloth Bandage
+		DRUID	= {spell = C_Spell.GetSpellInfo(774) and C_Spell.GetSpellInfo(774).name},				-- Rejuvenation
+		PALADIN = {spell = C_Spell.GetSpellInfo(19750) and C_Spell.GetSpellInfo(19750).name},			-- Flash of Light
+		PRIEST	= {spell = C_Spell.GetSpellInfo(2061) and C_Spell.GetSpellInfo(2061).name},				-- Flash Heal
+		SHAMAN	= {spell = C_Spell.GetSpellInfo(8004) and C_Spell.GetSpellInfo(8004).name},				-- Healing Surge
+		--MAGE	= {spell = C_Spell.GetSpellInfo(475) and C_Spell.GetSpellInfo(475).name},				-- Remove Lesser Curse
+		ROGUE	= {spell = C_Spell.GetSpellInfo(57934) and C_Spell.GetSpellInfo(57934).name},			-- Trick of the Trade
+		WARLOCK	= {spell = C_Spell.GetSpellInfo(5697) and C_Spell.GetSpellInfo(5697).name},				-- Unending Breath
+		ANY		= {item = C_Item.GetItemInfo(173191) and C_Item.GetItemInfo(173191)}				-- Heavy Shrouded Cloth Bandage
 	}
 elseif IsCataClassic then
 	XPerl_DefaultRangeSpells = {
@@ -273,25 +273,25 @@ end
 -- Don't highlight these magical debuffs
 if IsRetail then
 	XPerl_ArcaneExclusions = {
-		[GetSpellInfo(63559)] = true,						-- Bind Life
-		[GetSpellInfo(30451)] = true,						-- Arcane Blast (again) (old 42897)
-		[GetSpellInfo(30108)] = true,						-- Unstable Affliction (old 30405)
-		[GetSpellInfo(15822)] = true,						-- Dreamless Sleep
-		[GetSpellInfo(24360)] = true,						-- Greater Dreamless Sleep
-		[GetSpellInfo(28504)] = true,						-- Major Dreamless Sleep
-		[GetSpellInfo(31257)] = true,						-- Chilled
-		[GetSpellInfo(710)] = true,							-- Banish
-		[GetSpellInfo(44836)] = true,						-- Also Banish !?
-		[GetSpellInfo(24306)] = true,						-- Delusions of Jin'do
-		[GetSpellInfo(46543)] = {ROGUE = true, WARRIOR = true},	-- Ignite Mana
-		[GetSpellInfo(16567)] = {ROGUE = true, WARRIOR = true},	-- Tainted Mind
-		[GetSpellInfo(39052)] = {ROGUE = true},				-- Sonic Burst
-		[GetSpellInfo(41190)] = {ROGUE = true, WARRIOR = true}, -- Mind-numbing Poison
-		[GetSpellInfo(25195)] = {ROGUE = true},				-- Curse of Tongues
-		[GetSpellInfo(30129)] = true,						-- Charred Earth - Nightbane debuff, can't be cleansed, but shows as magic
-		[GetSpellInfo(31651)] = {MAGE = true, WARLOCK = true, PRIEST = true},	-- Banshee Curse, Melee hit rating debuff
-		[GetSpellInfo(38913)] = {ROGUE = true},				-- Silence
-		[GetSpellInfo(31555)] = {ROGUE = true, WARRIOR = true},	-- Decayed Intellect
+		[C_Spell.GetSpellInfo(63559) and C_Spell.GetSpellInfo(63559).name] = true,						-- Bind Life
+		[C_Spell.GetSpellInfo(30451) and C_Spell.GetSpellInfo(30451).name] = true,						-- Arcane Blast (again) (old 42897)
+		[C_Spell.GetSpellInfo(30108) and C_Spell.GetSpellInfo(30108).name] = true,						-- Unstable Affliction (old 30405)
+		[C_Spell.GetSpellInfo(15822) and C_Spell.GetSpellInfo(15822).name] = true,						-- Dreamless Sleep
+		[C_Spell.GetSpellInfo(24360) and C_Spell.GetSpellInfo(24360).name] = true,						-- Greater Dreamless Sleep
+		[C_Spell.GetSpellInfo(28504) and C_Spell.GetSpellInfo(28504).name] = true,						-- Major Dreamless Sleep
+		[C_Spell.GetSpellInfo(31257) and C_Spell.GetSpellInfo(31257).name] = true,						-- Chilled
+		[C_Spell.GetSpellInfo(710) and C_Spell.GetSpellInfo(710).name] = true,							-- Banish
+		[C_Spell.GetSpellInfo(44836) and C_Spell.GetSpellInfo(44836).name] = true,						-- Also Banish !?
+		[C_Spell.GetSpellInfo(24306) and C_Spell.GetSpellInfo(24306).name] = true,						-- Delusions of Jin'do
+		[C_Spell.GetSpellInfo(46543) and C_Spell.GetSpellInfo(46543).name] = {ROGUE = true, WARRIOR = true},	-- Ignite Mana
+		[C_Spell.GetSpellInfo(16567) and C_Spell.GetSpellInfo(16567).name] = {ROGUE = true, WARRIOR = true},	-- Tainted Mind
+		[C_Spell.GetSpellInfo(39052) and C_Spell.GetSpellInfo(39052).name] = {ROGUE = true},				-- Sonic Burst
+		[C_Spell.GetSpellInfo(41190) and C_Spell.GetSpellInfo(41190).name] = {ROGUE = true, WARRIOR = true}, -- Mind-numbing Poison
+		[C_Spell.GetSpellInfo(25195) and C_Spell.GetSpellInfo(25195).name] = {ROGUE = true},				-- Curse of Tongues
+		[C_Spell.GetSpellInfo(30129) and C_Spell.GetSpellInfo(30129).name] = true,						-- Charred Earth - Nightbane debuff, can't be cleansed, but shows as magic
+		[C_Spell.GetSpellInfo(31651) and C_Spell.GetSpellInfo(31651).name] = {MAGE = true, WARLOCK = true, PRIEST = true},	-- Banshee Curse, Melee hit rating debuff
+		[C_Spell.GetSpellInfo(38913) and C_Spell.GetSpellInfo(38913).name] = {ROGUE = true},				-- Silence
+		[C_Spell.GetSpellInfo(31555) and C_Spell.GetSpellInfo(31555).name] = {ROGUE = true, WARRIOR = true},	-- Decayed Intellect
 	}
 elseif IsCataClassic then
 	XPerl_ArcaneExclusions = {

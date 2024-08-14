@@ -1033,7 +1033,7 @@ end
 function XPerl_Options_GetRangeTexture(self, isEnemy)
 	local spell = GetSpell(isEnemy)
 	if spell then
-		local tex = GetSpellTexture(spell)
+		local tex = (C_Spell and C_Spell.GetSpellTexture) and C_Spell.GetSpellTexture(spell) or GetSpellTexture(spell)
 		return tex, spell
 	end
 
@@ -1052,7 +1052,7 @@ end
 function XPerl_Options_GetRangeTextureEnemy(self)
 	local spell = GetSpellEnemy()
 	if spell then
-		local tex = GetSpellTexture(spell)
+		local tex = (C_Spell and C_Spell.GetSpellTexture) and C_Spell.GetSpellTexture(spell) or GetSpellTexture(spell)
 		return tex, spell
 	end
 
@@ -2825,10 +2825,24 @@ function XPerl_Custom_Config_OnShow(self)
 end
 
 local function CompareSpell(a, b)
-	local nameA = GetSpellInfo(a)
-	local nameB = GetSpellInfo(b)
+	if IsRetail then
+		local spellInfoA = C_Spell.GetSpellInfo(a)
+		local spellNameA = ""
+		if spellInfoA then
+			spellNameA = spellInfoA.name
+		end
+		local spellInfoB = C_Spell.GetSpellInfo(b)
+		local spellNameB = ""
+		if spellInfoB then
+			spellNameB = spellInfoB.name
+		end
+		return spellNameA < spellNameB
+	else
 
-	return nameA < nameB
+		local nameA = GetSpellInfo(a)
+		local nameB = GetSpellInfo(b)
+		return nameA < nameB
+	end
 end
 
 -- XPerl_Options_Custom_FillList
@@ -2841,48 +2855,55 @@ function XPerl_Options_Custom_FillList(self, setName)
 
 	local typ = self.type
 	local list, source
-	if (typ == "zone") then
+	if typ == "zone" then
 		source = XPerlDB.custom and XPerlDB.custom.zones
-	elseif (typ == "debuff") then
+	elseif typ == "debuff" then
 		local zone = XPerl_Options_Custom_SelectedZone(XPerl_Custom_Config)
 		if (zone) then
 			source = XPerlDB.custom and XPerlDB.custom.zones and XPerlDB.custom.zones[zone]
 		end
 	end
 
-	if (source) then
+	if source then
 		for name, key in pairs(source) do
-			if (not list) then
+			if not list then
 				list = {}
 			end
-			if (typ == "debuff") then
-				if GetSpellInfo(name) then
-					tinsert(list, name)
+			if typ == "debuff" then
+				if C_Spell and C_Spell.GetSpellInfo then
+					local spellInfo = C_Spell.GetSpellInfo(name)
+					if spellInfo then
+						tinsert(list, spellInfo.name)
+					end
+				else
+					if GetSpellInfo(name) then
+						tinsert(list, name)
+					end
 				end
 			else
 				tinsert(list, name)
 			end
 		end
-		if (list) then
-			if (typ == "zone") then
+		if list then
+			if typ == "zone" then
 				sort(list)
-			elseif (typ == "debuff") then
+			elseif typ == "debuff" then
 				sort(list, CompareSpell)
 			end
 		end
 	end
 
-	if (not self.selection or not list) then
+	if not self.selection or not list then
 		self.selection = 1
 	else
-		if (self.selection < 1) then
+		if self.selection < 1 then
 			self.selection = 1
-		elseif (self.selection > #list) then
+		elseif self.selection > #list then
 			self.selection = #list
 		end
 	end
 
-	for i = 1,#self.line do
+	for i = 1, #self.line do
 		local row = self.line[i]
 		row:SetText("")
 		row:UnlockHighlight()
@@ -2891,31 +2912,41 @@ function XPerl_Options_Custom_FillList(self, setName)
 	end
 
 	local db = XPerl_Custom_Config.iconDB
-	if (list) then
+	if list then
 		local newName
 		local line = 1
 		for i = self.start, self.start + #self.line - 1 do
-			if (i > #list) then
+			if i > #list then
 				break
 			end
 			local row = self.line[line]
 
-			if (typ == "debuff") then
+			if typ == "debuff" then
 				local spellid = list[i]
-				local name, _, icon = GetSpellInfo(spellid)
-				if (name and icon) then
-					row:SetText(format("|T%s:0|t%s", icon, name))
-					row.spellid = spellid
+				if C_Spell and C_Spell.GetSpellInfo then
+					local spellInfo = C_Spell.GetSpellInfo(spellid)
+					if spellInfo then
+						if spellInfo.name and spellInfo.iconID then
+							row:SetText(format("|T%s:0|t%s", spellInfo.iconID, spellInfo.name))
+							row.spellid = spellid
+						end
+					end
+				else
+					local name, _, icon = GetSpellInfo(spellid)
+					if name and icon then
+						row:SetText(format("|T%s:0|t%s", icon, name))
+						row.spellid = spellid
+					end
 				end
 			else
 				row:SetText(list[i])
 			end
 			row:Show()
 
-			if (i == self.selection) then
+			if i == self.selection then
 				self.line[line]:LockHighlight()
 
-				if (setName) then
+				if setName then
 					newName = list[i]
 				end
 			end
@@ -2924,7 +2955,7 @@ function XPerl_Options_Custom_FillList(self, setName)
 		end
 
 		local offset = self.scrollBar.bar:GetValue()
-		if (FauxScrollFrame_Update(self.scrollBar, #list, 12, 1)) then
+		if FauxScrollFrame_Update(self.scrollBar, #list, 12, 1) then
 			self.scrollBar:Show()
 		else
 			self.scrollBar:Hide()
@@ -2959,11 +2990,22 @@ function XPerl_Options_Custom_SetIcon()
 	if (db and name) then
 		local spellid = db and db[name]
 		if (spellid) then
-			local spellname, _, icon = GetSpellInfo(spellid)
-			if (icon) then
-				XPerl_Custom_Config.icon:SetTexture(icon)
-				XPerl_Custom_Config.icon:Show()
-				return
+			if C_Spell and C_Spell.GetSpellInfo then
+				local spellInfo = C_Spell.GetSpellInfo(spellid)
+				if spellInfo then
+					if spellInfo.iconID then
+						XPerl_Custom_Config.icon:SetTexture(spellInfo.iconID)
+						XPerl_Custom_Config.icon:Show()
+						return
+					end
+				end
+			else
+				local _, _, icon = GetSpellInfo(spellid)
+				if icon then
+					XPerl_Custom_Config.icon:SetTexture(icon)
+					XPerl_Custom_Config.icon:Show()
+					return
+				end
 			end
 		end
 	end
@@ -2998,19 +3040,39 @@ local function customOnUpdate(self, elapsed)
 	local ind = self.iconIndex
 	local stop
 	for i = ind, ind + ICON_STEP_SIZE - 1 do
-		if GetSpellLink(i) then -- Filter out talents
-			local name, _, icon = GetSpellInfo(i)
-			if name then
-				if icon ~= 134400 and icon ~= 136235 then -- Filter out silly test ones
-					db[i] = strlower(name)
+		if C_Spell and C_Spell.GetSpellLink and C_Spell.GetSpellInfo then
+			if C_Spell.GetSpellLink(i) then -- Filter out talents
+				local spellInfo = C_Spell.GetSpellInfo(i)
+				if spellInfo then
+					if spellInfo.name and spellInfo.iconID then
+						if spellInfo.iconID ~= 134400 and spellInfo.iconID ~= 136235 then -- Filter out silly test ones
+							db[i] = strlower(spellInfo.name)
+						end
+						self.missing = 0
+					end
+				end
+			else
+				self.missing = (self.missing or 0) + 1
+				if self.missing > 1000 then
+					stop = true
+					break
 				end
 			end
-			self.missing = 0
 		else
-			self.missing = (self.missing or 0) + 1
-			if self.missing > 1000 then
-				stop = true
-				break
+			if GetSpellLink(i) then -- Filter out talents
+				local name, _, icon = GetSpellInfo(i)
+				if name and icon then
+					if icon ~= 134400 and icon ~= 136235 then -- Filter out silly test ones
+						db[i] = strlower(name)
+					end
+				end
+				self.missing = 0
+			else
+				self.missing = (self.missing or 0) + 1
+				if self.missing > 1000 then
+					stop = true
+					break
+				end
 			end
 		end
 	end
@@ -3119,7 +3181,17 @@ function XPerl_Options_Custom_ScanForIcons(self)
 					icon:SetScript("OnEnter", function(self)
 						GameTooltip:SetOwner(self, "ANCHOR_TOP")
 						local link = GetSpellLink(self.spellid)
-						local name, _, icon = GetSpellInfo(self.spellid)
+						local spellName, icon
+						if C_Spell and C_Spell.GetSpellInfo then
+							local spellInfo = C_Spell.GetSpellInfo(self.spellid)
+							if spellInfo then
+								name = spellInfo.name
+								icon = spellInfo.iconID
+							end
+						else
+							local _
+							name, _, icon = GetSpellInfo(self.spellid)
+						end
 						if link then
 							if IsClassic then
 								local _, _, _, _, _, _, spellID = GetSpellInfo(self.spellid)
@@ -3151,7 +3223,17 @@ function XPerl_Options_Custom_ScanForIcons(self)
 					end
 				end
 
-				local name, _, tex = GetSpellInfo(spellid)
+				local spellName, icon
+				if C_Spell and C_Spell.GetSpellInfo then
+					local spellInfo = C_Spell.GetSpellInfo(spellid)
+					if spellInfo then
+						name = spellInfo.name
+						icon = spellInfo.iconID
+					end
+				else
+					local _
+					name, _, tex = GetSpellInfo(spellid)
+				end
 				if tex then
 					icon.spellid = spellid
 					icon.tex:SetTexture(tex)

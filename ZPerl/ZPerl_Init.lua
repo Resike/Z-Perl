@@ -224,7 +224,7 @@ local lastName
 local lastWith
 local lastNamesCount
 local function GetNamesWithoutBuff(spellName, with, filter)
-	if (spellName == lastName and with == lastWith and lastNamesList) then
+	if spellName == lastName and with == lastWith and lastNamesList then
 		return lastNamesList, lastNamesCount
 	end
 
@@ -264,10 +264,10 @@ local function GetNamesWithoutBuff(spellName, with, filter)
 	for unitid, unitName, unitClass, group, zone, online, dead in XPerl_NextMember do
 		local use
 
-		if (not conf.buffHelper.visible) then
+		if not conf.buffHelper.visible then
 			use = true
 		else
-			if (conf.raid.sortByClass) then
+			if conf.raid.sortByClass then
 				if (conf.raid.class[group].enable) then
 					use = unitClass == conf.raid.class[group].name
 				end
@@ -276,15 +276,30 @@ local function GetNamesWithoutBuff(spellName, with, filter)
 			end
 		end
 
-		if (unitName and use and online and not dead) then
+		if unitName and use and online and not dead then
 			local hasBuff
-			for num = 1, 40 do
-				local name, icon, count, _, fullDuration, endTime, isMine, isStealable = UnitAura(unitid, num, filter)
-				if (not name) then
+			for i = 1, 40 do
+				local name, icon, applications, duration, expirationTime, sourceUnit, isStealable
+				if C_UnitAuras then
+					local auraData = C_UnitAuras.GetAuraDataByIndex(unitid, i, filter)
+					if auraData then
+						name = auraData.name
+						icon = auraData.icon
+						applications = auraData.applications
+						duration = auraData.duration
+						expirationTime = auraData.expirationTime
+						sourceUnit = auraData.sourceUnit
+						isStealable = auraData.isStealable
+					end
+				else
+					local _
+					name, icon, applications, _, duration, expirationTime, sourceUnit, isStealable = UnitAura(unitid, i, filter)
+				end
+				if not name then
 					break
 				end
 
-				if (name == spellName) then
+				if name == spellName then
 					hasBuff = true
 				--[[else
 					for dups, pair in pairs(matches) do
@@ -310,17 +325,17 @@ local function GetNamesWithoutBuff(spellName, with, filter)
 				end--]]
 			end
 
-			if ((with and hasBuff) or (not with and not hasBuff)) then
+			if (with and hasBuff) or (not with and not hasBuff) then
 				count = count + 1
 
-				if (conf.buffHelper.sort == "group") then
+				if conf.buffHelper.sort == "group" then
 					if (not withList[group]) then
 						--withList[group] = XPerl_GetReusableTable()
 						withList[group] = { }
 					end
 					tinsert(withList[group], {class = unitClass, name = unitName})
-				elseif (conf.buffHelper.sort == "class") then
-					if (not withList[unitClass]) then
+				elseif conf.buffHelper.sort == "class" then
+					if not withList[unitClass] then
 						--withList[unitClass] = XPerl_GetReusableTable()
 						withList[unitClass] = { }
 					end
@@ -336,10 +351,10 @@ local function GetNamesWithoutBuff(spellName, with, filter)
 		end
 	end
 
-	if (conf.buffHelper.sort == "group") then
+	if conf.buffHelper.sort == "group" then
 		for i = 1, 8 do
 			local list = withList[i]
-			if (list) then
+			if list then
 				sort(list, function(a, b) return a.name < b.name end)
 
 				names = (names or "").."|r"..i..": "
@@ -352,14 +367,14 @@ local function GetNamesWithoutBuff(spellName, with, filter)
 			end
 			--XPerl_FreeTable(list)
 		end
-	elseif (conf.buffHelper.sort == "class") then
+	elseif conf.buffHelper.sort == "class" then
 		for j, class in ipairs(classOrder) do
 			local list = withList[class]
-			if (list) then
+			if list then
 				sort(list)
 
 				for i, name in ipairs(list) do
-					if (i == 1) then
+					if i == 1 then
 						names = (names or "")..XPerlColourTable[class]
 					end
 					names = (names or "")..name.." "
@@ -402,20 +417,35 @@ end
 
 -- XPerl_ToolTip_AddBuffDuration
 local function XPerl_ToolTip_AddBuffDuration(self, partyid, buffID, filter)
-	local name, _, count, _, dur, max, caster, isStealable = UnitAura(partyid, buffID, filter)
+	if IsInRaid() or UnitInParty("player") then
+		local name, applications, duration, expirationTime, sourceUnit, isStealable
+		if C_UnitAuras then
+			local auraData = C_UnitAuras.GetAuraDataByIndex(partyid, buffID, filter)
+			if auraData then
+				name = auraData.name
+				icon = auraData.icon
+				applications = auraData.applications
+				duration = auraData.duration
+				expirationTime = auraData.expirationTime
+				sourceUnit = auraData.sourceUnit
+				isStealable = auraData.isStealable
+			end
+		else
+			local _
+			name, _, applications, _, duration, expirationTime, sourceUnit, isStealable = UnitAura(partyid, buffID, filter)
+		end
 
-	if (IsInRaid() or UnitInParty("player")) then
-		if (conf.buffHelper.enable and partyid and (UnitInParty(partyid) or UnitInRaid(partyid))) then
-			if (name) then
+		if conf.buffHelper.enable and partyid and (UnitInParty(partyid) or UnitInRaid(partyid)) then
+			if name then
 				local names, count = GetNamesWithoutBuff(name, IsAltKeyDown(), filter)
-				if (names) then
-					if (IsAltKeyDown()) then
+				if names then
+					if IsAltKeyDown() then
 						self:AddLine(format(XPERL_RAID_TOOLTIP_WITHBUFF, count), 0.3, 1, 0.2)
 					else
 						self:AddLine(format(XPERL_RAID_TOOLTIP_WITHOUTBUFF, count), 1, 0.3, 0.1)
 					end
 
-					if (conf.buffHelper.sort) then
+					if conf.buffHelper.sort then
 						self:AddLine(names, 0.5, 0.5, 0.5)
 					else
 						self:AddLine(names, 0.5, 0.5, 0.5, 1)
@@ -423,25 +453,26 @@ local function XPerl_ToolTip_AddBuffDuration(self, partyid, buffID, filter)
 				end
 			end
 		end
-	end
 
-	if (caster and conf.buffs.names) then
-		local casterName = UnitFullName(caster)
-		if (casterName) then
-			local c
-			if (UnitIsPlayer(caster)) then
-				local _, class = UnitClass(caster)
-				c = class and (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[class]
-			else
-				c = XPerl_ReactionColour(caster)
-			end
-			if (c) then
-				self:AddLine(casterName, c.r, c.g, c.b)
-			else
-				self:AddLine(casterName)
+		if sourceUnit and conf.buffs.names then
+			local casterName = UnitFullName(sourceUnit)
+			if casterName then
+				local c
+				if UnitIsPlayer(sourceUnit) then
+					local _, class = UnitClass(sourceUnit)
+					c = class and (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[class]
+				else
+					c = XPerl_ReactionColour(sourceUnit)
+				end
+				if c then
+					self:AddLine(casterName, c.r, c.g, c.b)
+				else
+					self:AddLine(casterName)
+				end
 			end
 		end
 	end
+
 
 	GameTooltip:Show()
 end
@@ -462,7 +493,7 @@ end
 -- ZPerl_Init()
 function ZPerl_Init()
 	init_done = true
-	if (GameTooltip.SetUnitAura) then
+	if GameTooltip.SetUnitAura then
 		hooksecurefunc(GameTooltip, "SetUnitAura", XPerl_GameTooltipSetUnitAura)
 		hooksecurefunc(GameTooltip, "SetUnitBuff", XPerl_GameTooltipSetUnitBuff)
 		hooksecurefunc(GameTooltip, "SetUnitDebuff", XPerl_GameTooltipSetUnitDebuff)
@@ -471,9 +502,9 @@ function ZPerl_Init()
 	C_AddOns.DisableAddOn("XPerl_TeamSpeak")
 
 	-- Check for eCastbar and disable old frame if used.
-	if (eCastingBar_Saved and eCastingBar_Player and eCastingBar_Saved[eCastingBar_Player].Enabled == 1) then
+	if eCastingBar_Saved and eCastingBar_Player and eCastingBar_Saved[eCastingBar_Player].Enabled == 1 then
 		conf.player.castBar.original = nil
-	elseif (BCastBar and BCastingBar and BCastBarDragButton) then
+	elseif BCastBar and BCastingBar and BCastBarDragButton then
 		conf.player.castBar.original = nil
 	end
 
@@ -497,35 +528,35 @@ function ZPerl_Init()
 
 	--PartyMemberFrame:UnregisterEvent("UNIT_NAME_UPDATE")
 
-	if (CT_PartyBuffFrame1) then
+	if CT_PartyBuffFrame1 then
 		if (XPerl_party1) then
 			CT_PartyBuffFrame1:Hide()
 			CT_PartyBuffFrame2:Hide()
 			CT_PartyBuffFrame3:Hide()
 			CT_PartyBuffFrame4:Hide()
 		end
-		if (XPerl_Player_Pet) then
+		if XPerl_Player_Pet then
 			CT_PetBuffFrame:Hide()
 		end
 	end
 
-	if (CT_RAMTGroup) then
+	if CT_RAMTGroup then
 		-- Fix CTRA lockup issues for WoW 2.1
 		-- Sure it's not my responsibility, but you can bet your ass I'll get blamed for it's lockups...
 		CT_RAMTGroup:UnregisterEvent("UNIT_NAME_UPDATE")
-		if (CT_RAMTTGroup) then
+		if CT_RAMTTGroup then
 			CT_RAMTTGroup:UnregisterEvent("UNIT_NAME_UPDATE")
 		end
-		if (CT_RAPTGroup) then
+		if CT_RAPTGroup then
 			CT_RAPTGroup:UnregisterEvent("UNIT_NAME_UPDATE")
 		end
-		if (CT_RAPTTGroup) then
+		if CT_RAPTTGroup then
 			CT_RAPTTGroup:UnregisterEvent("UNIT_NAME_UPDATE")
 		end
-		if (CT_RAGroup1) then
-			for i = 1,8 do
+		if CT_RAGroup1 then
+			for i = 1, 8 do
 				local f = _G["CT_RAGroup"..i]
-				if (f) then
+				if f then
 					f:UnregisterEvent("UNIT_NAME_UPDATE")
 				end
 			end
@@ -533,7 +564,7 @@ function ZPerl_Init()
 	end
 
 	local name, title, notes, enabled = C_AddOns.GetAddOnInfo("SupportFuncs")
-	if (name and enabled) then
+	if name and enabled then
 		local ver = GetAddOnMetadata and C_AddOns.GetAddOnMetadata(name, "Version")
 		if (tonumber(ver) < 20000.2) then
 			XPerl_Notice("Out-dated version of SupportFuncs detected. This will break the X-Perl Range Finder by replacing standard Blizzard API functions.")
@@ -541,7 +572,7 @@ function ZPerl_Init()
 	end
 
 	name, title, notes, enabled = C_AddOns.GetAddOnInfo("AutoBar")
-	if (name and enabled) then
+	if name and enabled then
 		local ver = GetAddOnMetadata and C_AddOns.GetAddOnMetadata(name, "Version")
 		if (ver < "2.01.00.02") then
 			XPerl_Notice("Out-dated version of AutoBar detected. This will taint the Targetting system for all mods that use them, including X-Perl.")
@@ -549,18 +580,18 @@ function ZPerl_Init()
 	end
 
 	name, title, notes, enabled = C_AddOns.GetAddOnInfo("TrinityBars")
-	if (name and enabled) then
+	if name and enabled then
 		local ver = GetAddOnMetadata and C_AddOns.GetAddOnMetadata(name, "Version")
 		if (ver <= "20003.14") then
 			XPerl_Notice("Out-dated version of TrinityBars detected. This will taint the Targetting system for all mods that use them, including X-Perl.")
 		end
 	end
 
-	if (EarthFeature_AddButton) then
+	if EarthFeature_AddButton then
 		EarthFeature_AddButton ({name = XPerl_ProductName, icon = XPerl_ModMenuIcon, subtext = "by "..XPerl_Author, tooltip = XPerl_LongDescription, callback = XPerl_Toggle})
 	end
 
-	if (CT_RegisterMod) then
+	if CT_RegisterMod then
 		CT_RegisterMod(XPerl_ProductName.." "..XPerl_VersionNumber, "By "..XPerl_Author, 4, XPerl_ModMenuIcon, XPerl_LongDescription, "switch", "", XPerl_Toggle)
 	end
 

@@ -399,7 +399,17 @@ function CustomHighlight:PLAYER_ENTERING_WORLD()
 		if self.zoneDataRaw then
 			self.zoneData = {}
 			for spellid in pairs(self.zoneDataRaw) do
-				local spellName, _, icon = GetSpellInfo(spellid)
+				local spellName, icon
+				if C_Spell and C_Spell.GetSpellInfo then
+					local spellInfo = C_Spell.GetSpellInfo(spellid)
+					if spellInfo then
+						name = spellInfo.name
+						icon = spellInfo.iconID
+					end
+				else
+					local _
+					spellName, _, icon = GetSpellInfo(spellid)
+				end
 				if (spellName) then
 					self.zoneData[spellName] = icon
 				end
@@ -545,7 +555,16 @@ function CustomHighlight:Check(frame, unit)
 		end
 
 		for i = 1, 40 do
-			local name, icon = UnitAura(unit, i, "HARMFUL")
+			local name, icon
+			if C_UnitAuras then
+				local auraData = C_UnitAuras.GetAuraDataByIndex(unit, i, "HARMFUL")
+				if auraData then
+					name = auraData.name
+					icon = auraData.icon
+				end
+			else
+				name, icon = UnitAura(unit, i, "HARMFUL")
+			end
 			if not name then
 				break
 			end
