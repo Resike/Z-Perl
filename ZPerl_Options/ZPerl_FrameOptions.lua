@@ -1033,7 +1033,7 @@ end
 function XPerl_Options_GetRangeTexture(self, isEnemy)
 	local spell = GetSpell(isEnemy)
 	if spell then
-		local tex = (C_Spell and C_Spell.GetSpellTexture) and C_Spell.GetSpellTexture(spell) or GetSpellTexture(spell)
+		local tex = (C_Spell and C_Spell.GetSpellTexture) and C_Spell.GetSpellTexture(spell) or (GetSpellTexture and GetSpellTexture(spell))
 		return tex, spell
 	end
 
@@ -1052,7 +1052,7 @@ end
 function XPerl_Options_GetRangeTextureEnemy(self)
 	local spell = GetSpellEnemy()
 	if spell then
-		local tex = (C_Spell and C_Spell.GetSpellTexture) and C_Spell.GetSpellTexture(spell) or GetSpellTexture(spell)
+		local tex = (C_Spell and C_Spell.GetSpellTexture) and C_Spell.GetSpellTexture(spell) or (GetSpellTexture and GetSpellTexture(spell))
 		return tex, spell
 	end
 
@@ -1073,7 +1073,7 @@ function XPerl_Options_DoRangeTooltip(self)
 
 	local spell = GetSpell()
 	if spell then
-		local link = GetSpellLink(spell)
+		local link = (C_Spell and C_Spell.GetSpellLink) and C_Spell.GetSpellLink(spell) or (GetSpellLink and GetSpellLink(spell))
 		if link then
 			if IsClassic then
 				local _, _, _, _, _, _, spellID = GetSpellInfo(spell)
@@ -1132,7 +1132,7 @@ function XPerl_Options_DoRangeTooltipEnemy(self)
 
 	local spell = GetSpellEnemy()
 	if spell then
-		local link = GetSpellLink(spell)
+		local link = (C_Spell and C_Spell.GetSpellLink) and C_Spell.GetSpellLink(spell) or (GetSpellLink and GetSpellLink(spell))
 		if link then
 			if IsClassic then
 				local _, _, _, _, _, _, spellID = GetSpellInfo(spell)
@@ -3156,7 +3156,7 @@ function XPerl_Options_Custom_ScanForIcons(self)
 
 					icon:SetScript("OnClick", function(self)
 						if IsModifiedClick("CHATLINK") then
-							local link = GetSpellLink(self.spellid)
+							local link = (C_Spell and C_Spell.GetSpellLink) and C_Spell.GetSpellLink(self.spellid) or (GetSpellLink and GetSpellLink(self.spellid))
 							if link then
 								ChatEdit_InsertLink(link)
 							end
@@ -3180,7 +3180,7 @@ function XPerl_Options_Custom_ScanForIcons(self)
 					end)
 					icon:SetScript("OnEnter", function(self)
 						GameTooltip:SetOwner(self, "ANCHOR_TOP")
-						local link = GetSpellLink(self.spellid)
+						local link = (C_Spell and C_Spell.GetSpellLink) and C_Spell.GetSpellLink(self.spellid) or (GetSpellLink and GetSpellLink(self.spellid))
 						local spellName, icon
 						if C_Spell and C_Spell.GetSpellInfo then
 							local spellInfo = C_Spell.GetSpellInfo(self.spellid)
