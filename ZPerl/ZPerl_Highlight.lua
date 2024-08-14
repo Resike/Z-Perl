@@ -37,7 +37,7 @@ local GetNumGroupMembers = GetNumGroupMembers
 local GetNumSpecializations = GetNumSpecializations
 local GetNumSubgroupMembers = GetNumSubgroupMembers
 local GetNumTalents = GetNumTalents
-local GetSpellInfo = GetSpellInfo
+local GetSpellInfo = C_Spell.GetSpellInfo
 local GetTalentInfo = GetTalentInfo
 local GetTime = GetTime
 local GetUnitName = GetUnitName
@@ -871,13 +871,13 @@ function xpHigh:CreateMendingIcon(frame)
 			icon.tex:SetAllPoints()
 			local _, class = UnitClass("player")
 			if class == "MONK" then
-				local _, _, texture = GetSpellInfo(115151)
+				local texture = GetSpellInfo(115151).iconID
 				icon.tex:SetTexture(texture)
 			elseif class == "PALADIN" then
-				local _, _, texture = GetSpellInfo(157007)
+				local texture = GetSpellInfo(157007).iconID
 				icon.tex:SetTexture(texture)
 			else
-				local _, _, texture = GetSpellInfo(33076)
+				local texture = GetSpellInfo(33076).iconID
 				icon.tex:SetTexture(texture)
 			end
 			icon.tex:SetTexCoord(0.1, 0.9, 0.1, 0.9)

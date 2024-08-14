@@ -4,6 +4,7 @@
 
 local IsRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
 local IsCataClassic = WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC
+local GetSpellInfo = C_Spell.GetSpellInfo
 
 XPerl_ProductName		= "|cFFD00000Z-Perl|r UnitFrames"
 XPerl_ShortProductName	= "|cFFD00000Z-Perl|r"

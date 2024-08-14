@@ -43,7 +43,7 @@ local UnregisterUnitWatch = UnregisterUnitWatch
 
 local UIParent = UIParent
 
-local feignDeath = GetSpellInfo(5384)
+local feignDeath = C_Spell.GetSpellInfo(5384)
 
 local conf
 XPerl_RequestConfig(function(new)
