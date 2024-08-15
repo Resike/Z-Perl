@@ -2585,7 +2585,7 @@ end
 
 -- XPerl_UnitBuff
 function XPerl_UnitBuff(unit, index, filter, raidFrames)
-	return BuffException(unit, index, filter, (IsVanillaClassic and unit == "target") and UnitAuraWithBuffs or (C_UnitAuras and C_UnitAuras.GetAuraDataByIndex or UnitAura), BuffExceptions, raidFrames)
+	return BuffException(unit, index, filter, (IsVanillaClassic and unit == "target") and UnitAuraDirect or (C_UnitAuras and C_UnitAuras.GetAuraDataByIndex or UnitAura), BuffExceptions, raidFrames)
 end
 
 -- XPerl_UnitDebuff
