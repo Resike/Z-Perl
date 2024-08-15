@@ -4150,7 +4150,7 @@
 													local ret
 													if (type == "spell") then
 														local spellName, subSpellName = (C_SpellBook and C_SpellBook.GetSpellBookItemName) and C_SpellBook.GetSpellBookItemName(detail, Enum.SpellBookSpellBank.Player) or (GetSpellBookItemName and GetSpellBookItemName(detail, subdetail))
-														if C_Spell then
+														if C_Spell and C_Spell.SpellHasRange and C_Spell.IsAutoAttackSpell and C_Spell.IsRangedAutoAttackSpell and C_Spell.IsSpellPassive then
 															if (spellName and C_Spell.SpellHasRange(spellName) and not C_Spell.IsAutoAttackSpell(spellName) and not C_Spell.IsRangedAutoAttackSpell(spellName) and not C_Spell.IsSpellPassive(spellName)) then
 																XPerlDB.rangeFinder[XPerl_Options.optRange].spell = spellName
 																XPerlDB.rangeFinder[XPerl_Options.optRange].item = nil
@@ -4269,7 +4269,7 @@
 													local ret
 													if (type == "spell") then
 														local spellName, subSpellName = (C_SpellBook and C_SpellBook.GetSpellBookItemName) and C_SpellBook.GetSpellBookItemName(detail, Enum.SpellBookSpellBank.Player) or (GetSpellBookItemName and GetSpellBookItemName(detail, subdetail))
-														if C_Spell then
+														if C_Spell and C_Spell.SpellHasRange and C_Spell.IsAutoAttackSpell and C_Spell.IsRangedAutoAttackSpell and C_Spell.IsSpellPassive then
 															if (spellName and C_Spell.SpellHasRange(spellName) and not C_Spell.IsAutoAttackSpell(spellName) and not C_Spell.IsRangedAutoAttackSpell(spellName) and not C_Spell.IsSpellPassive(spellName)) then
 																XPerlDB.rangeFinder[XPerl_Options.optRange].spell2 = spellName
 																XPerlDB.rangeFinder[XPerl_Options.optRange].item2 = nil

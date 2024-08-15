@@ -1,3 +1,6 @@
+**7.3.3**
+* Item range fixes.
+
 **7.3.2**
 * Fix spell/item range checks.
 

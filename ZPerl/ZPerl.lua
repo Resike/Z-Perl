@@ -410,133 +410,35 @@ local function DoRangeCheck(unit, opt)
 			range = nil
 		else--]]
 		if opt.interact then
-			if IsRetail or IsVanillaClassic then
-				if opt.interact == 6 then -- 45y
-					local checkedRange
-					range, checkedRange = UnitInRange(unit)
-					if not checkedRange then
-						range = 1
-					end
-				elseif opt.interact == 5 then -- 40y
-					local checkedRange
-					range, checkedRange = UnitInRange(unit)
-					if not checkedRange then
-						range = 1
-					end
-				elseif opt.interact == 3 then -- 10y
-					local checkedRange
-					range, checkedRange = UnitInRange(unit)
-					if not checkedRange then
-						range = 1
-					end
-				elseif opt.interact == 2 then -- 20y
-					local checkedRange
-					range, checkedRange = UnitInRange(unit)
-					if not checkedRange then
-						range = 1
-					end
-				elseif opt.interact == 1 then -- 30y
-					local checkedRange
-					range, checkedRange = UnitInRange(unit)
-					if not checkedRange then
-						range = 1
-					end
+			if opt.interact == 6 then -- 45y
+				local checkedRange
+				range, checkedRange = UnitInRange(unit)
+				if not checkedRange then
+					range = 1
 				end
-			else
-				if opt.interact == 6 then -- 45y
-					local checkedRange
-					if UnitCanAssist("player", unit) then
-						-- Wrangling Rope (45y)
-						range = IsItemInRange(32698, unit)
-						if range == nil then
-							-- Fallback (40y)
-							range, checkedRange = UnitInRange(unit)
-							if not checkedRange then
-								range = 1
-							end
-						end
-					else
-						-- Goblin Rocket Launcher (45y)
-						range = IsItemInRange(23836, unit)
-						if range == nil then
-							-- Fallback (40y)
-							range, checkedRange = UnitInRange(unit)
-							if not checkedRange then
-								range = 1
-							end
-						end
-					end
-				elseif opt.interact == 5 then -- 40y
-					local checkedRange
-					if UnitCanAssist("player", unit) then
-						-- Vial of the Sunwell (40y)
-						range = IsItemInRange(not IsClassic and 34471 or 1713 --[[Ankh of Life]], unit)
-						if range == nil then
-							-- Fallback (40y)
-							range, checkedRange = UnitInRange(unit)
-							if not checkedRange then
-								range = 1
-							end
-						end
-					else
-						-- The Decapitator (40y)
-						range = IsItemInRange(28767, unit)
-						if range == nil then
-							-- Fallback (40y)
-							range, checkedRange = UnitInRange(unit)
-							if not checkedRange then
-								range = 1
-							end
-						end
-					end
-				elseif opt.interact == 3 then -- 10y
-					if UnitCanAssist("player", unit) then
-						-- Sparrowhawk Net (10y)
-						range = IsItemInRange(not IsVanillaClassic and 32321 or 17689 --[[Stormpike Training Collar]], unit)
-						if range == nil then
-							-- Fallback (8y) (BCC = 8y) (Vanilla = 10 yards)
-							range = CheckInteractDistance(unit, IsVanillaClassic and 1 or 2)
-						end
-					else
-						-- Sparrowhawk Net (10y)
-						range = IsItemInRange(not IsVanillaClassic and 32321 or 9618 --[[Wildkin Muisek Vessel]], unit)
-						if range == nil then
-							-- Fallback (8y) (BCC = 8y) (Vanilla = 10 yards)
-							range = CheckInteractDistance(unit, IsVanillaClassic and 1 or 2)
-						end
-					end
-				elseif opt.interact == 2 then -- 20y
-					if UnitCanAssist("player", unit) then
-						-- Mistletoe (20y)
-						range = IsItemInRange(21519, unit)
-						if range == nil then
-							-- Fallback (28y) (BCC = 28y) (Vanilla = 28 yards)
-							range = CheckInteractDistance(unit, 4)
-						end
-					else
-						-- Gnomish Death Ray (20y)
-						range = IsItemInRange(not IsClassic and 10645 or 1191 --[[Bag of Marbles]], unit)
-						if range == nil then
-							-- Fallback (28y) (BCC = 28y) (Vanilla = 28 yards)
-							range = CheckInteractDistance(unit, 4)
-						end
-					end
-				elseif opt.interact == 1 then -- 30y
-					if UnitCanAssist("player", unit) then
-						-- Handful of Snowflakes (30y)
-						range = IsItemInRange(not IsClassic and 34191 or 1180 --[[Scroll of Stamina]], unit)
-						if range == nil then
-							-- Fallback (28y) (BCC = 28y) (Vanilla = 28 yards)
-							range = CheckInteractDistance(unit, 4)
-						end
-					else
-						-- Handful of Snowflakes (30y)
-						range = IsItemInRange(not IsClassic and 34191 or 835 --[[Large Rope Net]], unit)
-						if range == nil then
-							-- Fallback (28y) (BCC = 28y) (Vanilla = 28 yards)
-							range = CheckInteractDistance(unit, 4)
-						end
-					end
+			elseif opt.interact == 5 then -- 40y
+				local checkedRange
+				range, checkedRange = UnitInRange(unit)
+				if not checkedRange then
+					range = 1
+				end
+			elseif opt.interact == 3 then -- 10y
+				local checkedRange
+				range, checkedRange = UnitInRange(unit)
+				if not checkedRange then
+					range = 1
+				end
+			elseif opt.interact == 2 then -- 20y
+				local checkedRange
+				range, checkedRange = UnitInRange(unit)
+				if not checkedRange then
+					range = 1
+				end
+			elseif opt.interact == 1 then -- 30y
+				local checkedRange
+				range, checkedRange = UnitInRange(unit)
+				if not checkedRange then
+					range = 1
 				end
 			end
 			-- CheckInteractDistance
@@ -548,28 +450,31 @@ local function DoRangeCheck(unit, opt)
 		elseif opt.spell or opt.spell2 then
 			if IsRetail or IsVanillaClassic then
 				if UnitCanAssist("player", unit) and opt.spell then
-					range = IsSpellInRange(opt.spell, unit)
+					range = (C_Spell and C_Spell.IsSpellInRange) and C_Spell.IsSpellInRange(opt.spell, unit) or (IsSpellInRange and IsSpellInRange(opt.spell, unit))
 				elseif UnitCanAttack("player", unit) and opt.spell2 then
-					range = IsSpellInRange(opt.spell2, unit)
+					range = (C_Spell and C_Spell.IsSpellInRange) and C_Spell.IsSpellInRange(opt.spell2, unit) or (IsSpellInRange and IsSpellInRange(opt.spell2, unit))
+				else
+					-- Fallback (28y) (BCC = 28y) (Vanilla = 28 yards)
+					range = not InCombatLockdown() and CheckInteractDistance(unit, 4)
 				end
 			else
 				if UnitCanAssist("player", unit) and opt.spell then
-					range = IsSpellInRange(opt.spell, unit)
+					range = (C_Spell and C_Spell.IsSpellInRange) and C_Spell.IsSpellInRange(opt.spell, unit) or (IsSpellInRange and IsSpellInRange(opt.spell, unit))
 				elseif UnitCanAttack("player", unit) and opt.spell2 then
-					range = IsSpellInRange(opt.spell2, unit)
+					range = (C_Spell and C_Spell.IsSpellInRange) and C_Spell.IsSpellInRange(opt.spell2, unit) or (IsSpellInRange and IsSpellInRange(opt.spell2, unit))
 				else
 					-- Fallback (28y) (BCC = 28y) (Vanilla = 28 yards)
-					range = CheckInteractDistance(unit, 4)
+					range = not InCombatLockdown() and CheckInteractDistance(unit, 4)
 				end
 			end
 		elseif not IsRetail and not IsVanillaClassic and (opt.item or opt.item2) then
 			if UnitCanAssist("player", unit) and opt.item then
-				range = IsItemInRange(opt.item, unit)
+				range = not InCombatLockdown() and IsItemInRange(opt.item, unit)
 			elseif UnitCanAttack("player", unit) and opt.item2 then
-				range = IsItemInRange(opt.item2, unit)
+				range = not InCombatLockdown() and IsItemInRange(opt.item2, unit)
 			else
 				-- Fallback (28y) (BCC = 28y) (Vanilla = 28 yards)
-				range = CheckInteractDistance(unit, 4)
+				range = not InCombatLockdown() and CheckInteractDistance(unit, 4)
 			end
 		else
 			range = 1
