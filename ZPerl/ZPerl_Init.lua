@@ -280,7 +280,7 @@ local function GetNamesWithoutBuff(spellName, with, filter)
 			local hasBuff
 			for i = 1, 40 do
 				local name, icon, applications, duration, expirationTime, sourceUnit, isStealable
-				if C_UnitAuras then
+				if not IsVanillaClassic and C_UnitAuras then
 					local auraData = C_UnitAuras.GetAuraDataByIndex(unitid, i, filter)
 					if auraData then
 						name = auraData.name
@@ -419,7 +419,7 @@ end
 local function XPerl_ToolTip_AddBuffDuration(self, partyid, buffID, filter)
 	if IsInRaid() or UnitInParty("player") then
 		local name, applications, duration, expirationTime, sourceUnit, isStealable
-		if C_UnitAuras then
+		if not IsVanillaClassic and C_UnitAuras then
 			local auraData = C_UnitAuras.GetAuraDataByIndex(partyid, buffID, filter)
 			if auraData then
 				name = auraData.name

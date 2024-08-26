@@ -19,6 +19,7 @@ end
 
 local IsRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
 local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
+local IsVanillaClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 
 -- setCommon
 local function setCommon(self, filter, buffTemplate)
@@ -366,7 +367,7 @@ function XPerl_PlayerBuffs_Update(self)
 
 		if filter and unit then
 			local name, icon, applications, dispelName, duration, expirationTime, sourceUnit
-			if C_UnitAuras then
+			if not IsVanillaClassic and C_UnitAuras then
 				local auraData = C_UnitAuras.GetAuraDataByIndex(unit, index, filter)
 				if auraData then
 					name = auraData.name

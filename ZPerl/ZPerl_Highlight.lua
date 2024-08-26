@@ -691,7 +691,7 @@ function xpHigh:GetMyHotTime(unit)
 	local maxDur, maxTimeLeft = 0, 0
 	for i = 1, 40 do
 		local name, duration, expirationTime
-		if C_UnitAuras then
+		if not IsVanillaClassic and C_UnitAuras then
 			local auraData = C_UnitAuras.GetAuraDataByIndex(unit, i, "HELPFUL|PLAYER")
 			if auraData then
 				name = auraData.name
@@ -780,7 +780,7 @@ end
 function xpHigh:HasMyHOT(unit)
 	for i = 1, 40 do
 		local name
-		if C_UnitAuras then
+		if not IsVanillaClassic and C_UnitAuras then
 			local auraData = C_UnitAuras.GetAuraDataByIndex(unit, i, "HELPFUL|PLAYER")
 			if auraData then
 				name = auraData.name
@@ -828,7 +828,7 @@ end
 function xpHigh:GetMyPomEndTime(unit)
 	for i = 1, 40 do
 		local name, expirationTime
-		if C_UnitAuras then
+		if not IsVanillaClassic and C_UnitAuras then
 			local auraData = C_UnitAuras.GetAuraDataByIndex(unit, i, "HELPFUL|PLAYER")
 			if auraData then
 				name = auraData.name
@@ -1534,7 +1534,7 @@ function xpHigh.clEvents:SPELL_PERIODIC_HEAL(timestamp, event, srcGUID, srcName,
 					local index = 40
 					for i = 1, 39 do
 						local ID
-						if C_UnitAuras then
+						if not IsVanillaClassic and C_UnitAuras then
 							local auraData = C_UnitAuras.GetAuraDataByIndex(checkName, i, "HELPFUL|PLAYER")
 							if auraData then
 								ID = auraData.spellId
@@ -1550,7 +1550,7 @@ function xpHigh.clEvents:SPELL_PERIODIC_HEAL(timestamp, event, srcGUID, srcName,
 					end
 
 					local expirationTime, sourceUnit
-					if C_UnitAuras then
+					if not IsVanillaClassic and C_UnitAuras then
 						local auraData = C_UnitAuras.GetAuraDataByIndex(checkName, index, "HELPFUL|PLAYER")
 						if auraData then
 							expirationTime = auraData.expirationTime
@@ -1756,7 +1756,7 @@ end
 function xpHigh:HasMyPomPom(unit)
 	for i = 1, 40 do
 		local name, expirationTime
-		if C_UnitAuras then
+		if not IsVanillaClassic and C_UnitAuras then
 			local auraData = C_UnitAuras.GetAuraDataByIndex(unit, i, "HELPFUL|PLAYER")
 			if auraData then
 				name = auraData.name
@@ -1779,7 +1779,7 @@ end
 function xpHigh:HasMyShield(unit)
 	for i = 1, 40 do
 		local name, expirationTime
-		if C_UnitAuras then
+		if not IsVanillaClassic and C_UnitAuras then
 			local auraData = C_UnitAuras.GetAuraDataByIndex(unit, i, "HELPFUL|PLAYER")
 			if auraData then
 				name = auraData.name
@@ -1873,7 +1873,7 @@ function xpHigh:UNIT_AURA(unit)
 		local hotCount = 0
 		for i = 1, 40 do
 			local name
-			if C_UnitAuras then
+			if not IsVanillaClassic and C_UnitAuras then
 				local auraData = C_UnitAuras.GetAuraDataByIndex(unit, i, "HELPFUL")
 				if auraData then
 					name = auraData.name

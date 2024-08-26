@@ -1,3 +1,6 @@
+**7.3.5**
+* Vanilla Classic proper buff fixes.
+
 **7.3.4**
 * Buff fixes.
 

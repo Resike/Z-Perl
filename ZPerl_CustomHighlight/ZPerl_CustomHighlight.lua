@@ -13,6 +13,7 @@ XPerl_RequestConfig(function(new)
 end, "$Revision: @file-revision@ $")
 
 local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
+local IsVanillaClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 
 local pairs = pairs
 local tinsert = tinsert
@@ -556,7 +557,7 @@ function CustomHighlight:Check(frame, unit)
 
 		for i = 1, 40 do
 			local name, icon
-			if C_UnitAuras then
+			if not IsVanillaClassic and C_UnitAuras then
 				local auraData = C_UnitAuras.GetAuraDataByIndex(unit, i, "HARMFUL")
 				if auraData then
 					name = auraData.name

@@ -548,7 +548,7 @@ function XPerl_TargetTarget_Update(self)
 				end
 				offset = offset + 20
 				local name
-				if C_UnitAuras then
+				if not IsVanillaClassic and C_UnitAuras then
 					local auraData = C_UnitAuras.GetAuraDataByIndex("targettarget", 9, "HELPFUL")
 					if auraData then
 						name = auraData.name

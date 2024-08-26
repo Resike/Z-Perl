@@ -365,7 +365,7 @@ local function DoRangeCheck(unit, opt)
 
 	if opt.PlusDebuff and ((opt.PlusHealth and range == 0) or not opt.PlusHealth) then
 		local name
-		if C_UnitAuras then
+		if not IsVanillaClassic and C_UnitAuras then
 			local auraData = C_UnitAuras.GetAuraDataByIndex(unit, 1, "HARMFUL|RAID")
 			if auraData then
 				name = auraData.name
@@ -380,7 +380,7 @@ local function DoRangeCheck(unit, opt)
 				-- It's one of the filtered debuffs, so we have to iterate thru all debuffs to see if anything is curable
 				for i = 1, 40 do
 					local name
-					if C_UnitAuras then
+					if not IsVanillaClassic and C_UnitAuras then
 						local auraData = C_UnitAuras.GetAuraDataByIndex(unit, i, "HARMFUL|RAID")
 						if auraData then
 							name = auraData.name
@@ -2023,7 +2023,7 @@ function XPerl_CheckDebuffs(self, unit, resetBorders)
 
 	for i = 1, 40 do
 		local name, dispelName
-		if C_UnitAuras then
+		if not IsVanillaClassic and C_UnitAuras then
 			local auraData = C_UnitAuras.GetAuraDataByIndex(unit, i, "HARMFUL")
 			if auraData then
 				name = auraData.name
@@ -2429,7 +2429,7 @@ local function BuffException(unit, index, filter, func, exceptions, raidFrames)
 	local name, icon, applications, dispelName, duration, expirationTime, sourceUnit, isStealable, nameplateShowPersonal, spellId
 	if filter ~= "HELPFUL|RAID" and filter ~= "HARMFUL|RAID" then
 		-- Not filtered, just return it
-		if C_UnitAuras then
+		if not IsVanillaClassic and C_UnitAuras then
 			local auraData = func(unit, index, filter)
 			if auraData then
 				name = auraData.name
@@ -2449,7 +2449,7 @@ local function BuffException(unit, index, filter, func, exceptions, raidFrames)
 		return name, icon, applications, dispelName, duration, expirationTime, sourceUnit, isStealable, nameplateShowPersonal, spellId, index
 	end
 
-	if C_UnitAuras then
+	if not IsVanillaClassic and C_UnitAuras then
 		local auraData = func(unit, index, filter)
 		if auraData then
 			name = auraData.name
@@ -2470,7 +2470,7 @@ local function BuffException(unit, index, filter, func, exceptions, raidFrames)
 		-- We need the index of the buff unfiltered later for tooltips
 		for i = 1, 40 do
 			local name, icon, applications, sourceUnit
-			if C_UnitAuras then
+			if not IsVanillaClassic and C_UnitAuras then
 				local auraData = func(unit, i, filter)
 				if auraData then
 					name = auraData.name
@@ -2497,7 +2497,7 @@ local function BuffException(unit, index, filter, func, exceptions, raidFrames)
 	-- See how many filtered buffs WoW has returned by default
 	local normalBuffFilterCount = 0
 	for i = 1, 40 do
-		if C_UnitAuras then
+		if not IsVanillaClassic and C_UnitAuras then
 			local auraData = func(unit, i, filter == "HELPFUL" and "HELPFUL|RAID" or (filter == "HARMFUL" and "HARMFUL|RAID" or filter))
 			if auraData then
 				name = auraData.name
@@ -2517,7 +2517,7 @@ local function BuffException(unit, index, filter, func, exceptions, raidFrames)
 	local classExceptions = exceptions[playerClass]
 	local allExceptions = exceptions.ALL
 	for i = 1, 40 do
-		if C_UnitAuras then
+		if not IsVanillaClassic and C_UnitAuras then
 			local auraData = func(unit, i, filter)
 			if auraData then
 				name = auraData.name
@@ -2585,7 +2585,7 @@ end
 
 -- XPerl_UnitBuff
 function XPerl_UnitBuff(unit, index, filter, raidFrames)
-	return BuffException(unit, index, filter, (IsVanillaClassic and unit == "target") and UnitAuraDirect or (C_UnitAuras and C_UnitAuras.GetAuraDataByIndex or UnitAura), BuffExceptions, raidFrames)
+	return BuffException(unit, index, filter, (IsVanillaClassic and unit == "target") and UnitAuraWithBuffs or (C_UnitAuras and C_UnitAuras.GetAuraDataByIndex or UnitAura), BuffExceptions, raidFrames)
 end
 
 -- XPerl_UnitDebuff
@@ -2599,7 +2599,7 @@ end
 -- XPerl_TooltipSetUnitBuff
 -- Retreives the index of the actual unfiltered buff, and uses this on unfiltered tooltip call
 function XPerl_TooltipSetUnitBuff(self, unit, ind, filter, raidFrames)
-	local name, icon, count, debuffType, duration, expirationTime, unitCaster, canStealOrPurge, nameplateShowPersonal, spellID, index = BuffException(unit, ind, filter, (IsVanillaClassic and unit == "target") and UnitAuraDirect or (C_UnitAuras and C_UnitAuras.GetAuraDataByIndex or UnitAura), BuffExceptions, raidFrames)
+	local name, icon, count, debuffType, duration, expirationTime, unitCaster, canStealOrPurge, nameplateShowPersonal, spellID, index = BuffException(unit, ind, filter, (IsVanillaClassic and unit == "target") and UnitAuraWithBuffs or (C_UnitAuras and C_UnitAuras.GetAuraDataByIndex or UnitAura), BuffExceptions, raidFrames)
 	if (name and index) then
 		if (Utopia_SetUnitBuff) then
 			Utopia_SetUnitBuff(self, unit, index)
@@ -2945,7 +2945,7 @@ local function AuraButtonOnShow(self)
 	end
 
 	local duration, expirationTime, sourceUnit
-	if C_UnitAuras then
+	if not IsVanillaClassic and C_UnitAuras then
 		local auraData = C_UnitAuras.GetAuraDataByIndex("player", self.xindex, self.xfilter)
 		if auraData then
 			duration = auraData.duration
