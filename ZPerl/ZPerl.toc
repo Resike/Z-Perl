@@ -1,5 +1,5 @@
 ## Interface: 11503, 40400, 110002
-## Version: 7.3.4
+## Version: 7.3.6
 ## Author: Resike
 ## Title: Z-Perl UnitFrames
 ## Title-itIT: Z-Perl UnitFrames

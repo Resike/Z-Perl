@@ -1861,7 +1861,7 @@ end
 
 -- XPerl_ItemCheckCount
 local function XPerl_ItemCheckCount(itemName, author)
-	local count = GetItemCount(itemName)
+	local count = (C_Item and C_Item.GetItemCount) and C_Item.GetItemCount(itemName) or GetItemCount(itemName)
 	if (count and count > 0) then
 		SendAddonMessage("CTRA", "ITM "..count.." "..itemName.." "..author, "RAID")
 	end

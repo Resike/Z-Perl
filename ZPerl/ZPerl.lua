@@ -326,7 +326,7 @@ local function FindABandage()
 	}
 
 	for k, v in pairs(bandages) do
-		if (GetItemCount(k) > 0) then
+		if (C_Item and C_Item.GetItemCount) and C_Item.GetItemCount(k) or GetItemCount(k) > 0 then
 			return GetItemInfo(k)
 		end
 	end
@@ -2585,21 +2585,21 @@ end
 
 -- XPerl_UnitBuff
 function XPerl_UnitBuff(unit, index, filter, raidFrames)
-	return BuffException(unit, index, filter, (IsVanillaClassic and unit == "target") and UnitAuraWithBuffs or (C_UnitAuras and C_UnitAuras.GetAuraDataByIndex or UnitAura), BuffExceptions, raidFrames)
+	return BuffException(unit, index, filter, (IsVanillaClassic and unit == "target") and UnitAuraWithBuffs or ((not IsVanillaClassic and C_UnitAuras) and C_UnitAuras.GetAuraDataByIndex or UnitAura), BuffExceptions, raidFrames)
 end
 
 -- XPerl_UnitDebuff
 function XPerl_UnitDebuff(unit, index, filter, raidFrames)
 	if (conf.buffs.ignoreSeasonal or raidFrames) then
-		return DebuffException(unit, index, filter, C_UnitAuras and C_UnitAuras.GetAuraDataByIndex or UnitAura, raidFrames)
+		return DebuffException(unit, index, filter, (not IsVanillaClassic and C_UnitAuras) and C_UnitAuras.GetAuraDataByIndex or UnitAura, raidFrames)
 	end
-	return BuffException(unit, index, filter, C_UnitAuras and C_UnitAuras.GetAuraDataByIndex or UnitAura, DebuffExceptions, raidFrames)
+	return BuffException(unit, index, filter, (not IsVanillaClassic and C_UnitAuras) and C_UnitAuras.GetAuraDataByIndex or UnitAura, DebuffExceptions, raidFrames)
 end
 
 -- XPerl_TooltipSetUnitBuff
 -- Retreives the index of the actual unfiltered buff, and uses this on unfiltered tooltip call
 function XPerl_TooltipSetUnitBuff(self, unit, ind, filter, raidFrames)
-	local name, icon, count, debuffType, duration, expirationTime, unitCaster, canStealOrPurge, nameplateShowPersonal, spellID, index = BuffException(unit, ind, filter, (IsVanillaClassic and unit == "target") and UnitAuraWithBuffs or (C_UnitAuras and C_UnitAuras.GetAuraDataByIndex or UnitAura), BuffExceptions, raidFrames)
+	local name, icon, count, debuffType, duration, expirationTime, unitCaster, canStealOrPurge, nameplateShowPersonal, spellID, index = BuffException(unit, ind, filter, (IsVanillaClassic and unit == "target") and UnitAuraWithBuffs or ((not IsVanillaClassic and C_UnitAuras) and C_UnitAuras.GetAuraDataByIndex or UnitAura), BuffExceptions, raidFrames)
 	if (name and index) then
 		if (Utopia_SetUnitBuff) then
 			Utopia_SetUnitBuff(self, unit, index)
