@@ -42,7 +42,7 @@ XPERL_LOC_ZONE_DRAGONSOUL = "Alma de Dragón"
 XPERL_LOC_ZONE_EMERALD_NIGHTMARE = "Pesadilla Esmeralda"
 XPERL_LOC_ZONE_EYE_OF_ETERNITY = "El Ojo de la Eternidad"
 XPERL_LOC_ZONE_FIRELANDS = "Tierras de Fuego"
-XPERL_LOC_ZONE_HYJAL_SUMMIT = "Cima Hyjal"
+XPERL_LOC_ZONE_HYJAL_SUMMIT = "La Cima Hyjal"
 XPERL_LOC_ZONE_ICECROWN_CITADEL = "Ciudadela de la Corona de Hielo"
 XPERL_LOC_ZONE_KARAZHAN = "Karazhan"
 XPERL_LOC_ZONE_NAXXRAMAS = "Naxxramas"
@@ -54,7 +54,7 @@ XPERL_LOC_ZONE_SUNWELL_PLATEAU = "Meseta de La Fuente del Sol"
 XPERL_LOC_ZONE_THRONE_OF_FOUR_WINDS = "Trono de los Cuatro Vientos"
 XPERL_LOC_ZONE_TOMB_OF_SARGERAS = "Tumba de Sargeras"
 XPERL_LOC_ZONE_TRIAL_OF_THE_CRUSADER = "Prueba del Cruzado"
-XPERL_LOC_ZONE_TRIAL_OF_VALOR = "Prueba de Valor"
+XPERL_LOC_ZONE_TRIAL_OF_VALOR = "Prueba del Valor"
 XPERL_LOC_ZONE_ULDUAR = "Ulduar"
 
 -- Status
@@ -127,7 +127,7 @@ XPerlUsageNameList = {
     XPerl_GrimReaper = "Segador"
 }
 
-XPERL_USAGE_MEMMAX = "Memoria máxima de UI: %d"
+XPERL_USAGE_MEMMAX = "Memoria máxima de la IU: %d"
 XPERL_USAGE_MODULES = "Módulos: "
 XPERL_USAGE_NEWVERSION = "*Versión más reciente"
 XPERL_USAGE_AVAILABLE = "%s |c00FFFFFF%s|r está disponible para descargar"
