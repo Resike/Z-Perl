@@ -12,6 +12,9 @@
 ## Notes-ruRU: Заменяет стандартные фреймы игроков, группы, цели, питомца и добавляет цель цели.
 ## Notes-deDE: Ersetzt die normalen Fenster (Einheit, Gruppe, Ziel, Begleiter und Ziel des Ziels).
 ## Notes-esES: Reemplazo para los marcos de unidades, con nuevo aspecto para jugador, mascota, grupo, objetivo, objetivo del objetivo, y banda
+## Notes-esMX: Reemplazo para los marcos de unidades, con nuevo aspecto para jugador, mascota, grupo, objetivo, objetivo del objetivo, y banda
+## Notes-ptBR: Substituição para os quadros de unidades, com nova aparência para jogador, mascote, grupo, objetivo, objetivo do objetivo e raide
+## Notes-frFR: Remplacement pour les cadres d'unités, avec une nouvelle apparence pour le joueur, la mascotte, le groupe, la cible, la cible de la cible et le raid
 ## Notes-zhCN: 玩家头像增强插件，附带团队助手功能
 ## Notes-zhTW: 提供玩家單位、隊伍、目標、寵物、目標的目標頭像增強以及團隊框架顯示、團隊助手等等功能
 ## SavedVariables: ZPerlConfig, ZPerlConfig_Global, ZPerlConfigNew, ZPerlConfigSavePerCharacter, ZPerlImportDone
