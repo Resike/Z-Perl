@@ -91,7 +91,7 @@
 								</Anchor>
 							</Anchors>
 						</Texture>
-						<!-- 30 Yard Range Icon -->
+						<!-- 40 Yard Range Icon -->
 						<Texture name="$parentrangeIcon" file="Interface\Addons\ZPerl\Images\XPerl_30Yard" hidden="true">
 							<Size>
 								<AbsDimension x="48" y="19"/>

@@ -3,7 +3,7 @@
 -- License: GNU GPL v3, 29 June 2007 (see LICENSE.txt)
 
 local IsRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
-local IsCataClassic = WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC
+local IsPandaClassic = WOW_PROJECT_ID == WOW_PROJECT_MISTS_CLASSIC
 local IsVanillaClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 
 XPerlLocked = 1
@@ -719,7 +719,7 @@ local function DefaultRaidClasses()
 			{enable = true, name = "DEMONHUNTER"},
 			{enable = true, name = "EVOKER"}
 		}
-	elseif IsCataClassic then
+	elseif IsPandaClassic then
 		return {
 			{enable = true, name = "WARRIOR"},
 			{enable = true, name = "DEATHKNIGHT"},
@@ -757,7 +757,7 @@ local function ValidateClassNames(part)
 	local list
 	if IsRetail then
 		list = {WARRIOR = false, MAGE = false, ROGUE = false, DRUID = false, HUNTER = false, SHAMAN = false, PRIEST = false, WARLOCK = false, PALADIN = false, DEATHKNIGHT = false, MONK = false, DEMONHUNTER = false, EVOKER = false}
-	elseif IsCataClassic then
+	elseif IsPandaClassic then
 		list = {WARRIOR = false, MAGE = false, ROGUE = false, DRUID = false, HUNTER = false, SHAMAN = false, PRIEST = false, WARLOCK = false, PALADIN = false, DEATHKNIGHT = false}
 	else
 		list = {WARRIOR = false, MAGE = false, ROGUE = false, DRUID = false, HUNTER = false, SHAMAN = false, PRIEST = false, WARLOCK = false, PALADIN = false}

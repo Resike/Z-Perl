@@ -1271,7 +1271,7 @@
 					<OnLoad>
 						self:SetID(self:GetParent():GetID())
 						self.tooltipText = XPERL_CONF_RAID_CLASS_DOWN
-						if (self:GetID() == (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC and 9 or (WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC and 10 or 13))) then
+						if (self:GetID() == (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC and 9 or (WOW_PROJECT_ID == WOW_PROJECT_MISTS_CLASSIC and 11 or 13))) then
 							self:Hide()
 						end
 					</OnLoad>
@@ -4163,13 +4163,13 @@
 																ret = true
 															end
 														end
-													elseif (type == "item") then
+													--[[elseif (type == "item") then
 														local itemName = GetItemInfo(detail)
 														if (ItemHasRange(itemName)) then
 															XPerlDB.rangeFinder[XPerl_Options.optRange].spell = nil
 															XPerlDB.rangeFinder[XPerl_Options.optRange].item = itemName
 															ret = true
-														end
+														end]]
 													end
 													ClearCursor()
 													self:ShowMe()
@@ -4282,13 +4282,13 @@
 																ret = true
 															end
 														end
-													elseif (type == "item") then
+													--[[elseif (type == "item") then
 														local itemName = GetItemInfo(detail)
 														if (ItemHasRange(itemName)) then
 															XPerlDB.rangeFinder[XPerl_Options.optRange].spell2 = nil
 															XPerlDB.rangeFinder[XPerl_Options.optRange].item2 = itemName
 															ret = true
-														end
+														end]]
 													end
 													ClearCursor()
 													self:ShowMe()
@@ -5447,7 +5447,7 @@
 						</Anchors>
 						<Scripts>
 							<OnLoad>
-								if WOW_PROJECT_ID ~= WOW_PROJECT_CATACLYSM_CLASSIC then
+								if WOW_PROJECT_ID ~= WOW_PROJECT_MISTS_CLASSIC then
 									self:Hide()
 									return
 								end
@@ -6620,7 +6620,7 @@
 						</Anchors>
 						<Scripts>
 							<OnLoad>
-								if WOW_PROJECT_ID ~= WOW_PROJECT_CATACLYSM_CLASSIC then
+								if WOW_PROJECT_ID ~= WOW_PROJECT_MISTS_CLASSIC then
 									self:Hide()
 									return
 								end
@@ -7868,7 +7868,7 @@
 						</Anchors>
 						<Scripts>
 							<OnLoad>
-								if WOW_PROJECT_ID ~= WOW_PROJECT_CATACLYSM_CLASSIC then
+								if WOW_PROJECT_ID ~= WOW_PROJECT_MISTS_CLASSIC then
 									self:Hide()
 									return
 								end
@@ -8654,7 +8654,7 @@
 								</Anchors>
 								<Scripts>
 									<OnLoad>
-										if WOW_PROJECT_ID ~= WOW_PROJECT_CATACLYSM_CLASSIC then
+										if WOW_PROJECT_ID ~= WOW_PROJECT_MISTS_CLASSIC then
 											self:Hide()
 											return
 										end
@@ -9837,7 +9837,7 @@
 						</Anchors>
 						<Scripts>
 							<OnLoad>
-								if WOW_PROJECT_ID ~= WOW_PROJECT_CATACLYSM_CLASSIC then
+								if WOW_PROJECT_ID ~= WOW_PROJECT_MISTS_CLASSIC then
 									self:Hide()
 									return
 								end
@@ -10298,7 +10298,7 @@
 								</Anchors>
 								<Scripts>
 									<OnLoad>
-										if WOW_PROJECT_ID ~= WOW_PROJECT_CATACLYSM_CLASSIC then
+										if WOW_PROJECT_ID ~= WOW_PROJECT_MISTS_CLASSIC then
 											self:Hide()
 											return
 										end
@@ -11260,7 +11260,7 @@
 						</Anchors>
 						<Scripts>
 							<OnLoad>
-								if WOW_PROJECT_ID ~= WOW_PROJECT_CATACLYSM_CLASSIC then
+								if WOW_PROJECT_ID ~= WOW_PROJECT_MISTS_CLASSIC then
 									self:Hide()
 									return
 								end
@@ -12452,7 +12452,7 @@
 						</Anchors>
 						<Scripts>
 							<OnLoad>
-								if WOW_PROJECT_ID ~= WOW_PROJECT_CATACLYSM_CLASSIC then
+								if WOW_PROJECT_ID ~= WOW_PROJECT_MISTS_CLASSIC then
 									self:Hide()
 									return
 								end
@@ -13148,7 +13148,7 @@
 								</Anchors>
 								<Scripts>
 									<OnLoad>
-										if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC or WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC then
+										if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC then
 											self:Hide()
 											return
 										end
@@ -13175,7 +13175,7 @@
 								</Anchors>
 								<Scripts>
 									<OnLoad>
-										if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC or WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC then
+										if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC or WOW_PROJECT_ID == WOW_PROJECT_MISTS_CLASSIC then
 											self:Hide()
 											return
 										end
@@ -13202,7 +13202,7 @@
 								</Anchors>
 								<Scripts>
 									<OnLoad>
-										if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC or WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC then
+										if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC or WOW_PROJECT_ID == WOW_PROJECT_MISTS_CLASSIC then
 											self:Hide()
 											return
 										end
@@ -13349,7 +13349,7 @@
 								</Anchors>
 								<Scripts>
 									<OnLoad>
-										if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC or WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC then
+										if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC or WOW_PROJECT_ID == WOW_PROJECT_MISTS_CLASSIC then
 											self:Hide()
 										end
 									</OnLoad>
@@ -13366,7 +13366,7 @@
 								</Anchors>
 								<Scripts>
 									<OnLoad>
-										if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC or WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC then
+										if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC or WOW_PROJECT_ID == WOW_PROJECT_MISTS_CLASSIC then
 											self:Hide()
 										end
 									</OnLoad>
@@ -13383,7 +13383,7 @@
 								</Anchors>
 								<Scripts>
 									<OnLoad>
-										if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC or WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC then
+										if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC or WOW_PROJECT_ID == WOW_PROJECT_MISTS_CLASSIC then
 											self:Hide()
 										end
 									</OnLoad>
@@ -13938,7 +13938,7 @@
 						</Anchors>
 						<Scripts>
 							<OnLoad>
-								if WOW_PROJECT_ID ~= WOW_PROJECT_CATACLYSM_CLASSIC then
+								if WOW_PROJECT_ID ~= WOW_PROJECT_MISTS_CLASSIC then
 									self:Hide()
 									return
 								end
@@ -14872,7 +14872,7 @@
 								</Anchors>
 								<Scripts>
 									<OnLoad>
-										if WOW_PROJECT_ID ~= WOW_PROJECT_CATACLYSM_CLASSIC then
+										if WOW_PROJECT_ID ~= WOW_PROJECT_MISTS_CLASSIC then
 											self:Hide()
 											return
 										end
@@ -14910,7 +14910,7 @@
 								</Anchors>
 								<Scripts>
 									<OnLoad>
-										if WOW_PROJECT_ID ~= WOW_PROJECT_CATACLYSM_CLASSIC then
+										if WOW_PROJECT_ID ~= WOW_PROJECT_MISTS_CLASSIC then
 											self:SetPoint("TOPLEFT", self:GetParent():GetName().."_ColourHealPredictionBar", "BOTTOMLEFT", 0, -2)
 										end
 										XPerl_OptionsSetMyText(self, "XPERL_CONF_COLOUR_MANA")

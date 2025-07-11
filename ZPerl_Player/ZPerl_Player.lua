@@ -24,7 +24,7 @@ end
 --@end-debug@]===]
 
 local IsRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
-local IsCataClassic = WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC
+local IsPandaClassic = WOW_PROJECT_ID == WOW_PROJECT_MISTS_CLASSIC
 local IsVanillaClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
 
@@ -801,7 +801,7 @@ end
 
 -- XPerl_Player_UpdateHotsPrediction
 local function XPerl_Player_UpdateHotsPrediction(self)
-	if not IsCataClassic then
+	if not IsPandaClassic then
 		return
 	end
 	if pconf.hotPrediction then
@@ -1953,7 +1953,7 @@ function XPerl_Player_Events:UNIT_HEAL_PREDICTION(unit)
 	if pconf.healprediction and unit == self.partyid then
 		XPerl_SetExpectedHealth(self)
 	end
-	if not IsCataClassic then
+	if not IsPandaClassic then
 		return
 	end
 	if pconf.hotPrediction and unit == self.partyid then
@@ -2324,7 +2324,7 @@ function XPerl_Player_InitDruid(self, playerClass)
 		self.runes.child:SetPoint("TOP", self.runes, "TOP", 0, -6)
 
 		self.runes.child:Setup()
-	elseif IsCataClassic then
+	elseif IsPandaClassic then
 		self.runes = CreateFrame("Frame", "XPerl_Runes", self)
 		self.runes:SetPoint("TOPLEFT", self.statsFrame, "BOTTOMLEFT", 0, 2)
 		self.runes:SetPoint("BOTTOMRIGHT", self.statsFrame, "BOTTOMRIGHT", 0, -22)
@@ -2467,7 +2467,7 @@ function XPerl_Player_InitWarlock(self, playerClass)
 		self.runes.child:SetPoint("TOP", self.runes, "TOP", 0, -2)
 
 		self.runes.child:Setup()
-	elseif IsCataClassic then
+	elseif IsPandaClassic then
 		self.runes = CreateFrame("Frame", "XPerl_Runes", self)
 		self.runes:SetPoint("TOPLEFT", self.statsFrame, "BOTTOMLEFT", 0, 2)
 		self.runes:SetPoint("BOTTOMRIGHT", self.statsFrame, "BOTTOMRIGHT", 0, -22)
@@ -2562,7 +2562,7 @@ function XPerl_Player_InitPaladin(self, playerClass)
 		self.runes.child:SetPoint("TOP", self.runes, "TOP", 0, 3)
 
 		self.runes.child:Setup()
-	elseif IsCataClassic then
+	elseif IsPandaClassic then
 		self.runes = CreateFrame("Frame", "XPerl_Runes", self)
 		self.runes:SetPoint("TOPLEFT", self.statsFrame, "BOTTOMLEFT", 0, 2)
 		self.runes:SetPoint("BOTTOMRIGHT", self.statsFrame, "BOTTOMRIGHT", 0, -22)
@@ -2810,7 +2810,7 @@ function XPerl_Player_InitDK(self, playerClass)
 		self.runes.child2:SetParent(self.runes)
 		self.runes.child2:ClearAllPoints()
 		self.runes.child2:SetPoint("TOP", self.runes, "TOP", 0, -6)
-	elseif IsCataClassic then
+	elseif IsPandaClassic then
 		self.runes = CreateFrame("Frame", "XPerl_Runes", self)
 		self.runes:SetPoint("TOPLEFT", self.statsFrame, "BOTTOMLEFT", 0, 2)
 		self.runes:SetPoint("BOTTOMRIGHT", self.statsFrame, "BOTTOMRIGHT", 0, -22)

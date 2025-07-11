@@ -5,7 +5,7 @@
 XPerl_SetModuleRevision("$Revision: @file-revision@ $")
 
 local IsRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
-local IsCataClassic = WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC
+local IsPandaClassic = WOW_PROJECT_ID == WOW_PROJECT_MISTS_CLASSIC
 local IsVanillaClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
 
@@ -37,7 +37,7 @@ local function DefaultRaidClasses()
 			{enable = true, name = "DEMONHUNTER"},
 			{enable = true, name = "EVOKER"}
 		}
-	elseif IsCataClassic then
+	elseif IsPandaClassic then
 		return {
 			{enable = true, name = "WARRIOR"},
 			{enable = true, name = "DEATHKNIGHT"},
@@ -75,7 +75,7 @@ local function ValidateClassNames(part)
 	local list
 	if IsRetail then
 		list = {WARRIOR = false, MAGE = false, ROGUE = false, DRUID = false, HUNTER = false, SHAMAN = false, PRIEST = false, WARLOCK = false, PALADIN = false, DEATHKNIGHT = false, MONK = false, DEMONHUNTER = false, EVOKER = false}
-	elseif IsCataClassic then
+	elseif IsPandaClassic then
 		list = {WARRIOR = false, MAGE = false, ROGUE = false, DRUID = false, HUNTER = false, SHAMAN = false, PRIEST = false, WARLOCK = false, PALADIN = false, DEATHKNIGHT = false}
 	else
 		list = {WARRIOR = false, MAGE = false, ROGUE = false, DRUID = false, HUNTER = false, SHAMAN = false, PRIEST = false, WARLOCK = false, PALADIN = false}
@@ -1091,15 +1091,15 @@ function XPerl_Options_DoRangeTooltip(self)
 		GameTooltip:AddLine(" ")
 		if XPerlDB.rangeFinder[XPerl_Options.optRange].spell then
 			GameTooltip:AddLine(XPERL_CONF_CUSTOMSPELL_DESC, 0.5, 1, 0.5)
-		else
-			GameTooltip:AddLine(XPERL_CONF_CUSTOMSPELL_DESC2, 0.5, 1, 0.5)
+		--[[else
+			GameTooltip:AddLine(XPERL_CONF_CUSTOMSPELL_DESC2, 0.5, 1, 0.5)]]
 		end
 		GameTooltip:Show()
 		return
-	else
+	--[[else
 		GameTooltip:AddLine(XPERL_CONF_CUSTOMSPELL_DESC2, 0.5, 1, 0.5)
 		GameTooltip:Show()
-		return
+		return]]
 	end
 
 	local item = GetItem()
@@ -1114,15 +1114,15 @@ function XPerl_Options_DoRangeTooltip(self)
 				GameTooltip:AddLine(" ")
 				if XPerlDB.rangeFinder[XPerl_Options.optRange].item then
 					GameTooltip:AddLine(XPERL_CONF_CUSTOMSPELL_DESC, 0.5, 1, 0.5)
-				else
-					GameTooltip:AddLine(XPERL_CONF_CUSTOMSPELL_DESC2, 0.5, 1, 0.5)
+				--[[else
+					GameTooltip:AddLine(XPERL_CONF_CUSTOMSPELL_DESC2, 0.5, 1, 0.5)]]
 				end
 				GameTooltip:Show()
 			end
 		end
-	else
+	--[[else
 		GameTooltip:AddLine(XPERL_CONF_CUSTOMSPELL_DESC2, 0.5, 1, 0.5)
-		GameTooltip:Show()
+		GameTooltip:Show()]]
 	end
 end
 
@@ -1150,15 +1150,15 @@ function XPerl_Options_DoRangeTooltipEnemy(self)
 		GameTooltip:AddLine(" ")
 		if XPerlDB.rangeFinder[XPerl_Options.optRange].spell2 then
 			GameTooltip:AddLine(XPERL_CONF_CUSTOMSPELL_DESC, 0.5, 1, 0.5)
-		else
-			GameTooltip:AddLine(XPERL_CONF_CUSTOMSPELL_ENEMY_DESC2, 0.5, 1, 0.5)
+		--[[else
+			GameTooltip:AddLine(XPERL_CONF_CUSTOMSPELL_ENEMY_DESC2, 0.5, 1, 0.5)]]
 		end
 		GameTooltip:Show()
 		return
-	else
+	--[[else
 		GameTooltip:AddLine(XPERL_CONF_CUSTOMSPELL_ENEMY_DESC2, 0.5, 1, 0.5)
 		GameTooltip:Show()
-		return
+		return]]
 	end
 
 	local item = GetItemEnemy()
@@ -1173,15 +1173,15 @@ function XPerl_Options_DoRangeTooltipEnemy(self)
 				GameTooltip:AddLine(" ")
 				if XPerlDB.rangeFinder[XPerl_Options.optRange].item2 then
 					GameTooltip:AddLine(XPERL_CONF_CUSTOMSPELL_DESC, 0.5, 1, 0.5)
-				else
-					GameTooltip:AddLine(XPERL_CONF_CUSTOMSPELL_ENEMY_DESC2, 0.5, 1, 0.5)
+				--[[else
+					GameTooltip:AddLine(XPERL_CONF_CUSTOMSPELL_ENEMY_DESC2, 0.5, 1, 0.5)]]
 				end
 				GameTooltip:Show()
 			end
 		end
-	else
+	--[[else
 		GameTooltip:AddLine(XPERL_CONF_CUSTOMSPELL_ENEMY_DESC2, 0.5, 1, 0.5)
-		GameTooltip:Show()
+		GameTooltip:Show()]]
 	end
 end
 
@@ -2825,7 +2825,7 @@ function XPerl_Custom_Config_OnShow(self)
 end
 
 local function CompareSpell(a, b)
-	if IsRetail then
+	if C_Spell and C_Spell.GetSpellInfo then
 		local spellInfoA = C_Spell.GetSpellInfo(a)
 		local spellNameA = ""
 		if spellInfoA then
@@ -3181,16 +3181,14 @@ function XPerl_Options_Custom_ScanForIcons(self)
 					icon:SetScript("OnEnter", function(self)
 						GameTooltip:SetOwner(self, "ANCHOR_TOP")
 						local link = (C_Spell and C_Spell.GetSpellLink) and C_Spell.GetSpellLink(self.spellid) or (GetSpellLink and GetSpellLink(self.spellid))
-						local spellName, icon
+						local name
 						if C_Spell and C_Spell.GetSpellInfo then
 							local spellInfo = C_Spell.GetSpellInfo(self.spellid)
 							if spellInfo then
 								name = spellInfo.name
-								icon = spellInfo.iconID
 							end
 						else
-							local _
-							name, _, icon = GetSpellInfo(self.spellid)
+							name = GetSpellInfo(self.spellid)
 						end
 						if link then
 							if IsClassic then
@@ -3223,20 +3221,20 @@ function XPerl_Options_Custom_ScanForIcons(self)
 					end
 				end
 
-				local spellName, icon
+				local name, spellIcon
 				if C_Spell and C_Spell.GetSpellInfo then
 					local spellInfo = C_Spell.GetSpellInfo(spellid)
 					if spellInfo then
 						name = spellInfo.name
-						icon = spellInfo.iconID
+						spellIcon = spellInfo.iconID
 					end
 				else
 					local _
-					name, _, tex = GetSpellInfo(spellid)
+					name, _, spellIcon = GetSpellInfo(spellid)
 				end
-				if tex then
+				if name and spellIcon then
 					icon.spellid = spellid
-					icon.tex:SetTexture(tex)
+					icon.tex:SetTexture(spellIcon)
 					icon:Show()
 					if GameTooltip:IsOwned(icon) then
 						icon:GetScript("OnEnter")(icon)

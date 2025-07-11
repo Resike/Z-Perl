@@ -1,3 +1,8 @@
+**7.4.0**
+* Updated for 11.1.7.
+* Updated for 5.5.0.
+* Updated for 1.15.7.
+
 **7.3.6**
 * Vanilla Classic non-target buff fixes.
 * Fix item count API.

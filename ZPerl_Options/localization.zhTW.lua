@@ -3,7 +3,7 @@
 ]]
 
 local IsRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
-local IsCataClassic = WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC
+local IsPandaClassic = WOW_PROJECT_ID == WOW_PROJECT_MISTS_CLASSIC
 
 if (GetLocale() == "zhTW") then
 -- Tabs
@@ -411,8 +411,8 @@ XPERL_CONF_TARGET_PVPICON		= "PVP 標誌"
 XPERL_CONF_TARGET_PVPICON_DESC		= "顯示目標的PVP狀態"
 XPERL_CONF_TARGET_RAIDICON_ALT		= "隊長標記圖示位置"
 XPERL_CONF_TARGET_RAIDICON_ALT_DESC	= "在頭像邊上顯示隊長標記。默認顯示在名字欄中間"
-XPERL_CONF_TARGET_30YD			= "30碼距離指示器"
-XPERL_CONF_TARGET_30YD_DESC		= "目標在30碼以外顯示一隻手的圖形，30碼以內則消失"
+XPERL_CONF_TARGET_30YD			= "40碼距離指示器"
+XPERL_CONF_TARGET_30YD_DESC		= "目標在30碼以外顯示一隻手的圖形，40碼以內則消失"
 XPERL_CONF_TARGET_BUFF_SIZE		= "目標Buffs大小"
 XPERL_CONF_TARGET_BUFF_SIZE_DESC	= "調整目標的增益狀態圖示顯示大小"
 XPERL_CONF_TARGET_DEBUFF_SIZE		= "目標Debuffs尺寸"
@@ -833,7 +833,7 @@ if IsRetail then
 	XPERL_CONF_RAID_HIGHLIGHTS_RENEWING_DESC= "啟用"..(C_Spell.GetSpellInfo(115151) and C_Spell.GetSpellInfo(115151).name).."追蹤. 若啟用閃爍效果，將會以彈跳的圖示的方式來追蹤此 buff。"
 	--XPERL_CONF_RAID_HIGHLIGHTS_BEACON		= GetSpellInfo(157007) -- Beacon of Insight
 	--XPERL_CONF_RAID_HIGHLIGHTS_BEACON_DESC	= "Enable the "..GetSpellInfo(157007).." tracking. With sparkles enabled, this will show a bouncing graphic to make it easier to follow the buff."
-elseif IsCataClassic then
+elseif IsPandaClassic then
 	XPERL_CONF_RAID_HIGHLIGHTS_MENDING		= GetSpellInfo(33076) -- Prayer of Mending
 	XPERL_CONF_RAID_HIGHLIGHTS_MENDING_DESC	= "啟用"..GetSpellInfo(33076).."追蹤。若啟用閃爍效果，將會以彈跳的圖示的方式來追蹤此 buff。"
 end

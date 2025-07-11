@@ -1,4 +1,4 @@
-## Interface: 11503, 40400, 110002
+## Interface: 11507, 50500, 110107
 ## Author: Resike
 ## Title: Z-Perl |cffeda55fOptions|r |cFF40FF40(LoadOnDemand)|r
 ## Title-itIT: Z-Perl |cffeda55fOpzioni|r |cFF40FF40(Caricabile su richiesta)|r

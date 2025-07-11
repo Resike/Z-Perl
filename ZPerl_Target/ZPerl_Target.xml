@@ -143,7 +143,7 @@
 							</Anchors>
 							<TexCoords left="0.49" right="1.0" top="0.0" bottom="0.49"/>
 						</Texture>
-						<!-- 30 Yard Range Icon, re-incarnated... -->
+						<!-- 40 Yard Range Icon, re-incarnated... -->
 						<Texture name="$parentrangeIcon" file="Interface\Addons\ZPerl\Images\XPerl_30Yard" hidden="true">
 							<Size>
 								<AbsDimension x="48" y="19"/>

@@ -12,7 +12,7 @@ end, "$Revision: @project-revision@ $")
 XPerl_SetModuleRevision("$Revision: @project-revision@ $")
 
 local IsRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
-local IsCataClassic = WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC
+local IsPandaClassic = WOW_PROJECT_ID == WOW_PROJECT_MISTS_CLASSIC
 local IsVanillaClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
 
@@ -65,7 +65,6 @@ local GetDifficultyColor = GetDifficultyColor or GetQuestDifficultyColor
 local GetItemCount = GetItemCount
 local GetItemInfo = GetItemInfo
 local GetLocale = GetLocale
-local GetNumAddOns = GetNumAddOns
 local GetNumGroupMembers = GetNumGroupMembers
 local GetNumSubgroupMembers = GetNumSubgroupMembers
 local GetRaidRosterInfo = GetRaidRosterInfo
@@ -292,7 +291,7 @@ end]]
 XPerl_AnchorList = {"TOP", "LEFT", "BOTTOM", "RIGHT"}
 
 -- FindABandage()
-local function FindABandage()
+--[[local function FindABandage()
 	local bandages = {
 		[173192] = true, -- Shrouded Cloth Bandage
 		[173191] = true, -- Heavy Shrouded Cloth Bandage
@@ -330,7 +329,7 @@ local function FindABandage()
 			return GetItemInfo(k)
 		end
 	end
-end
+end]]
 
 local playerClass
 
@@ -448,26 +447,15 @@ local function DoRangeCheck(unit, opt)
 			-- 4 = Follow = 28 yards (BCC = 28 yards) (Vanilla = 28 yards)
 			-- 5 = Pet-battle Duel = 7 yards (BCC = 7 yards) (Vanilla = 10 yards)
 		elseif opt.spell or opt.spell2 then
-			if IsRetail or IsVanillaClassic then
-				if UnitCanAssist("player", unit) and opt.spell then
-					range = (C_Spell and C_Spell.IsSpellInRange) and C_Spell.IsSpellInRange(opt.spell, unit) or (IsSpellInRange and IsSpellInRange(opt.spell, unit))
-				elseif UnitCanAttack("player", unit) and opt.spell2 then
-					range = (C_Spell and C_Spell.IsSpellInRange) and C_Spell.IsSpellInRange(opt.spell2, unit) or (IsSpellInRange and IsSpellInRange(opt.spell2, unit))
-				else
-					-- Fallback (28y) (BCC = 28y) (Vanilla = 28 yards)
-					range = not InCombatLockdown() and CheckInteractDistance(unit, 4)
-				end
+			if UnitCanAssist("player", unit) and opt.spell then
+				range = (C_Spell and C_Spell.IsSpellInRange) and C_Spell.IsSpellInRange(opt.spell, unit) or (IsSpellInRange and IsSpellInRange(opt.spell, unit))
+			elseif UnitCanAttack("player", unit) and opt.spell2 then
+				range = (C_Spell and C_Spell.IsSpellInRange) and C_Spell.IsSpellInRange(opt.spell2, unit) or (IsSpellInRange and IsSpellInRange(opt.spell2, unit))
 			else
-				if UnitCanAssist("player", unit) and opt.spell then
-					range = (C_Spell and C_Spell.IsSpellInRange) and C_Spell.IsSpellInRange(opt.spell, unit) or (IsSpellInRange and IsSpellInRange(opt.spell, unit))
-				elseif UnitCanAttack("player", unit) and opt.spell2 then
-					range = (C_Spell and C_Spell.IsSpellInRange) and C_Spell.IsSpellInRange(opt.spell2, unit) or (IsSpellInRange and IsSpellInRange(opt.spell2, unit))
-				else
-					-- Fallback (28y) (BCC = 28y) (Vanilla = 28 yards)
-					range = not InCombatLockdown() and CheckInteractDistance(unit, 4)
-				end
+				-- Fallback (28y) (BCC = 28y) (Vanilla = 28 yards)
+				range = not InCombatLockdown() and CheckInteractDistance(unit, 4) or 1
 			end
-		elseif not IsRetail and not IsVanillaClassic and (opt.item or opt.item2) then
+		--[[elseif not IsRetail and not IsVanillaClassic and (opt.item or opt.item2) then
 			if UnitCanAssist("player", unit) and opt.item then
 				range = not InCombatLockdown() and IsItemInRange(opt.item, unit)
 			elseif UnitCanAttack("player", unit) and opt.item2 then
@@ -475,7 +463,7 @@ local function DoRangeCheck(unit, opt)
 			else
 				-- Fallback (28y) (BCC = 28y) (Vanilla = 28 yards)
 				range = not InCombatLockdown() and CheckInteractDistance(unit, 4)
-			end
+			end]]
 		else
 			range = 1
 		end
@@ -592,10 +580,10 @@ function XPerl_StartupSpellRange()
 		XPerl_DefaultRangeSpells.ANY = {}
 	end
 
-	local bandage = FindABandage()
+	--[[local bandage = FindABandage()
 	if bandage then
 		XPerl_DefaultRangeSpells.ANY.item = bandage
-	end
+	end]]
 
 	local rf = conf.rangeFinder
 
@@ -1523,7 +1511,7 @@ function XPerl_MinimapButton_Details(tt, ldb)
 		local showDiff = IsShiftKeyDown()
 
 		local allAddonsCPU = 0
-		for i = 1, GetNumAddOns() do
+		for i = 1, C_AddOns.GetNumAddOns() do
 			allAddonsCPU = allAddonsCPU + GetAddOnCPUUsage(i)
 		end
 
@@ -2255,7 +2243,7 @@ local RaidFrameIgnores
 if IsRetail then
 	BuffExceptions = {
 		PRIEST = {
-			[C_Spell.GetSpellInfo(774).name] = true,					-- Rejuvenation
+			[C_Spell.GetSpellInfo(774).name] = true,				-- Rejuvenation
 			[C_Spell.GetSpellInfo(8936).name] = true,				-- Regrowth
 			[C_Spell.GetSpellInfo(33076).name] = true,				-- Prayer of Mending
 			[C_Spell.GetSpellInfo(81749).name] = true,				-- Atonement
@@ -2590,7 +2578,7 @@ end
 
 -- XPerl_UnitDebuff
 function XPerl_UnitDebuff(unit, index, filter, raidFrames)
-	if (conf.buffs.ignoreSeasonal or raidFrames) then
+	if conf.buffs.ignoreSeasonal or raidFrames then
 		return DebuffException(unit, index, filter, (not IsVanillaClassic and C_UnitAuras) and C_UnitAuras.GetAuraDataByIndex or UnitAura, raidFrames)
 	end
 	return BuffException(unit, index, filter, (not IsVanillaClassic and C_UnitAuras) and C_UnitAuras.GetAuraDataByIndex or UnitAura, DebuffExceptions, raidFrames)
@@ -2600,8 +2588,8 @@ end
 -- Retreives the index of the actual unfiltered buff, and uses this on unfiltered tooltip call
 function XPerl_TooltipSetUnitBuff(self, unit, ind, filter, raidFrames)
 	local name, icon, count, debuffType, duration, expirationTime, unitCaster, canStealOrPurge, nameplateShowPersonal, spellID, index = BuffException(unit, ind, filter, (IsVanillaClassic and unit == "target") and UnitAuraWithBuffs or ((not IsVanillaClassic and C_UnitAuras) and C_UnitAuras.GetAuraDataByIndex or UnitAura), BuffExceptions, raidFrames)
-	if (name and index) then
-		if (Utopia_SetUnitBuff) then
+	if name and index then
+		if Utopia_SetUnitBuff then
 			Utopia_SetUnitBuff(self, unit, index)
 		else
 			self:SetUnitBuff(unit, index)
@@ -2613,8 +2601,8 @@ end
 -- Retreives the index of the actual unfiltered debuff, and uses this on unfiltered tooltip call
 function XPerl_TooltipSetUnitDebuff(self, unit, ind, filter, raidFrames)
 	local name, icon, count, debuffType, duration, expirationTime, unitCaster, canStealOrPurge, nameplateShowPersonal, spellID, index = XPerl_UnitDebuff(unit, ind, filter, raidFrames)
-	if (name and index) then
-		if (Utopia_SetUnitDebuff) then
+	if name and index then
+		if Utopia_SetUnitDebuff then
 			Utopia_SetUnitDebuff(self, unit, index)
 		else
 			self:SetUnitDebuff(unit, index)
@@ -2635,7 +2623,7 @@ end
 
 -- CheckOnUpdate
 local function CheckOnUpdate()
-	if (next(fadeBars)) then
+	if next(fadeBars) then
 		XPerl_Globals:SetScript("OnUpdate", XPerl_BarUpdate)
 	else
 		XPerl_Globals:SetScript("OnUpdate", nil)
@@ -2647,8 +2635,8 @@ end
 --local speakerCycle = 0
 function XPerl_BarUpdate(self, arg1)
 	local did
-	for k,v in pairs(fadeBars) do
-		if (k:IsShown()) then
+	for k, v in pairs(fadeBars) do
+		if k:IsShown() then
 			v:SetAlpha(k.fadeAlpha)
 			k.fadeAlpha = k.fadeAlpha - (arg1 / conf.bar.fadeTime)
 
@@ -2659,7 +2647,7 @@ function XPerl_BarUpdate(self, arg1)
 			k.fadeAlpha = 0
 		end
 
-		if (k.fadeAlpha <= 0) then
+		if k.fadeAlpha <= 0 then
 			tinsert(freeFadeBars, v)
 			fadeBars[k] = nil
 			k.fadeAlpha = nil
@@ -2671,7 +2659,7 @@ function XPerl_BarUpdate(self, arg1)
 		end
 	end
 
-	if (did) then
+	if did then
 		CheckOnUpdate()
 	end
 end
@@ -2679,14 +2667,14 @@ end
 -- GetFreeFader
 local function GetFreeFader(parent)
 	local bar = freeFadeBars[1]
-	if (bar) then
+	if bar then
 		tremove(freeFadeBars, 1)
 		bar:SetParent(parent)
 	else
 		bar = CreateFrame("StatusBar", nil, parent)
 	end
 
-	if (bar) then
+	if bar then
 		fadeBars[parent] = bar
 		CheckOnUpdate()
 
@@ -2715,19 +2703,19 @@ end
 
 -- XPerl_StatusBarSetValue
 function XPerl_StatusBarSetValue(self, val)
-	if (not tempDisableFadeBars and conf.bar.fading and self:GetName()) then
+	if not tempDisableFadeBars and conf.bar.fading and self:GetName() then
 		local min, max = self:GetMinMaxValues()
 		local current = self:GetValue()
 
-		if (val < current and val <= max and val >= min) then
+		if val < current and val <= max and val >= min then
 			local bar = fadeBars[self]
 
-			if (not bar) then
+			if not bar then
 				bar = GetFreeFader(self)
 			end
 
-			if (bar) then
-				if (not self.fadeAlpha) then
+			if bar then
+				if not self.fadeAlpha then
 					self.fadeAlpha = self:GetParent():GetAlpha()
 					bar:SetValue(current)
 				end
@@ -2744,14 +2732,14 @@ end
 
 -- XPerl_RegisterClickCastFrame
 function XPerl_RegisterClickCastFrame(self)
-	if (not ClickCastFrames) then
+	if not ClickCastFrames then
 		ClickCastFrames = { }
 	end
 	ClickCastFrames[self] = true
 end
 
 function XPerl_UnregisterClickCastFrame(self)
-	if (ClickCastFrames) then
+	if ClickCastFrames then
 		ClickCastFrames[self] = nil
 	end
 end
@@ -2759,13 +2747,13 @@ end
 -- XPerl_SecureUnitButton_OnLoad
 function XPerl_SecureUnitButton_OnLoad(self, unit, menufunc, m1, m2, toggledisabled)
 	self:SetAttribute("*type1", "target")
-	if (toggledisabled) then
+	if toggledisabled then
 		self:SetAttribute("type2", "menu")
 	else
 		self:SetAttribute("type2", "togglemenu")
 	end
 
-	if (unit) then
+	if unit then
 		self:SetAttribute("unit", unit)
 	end
 
@@ -2775,34 +2763,34 @@ end
 -- XPerl_GetBuffButton
 local buffIconCount = 0
 function XPerl_GetBuffButton(self, buffnum, debuff, createIfAbsent, newID)
-	debuff = (debuff or 0)
+	debuff = debuff or 0
 	local buffType, buffList		--, buffFrame
 
-	if (debuff == 1) then
+	if debuff == 1 then
 		--buffFrame = self.debuffFrame
 		buffType = "DeBuff"
 		buffList = self.buffFrame.debuff
-		if (not buffList) then
-			self.buffFrame.debuff = {}
+		if not buffList then
+			self.buffFrame.debuff = { }
 			buffList = self.buffFrame.debuff
 		end
 	else
 		--buffFrame = self.buffFrame
 		buffType = "Buff"
 		buffList = self.buffFrame.buff
-		if (not buffList) then
-			self.buffFrame.buff = {}
+		if not buffList then
+			self.buffFrame.buff = { }
 			buffList = self.buffFrame.buff
 		end
 	end
 
 	local button = buffList and buffList[buffnum]
 
-	if (not button and createIfAbsent) then
+	if not button and createIfAbsent then
 		local setup = self.buffSetup
 		local parent = self.buffFrame
 
-		if (debuff == 1 and setup.debuffParent) then
+		if debuff == 1 and setup.debuffParent then
 			parent = self.debuffFrame
 		end
 
@@ -2810,45 +2798,45 @@ function XPerl_GetBuffButton(self, buffnum, debuff, createIfAbsent, newID)
 		button = CreateFrame("Button", "XPerlBuff"..buffIconCount, parent, BackdropTemplateMixin and format("BackdropTemplate,XPerl_Cooldown_%sTemplate", buffType) or format("XPerl_Cooldown_%sTemplate", buffType))
 		button:Hide()
 
-		if (setup.rightClickable) then
+		if setup.rightClickable then
 			button:RegisterForClicks("RightButtonUp")
 			--button:SetAttribute("type", "cancelaura")
 			--button:SetAttribute("index", "number")
 		end
 
 		local size = self.conf.buffs.size
-		if (debuff == 1) then
+		if debuff == 1 then
 			size = self.conf.debuffs.size or (size * (1 + (setup.debuffSizeMod * debuff)))
 		end
 		button:SetScale(size / 32)
 
-		if (setup.onCreate) then
+		if setup.onCreate then
 			setup.onCreate(button)
 		end
 
-		if (debuff == 1) then
+		if debuff == 1 then
 			--buffFrame.UpdateTooltip = setup.updateTooltipDebuff
 			button.UpdateTooltip = setup.updateTooltipDebuff
-			for k,v in pairs (setup.debuffScripts) do
+			for k, v in pairs (setup.debuffScripts) do
 				button:SetScript(k, v)
 			end
 		else
 			--buffFrame.UpdateTooltip = setup.updateTooltipBuff
 			button.UpdateTooltip = setup.updateTooltipBuff
-			for k,v in pairs (setup.buffScripts) do
+			for k, v in pairs (setup.buffScripts) do
 				button:SetScript(k, v)
 			end
 		end
 		buffList[buffnum] = button
 
 		button:ClearAllPoints()
-		if (buffnum == 1) then
-			if (debuff == 1) then
-				if (setup.debuffAnchor1) then
+		if buffnum == 1 then
+			if debuff == 1 then
+				if setup.debuffAnchor1 then
 					setup.debuffAnchor1(self, button)
 				end
 			else
-				if (setup.buffAnchor1) then
+				if setup.buffAnchor1 then
 					setup.buffAnchor1(self, button)
 				end
 			end
@@ -2877,12 +2865,12 @@ end
 
 -- BuffCooldownDisplay
 local function BuffCooldownDisplay(self)
-	if (self.countdown) then
+	if self.countdown then
 		local t = GetTime()
-		if (t > self.endTime - 1) then
+		if t > self.endTime - 1 then
 			self.countdown:SetText(strsub(format("%.1f", max(0, self.endTime - t)), 2, 10))
 			self.countdown:Show()
-		elseif (t > self.endTime - conf.buffs.countdownStart) then
+		elseif t > self.endTime - conf.buffs.countdownStart then
 			self.countdown:SetText(max(0, floor(self.endTime - t)))
 			self.countdown:Show()
 		else
@@ -2893,11 +2881,11 @@ end
 
 -- XPerl_CooldownFrame_SetTimer(self, start, duration, enable)
 function XPerl_CooldownFrame_SetTimer(self, start, duration, enable, mine)
-	if ( start > 0 and duration > 0 and enable > 0) then
+	if start > 0 and duration > 0 and enable > 0 then
 		self:SetCooldown(start, duration)
 		self.endTime = start + duration
 
-		if (conf.buffs.countdown and (mine or conf.buffs.countdownAny)) then
+		if conf.buffs.countdown and (mine or conf.buffs.countdownAny) then
 			self:SetScript("OnUpdate", BuffCooldownDisplay)
 		else
 			self:SetScript("OnUpdate", nil)
@@ -4164,7 +4152,7 @@ end
 
 -- XPerl_SetExpectedHots
 function XPerl_SetExpectedHots(self)
-	if WOW_PROJECT_ID ~= WOW_PROJECT_CATACLYSM_CLASSIC then
+	if WOW_PROJECT_ID ~= WOW_PROJECT_MISTS_CLASSIC then
 		return
 	end
 	local bar
@@ -4393,7 +4381,7 @@ function XPerl_Register_Prediction(self, conf, guidToUnit, ...)
 			self:UnregisterEvent("UNIT_HEAL_PREDICTION")
 		end
 
-		if not IsCataClassic then
+		if not IsPandaClassic then
 			if conf.absorbs then
 				self:RegisterUnitEvent("UNIT_ABSORB_AMOUNT_CHANGED", ...)
 			else

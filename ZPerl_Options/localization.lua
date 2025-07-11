@@ -3,7 +3,7 @@
 ]]
 
 local IsRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
-local IsCataClassic = WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC
+local IsPandaClassic = WOW_PROJECT_ID == WOW_PROJECT_MISTS_CLASSIC
 
 -- Tabs
 XPERL_CONF_TITLE1						= "Global"
@@ -160,7 +160,7 @@ XPERL_CONF_BUFFTOOLTIPHELPER_SORTCLASS_DESC	= "Sort buff helper names by class."
 XPERL_CONF_FADINGTOOLTIP				= "Fading Tooltips"
 XPERL_CONF_FADINGTOOLTIP_DESC			= "Enable fading tooltips."
 XPERL_CONF_RANGEFINDER					= "Range Finder"
-XPERL_CONF_RANGEFINDER_DESC				= "Fades any unit frame that is out of spell/item range.\r\r|c0080FF80NOTE: You can bind a key to toggle this option."
+XPERL_CONF_RANGEFINDER_DESC				= "Fades any unit frame that is out of spell range.\r\r|c0080FF80NOTE: You can bind a key to toggle this option."
 XPERL_CONF_RANGEFADEAMOUNT				= "Fade Amount"
 XPERL_CONF_RANGEFADEAMOUNT_DESC			= "Adjust how much to fade frames from the default transparency when out of range."
 XPERL_CONF_CUSTOMSPELL					= "|cFF33FF33Assist|r Spell"
@@ -177,18 +177,18 @@ XPERL_CONF_RANGE_ENABLE					= ENABLE
 XPERL_CONF_RANGE_ENABLE_DESC			= "Enable this type of range finding."
 XPERL_CONF_RANGE_RAIDONLY				= "Raid Frames Only"
 XPERL_CONF_RANGE_RAIDONLY_DESC			= "Only allow the range finder to affect raid frames."
-XPERL_CONF_RANGE_INTERACTNONE			= "Spell/Item"
+XPERL_CONF_RANGE_INTERACTNONE			= "Spell"
 XPERL_CONF_RANGE_INTERACTNONE_DESC		= "Use the specified spell or item to check range of players."
-XPERL_CONF_RANGE_INTERACT10				= "10 yard"
-XPERL_CONF_RANGE_INTERACT10_DESC		= "Use a fixed 10 yard range check regardless of item/spell selection."
-XPERL_CONF_RANGE_INTERACT20				= "20 yard"
-XPERL_CONF_RANGE_INTERACT20_DESC		= "Use a fixed 20 yard range check regardless of item/spell selection."
-XPERL_CONF_RANGE_INTERACT30				= "30 yard"
-XPERL_CONF_RANGE_INTERACT30_DESC		= "Use a fixed 30 yard range check regardless of item/spell selection."
+XPERL_CONF_RANGE_INTERACT10				= "40 yard"
+XPERL_CONF_RANGE_INTERACT10_DESC		= "Use a fixed 40 yard range check regardless of spell selection."
+XPERL_CONF_RANGE_INTERACT20				= "40 yard"
+XPERL_CONF_RANGE_INTERACT20_DESC		= "Use a fixed 40 yard range check regardless of spell selection."
+XPERL_CONF_RANGE_INTERACT30				= "40 yard"
+XPERL_CONF_RANGE_INTERACT30_DESC		= "Use a fixed 40 yard range check regardless of spell selection."
 XPERL_CONF_RANGE_INTERACT40				= "40 yard"
-XPERL_CONF_RANGE_INTERACT40_DESC		= "Use a fixed 40 yard range check regardless of item/spell selection."
-XPERL_CONF_RANGE_INTERACT45				= "45 yard"
-XPERL_CONF_RANGE_INTERACT45_DESC		= "Use a fixed 45 yard range check regardless of item/spell selection."
+XPERL_CONF_RANGE_INTERACT40_DESC		= "Use a fixed 40 yard range check regardless of spell selection."
+XPERL_CONF_RANGE_INTERACT45				= "40 yard"
+XPERL_CONF_RANGE_INTERACT45_DESC		= "Use a fixed 40 yard range check regardless of spell selection."
 
 
 XPERL_CONF_CUSTOMSPELL_DESC2			= "|c00FFFFFFDrag'n'Drop|r |c00FFFFFFan |cFF33FF33Assist|r spell or item into this icon to change the default.|r"
@@ -418,13 +418,8 @@ XPERL_CONF_TARGET_PVPICON				= "PVP Flag"
 XPERL_CONF_TARGET_PVPICON_DESC			= "Enable display of target's PVP status."
 XPERL_CONF_TARGET_RAIDICON_ALT			= "Alternate Raid Icon Location"
 XPERL_CONF_TARGET_RAIDICON_ALT_DESC		= "Display raid icon in corner of portrait, rather than center of name plate."
-if IsCataClassic then
-XPERL_CONF_TARGET_30YD					= "30 yard range indicator"
-XPERL_CONF_TARGET_30YD_DESC				= "Enable the out of range 'reaching hand' indicator on target frame to show if in 30 yard range of target."
-else
 XPERL_CONF_TARGET_30YD					= "40 yard range indicator"
 XPERL_CONF_TARGET_30YD_DESC				= "Enable the out of range 'reaching hand' indicator on target frame to show if in 40 yard range of target. |cFFFF0000(Only works on group members)|r"
-end
 XPERL_CONF_TARGET_BUFF_SIZE				= "Target Buff Size"
 XPERL_CONF_TARGET_BUFF_SIZE_DESC		= "Adjust the display size of target buffs."
 XPERL_CONF_TARGET_DEBUFF_SIZE			= "Target Debuff Size"
@@ -756,13 +751,8 @@ XPERL_CONF_PARTY_DEBUFFSBELOW			= "Party Debuffs Below Members"
 XPERL_CONF_PARTY_DEBUFFSBELOW_DESC		= "Toggle displaying of party member debuffs below instead of to the right of their frame."
 XPERL_CONF_PARTY_DEBUFFSHALFSIZE		= "Wrap Lots"
 XPERL_CONF_PARTY_DEBUFFSHALFSIZE_DESC	= "Show half sized and wrapped debuffs when more than frame width to be shown."
-if IsCataClassic then
-	XPERL_CONF_PARTY_30YD					= "30 yard range indicator"
-	XPERL_CONF_PARTY_30YD_DESC				= "Enable the out of range 'reaching hand' indicator on party frames to show if in 30 yard range of party members."
-else
-	XPERL_CONF_PARTY_30YD					= "40 yard range indicator"
-	XPERL_CONF_PARTY_30YD_DESC				= "Enable the out of range 'reaching hand' indicator on party frames to show if in 40yard range of party members. |cFFFF0000(Only works on group members)|r"
-end
+XPERL_CONF_PARTY_30YD					= "40 yard range indicator"
+XPERL_CONF_PARTY_30YD_DESC				= "Enable the out of range 'reaching hand' indicator on party frames to show if in 40yard range of party members. |cFFFF0000(Only works on group members)|r"
 XPERL_CONF_PARTY_BUFF_SIZE				= "Party Buff Size"
 XPERL_CONF_PARTY_BUFF_SIZE_DESC			= "Adjust the display size of party member buffs."
 XPERL_CONF_PARTY_DEBUFF_SIZE			= "Party Debuff Size"
@@ -866,7 +856,7 @@ if IsRetail then
 	XPERL_CONF_RAID_HIGHLIGHTS_RENEWING_DESC	= "Enable the "..(C_Spell.GetSpellInfo(115151) and C_Spell.GetSpellInfo(115151).name).." tracking. With sparkles enabled, this will show a bouncing graphic to make it easier to follow the buff."
 	--XPERL_CONF_RAID_HIGHLIGHTS_BEACON		= GetSpellInfo(157007) -- Beacon of Insight
 	--XPERL_CONF_RAID_HIGHLIGHTS_BEACON_DESC	= "Enable the "..GetSpellInfo(157007).." tracking. With sparkles enabled, this will show a bouncing graphic to make it easier to follow the buff."
-elseif IsCataClassic then
+elseif IsPandaClassic then
 	XPERL_CONF_RAID_HIGHLIGHTS_MENDING		= GetSpellInfo and GetSpellInfo(33076) or C_Spell.GetSpellInfo(33076).name -- Prayer of Mending
 	XPERL_CONF_RAID_HIGHLIGHTS_MENDING_DESC	= "Enable the "..(GetSpellInfo and GetSpellInfo(33076) or C_Spell.GetSpellInfo(33076).name).." tracking. With sparkles enabled, this will show a bouncing graphic to make it easier to follow the buff."
 end

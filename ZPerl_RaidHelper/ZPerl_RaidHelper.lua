@@ -18,7 +18,7 @@ local conf
 
 local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
 local IsVanillaClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
-local IsCataClassic = WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC
+local IsPandaClassic = WOW_PROJECT_ID == WOW_PROJECT_MISTS_CLASSIC
 
 local GetNumGroupMembers = GetNumGroupMembers
 
@@ -278,7 +278,7 @@ function XPerl_MTListUnit_OnEnter(self)
 					XPerl_BottomTip:SetOwner(GameTooltip, a2, 0, 10)
 					XPerl_BottomTip:SetUnit(parentID)
 
-					if IsCataClassic then
+					if IsPandaClassic then
 						XPerl_BottomTip:OnBackdropLoaded()
 						XPerl_BottomTip:SetBackdropColor(0.1, 0.4, 0.1, 0.75)
 					else
@@ -298,7 +298,7 @@ function XPerl_MTListUnit_OnEnter(self)
 				GameTooltip:SetOwner(self, a1)
 				GameTooltip:SetUnit(partyid)
 
-				if IsCataClassic then
+				if IsPandaClassic then
 					GameTooltip:OnBackdropLoaded()
 					GameTooltip:SetBackdropColor(0.1, 0.4, 0.1, 0.75)
 				else

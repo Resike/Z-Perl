@@ -11,7 +11,7 @@ end, "$Revision: @file-revision@ $")
 local _, _, _, clientRevision = GetBuildInfo()
 
 local IsRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
-local IsCataClassic = WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC
+local IsPandaClassic = WOW_PROJECT_ID == WOW_PROJECT_MISTS_CLASSIC
 local IsVanillaClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 
 local _G = _G
@@ -32,8 +32,6 @@ local unpack = unpack
 local CreateColor = CreateColor
 local CreateFrame = CreateFrame
 local DisableAddOn = DisableAddOn
-local GetAddOnInfo = GetAddOnInfo
-local GetAddOnMetadata = GetAddOnMetadata
 local GetNumGroupMembers = GetNumGroupMembers
 local GetNumSubgroupMembers = GetNumSubgroupMembers
 local InCombatLockdown = InCombatLockdown
@@ -49,7 +47,7 @@ local UnitName = UnitName
 local classOrder
 if IsRetail then
 	classOrder = {"WARRIOR", "DEATHKNIGHT", "ROGUE", "HUNTER", "DRUID", "SHAMAN", "PALADIN", "PRIEST", "MAGE", "WARLOCK", "MONK", "DEMONHUNTER", "EVOKER"}
-elseif IsCataClassic then
+elseif IsPandaClassic then
 	classOrder = {"WARRIOR", "DEATHKNIGHT", "ROGUE", "HUNTER", "DRUID", "SHAMAN", "PALADIN", "PRIEST", "MAGE", "WARLOCK"}
 else
 	classOrder = {"WARRIOR", "ROGUE", "HUNTER", "DRUID", "SHAMAN", "PALADIN", "PRIEST", "MAGE", "WARLOCK"}
@@ -565,7 +563,7 @@ function ZPerl_Init()
 
 	local name, title, notes, enabled = C_AddOns.GetAddOnInfo("SupportFuncs")
 	if name and enabled then
-		local ver = GetAddOnMetadata and GetAddOnMetadata(name, "Version") or C_AddOns.GetAddOnMetadata(name, "Version")
+		local ver = C_AddOns.GetAddOnMetadata(name, "Version")
 		if (tonumber(ver) < 20000.2) then
 			XPerl_Notice("Out-dated version of SupportFuncs detected. This will break the X-Perl Range Finder by replacing standard Blizzard API functions.")
 		end
@@ -573,7 +571,7 @@ function ZPerl_Init()
 
 	name, title, notes, enabled = C_AddOns.GetAddOnInfo("AutoBar")
 	if name and enabled then
-		local ver = GetAddOnMetadata and GetAddOnMetadata(name, "Version") or C_AddOns.GetAddOnMetadata(name, "Version")
+		local ver = C_AddOns.GetAddOnMetadata(name, "Version")
 		if (ver < "2.01.00.02") then
 			XPerl_Notice("Out-dated version of AutoBar detected. This will taint the Targetting system for all mods that use them, including X-Perl.")
 		end
@@ -581,7 +579,7 @@ function ZPerl_Init()
 
 	name, title, notes, enabled = C_AddOns.GetAddOnInfo("TrinityBars")
 	if name and enabled then
-		local ver = GetAddOnMetadata and GetAddOnMetadata(name, "Version") or C_AddOns.GetAddOnMetadata(name, "Version")
+		local ver = C_AddOns.GetAddOnMetadata(name, "Version")
 		if (ver <= "20003.14") then
 			XPerl_Notice("Out-dated version of TrinityBars detected. This will taint the Targetting system for all mods that use them, including X-Perl.")
 		end
