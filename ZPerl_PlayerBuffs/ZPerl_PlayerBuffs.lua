@@ -435,11 +435,11 @@ end
 
 function XPerl_PlayerBuffs_OnLoad(self)
 	XPerl_SetChildMembers(self)
-	if IsRetail then
+	--[[if IsRetail then
 		self:RegisterForClicks("RightButtonDown", "RightButtonUp")
 	else
 		self:RegisterForClicks("RightButtonUp")
-	end
+	end]]
 end
 
 
