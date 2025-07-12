@@ -2,7 +2,7 @@
 -- Author: Resike
 -- License: GNU GPL v3, 29 June 2007 (see LICENSE.txt)
 
-if (GetLocale() == "koKR") then
+if GetLocale() == "koKR" then
 	XPERL_MINIMAP_HELP1	= "|c00FFFFFF좌클릭|r 하시면 설정창이 나옵니다. (그리고 |c0000FF00프레임 고정|r이 풀립니다.)"
 	XPERL_MINIMAP_HELP2	= "|c00FFFFFF우클릭|r 으로 버튼을 드래그해서 이동가능합니다."
 	XPERL_MINIMAP_HELP3	= "\r실제 공대원: |c00FFFF80%d|r\r실제 파티원: |c00FFFF80%d|r"

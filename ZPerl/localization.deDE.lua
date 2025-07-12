@@ -2,7 +2,7 @@
 -- Author: Resike
 -- License: GNU GPL v3, 29 June 2007 (see LICENSE.txt)
 
-if (GetLocale() == "deDE") then
+if GetLocale() == "deDE" then
 	XPerl_LongDescription	= "UnitFrame Alternative f\195\188r ein neues Aussehen von Spieler, Begleiter, Gruppe, Ziel, Ziel des Ziels, Fokus und Schlachtzug"
 
 	XPERL_MINIMAP_HELP1		= "|c00FFFFFFLinks-Klick|r, f\195\188r die Optionen (und zum |c0000FF00Entsperren der Fenster|r)"

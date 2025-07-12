@@ -1,9 +1,9 @@
 -- X-Perl UnitFrames
 -- Author: Resike
 -- License: GNU GPL v3, 29 June 2007 (see LICENSE.txt)
---Russian localization file translated by StingerSoft
-if (GetLocale() == "ruRU") then
+-- Russian localization file translated by StingerSoft
 
+if GetLocale() == "ruRU" then
 	XPerl_ProductName	    = "|cFFD00000X-Perl|r Фреймы Игроков"
 	XPerl_Description	    = XPerl_ProductName.." от "..XPerl_Author
 	XPerl_Version		    = XPerl_Description.." - "..XPerl_VersionNumber
@@ -97,7 +97,7 @@ if (GetLocale() == "ruRU") then
 	XPERL_DRAGHINT1	= "|c00FFFFFFКлик|r для масштабирования окна"
 	XPERL_DRAGHINT2	= "|c00FFFFFFShift+Клик|r для изменения размера окна"
 
--- Usage
+	-- Usage
 	XPerlUsageNameList	= {XPerl = "Основной", 	XPERL_Player = "Игрок", 	XPERL_PlayerPet = "Питомец", 	XPERL_Target = "Цель", 	XPERL_TargetTarget = "Цель цели", 	XPERL_Party = "Группа", 	XPERL_PartyPet = "Питомцы группы", 	XPERL_RaidFrames = "Фреймы рейда", 	XPERL_RaidHelper = "Помощник рейда", 	XPERL_RaidAdmin = "Рейд-админ", 	XPERL_TeamSpeak = "Монитор TS", 	XPERL_RaidMonitor = "Рейд-монитор", 	XPERL_RaidPets = "Питомцы рейда", 	XPERL_ArcaneBar = "Индикатор заклинаний", 	XPERL_PlayerBuffs = "Баффы игрока", 	XPERL_GrimReaper = "Grim Reaper"}
 	XPERL_USAGE_MEMMAX	= "UI Макс Пам: %d"
 	XPERL_USAGE_MODULES = "Модули: "

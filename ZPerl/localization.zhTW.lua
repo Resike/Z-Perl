@@ -1,10 +1,9 @@
 -- X-Perl UnitFrames
 -- Author: Resike
 -- License: GNU GPL v3, 29 June 2007 (see LICENSE.txt)
-
 -- Thanks 星塵、Player Lin for translations
 
-if (GetLocale() == "zhTW") then
+if GetLocale() == "zhTW" then
 	XPerl_ProductName	= "|cFFD00000X-Perl|r 單位框架"
 	XPerl_Description	= XPerl_ProductName.." 作者 "..XPerl_Author
 
