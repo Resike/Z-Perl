@@ -1,3 +1,7 @@
+**7.5.3**
+* Added missing special power bars for shadow priests and demo warlocks.
+* Some other special power bar fixes.
+
 **7.5.2**
 * Added monk special power bars.
 * Localization updates.
