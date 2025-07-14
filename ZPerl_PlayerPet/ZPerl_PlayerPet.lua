@@ -7,7 +7,7 @@ local conf, pconf
 XPerl_RequestConfig(function(new)
 	conf = new
 	pconf = new.pet
-	if (XPerl_Player_Pet) then
+	if XPerl_Player_Pet then
 		XPerl_Player_Pet.conf = pconf
 	end
 end, "$Revision: @file-revision@ $")
@@ -83,7 +83,7 @@ function XPerl_Player_Pet_OnLoad(self)
 		debuffSizeMod = 0.3,
 		debuffAnchor1 = function(self, b)
 			local buff1 = XPerl_GetBuffButton(self, 1, 0, true)
-			if (pconf.buffs.above) then
+			if pconf.buffs.above then
 				b:SetPoint("BOTTOMLEFT", buff1, "TOPLEFT", 0, 0)
 			else
 				b:SetPoint("TOPLEFT", buff1, "BOTTOMLEFT", 0, 0)
@@ -91,7 +91,7 @@ function XPerl_Player_Pet_OnLoad(self)
 			self.buffSetup.debuffAnchor1 = nil
 		end,
 		buffAnchor1 = function(self, b)
-			if (pconf.buffs.above) then
+			if pconf.buffs.above then
 				b:SetPoint("BOTTOMLEFT", 0, 0)
 			else
 				b:SetPoint("TOPLEFT", 0, 0)
@@ -180,7 +180,7 @@ function XPerl_Player_Pet_OnLoad(self)
 				if pcall(self.RegisterUnitEvent, self, event, "pet") then
 					self:RegisterUnitEvent(event, "pet")
 				end
-			elseif IsClassic and event == "UNIT_HAPPINESS" and classFileName == "HUNTER" then
+			elseif IsVanillaClassic and event == "UNIT_HAPPINESS" and classFileName == "HUNTER" then
 				if pcall(self.RegisterUnitEvent, self, event, "pet") then
 					self:RegisterUnitEvent(event, "pet")
 				end
@@ -211,7 +211,7 @@ function XPerl_Player_Pet_OnLoad(self)
 	end]]
 	self:SetScript("OnShow", XPerl_Unit_UpdatePortrait)
 
-	if (XPerl_ArcaneBar_RegisterFrame) then
+	if XPerl_ArcaneBar_RegisterFrame then
 		XPerl_ArcaneBar_RegisterFrame(self.nameFrame, (not IsVanillaClassic and UnitHasVehicleUI("player")) and "player" or "pet")
 	end
 
@@ -223,16 +223,16 @@ function XPerl_Player_Pet_OnLoad(self)
 
 	XPerl_Highlight:Register(XPerl_Player_Pet_HighlightCallback, self)
 
-	if (XPerlDB) then
+	if XPerlDB then
 		self.conf = XPerlDB.pet
 	end
 
 	self.GetBuffSpacing = function(self)
 		local w = self.statsFrame:GetWidth()
-		if (self.portraitFrame and self.portraitFrame:IsShown()) then
+		if self.portraitFrame and self.portraitFrame:IsShown() then
 			w = w - 2 + self.portraitFrame:GetWidth()
 		end
-		if (not self.buffSpacing) then
+		if not self.buffSpacing then
 			--self.buffSpacing = XPerl_GetReusableTable()
 			self.buffSpacing = { }
 		end
@@ -245,7 +245,7 @@ end
 
 -- XPerl_Player_Pet_HighlightCallback
 function XPerl_Player_Pet_HighlightCallback(self, updateGUID)
-	if (updateGUID == UnitGUID("pet")) then
+	if updateGUID == UnitGUID("pet") then
 		XPerl_Highlight:SetHighlight(self, updateGUID)
 	end
 end
@@ -255,16 +255,16 @@ local function XPerl_Player_Pet_UpdateName(self)
 	local partyid = self.partyid
 	local petname = UnitName(partyid)
 
-	if (petname == UNKNOWN) then
+	if petname == UNKNOWN then
 		self.nameFrame.text:SetText("")
 	else
 		self.nameFrame.text:SetText(petname)
 	end
 
-	if (partyid == "pet") then
+	if partyid == "pet" then
 		local c = conf.colour.reaction.none
 		self.nameFrame.text:SetTextColor(c.r, c.g, c.b, conf.transparency.text)
-	elseif (not UnitIsFriend("player", "pet")) then		-- Pet or you charmed
+	elseif not UnitIsFriend("player", "pet") then		-- Pet or you charmed
 		local c = conf.colour.reaction.enemy
 		self.nameFrame.text:SetTextColor(c.r, c.g, c.b, conf.transparency.text)
 	else
@@ -305,7 +305,7 @@ local function XPerl_Player_Pet_UpdateHealPrediction(self)
 end
 
 local function XPerl_Player_Pet_UpdateResurrectionStatus(self)
-	if (UnitHasIncomingResurrection(self.partyid)) then
+	if UnitHasIncomingResurrection(self.partyid) then
 		if pconf.portrait then
 			self.portraitFrame.resurrect:Show()
 		else
@@ -333,7 +333,7 @@ local function XPerl_Player_Pet_UpdateHealth(self)
 	XPerl_Player_Pet_UpdateHealPrediction(self)
 	XPerl_Player_Pet_UpdateResurrectionStatus(self)
 
-	if (UnitIsDead(partyid)) then
+	if UnitIsDead(partyid) then
 		self.statsFrame.healthBar.text:SetText(XPERL_LOC_DEAD)
 		self.statsFrame.manaBar.text:Hide()
 	end
@@ -350,14 +350,14 @@ local function XPerl_Player_Pet_UpdateMana(self)
 
 	self.statsFrame.manaBar.text:SetFormattedText("%d/%d", petmana, petmanamax)
 
-	if (pconf.values) then
+	if pconf.values then
 		self.statsFrame.manaBar.text:Show()
 	end
 end
 
 -- XPerl_Player_Pet_CombatFlash
 local function XPerl_Player_Pet_CombatFlash(self, elapsed, argNew, argGreen)
-	if (XPerl_CombatFlashSet(self, elapsed, argNew, argGreen)) then
+	if XPerl_CombatFlashSet(self, elapsed, argNew, argGreen) then
 		XPerl_CombatFlashSetFrames(self)
 	end
 end
@@ -367,7 +367,7 @@ function XPerl_Player_Pet_OnUpdate(self, elapsed)
 	if pconf.hitIndicator and pconf.portrait then
 		CombatFeedback_OnUpdate(self, elapsed)
 	end
-	if (self.PlayerFlash) then
+	if self.PlayerFlash then
 		XPerl_Player_Pet_CombatFlash(self, elapsed, false)
 	end
 end
@@ -377,7 +377,7 @@ end
 --------------------
 local function XPerl_Player_Pet_Buff_UpdateAll(self)
 	local partyid = self.partyid
-	if (UnitExists(partyid)) then
+	if UnitExists(partyid) then
 		XPerl_Unit_UpdateBuffs(self)
 		XPerl_Unit_BuffPositions(self, self.buffFrame.buff, self.buffFrame.debuff, self.conf.buffs.size, self.conf.debuffs.size)
 		XPerl_CheckDebuffs(self, partyid)
@@ -388,24 +388,24 @@ end
 -- Happiness --
 ---------------
 local function XPerl_Player_Pet_SetHappiness(self)
-	if not IsClassic then
+	if not IsVanillaClassic then
 		return
 	end
 
 	local happiness, damagePercentage, loyaltyRate = GetPetHappiness()
-	if (not happiness) then
+	if not happiness then
 		happiness = 3
 	end
 
 	local icon = self.happyFrame.icon
 	icon.tex:SetTexCoord(0.5625 - (0.1875 * happiness), 0.75 - (0.1875 * happiness), 0, 0.359375)
 
-	if (pconf.happiness.enable and (not pconf.happiness.onlyWhenSad or happiness < 3)) then
+	if pconf.happiness.enable and (not pconf.happiness.onlyWhenSad or happiness < 3) then
 		self.happyFrame:Show()
 
 		icon.tooltip = _G[("PET_HAPPINESS"..happiness)]
 		icon.tooltipDamage = format(PET_DAMAGE_PERCENTAGE, damagePercentage)
-		if (loyaltyRate < 0) then
+		if loyaltyRate < 0 then
 			icon.tooltipLoyalty = LOSING_LOYALTY
 		elseif (loyaltyRate > 0) then
 			icon.tooltipLoyalty = GAINING_LOYALTY
@@ -413,7 +413,7 @@ local function XPerl_Player_Pet_SetHappiness(self)
 			icon.tooltipLoyalty = nil
 		end
 
-		if (pconf.happiness.flashWhenSad and happiness < 3) then
+		if pconf.happiness.flashWhenSad and happiness < 3 then
 			XPerl_FrameFlash(self.happyFrame)
 		else
 			XPerl_FrameFlashStop(self.happyFrame)
@@ -436,7 +436,7 @@ end
 -- XPerl_Player_Pet_UpdateCombat
 local function XPerl_Player_Pet_UpdateCombat(self)
 	local partyid = self.partyid
-	if (UnitExists(partyid)) then
+	if UnitExists(partyid) then
 		if (UnitAffectingCombat(partyid)) then
 			self.nameFrame.combatIcon:Show()
 		else
@@ -449,7 +449,7 @@ end
 -- XPerl_Player_Pet_UpdateDisplay
 function XPerl_Player_Pet_UpdateDisplay(self)
 	local unit = self:GetAttribute("unit")
-	if (unit ~= self.partyid) then
+	if unit ~= self.partyid then
 		self.portraitFrame:SetAlpha(0)
 		self.nameFrame:SetAlpha(0)
 		self.statsFrame:SetAlpha(0)
@@ -468,7 +468,7 @@ function XPerl_Player_Pet_UpdateDisplay(self)
 	XPerl_Player_Pet_UpdateName(self)
 	XPerl_Player_Pet_UpdateHealth(self)
 	XPerl_SetManaBarType(self)
-	if (XPerl_Player_Pet_SetHappiness) then
+	if XPerl_Player_Pet_SetHappiness then
 		XPerl_Player_Pet_SetHappiness(self)
 	end
 	XPerl_Player_Pet_UpdateMana(self)
@@ -482,7 +482,7 @@ end
 -------------------
 function XPerl_Player_Pet_OnEvent(self, event, unit, ...)
 	if string.find(event, "^UNIT_") then
-		if (unit == "pet" or unit == "player") then
+		if unit == "pet" or unit == "player" then
 			if event == "UNIT_HEAL_PREDICTION" or event == "UNIT_ABSORB_AMOUNT_CHANGED" or event == "UNIT_COMBAT"  then
 				XPerl_Player_Pet_Events[event](self, unit, ...)
 			else
@@ -512,7 +512,7 @@ end
 
 -- UNIT_PET
 function XPerl_Player_Pet_Events:UNIT_PET()
-	if (conf) then		-- DK can issue very early UNIT_PET, long before PEW. We refresh on entering world regardless
+	if conf then		-- DK can issue very early UNIT_PET, long before PEW. We refresh on entering world regardless
 		--self.partyid = UnitHasVehicleUI("player") and "player" or "pet"
 		XPerl_Player_Pet_UpdateDisplay(self)
 	end
@@ -598,11 +598,11 @@ function XPerl_Player_Pet_Events:UNIT_COMBAT(unit, action, descriptor, damage, d
 		return
 	end
 
-	if (pconf.hitIndicator and pconf.portrait) then
+	if pconf.hitIndicator and pconf.portrait then
 		CombatFeedback_OnCombatEvent(self, action, descriptor, damage, damageType)
 	end
 
-	if (action == "HEAL") then
+	if action == "HEAL" then
 		XPerl_Player_Pet_CombatFlash(XPerl_Player_Pet, 0, true, true)
 	elseif (damage and damage > 0) then
 		XPerl_Player_Pet_CombatFlash(XPerl_Player_Pet, 0, true)
@@ -619,14 +619,14 @@ XPerl_Player_Pet_Events.UNIT_FLAGS = XPerl_Player_Pet_Events.UNIT_FACTION
 
 -- PLAYER_REGEN_ENABLED
 function XPerl_Player_Pet_Events:PLAYER_REGEN_ENABLED()
-	if (self:GetAttribute("unit") ~= self.partyid) then
+	if self:GetAttribute("unit") ~= self.partyid then
 		self:SetAttribute("unit", self.partyid)
 	end
 end
 
 -- PLAYER_ENTERING_WORLD
 function XPerl_Player_Pet_Events:PLAYER_ENTERING_WORLD()
-	if (not IsVanillaClassic and UnitHasVehicleUI("player")) then
+	if not IsVanillaClassic and UnitHasVehicleUI("player") then
 		self.partyid = "player"
 		self.unit = self.partyid
 		self:SetAttribute("unit", "player")
@@ -642,7 +642,7 @@ function XPerl_Player_Pet_Events:UNIT_ENTERED_VEHICLE(showVehicle)
 	if showVehicle then
 		self.partyid = "player"
 		self.unit = self.partyid
-		if (XPerl_ArcaneBar_SetUnit) then
+		if XPerl_ArcaneBar_SetUnit then
 			XPerl_ArcaneBar_SetUnit(self.nameFrame, "player")
 		end
 		--[[if (not InCombatLockdown()) then
@@ -654,7 +654,7 @@ end
 
 -- UNIT_EXITING_VEHICLE
 function XPerl_Player_Pet_Events:UNIT_EXITING_VEHICLE()
-	if (self.partyid ~= "pet") then
+	if self.partyid ~= "pet" then
 		self.partyid = "pet"
 		self.unit = self.partyid
 		if (XPerl_ArcaneBar_SetUnit) then
@@ -682,14 +682,14 @@ function XPerl_Player_Pet_Events:PLAYER_REGEN_DISABLED()
 	if virtual then
 		virtual = nil
 		RegisterUnitWatch(XPerl_Player_Pet)
-		if (UnitExists("pet")) then
+		if UnitExists("pet") then
 			XPerl_Player_Pet:Show()
 			XPerl_Player_Pet_UpdateDisplay(XPerl_Player_Pet)
 		else
 			XPerl_Player_Pet:Hide()
 		end
 
-		if (XPerl_PetTarget) then
+		if XPerl_PetTarget then
 			RegisterUnitWatch(XPerl_PetTarget)
 			if (UnitExists("pettarget")) then
 				XPerl_PetTarget:Show()
@@ -737,9 +737,9 @@ end
 
 -- XPerl_Player_Pet_Virtual
 function XPerl_Player_Pet_Virtual(show)
-	if (not InCombatLockdown()) then
-		if (show) then
-			if (not virtual) then
+	if not InCombatLockdown() then
+		if show then
+			if not virtual then
 				virtual = true
 				if not UnitExists("pet") then
 					XPerl_Player_Pet:RegisterEvent("PLAYER_REGEN_DISABLED")
@@ -764,10 +764,10 @@ function XPerl_Player_Pet_Virtual(show)
 				end
 			end
 		else
-			if (virtual) then
+			if virtual then
 				virtual = nil
 				RegisterUnitWatch(XPerl_Player_Pet)
-				if (XPerl_PetTarget) then
+				if XPerl_PetTarget then
 					XPerl_PetTarget.virtual = nil
 					if (XPerl_PetTarget.conf.enable) then
 						RegisterUnitWatch(XPerl_PetTarget)
@@ -782,11 +782,11 @@ end
 
 -- XPerl_Player_Pet_Set_Bits
 function XPerl_Player_Pet_Set_Bits(self)
-	if (not virtual) then
+	if not virtual then
 		RegisterUnitWatch(self)
 	end
 
-	if (pconf.portrait) then
+	if pconf.portrait then
 		self.portraitFrame:Show()
 		self.portraitFrame:SetWidth(50)
 		self.statsFrame.resurrect:Hide()
@@ -795,7 +795,7 @@ function XPerl_Player_Pet_Set_Bits(self)
 		self.portraitFrame:SetWidth(3)
 	end
 
-	if (pconf.name) then
+	if pconf.name then
 		self.nameFrame:Show()
 		self.nameFrame:SetHeight(24)
 	else
@@ -803,17 +803,17 @@ function XPerl_Player_Pet_Set_Bits(self)
 		self.nameFrame:SetHeight(2)
 	end
 
-	if (pconf.name or pconf.portrait) then
-		if (pconf.level) then
+	if pconf.name or pconf.portrait then
+		if pconf.level then
 			self.levelFrame:SetPoint("TOPRIGHT", self.portraitFrame, "TOPLEFT", 2, 0)
 		end
 	else
-		if (pconf.level) then
+		if pconf.level then
 			self.levelFrame:SetPoint("TOPRIGHT", self.statsFrame, "TOPLEFT", 2, 0)
 		end
 	end
 
-	if (pconf.level) then
+	if pconf.level then
 		self.levelFrame:Show()
 	else
 		self.levelFrame:Hide()
@@ -821,21 +821,21 @@ function XPerl_Player_Pet_Set_Bits(self)
 
 	self.buffOptMix = nil
 	self.buffFrame:ClearAllPoints()
-	if (pconf.buffs.above) then
-		if (pconf.portrait) then
+	if pconf.buffs.above then
+		if pconf.portrait then
 			self.buffFrame:SetPoint("BOTTOMLEFT", self.portraitFrame, "TOPLEFT", 3, 0)
 		else
 			self.buffFrame:SetPoint("BOTTOMLEFT", self.nameFrame, "TOPLEFT", 3, 0)
 		end
 	else
-		if (not pconf.extendPortrait and (not pconf.portrait or not pconf.name)) then
+		if not pconf.extendPortrait and (not pconf.portrait or not pconf.name) then
 			self.buffFrame:SetPoint("TOPLEFT", self.statsFrame, "BOTTOMLEFT", 3, 0)
 		else
 			self.buffFrame:SetPoint("TOPLEFT", self.portraitFrame, "BOTTOMLEFT", 3, 0)
 		end
 	end
 
-	if (pconf.values) then
+	if pconf.values then
 		self.statsFrame.healthBar.text:Show()
 		self.statsFrame.manaBar.text:Show()
 	else
@@ -846,7 +846,7 @@ function XPerl_Player_Pet_Set_Bits(self)
 	self.portraitFrame:SetHeight(56 + (pconf.extendPortrait and 1 or 0) * 10)
 
 	self.highlight:ClearAllPoints()
-	if (pconf.portrait or pconf.name) then
+	if pconf.portrait or pconf.name then
 		self.highlight:SetPoint("BOTTOMLEFT", self.portraitFrame)
 	else
 		self.highlight:SetPoint("BOTTOMLEFT", self.statsFrame)
@@ -864,7 +864,7 @@ function XPerl_Player_Pet_Set_Bits(self)
 
 	XPerl_Player_Pet_SetWidth(self)
 
-	if (self:IsShown()) then
+	if self:IsShown() then
 		XPerl_Player_Pet_UpdateDisplay(self)
 	end
 end

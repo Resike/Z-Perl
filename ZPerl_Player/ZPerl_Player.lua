@@ -2386,6 +2386,8 @@ function XPerl_Player_InitDruid(self, playerClass)
 		self.runes.child2:SetParent(self.runes)
 		self.runes.child2:ClearAllPoints()
 		self.runes.child2:SetPoint("TOP", self.runes, "TOP", 0, 1)
+
+		EclipseBarFrame:UpdateShown()
 	end
 end
 
@@ -2494,7 +2496,6 @@ function XPerl_Player_InitWarlock(self, playerClass)
 		self.runes:SetPoint("BOTTOMRIGHT", self.statsFrame, "BOTTOMRIGHT", 0, -22)
 		self.runes.unit = "player"
 		self.runes.child = WarlockPowerFrame
-		self.runes.child.requiredClass = playerClass
 
 		if pconf.lockRunes then
 			local moving
@@ -2529,6 +2530,8 @@ function XPerl_Player_InitWarlock(self, playerClass)
 		self.runes.child:SetParent(self.runes)
 		self.runes.child:ClearAllPoints()
 		self.runes.child:SetPoint("TOP", self.runes, "TOP", 0, -1)
+
+		self.runes.child:OnLoad()
 	end
 end
 
@@ -2623,6 +2626,8 @@ function XPerl_Player_InitPaladin(self, playerClass)
 		self.runes.child:SetParent(self.runes)
 		self.runes.child:ClearAllPoints()
 		self.runes.child:SetPoint("TOP", self.runes, "TOP", 0, 4)
+
+		self.runes.child:OnLoad()
 	end
 end
 
@@ -2671,6 +2676,8 @@ function XPerl_Player_InitPriest(self, playerClass)
 	self.runes.child:SetParent(self.runes)
 	self.runes.child:ClearAllPoints()
 	self.runes.child:SetPoint("TOP", self.runes, "TOP", 0, 0)
+
+	self.runes.child:OnLoad()
 end
 
 -- XPerl_Player_InitMonk
@@ -2833,6 +2840,8 @@ function XPerl_Player_InitMonk(self, playerClass)
 		self.runes.child:SetPoint("TOP", XPerl_Player.runes, "TOP", 0, 18)
 		self.runes.child:SetFrameLevel(1)
 
+		self.runes.child:OnLoad()
+
 		if pconf.lockRunes then
 			local moving
 			hooksecurefunc(self.runes.child3, "SetPoint", function(self)
@@ -2866,6 +2875,8 @@ function XPerl_Player_InitMonk(self, playerClass)
 		self.runes.child3:SetParent(self.runes)
 		self.runes.child3:ClearAllPoints()
 		self.runes.child3:SetPoint("TOP", XPerl_Player.runes, "TOP", 0, 0)
+
+		self.runes.child3:OnLoad()
 	end
 end
 
@@ -3010,6 +3021,8 @@ function XPerl_Player_InitDK(self, playerClass)
 		self.runes.child2:SetParent(self.runes)
 		self.runes.child2:ClearAllPoints()
 		self.runes.child2:SetPoint("TOP", self.runes, "TOP", 3, -3)
+
+		RuneFrame_OnLoad(RuneFrame)
 	end
 end
 
