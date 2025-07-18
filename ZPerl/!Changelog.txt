@@ -1,3 +1,6 @@
+**7.5.5**
+Fix canceling player buffs with the `ActionButtonUseKeyDown` cvar enabled.
+
 **7.5.4**
 * Fixed pet happiness.
 * Some special power bar fixes.

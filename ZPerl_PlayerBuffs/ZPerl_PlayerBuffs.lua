@@ -149,7 +149,7 @@ function XPerl_Player_BuffSetup(self)
 
 	if (self.buffFrame) then
 		if pconf.buffs.enable then
-			setCommon(self.buffFrame, "HELPFUL", "XPerl_Secure_BuffTemplate")
+			setCommon(self.buffFrame, "HELPFUL", IsRetail and "XPerl_Secure_BuffTemplate" or (C_CVar.GetCVar("ActionButtonUseKeyDown") == "1" and "XPerl_Secure_Classic_Down_BuffTemplate" or "XPerl_Secure_Classic_BuffTemplate"))
 			self.buffFrame:Show()
 		else
 			self.buffFrame:Hide()
@@ -158,7 +158,7 @@ function XPerl_Player_BuffSetup(self)
 
 	if (self.debuffFrame) then
 		if pconf.buffs.enable and pconf.debuffs.enable then
-			setCommon(self.debuffFrame, "HARMFUL", "XPerl_Secure_BuffTemplate")
+			setCommon(self.debuffFrame, "HARMFUL", IsRetail and "XPerl_Secure_BuffTemplate" or (C_CVar.GetCVar("ActionButtonUseKeyDown") == "1" and "XPerl_Secure_Classic_Down_BuffTemplate" or "XPerl_Secure_Classic_BuffTemplate"))
 			self.debuffFrame:Show()
 		else
 			self.debuffFrame:Hide()
@@ -206,7 +206,7 @@ local function XPerl_Player_Buffs_Set_Bits(self)
 	local buffs = self.buffFrame
 	if buffs then
 		if pconf.buffs.enable then
-			setCommon(buffs, "HELPFUL", "XPerl_Secure_BuffTemplate")
+			setCommon(buffs, "HELPFUL", IsRetail and "XPerl_Secure_BuffTemplate" or (C_CVar.GetCVar("ActionButtonUseKeyDown") == "1" and "XPerl_Secure_Classic_Down_BuffTemplate" or "XPerl_Secure_Classic_BuffTemplate"))
 			buffs:Show()
 		else
 			buffs:Hide()
@@ -216,7 +216,7 @@ local function XPerl_Player_Buffs_Set_Bits(self)
 	local debuffs = self.debuffFrame
 	if debuffs then
 		if pconf.buffs.enable and pconf.debuffs.enable then
-			setCommon(debuffs, "HARMFUL", "XPerl_Secure_BuffTemplate")
+			setCommon(debuffs, "HARMFUL", IsRetail and "XPerl_Secure_BuffTemplate" or (C_CVar.GetCVar("ActionButtonUseKeyDown") == "1" and "XPerl_Secure_Classic_Down_BuffTemplate" or "XPerl_Secure_Classic_BuffTemplate"))
 			debuffs:Show()
 		else
 			debuffs:Hide()
@@ -435,11 +435,6 @@ end
 
 function XPerl_PlayerBuffs_OnLoad(self)
 	XPerl_SetChildMembers(self)
-	--[[if IsRetail then
-		self:RegisterForClicks("RightButtonDown", "RightButtonUp")
-	else
-		self:RegisterForClicks("RightButtonUp")
-	end]]
 end
 
 

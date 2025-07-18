@@ -12241,7 +12241,7 @@
 									end
 									if (ZPerl_Custom) then
 										ZPerl_Custom:PLAYER_ENTERING_WORLD()
-										if not XPerlDB.raid.enable or not XPerlDB.custom.enable then
+										if not XPerlDB.raid.enable or (XPerlDB.custom and not XPerlDB.custom.enable) then
 											ZPerl_Custom:ClearAll()
 										end
 									end
@@ -13671,7 +13671,7 @@
 											end
 											if (ZPerl_Custom) then
 												ZPerl_Custom:PLAYER_ENTERING_WORLD()
-												if not XPerlDB.custom.enable then
+												if XPerlDB.custom and not XPerlDB.custom.enable then
 													ZPerl_Custom:ClearAll()
 												end
 											end
