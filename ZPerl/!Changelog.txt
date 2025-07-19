@@ -1,5 +1,8 @@
+**7.5.6**
+* Fixed some special power bar issues on Retail, that was caused by some overlapping functions between Classic and Retail.
+
 **7.5.5**
-Fix canceling player buffs with the `ActionButtonUseKeyDown` cvar enabled.
+* Fix canceling player buffs with the `ActionButtonUseKeyDown` cvar enabled.
 
 **7.5.4**
 * Fixed pet happiness.

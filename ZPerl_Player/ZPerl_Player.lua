@@ -1898,11 +1898,11 @@ function XPerl_Player_Events:UNIT_ENTERED_VEHICLE(showVehicle)
 				if self.runes.child.Setup then
 					self.runes.child:Setup()
 				end
-				if self.runes.child.OnLoad then
+				if IsClassic and self.runes.child.OnLoad then
 					self.runes.child:OnLoad()
 				end
 			end
-			if self.runes.child3 then
+			if IsClassic and self.runes.child3 then
 				if self.runes.child3.OnLoad then
 					self.runes.child3:OnLoad()
 				end
@@ -1933,7 +1933,7 @@ function XPerl_Player_Events:UNIT_EXITING_VEHICLE()
 				if self.runes.child.Setup then
 					self.runes.child:Setup()
 				end
-				if self.runes.child.OnLoad then
+				if IsClassic and self.runes.child.OnLoad then
 					self.runes.child:OnLoad()
 				end
 			end
@@ -1949,7 +1949,7 @@ function XPerl_Player_Events:UNIT_EXITING_VEHICLE()
 					end
 				end
 			end
-			if self.runes.child3 then
+			if IsClassic and self.runes.child3 then
 				if self.runes.child3.OnLoad then
 					self.runes.child3:OnLoad()
 				end
@@ -2958,7 +2958,7 @@ function XPerl_Player_InitDK(self, playerClass)
 				self:SetMovable(true)
 				--self:SetUserPlaced(true)
 				self:ClearAllPoints()
-				self:SetPoint("TOP", XPerl_Player.runes, "TOP", 0, -6)
+				self:SetPoint("TOP", XPerl_Player.runes, "TOP", 0, 1)
 				self:SetMovable(false)
 				moving = nil
 			end)
@@ -2973,14 +2973,14 @@ function XPerl_Player_InitDK(self, playerClass)
 			self:SetMovable(true)
 			self:SetParent(XPerl_Player.runes)
 			self:ClearAllPoints()
-			self:SetPoint("TOP", XPerl_Player.runes, "TOP", 0, -6)
+			self:SetPoint("TOP", XPerl_Player.runes, "TOP", 0, 1)
 			self:SetMovable(false)
 			parenting = nil
 		end)
 
 		self.runes.child2:SetParent(self.runes)
 		self.runes.child2:ClearAllPoints()
-		self.runes.child2:SetPoint("TOP", self.runes, "TOP", 0, -6)
+		self.runes.child2:SetPoint("TOP", self.runes, "TOP", 0, 1)
 	elseif IsPandaClassic then
 		self.runes = CreateFrame("Frame", "XPerl_Runes", self)
 		self.runes:SetPoint("TOPLEFT", self.statsFrame, "BOTTOMLEFT", 0, 2)
