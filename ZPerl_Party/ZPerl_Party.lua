@@ -35,7 +35,7 @@ local type = type
 local wipe = wipe
 
 local CheckInteractDistance = CheckInteractDistance
-local GetLootMethod = GetLootMethod
+local GetLootMethod = GetLootMethod or C_PartyInfo.GetLootMethod
 local GetNumGroupMembers = GetNumGroupMembers
 local GetNumSubgroupMembers = GetNumSubgroupMembers
 local GetRaidRosterInfo = GetRaidRosterInfo

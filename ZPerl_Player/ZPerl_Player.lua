@@ -40,7 +40,7 @@ local string = string
 
 local CreateFrame = CreateFrame
 local GetDifficultyColor = GetDifficultyColor or GetQuestDifficultyColor
-local GetLootMethod = GetLootMethod
+local GetLootMethod = GetLootMethod or C_PartyInfo.GetLootMethod
 local GetNumGroupMembers = GetNumGroupMembers
 local GetPVPTimer = GetPVPTimer
 local GetRaidRosterInfo = GetRaidRosterInfo
