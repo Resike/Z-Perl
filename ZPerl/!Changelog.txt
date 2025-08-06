@@ -1,3 +1,7 @@
+**7.6.0**
+* Update for 11.2.0.
+* Fixed typo with shields highlighting.
+
 **7.5.6**
 * Fixed some special power bar issues on Retail, that was caused by some overlapping functions between Classic and Retail.
 
