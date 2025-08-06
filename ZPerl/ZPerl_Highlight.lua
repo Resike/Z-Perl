@@ -1793,7 +1793,7 @@ function xpHigh:HasMyShield(unit)
 			break
 		end
 		if (shieldSpells[name]) then
-			return endTime - GetTime()
+			return expirationTime - GetTime()
 		end
 	end
 end
