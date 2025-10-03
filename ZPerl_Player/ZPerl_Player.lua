@@ -2686,7 +2686,7 @@ function XPerl_Player_InitMonk(self, playerClass)
 		return
 	end
 
-	if isRetail then
+	if IsRetail then
 		self.runes = CreateFrame("Frame", "XPerl_Runes", self)
 		self.runes:SetPoint("TOPLEFT", self.statsFrame, "BOTTOMLEFT", 0, 2)
 		self.runes:SetPoint("BOTTOMRIGHT", self.statsFrame, "BOTTOMRIGHT", 0, -22)
