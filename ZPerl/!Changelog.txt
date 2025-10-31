@@ -1,3 +1,9 @@
+**7.6.1**
+* Update for 11.2.5.
+* Update for 5.5.1.
+* Update for 1.15.8.
+* Fixed Monk special power bar on Retail.
+
 **7.6.0**
 * Update for 11.2.0.
 * Fixed typo with shields highlighting.

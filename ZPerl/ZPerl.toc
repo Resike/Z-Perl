@@ -1,5 +1,5 @@
-## Interface: 11507, 50500, 110107
-## Version: 7.6.0
+## Interface: 11508, 50502, 110205
+## Version: 7.6.1
 ## Author: Resike
 ## Title: Z-Perl UnitFrames
 ## Title-itIT: Z-Perl UnitFrames
