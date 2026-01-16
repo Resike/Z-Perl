@@ -2638,7 +2638,6 @@ function XPerl_Raid_ChangeAttributes()
 	for i = 1, rconf.sortByClass and CLASS_COUNT or (IsVanillaClassic and 9 or (IsPandaClassic and 11 or 13)) do
 		local groupHeader = raidHeaders[i]
 
-		-- ZMIANA: Sprawdzamy, czy nagłówek istnieje, zanim cokolwiek zrobimy
 		if groupHeader then
 			-- Hide this when we change attributes, so the whole re-calc is only done once, instead of for every attribute change
 			groupHeader:Hide()
@@ -2680,7 +2679,7 @@ function XPerl_Raid_ChangeAttributes()
 			groupHeader:SetAttribute("startingIndex", startingIndex)
 
 			SetMainHeaderAttributes(groupHeader)
-		end -- Koniec sprawdzenia if groupHeader
+		end
 	end
 
 	XPerl_Raid_HideShowRaid()
