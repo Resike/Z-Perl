@@ -2638,46 +2638,49 @@ function XPerl_Raid_ChangeAttributes()
 	for i = 1, rconf.sortByClass and CLASS_COUNT or (IsVanillaClassic and 9 or (IsPandaClassic and 11 or 13)) do
 		local groupHeader = raidHeaders[i]
 
-		-- Hide this when we change attributes, so the whole re-calc is only done once, instead of for every attribute change
-		groupHeader:Hide()
+		-- ZMIANA: Sprawdzamy, czy nagłówek istnieje, zanim cokolwiek zrobimy
+		if groupHeader then
+			-- Hide this when we change attributes, so the whole re-calc is only done once, instead of for every attribute change
+			groupHeader:Hide()
 
-		if rconf.sortByRole then
-			groupHeader:SetAttribute("groupBy", "ASSIGNEDROLE")
-			groupHeader:SetAttribute("groupingOrder", "TANK,HEALER,DAMAGER,NONE")
-			groupHeader:SetAttribute("startingIndex", (i - 1) * 5 + 1)
-			groupHeader:SetAttribute("unitsPerColumn", 5)
-			groupHeader:SetAttribute("strictFiltering", nil)
-			groupHeader:SetAttribute("groupFilter", nil)
-			--groupHeader:SetAttribute("useparent-toggleForVehicle", true)
-			--groupHeader:SetAttribute("useparent-allowVehicleTarget", true)
-			--groupHeader:SetAttribute("useparent-unitsuffix", true)
-			--groupHeader:SetAttribute("toggleForVehicle", true)
-			--groupHeader:SetAttribute("allowVehicleTarget", true)
-		else
-			groupHeader:SetAttribute("strictFiltering", not rconf.sortByClass)
-			groupHeader:SetAttribute("groupFilter", GroupFilter(i))
-			groupHeader:SetAttribute("groupBy", nil)
-			groupHeader:SetAttribute("groupingOrder", nil)
-			groupHeader:SetAttribute("startingIndex", 1)
-			groupHeader:SetAttribute("unitsPerColumn", nil)
-			--groupHeader:SetAttribute("useparent-toggleForVehicle", true)
-			--groupHeader:SetAttribute("useparent-allowVehicleTarget", true)
-			--groupHeader:SetAttribute("useparent-unitsuffix", true)
-			--groupHeader:SetAttribute("toggleForVehicle", true)
-			--groupHeader:SetAttribute("allowVehicleTarget", true)
-		end
+			if rconf.sortByRole then
+				groupHeader:SetAttribute("groupBy", "ASSIGNEDROLE")
+				groupHeader:SetAttribute("groupingOrder", "TANK,HEALER,DAMAGER,NONE")
+				groupHeader:SetAttribute("startingIndex", (i - 1) * 5 + 1)
+				groupHeader:SetAttribute("unitsPerColumn", 5)
+				groupHeader:SetAttribute("strictFiltering", nil)
+				groupHeader:SetAttribute("groupFilter", nil)
+				--groupHeader:SetAttribute("useparent-toggleForVehicle", true)
+				--groupHeader:SetAttribute("useparent-allowVehicleTarget", true)
+				--groupHeader:SetAttribute("useparent-unitsuffix", true)
+				--groupHeader:SetAttribute("toggleForVehicle", true)
+				--groupHeader:SetAttribute("allowVehicleTarget", true)
+			else
+				groupHeader:SetAttribute("strictFiltering", not rconf.sortByClass)
+				groupHeader:SetAttribute("groupFilter", GroupFilter(i))
+				groupHeader:SetAttribute("groupBy", nil)
+				groupHeader:SetAttribute("groupingOrder", nil)
+				groupHeader:SetAttribute("startingIndex", 1)
+				groupHeader:SetAttribute("unitsPerColumn", nil)
+				--groupHeader:SetAttribute("useparent-toggleForVehicle", true)
+				--groupHeader:SetAttribute("useparent-allowVehicleTarget", true)
+				--groupHeader:SetAttribute("useparent-unitsuffix", true)
+				--groupHeader:SetAttribute("toggleForVehicle", true)
+				--groupHeader:SetAttribute("allowVehicleTarget", true)
+			end
 
-		-- Fix Secure Header taint in combat
-		local maxColumns = groupHeader:GetAttribute("maxColumns") or 1
-		local unitsPerColumn = groupHeader:GetAttribute("unitsPerColumn") or 5
-		local startingIndex = groupHeader:GetAttribute("startingIndex") or 1
-		local maxUnits = maxColumns * unitsPerColumn
+			-- Fix Secure Header taint in combat
+			local maxColumns = groupHeader:GetAttribute("maxColumns") or 1
+			local unitsPerColumn = groupHeader:GetAttribute("unitsPerColumn") or 5
+			local startingIndex = groupHeader:GetAttribute("startingIndex") or 1
+			local maxUnits = maxColumns * unitsPerColumn
 
-		groupHeader:Show()
-		groupHeader:SetAttribute("startingIndex", - maxUnits + 1)
-		groupHeader:SetAttribute("startingIndex", startingIndex)
+			groupHeader:Show()
+			groupHeader:SetAttribute("startingIndex", - maxUnits + 1)
+			groupHeader:SetAttribute("startingIndex", startingIndex)
 
-		SetMainHeaderAttributes(groupHeader)
+			SetMainHeaderAttributes(groupHeader)
+		end -- Koniec sprawdzenia if groupHeader
 	end
 
 	XPerl_Raid_HideShowRaid()

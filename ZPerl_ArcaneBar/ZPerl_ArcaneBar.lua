@@ -93,17 +93,21 @@ end
 local function overrideToggle(value)
 	local pconf = ArcaneBars.player
 	if (pconf) then
+		local frameToUse = PlayerCastingBarFrame or CastingBarFrame -- Sprobuj znalezc PlayerCastingBarFrame, jesli nie, to CastingBarFrame
+
 		if (value) then
 			if (pconf.bar.Overrided) then
-				local CastbarEventHandler = function(event, ...)
-					return XPerl_ArcaneBar_OnEvent(CastingBarFrame, event, ...)
-				end
-				for i, event in pairs(events) do
-					if IsRetail then
-						PlayerCastingBarFrame:RegisterEvent(event)
-					else
-						if event ~= "UNIT_SPELLCAST_INTERRUPTIBLE" and event ~= "UNIT_SPELLCAST_NOT_INTERRUPTIBLE" then
-							CastingBarFrame:RegisterEvent(event)
+				if frameToUse then -- Sprawdzamy czy ramka istnieje
+					local CastbarEventHandler = function(event, ...)
+						return XPerl_ArcaneBar_OnEvent(frameToUse, event, ...)
+					end
+					for i, event in pairs(events) do
+						if IsRetail then
+							frameToUse:RegisterEvent(event)
+						else
+							if event ~= "UNIT_SPELLCAST_INTERRUPTIBLE" and event ~= "UNIT_SPELLCAST_NOT_INTERRUPTIBLE" then
+								frameToUse:RegisterEvent(event)
+							end
 						end
 					end
 				end
@@ -111,12 +115,9 @@ local function overrideToggle(value)
 			end
 		else
 			if (not pconf.bar.Overrided) then
-				if IsRetail then
-					PlayerCastingBarFrame:Hide()
-					PlayerCastingBarFrame:UnregisterAllEvents()
-				else
-					CastingBarFrame:Hide()
-					CastingBarFrame:UnregisterAllEvents()
+				if frameToUse then -- Sprawdzamy czy ramka istnieje
+					frameToUse:Hide()
+					frameToUse:UnregisterAllEvents()
 				end
 				pconf.bar.Overrided = 1
 			end
