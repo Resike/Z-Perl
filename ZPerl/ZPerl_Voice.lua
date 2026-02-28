@@ -35,7 +35,7 @@ voice:ClearCache()
 -- voice:Create
 function voice:Create(frame)
 	if not frame.voiceButton then
-		frame.voiceButton = CreateFrame("Button", self:GetName().."Speaker", frame, BackdropTemplateMixin and "BackdropTemplate", "VoiceChatSpeakerTemplate")
+		frame.voiceButton = CreateFrame("Button", self:GetName().."Speaker", frame, BackdropTemplateMixin and "BackdropTemplate,VoiceChatSpeakerTemplate" or "VoiceChatSpeakerTemplate")
 		frame.voiceButton:EnableMouse(false)
 	end
 	XPerl_SetChildMembers(frame.voiceButton)

@@ -213,7 +213,7 @@ function XPerl_Options_CheckButton_OnEnter(self)
 		GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
 		if (title) then
 			GameTooltip:SetText(title, 1, 1, 1)
-			GameTooltip:AddLine(self.tooltipText, nil, nil, nil, 1)
+			GameTooltip:AddLine(self.tooltipText, nil, nil, nil, true)
 		else
 			GameTooltip:SetText(self.tooltipText, nil, nil, nil, nil, true)
 		end

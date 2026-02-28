@@ -14,6 +14,7 @@ end, "$Revision:  $")
 
 local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
 local IsPandaClassic = WOW_PROJECT_ID == WOW_PROJECT_MISTS_CLASSIC
+local IsBCClassic = WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC
 local IsVanillaClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 
 -- Upvalues
@@ -180,7 +181,7 @@ function XPerl_Player_Pet_OnLoad(self)
 				if pcall(self.RegisterUnitEvent, self, event, "pet") then
 					self:RegisterUnitEvent(event, "pet")
 				end
-			elseif IsVanillaClassic and event == "UNIT_HAPPINESS" and classFileName == "HUNTER" then
+			elseif (IsVanillaClassic or IsBCClassic) and event == "UNIT_HAPPINESS" and classFileName == "HUNTER" then
 				if pcall(self.RegisterUnitEvent, self, event, "pet") then
 					self:RegisterUnitEvent(event, "pet")
 				end
@@ -212,7 +213,7 @@ function XPerl_Player_Pet_OnLoad(self)
 	self:SetScript("OnShow", XPerl_Unit_UpdatePortrait)
 
 	if XPerl_ArcaneBar_RegisterFrame then
-		XPerl_ArcaneBar_RegisterFrame(self.nameFrame, (not IsVanillaClassic and UnitHasVehicleUI("player")) and "player" or "pet")
+		XPerl_ArcaneBar_RegisterFrame(self.nameFrame, (not IsVanillaClassic and not IsBCClassic and UnitHasVehicleUI("player")) and "player" or "pet")
 	end
 
 	XPerl_RegisterHighlight(self.highlight, 2)
@@ -388,7 +389,7 @@ end
 -- Happiness --
 ---------------
 local function XPerl_Player_Pet_SetHappiness(self)
-	if not IsVanillaClassic then
+	if not IsVanillaClassic and not IsBCClassic then
 		return
 	end
 
@@ -426,7 +427,7 @@ end
 
 -- XPerl_Player_Pet_Update_Control
 local function XPerl_Player_Pet_Update_Control(self)
-	if UnitIsCharmed(self.partyid) and UnitIsPlayer(self.partyid) and (not IsVanillaClassic and not UnitInVehicle("player") or true) then
+	if UnitIsCharmed(self.partyid) and UnitIsPlayer(self.partyid) and (not IsVanillaClassic and not IsBCClassic and not UnitInVehicle("player") or true) then
 		self.nameFrame.warningIcon:Show()
 	else
 		self.nameFrame.warningIcon:Hide()
@@ -626,7 +627,7 @@ end
 
 -- PLAYER_ENTERING_WORLD
 function XPerl_Player_Pet_Events:PLAYER_ENTERING_WORLD()
-	if not IsVanillaClassic and UnitHasVehicleUI("player") then
+	if not IsVanillaClassic and not IsBCClassic and UnitHasVehicleUI("player") then
 		self.partyid = "player"
 		self.unit = self.partyid
 		self:SetAttribute("unit", "player")

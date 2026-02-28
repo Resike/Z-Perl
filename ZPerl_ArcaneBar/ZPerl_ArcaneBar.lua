@@ -93,17 +93,18 @@ end
 local function overrideToggle(value)
 	local pconf = ArcaneBars.player
 	if (pconf) then
+		local castingFrame = PlayerCastingBarFrame or CastingBarFrame
 		if (value) then
 			if (pconf.bar.Overrided) then
 				local CastbarEventHandler = function(event, ...)
-					return XPerl_ArcaneBar_OnEvent(CastingBarFrame, event, ...)
+					return XPerl_ArcaneBar_OnEvent(castingFrame, event, ...)
 				end
 				for i, event in pairs(events) do
 					if IsRetail then
-						PlayerCastingBarFrame:RegisterEvent(event)
+						castingFrame:RegisterEvent(event)
 					else
 						if event ~= "UNIT_SPELLCAST_INTERRUPTIBLE" and event ~= "UNIT_SPELLCAST_NOT_INTERRUPTIBLE" then
-							CastingBarFrame:RegisterEvent(event)
+							castingFrame:RegisterEvent(event)
 						end
 					end
 				end
@@ -112,11 +113,11 @@ local function overrideToggle(value)
 		else
 			if (not pconf.bar.Overrided) then
 				if IsRetail then
-					PlayerCastingBarFrame:Hide()
-					PlayerCastingBarFrame:UnregisterAllEvents()
+					castingFrame:Hide()
+					castingFrame:UnregisterAllEvents()
 				else
-					CastingBarFrame:Hide()
-					CastingBarFrame:UnregisterAllEvents()
+					castingFrame:Hide()
+					castingFrame:UnregisterAllEvents()
 				end
 				pconf.bar.Overrided = 1
 			end

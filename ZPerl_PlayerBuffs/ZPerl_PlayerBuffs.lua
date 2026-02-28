@@ -177,13 +177,13 @@ function XPerl_Player_BuffSetup(self)
 	if (pconf.buffs.hideBlizzard) then
 		BuffFrame:UnregisterEvent("UNIT_AURA")
 		BuffFrame:Hide()
-		if not IsRetail then
+		if not IsRetail and TemporaryEnchantFrame then
 			TemporaryEnchantFrame:Hide()
 		end
 	else
 		BuffFrame:Show()
 		BuffFrame:RegisterEvent("UNIT_AURA")
-		if not IsRetail then
+		if not IsRetail and TemporaryEnchantFrame then
 			TemporaryEnchantFrame:Show()
 		end
 	end

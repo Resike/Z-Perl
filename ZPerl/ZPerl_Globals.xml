@@ -40,7 +40,7 @@
 
 					if (str2) then
 						GameTooltip:SetText(str1, HIGHLIGHT_FONT_COLOR.r, HIGHLIGHT_FONT_COLOR.g, HIGHLIGHT_FONT_COLOR.b)
-						GameTooltip:AddLine(str2, NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b, 1)
+						GameTooltip:AddLine(str2, NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b, true)
 						GameTooltip:Show()
 					else
 						GameTooltip:SetText(str1, nil, nil, nil, nil, 1)

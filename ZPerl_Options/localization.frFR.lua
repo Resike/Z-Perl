@@ -160,7 +160,7 @@ if GetLocale() == "frFR" then
 	XPERL_CONF_PLAYER_HIDEOOC			= "Cacher hors-combat"
 	XPERL_CONF_PLAYER_HIDEOOC_DESC			= "Cacher la fen\195\170tre joueur quand hors-combat"
 	XPERL_CONF_PLAYER_PORTRAIT			= "Portrait du joueur"
-	XPERL_CONF_PLAYER_PORTRAIT_DESC     		= "Permettre l'affichage du portrait du joueur \ r|c00FF0000NOTE : L'indicateur de coup de combat d\195\169pend de ceci."
+	XPERL_CONF_PLAYER_PORTRAIT_DESC     		= "Permettre l'affichage du portrait du joueur \r|c00FF0000NOTE : L'indicateur de coup de combat d\195\169pend de ceci."
 	XPERL_CONF_PLAYER_PORTRAIT3D            	= "Portrait 3D"
 	XPERL_CONF_PLAYER_PORTRAIT3D_DESC       	= "Activer l'affichage des portraits 3D"
 	XPERL_CONF_HIT_INDICATOR		        = "Indicateurs de coup"
@@ -224,7 +224,7 @@ if GetLocale() == "frFR" then
 	XPERL_CONF_PLAYER_PET_BUFF_SIZE_DESC		= "Ajuste l'affichage de la taille des buffs/debuffs du familier"
 
 	XPERL_CONF_TARGET_PORTRAIT              	= "Portrait de la cible"
-	XPERL_CONF_TARGET_PORTRAIT_DESC         	= "Permettre l'affichage du portrait de la cible \ r|c00FF0000NOTE : L'indicateur de coup de combat dépend de ceci."
+	XPERL_CONF_TARGET_PORTRAIT_DESC         	= "Permettre l'affichage du portrait de la cible \r|c00FF0000NOTE : L'indicateur de coup de combat dépend de ceci."
 	XPERL_CONF_TARGET_PORTRAIT3D            	= "Portrait 3d"
 	XPERL_CONF_TARGET_PORTRAIT3D_DESC       	= "Active l'affichage du portrait 3D"
 	XPERL_CONF_TARGET_HIT_INDICATOR		        = XPERL_CONF_HIT_INDICATOR

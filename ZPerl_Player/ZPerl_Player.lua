@@ -2055,7 +2055,11 @@ end
 
 -- XPerl_Player_SetTotems
 function XPerl_Player_SetTotems()
-	if (pconf.totems and pconf.totems.enable) then
+	if not TotemFrame then
+		return
+	end
+
+	if pconf.totems and pconf.totems.enable then
 		TotemFrame:SetParent(XPerl_Player)
 		TotemFrame:ClearAllPoints()
 		TotemFrame:SetPoint("TOP", XPerl_Player, "BOTTOM", pconf.totems.offsetX, pconf.totems.offsetY)
@@ -2219,7 +2223,7 @@ function XPerl_Player_Set_Bits(self)
 			}
 		end
 
-		if not IsVanillaClassic then
+		if not IsVanillaClassic and TotemFrame then
 			if (pconf.totems and pconf.totems.enable and not self.totemHooked) then
 				local moving
 				hooksecurefunc(TotemFrame, "SetPoint", function(self)

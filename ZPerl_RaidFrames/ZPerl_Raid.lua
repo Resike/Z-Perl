@@ -39,6 +39,7 @@ end
 
 local IsRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
 local IsPandaClassic = WOW_PROJECT_ID == WOW_PROJECT_MISTS_CLASSIC
+local IsBCClassic = WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC
 local IsVanillaClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
 
@@ -2493,7 +2494,7 @@ function XPerl_RaidTipExtra(unitid)
 
 				local Rezzers = GetCombatRezzerList()
 				if (Rezzers) then
-					GameTooltip:AddLine(XPERL_RAID_RESSER_AVAIL..Rezzers, NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b, 1)
+					GameTooltip:AddLine(XPERL_RAID_RESSER_AVAIL..Rezzers, NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b, true)
 				end
 			end
 		end
@@ -2635,7 +2636,7 @@ function XPerl_Raid_ChangeAttributes()
 
 	rconf.anchor = (rconf and rconf.anchor) or "TOP"
 
-	for i = 1, rconf.sortByClass and CLASS_COUNT or (IsVanillaClassic and 9 or (IsPandaClassic and 11 or 13)) do
+	for i = 1, rconf.sortByClass and CLASS_COUNT or (IsVanillaClassic and 9 or (IsBCClassic and 9) or (IsPandaClassic and 11 or 13)) do
 		local groupHeader = raidHeaders[i]
 
 		-- Hide this when we change attributes, so the whole re-calc is only done once, instead of for every attribute change

@@ -12,6 +12,7 @@ local _, _, _, clientRevision = GetBuildInfo()
 
 local IsRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
 local IsPandaClassic = WOW_PROJECT_ID == WOW_PROJECT_MISTS_CLASSIC
+local IsBCClassic = WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC
 local IsVanillaClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 
 local _G = _G
@@ -31,9 +32,6 @@ local unpack = unpack
 
 local CreateColor = CreateColor
 local CreateFrame = CreateFrame
-local DisableAddOn = DisableAddOn
-local GetNumGroupMembers = GetNumGroupMembers
-local GetNumSubgroupMembers = GetNumSubgroupMembers
 local InCombatLockdown = InCombatLockdown
 local IsAltKeyDown = IsAltKeyDown
 local IsInRaid = IsInRaid
@@ -41,13 +39,14 @@ local UnitAura = UnitAura
 local UnitClass = UnitClass
 local UnitInParty = UnitInParty
 local UnitInRaid = UnitInRaid
-local UnitIsGroupAssistant = UnitIsGroupAssistant
 local UnitName = UnitName
 
 local classOrder
 if IsRetail then
 	classOrder = {"WARRIOR", "DEATHKNIGHT", "ROGUE", "HUNTER", "DRUID", "SHAMAN", "PALADIN", "PRIEST", "MAGE", "WARLOCK", "MONK", "DEMONHUNTER", "EVOKER"}
 elseif IsPandaClassic then
+	classOrder = {"WARRIOR", "DEATHKNIGHT", "ROGUE", "HUNTER", "DRUID", "SHAMAN", "PALADIN", "PRIEST", "MAGE", "WARLOCK"}
+elseif IsBCClassic then
 	classOrder = {"WARRIOR", "DEATHKNIGHT", "ROGUE", "HUNTER", "DRUID", "SHAMAN", "PALADIN", "PRIEST", "MAGE", "WARLOCK"}
 else
 	classOrder = {"WARRIOR", "ROGUE", "HUNTER", "DRUID", "SHAMAN", "PALADIN", "PRIEST", "MAGE", "WARLOCK"}
@@ -446,7 +445,7 @@ local function XPerl_ToolTip_AddBuffDuration(self, partyid, buffID, filter)
 					if conf.buffHelper.sort then
 						self:AddLine(names, 0.5, 0.5, 0.5)
 					else
-						self:AddLine(names, 0.5, 0.5, 0.5, 1)
+						self:AddLine(names, 0.5, 0.5, 0.5, true)
 					end
 				end
 			end

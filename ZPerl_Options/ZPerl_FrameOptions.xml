@@ -187,7 +187,7 @@
 					local title = self:GetText()
 					if (title) then
 						GameTooltip:SetText(title, 1, 1, 1)
-						GameTooltip:AddLine(self.tooltipText, nil, nil, nil, 1)
+						GameTooltip:AddLine(self.tooltipText, nil, nil, nil, true)
 						GameTooltip:Show()
 					else
 						GameTooltip:SetText(self.tooltipText, nil, nil, nil, nil, true)
@@ -344,7 +344,7 @@
 						GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
 						if (title) then
 							GameTooltip:SetText(title, 1, 1, 1)
-							GameTooltip:AddLine(self.tooltipText, nil, nil, nil, 1)
+							GameTooltip:AddLine(self.tooltipText, nil, nil, nil, true)
 						else
 							GameTooltip:SetText(self.tooltipText, nil, nil, nil, nil, true)
 						end
@@ -394,7 +394,7 @@
 					GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
 					if (title) then
 						GameTooltip:SetText(title, 1, 1, 1)
-						GameTooltip:AddLine(self.tooltipText, nil, nil, nil, 1)
+						GameTooltip:AddLine(self.tooltipText, nil, nil, nil, true)
 					else
 						GameTooltip:SetText(self.tooltipText, nil, nil, nil, nil, true)
 					end
@@ -744,7 +744,7 @@
 					GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
 					if (title) then
 						GameTooltip:SetText(title, 1, 1, 1)
-						GameTooltip:AddLine(self.tooltipText, nil, nil, nil, 1)
+						GameTooltip:AddLine(self.tooltipText, nil, nil, nil, true)
 					else
 						GameTooltip:SetText(self.tooltipText, nil, nil, nil, nil, true)
 					end
@@ -1271,7 +1271,7 @@
 					<OnLoad>
 						self:SetID(self:GetParent():GetID())
 						self.tooltipText = XPERL_CONF_RAID_CLASS_DOWN
-						if (self:GetID() == (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC and 9 or (WOW_PROJECT_ID == WOW_PROJECT_MISTS_CLASSIC and 11 or 13))) then
+						if (self:GetID() == (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC and 9 or (WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC and 9) or (WOW_PROJECT_ID == WOW_PROJECT_MISTS_CLASSIC and 11 or 13))) then
 							self:Hide()
 						end
 					</OnLoad>
@@ -13121,7 +13121,7 @@
 								</Anchors>
 								<Scripts>
 									<OnLoad>
-										if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC then
+										if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC or WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC then
 											self:Hide()
 											return
 										end
@@ -13148,7 +13148,7 @@
 								</Anchors>
 								<Scripts>
 									<OnLoad>
-										if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC then
+										if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC or WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC then
 											self:Hide()
 											return
 										end
@@ -13175,7 +13175,7 @@
 								</Anchors>
 								<Scripts>
 									<OnLoad>
-										if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC or WOW_PROJECT_ID == WOW_PROJECT_MISTS_CLASSIC then
+										if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC or WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC or WOW_PROJECT_ID == WOW_PROJECT_MISTS_CLASSIC then
 											self:Hide()
 											return
 										end
@@ -13202,7 +13202,7 @@
 								</Anchors>
 								<Scripts>
 									<OnLoad>
-										if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC or WOW_PROJECT_ID == WOW_PROJECT_MISTS_CLASSIC then
+										if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC or WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC or WOW_PROJECT_ID == WOW_PROJECT_MISTS_CLASSIC then
 											self:Hide()
 											return
 										end
@@ -13333,7 +13333,7 @@
 								</Anchors>
 								<Scripts>
 									<OnLoad>
-										if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC then
+										if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC or WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC then
 											self:Hide()
 										end
 									</OnLoad>
@@ -13349,7 +13349,7 @@
 								</Anchors>
 								<Scripts>
 									<OnLoad>
-										if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC or WOW_PROJECT_ID == WOW_PROJECT_MISTS_CLASSIC then
+										if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC or WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC or WOW_PROJECT_ID == WOW_PROJECT_MISTS_CLASSIC then
 											self:Hide()
 										end
 									</OnLoad>
@@ -13366,7 +13366,7 @@
 								</Anchors>
 								<Scripts>
 									<OnLoad>
-										if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC or WOW_PROJECT_ID == WOW_PROJECT_MISTS_CLASSIC then
+										if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC or WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC or WOW_PROJECT_ID == WOW_PROJECT_MISTS_CLASSIC then
 											self:Hide()
 										end
 									</OnLoad>
@@ -13383,7 +13383,7 @@
 								</Anchors>
 								<Scripts>
 									<OnLoad>
-										if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC or WOW_PROJECT_ID == WOW_PROJECT_MISTS_CLASSIC then
+										if WOW_PROJECT_ID == WOW_PROJECT_CLASSIC or WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC or WOW_PROJECT_ID == WOW_PROJECT_MISTS_CLASSIC then
 											self:Hide()
 										end
 									</OnLoad>

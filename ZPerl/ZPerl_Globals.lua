@@ -4,16 +4,13 @@
 
 local IsRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
 local IsPandaClassic = WOW_PROJECT_ID == WOW_PROJECT_MISTS_CLASSIC
-local IsVanillaClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
+local IsBCClassic = WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC
 
 XPerlLocked = 1
 local conf
 local ConfigRequesters = {}
 XPerl_OutOfCombatQueue	= {}
 local playerName
-local iFixed1
-local totalBlocked = 0
-local xperlBlocked = 0
 local lastConfigMode
 local maxRevision
 
@@ -248,7 +245,7 @@ do
 	local function DisableOther(modName, issues)
 		local name, title, notes, enabled = C_AddOns.GetAddOnInfo(modName)
 		if (name and enabled) then
-			DisableAddOn(modName)
+			C_AddOns.DisableAddOn(modName)
 			local notice = "Disabled '"..modName.."' addon. It is not compatible or needed with X-Perl"
 			if (issues) then
 				notice = notice..", and creates display issues."
@@ -732,6 +729,18 @@ local function DefaultRaidClasses()
 			{enable = true, name = "SHAMAN"},
 			{enable = true, name = "PALADIN"},
 		}
+	elseif IsBCClassic then
+		return {
+			{enable = true, name = "WARRIOR"},
+			{enable = true, name = "ROGUE"},
+			{enable = true, name = "HUNTER"},
+			{enable = true, name = "MAGE"},
+			{enable = true, name = "WARLOCK"},
+			{enable = true, name = "PRIEST"},
+			{enable = true, name = "DRUID"},
+			{enable = true, name = "SHAMAN"},
+			{enable = true, name = "PALADIN"},
+		}
 	else
 		return {
 			{enable = true, name = "WARRIOR"},
@@ -759,6 +768,8 @@ local function ValidateClassNames(part)
 		list = {WARRIOR = false, MAGE = false, ROGUE = false, DRUID = false, HUNTER = false, SHAMAN = false, PRIEST = false, WARLOCK = false, PALADIN = false, DEATHKNIGHT = false, MONK = false, DEMONHUNTER = false, EVOKER = false}
 	elseif IsPandaClassic then
 		list = {WARRIOR = false, MAGE = false, ROGUE = false, DRUID = false, HUNTER = false, SHAMAN = false, PRIEST = false, WARLOCK = false, PALADIN = false, DEATHKNIGHT = false}
+	elseif IsBCClassic then
+		list = {WARRIOR = false, MAGE = false, ROGUE = false, DRUID = false, HUNTER = false, SHAMAN = false, PRIEST = false, WARLOCK = false, PALADIN = false}
 	else
 		list = {WARRIOR = false, MAGE = false, ROGUE = false, DRUID = false, HUNTER = false, SHAMAN = false, PRIEST = false, WARLOCK = false, PALADIN = false}
 	end
