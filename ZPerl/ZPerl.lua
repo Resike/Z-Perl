@@ -3431,8 +3431,22 @@ function XPerl_Unit_UpdateBuffs(self, maxBuffs, maxDebuffs, castableOnly, curabl
 							button.count:Hide()
 						end
 
-						local borderColor = DebuffTypeColor[(debuffType or "none")]
-						button.border:SetVertexColor(borderColor.r, borderColor.g, borderColor.b)
+						local borderColor = DebuffTypeColor and DebuffTypeColor[(debuffType or "none")]
+						if borderColor then
+						    button.border:SetVertexColor(borderColor.r, borderColor.g, borderColor.b)
+						else
+						    if debuffType == "Magic" then
+						        button.border:SetVertexColor(0.2, 0.6, 1)
+						    elseif debuffType == "Curse" then
+						        button.border:SetVertexColor(0.6, 0, 1)
+						    elseif debuffType == "Disease" then
+						        button.border:SetVertexColor(0.6, 0.4, 0)
+						    elseif debuffType == "Poison" then
+						        button.border:SetVertexColor(0, 0.6, 0)
+						    else
+						        button.border:SetVertexColor(0.8, 0, 0)
+						    end
+						end
 
 						-- Handle cooldowns
 						if (button.cooldown) then
