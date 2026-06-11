@@ -1,4 +1,4 @@
-## Interface: 11508, 20505, 50502
+## Interface: 11508, 20505, 50504
 ## Author: Resike
 ## Title: Z-Perl |cffeda55fPlayer Pet|r
 ## Title-itIT: Z-Perl |cffeda55fFamiglio Giocatore|r

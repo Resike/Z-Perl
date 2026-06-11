@@ -8,8 +8,8 @@ local perc1F = "%.1f"..PERCENT_SYMBOL
 
 XPerl_RequestConfig(function(New)
 	conf = New
-end, "$Revision: 9c0697ce7ea46b29e24c894c5db60c3d931f5bdd $")
-XPerl_SetModuleRevision("$Revision: 9c0697ce7ea46b29e24c894c5db60c3d931f5bdd $")
+end, "$Revision: $")
+XPerl_SetModuleRevision("$Revision: $")
 
 local IsRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
 local IsPandaClassic = WOW_PROJECT_ID == WOW_PROJECT_MISTS_CLASSIC
@@ -53,9 +53,16 @@ local tremove = tremove
 local type = type
 local unpack = unpack
 
+local DebuffColors = {}
+DebuffColors.None = _G.DEBUFF_TYPE_NONE_COLOR or { r = 0.8, g = 0, b = 0 }
+DebuffColors.Magic = _G.DEBUFF_TYPE_MAGIC_COLOR or { r = 0.2, g = 0.6, b = 1 }
+DebuffColors.Curse = _G.DEBUFF_TYPE_CURSE_COLOR or { r = 0.6, g = 0, b = 1 }
+DebuffColors.Disease = _G.DEBUFF_TYPE_DISEASE_COLOR or { r = 0.6, g = 0.4, b = 0 }
+DebuffColors.Poison = _G.DEBUFF_TYPE_POISON_COLOR or { r = 0, g = 0.6, b = 0 }
+
 local CheckInteractDistance = CheckInteractDistance
 local CreateFrame = CreateFrame
-local DebuffTypeColor = DebuffTypeColor
+local DebuffTypeColor = DebuffTypeColor or DebuffColors
 local GetAddOnCPUUsage = GetAddOnCPUUsage
 local GetAddOnMemoryUsage = GetAddOnMemoryUsage
 local GetCursorPosition = GetCursorPosition
@@ -2027,18 +2034,18 @@ function XPerl_CheckDebuffs(self, unit, resetBorders)
 		show = getShow(Curses)
 	end
 
-	local colour, borderColour
+	local color, borderColour
 	if show then
-		colour = DebuffTypeColor[show]
-		colour.a = 1
+		color = DebuffTypeColor[show]
+		color.a = 1
 
 		if conf.highlightDebuffs.border then
-			borderColour = colour
+			borderColour = color
 		else
 			borderColour = conf.colour.border
 		end
 	else
-		colour = conf.colour.frame
+		color = conf.colour.frame
 		borderColour = conf.colour.border
 	end
 
@@ -2061,10 +2068,10 @@ function XPerl_CheckDebuffs(self, unit, resetBorders)
 	for i = 1, #self.FlashFrames do
 		local f = self.FlashFrames[i]
 		if not conf.highlightDebuffs.frame then
-			colour = conf.colour.frame
+			color = conf.colour.frame
 		end
 		f:SetBackdrop(bgDef)
-		f:SetBackdropColor(colour.r, colour.g, colour.b, colour.a)
+		f:SetBackdropColor(color.r, color.g, color.b, color.a)
 		f:SetBackdropBorderColor(borderColour.r, borderColour.g, borderColour.b, borderColour.a)
 	end
 end
@@ -3431,7 +3438,7 @@ function XPerl_Unit_UpdateBuffs(self, maxBuffs, maxDebuffs, castableOnly, curabl
 							button.count:Hide()
 						end
 
-						local borderColor = DebuffTypeColor[(debuffType or "none")]
+						local borderColor = DebuffTypeColor[(debuffType or "None")]
 						button.border:SetVertexColor(borderColor.r, borderColor.g, borderColor.b)
 
 						-- Handle cooldowns

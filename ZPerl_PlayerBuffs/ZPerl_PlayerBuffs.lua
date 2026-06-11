@@ -21,6 +21,26 @@ local IsRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
 local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
 local IsVanillaClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 
+local DebuffColors = {}
+DebuffColors.None = _G.DEBUFF_TYPE_NONE_COLOR or { r = 0.8, g = 0, b = 0 }
+DebuffColors.Magic = _G.DEBUFF_TYPE_MAGIC_COLOR or { r = 0.2, g = 0.6, b = 1 }
+DebuffColors.Curse = _G.DEBUFF_TYPE_CURSE_COLOR or { r = 0.6, g = 0, b = 1 }
+DebuffColors.Disease = _G.DEBUFF_TYPE_DISEASE_COLOR or { r = 0.6, g = 0.4, b = 0 }
+DebuffColors.Poison = _G.DEBUFF_TYPE_POISON_COLOR or { r = 0, g = 0.6, b = 0 }
+
+local floor = floor
+local max = max
+
+local CreateFrame = CreateFrame
+local DebuffTypeColor = DebuffTypeColor or DebuffColors
+local GetShapeshiftForm = GetShapeshiftForm
+local GetSpecialization = GetSpecialization
+local GetTime = GetTime
+local InCombatLockdown = InCombatLockdown
+local UnitAura = UnitAura
+local UnitClass = UnitClass
+local UnitPowerType = UnitPowerType
+
 -- setCommon
 local function setCommon(self, filter, buffTemplate)
 	self:SetAttribute("template", buffTemplate)
@@ -386,7 +406,7 @@ function XPerl_PlayerBuffs_Update(self)
 
 			if name and filter == "HARMFUL" then
 				self.border:Show()
-				local borderColor = DebuffTypeColor[(dispelName or "none")]
+				local borderColor = DebuffTypeColor[(dispelName or "None")]
 				self.border:SetVertexColor(borderColor.r, borderColor.g, borderColor.b)
 			else
 				self.border:Hide()
