@@ -22,7 +22,7 @@ local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
 local IsVanillaClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
 
 local DebuffColors = {}
-DebuffColors.None = _G.DEBUFF_TYPE_NONE_COLOR or { r = 0.8, g = 0, b = 0 }
+DebuffColors.none = _G.DEBUFF_TYPE_NONE_COLOR or { r = 0.8, g = 0, b = 0 }
 DebuffColors.Magic = _G.DEBUFF_TYPE_MAGIC_COLOR or { r = 0.2, g = 0.6, b = 1 }
 DebuffColors.Curse = _G.DEBUFF_TYPE_CURSE_COLOR or { r = 0.6, g = 0, b = 1 }
 DebuffColors.Disease = _G.DEBUFF_TYPE_DISEASE_COLOR or { r = 0.6, g = 0.4, b = 0 }
@@ -406,7 +406,7 @@ function XPerl_PlayerBuffs_Update(self)
 
 			if name and filter == "HARMFUL" then
 				self.border:Show()
-				local borderColor = DebuffTypeColor[(dispelName or "None")]
+				local borderColor = DebuffTypeColor[(dispelName or "none")]
 				self.border:SetVertexColor(borderColor.r, borderColor.g, borderColor.b)
 			else
 				self.border:Hide()

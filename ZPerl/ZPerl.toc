@@ -1,5 +1,5 @@
 ## Interface: 11508, 20505, 50504
-## Version: 7.7.1
+## Version: 7.7.2
 ## Author: Resike
 ## Title: Z-Perl UnitFrames
 ## Title-itIT: Z-Perl UnitFrames

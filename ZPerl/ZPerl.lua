@@ -54,7 +54,7 @@ local type = type
 local unpack = unpack
 
 local DebuffColors = {}
-DebuffColors.None = _G.DEBUFF_TYPE_NONE_COLOR or { r = 0.8, g = 0, b = 0 }
+DebuffColors.none = _G.DEBUFF_TYPE_NONE_COLOR or { r = 0.8, g = 0, b = 0 }
 DebuffColors.Magic = _G.DEBUFF_TYPE_MAGIC_COLOR or { r = 0.2, g = 0.6, b = 1 }
 DebuffColors.Curse = _G.DEBUFF_TYPE_CURSE_COLOR or { r = 0.6, g = 0, b = 1 }
 DebuffColors.Disease = _G.DEBUFF_TYPE_DISEASE_COLOR or { r = 0.6, g = 0.4, b = 0 }
@@ -3438,7 +3438,7 @@ function XPerl_Unit_UpdateBuffs(self, maxBuffs, maxDebuffs, castableOnly, curabl
 							button.count:Hide()
 						end
 
-						local borderColor = DebuffTypeColor[(debuffType or "None")]
+						local borderColor = DebuffTypeColor[(debuffType or "none")]
 						button.border:SetVertexColor(borderColor.r, borderColor.g, borderColor.b)
 
 						-- Handle cooldowns

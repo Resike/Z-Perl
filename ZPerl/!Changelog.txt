@@ -1,4 +1,7 @@
 **7.7.1**
+Fix debuff colors.
+
+**7.7.1**
 * Update for 5.5.4.
 
 **7.7.0**
