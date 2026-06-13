@@ -406,7 +406,7 @@ function XPerl_PlayerBuffs_Update(self)
 
 			if name and filter == "HARMFUL" then
 				self.border:Show()
-				local borderColor = DebuffTypeColor[(dispelName or "None")]
+				local borderColor = DebuffTypeColor[(dispelName or "none")]
 				self.border:SetVertexColor(borderColor.r, borderColor.g, borderColor.b)
 			else
 				self.border:Hide()
