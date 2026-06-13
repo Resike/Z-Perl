@@ -3438,7 +3438,7 @@ function XPerl_Unit_UpdateBuffs(self, maxBuffs, maxDebuffs, castableOnly, curabl
 							button.count:Hide()
 						end
 
-						local borderColor = DebuffTypeColor[(debuffType or "None")]
+						local borderColor = DebuffTypeColor[(debuffType or "none")]
 						button.border:SetVertexColor(borderColor.r, borderColor.g, borderColor.b)
 
 						-- Handle cooldowns
