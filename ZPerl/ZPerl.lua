@@ -53,16 +53,16 @@ local tremove = tremove
 local type = type
 local unpack = unpack
 
-local DebuffColors = {}
-DebuffColors.none = _G.DEBUFF_TYPE_NONE_COLOR or { r = 0.8, g = 0, b = 0 }
-DebuffColors.Magic = _G.DEBUFF_TYPE_MAGIC_COLOR or { r = 0.2, g = 0.6, b = 1 }
-DebuffColors.Curse = _G.DEBUFF_TYPE_CURSE_COLOR or { r = 0.6, g = 0, b = 1 }
-DebuffColors.Disease = _G.DEBUFF_TYPE_DISEASE_COLOR or { r = 0.6, g = 0.4, b = 0 }
-DebuffColors.Poison = _G.DEBUFF_TYPE_POISON_COLOR or { r = 0, g = 0.6, b = 0 }
+local DebuffColours = {}
+DebuffColours.none = _G.DEBUFF_TYPE_NONE_COLOR or { r = 0.8, g = 0, b = 0 }
+DebuffColours.Magic = _G.DEBUFF_TYPE_MAGIC_COLOR or { r = 0.2, g = 0.6, b = 1 }
+DebuffColours.Curse = _G.DEBUFF_TYPE_CURSE_COLOR or { r = 0.6, g = 0, b = 1 }
+DebuffColours.Disease = _G.DEBUFF_TYPE_DISEASE_COLOR or { r = 0.6, g = 0.4, b = 0 }
+DebuffColours.Poison = _G.DEBUFF_TYPE_POISON_COLOR or { r = 0, g = 0.6, b = 0 }
 
 local CheckInteractDistance = CheckInteractDistance
 local CreateFrame = CreateFrame
-local DebuffTypeColor = DebuffTypeColor or DebuffColors
+local DebuffTypeColor = DebuffTypeColor or DebuffColours
 local GetAddOnCPUUsage = GetAddOnCPUUsage
 local GetAddOnMemoryUsage = GetAddOnMemoryUsage
 local GetCursorPosition = GetCursorPosition
@@ -2034,18 +2034,18 @@ function XPerl_CheckDebuffs(self, unit, resetBorders)
 		show = getShow(Curses)
 	end
 
-	local color, borderColour
+	local colour, borderColour
 	if show then
-		color = DebuffTypeColor[show]
-		color.a = 1
+		colour = DebuffTypeColor[show]
+		colour.a = 1
 
 		if conf.highlightDebuffs.border then
-			borderColour = color
+			borderColour = colour
 		else
 			borderColour = conf.colour.border
 		end
 	else
-		color = conf.colour.frame
+		colour = conf.colour.frame
 		borderColour = conf.colour.border
 	end
 
@@ -2068,10 +2068,10 @@ function XPerl_CheckDebuffs(self, unit, resetBorders)
 	for i = 1, #self.FlashFrames do
 		local f = self.FlashFrames[i]
 		if not conf.highlightDebuffs.frame then
-			color = conf.colour.frame
+			colour = conf.colour.frame
 		end
 		f:SetBackdrop(bgDef)
-		f:SetBackdropColor(color.r, color.g, color.b, color.a)
+		f:SetBackdropColor(colour.r, colour.g, colour.b, colour.a)
 		f:SetBackdropBorderColor(borderColour.r, borderColour.g, borderColour.b, borderColour.a)
 	end
 end

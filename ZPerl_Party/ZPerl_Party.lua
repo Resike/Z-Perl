@@ -138,13 +138,47 @@ function XPerl_Party_Events_OnLoad(self)
 
 	UIParent:UnregisterEvent("GROUP_ROSTER_UPDATE") -- IMPORTANT! Stops raid framerate lagging when members join/leave/zone
 
-	if IsRetail or IsBCClassic then
-		XPerl_BlizzFrameDisable(PartyFrame)
-	else
-		for i = 1, 4 do
-			XPerl_BlizzFrameDisable(_G["PartyMemberFrame"..i])
-		end
-	end
+	-- Function to hide Blizzard Party Frames
+	local function HideBlizzardPartyFrames()
+        -- BCA/Retail PartyFrame.MemberFrame structure
+        if _G.PartyFrame then
+            if XPerl_BlizzFrameDisable then
+                XPerl_BlizzFrameDisable(PartyFrame)
+            else
+                PartyFrame:Hide()
+                PartyFrame:UnregisterAllEvents()
+            end
+            
+            for i = 1, 4 do
+                local memberFrame = PartyFrame["MemberFrame"..i]
+                if memberFrame then
+                    memberFrame:Hide()
+                    memberFrame:UnregisterAllEvents()
+                end
+            end
+        end
+        
+        -- Classic/TBC/Wrath PartyMemberFrame1-4
+        for i = 1, 4 do
+            local frame = _G["PartyMemberFrame"..i]
+            if frame and XPerl_BlizzFrameDisable then
+                XPerl_BlizzFrameDisable(frame)
+            end
+        end
+
+        -- Compact frames (if present)
+        if _G.CompactRaidFrameManager and XPerl_BlizzFrameDisable then
+            XPerl_BlizzFrameDisable(CompactRaidFrameManager)
+        end
+
+        -- Disable compact party frames CVar
+        if not InCombatLockdown() then
+            pcall(SetCVar, "useCompactPartyFrames", "0")
+        end
+    end
+
+	HideBlizzardPartyFrames()
+	XPerl_HideBlizzardPartyFrames = HideBlizzardPartyFrames
 
 	self:SetScript("OnEvent", XPerl_Party_OnEvent)
 	XPerl_RegisterOptionChanger(XPerl_Party_Set_Bits)
@@ -1451,6 +1485,12 @@ function XPerl_Party_Events:GROUP_ROSTER_UPDATE()
 	CheckRaid()
 	XPerl_SetHighlights()
 	XPerl_Party_UpdateDisplayAll()
+
+	-- Hide the Blizzard Party Frames again when the group roster changes.
+	if XPerl_HideBlizzardPartyFrames then
+		XPerl_HideBlizzardPartyFrames()
+	end
+
 end
 
 XPerl_Party_Events.PLAYER_LOGIN = XPerl_Party_Events.GROUP_ROSTER_UPDATE

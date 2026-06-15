@@ -18,21 +18,21 @@ end
 --@end-debug@]===]
 
 local IsRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
-local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
 local IsVanillaClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
+local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
 
-local DebuffColors = {}
-DebuffColors.none = _G.DEBUFF_TYPE_NONE_COLOR or { r = 0.8, g = 0, b = 0 }
-DebuffColors.Magic = _G.DEBUFF_TYPE_MAGIC_COLOR or { r = 0.2, g = 0.6, b = 1 }
-DebuffColors.Curse = _G.DEBUFF_TYPE_CURSE_COLOR or { r = 0.6, g = 0, b = 1 }
-DebuffColors.Disease = _G.DEBUFF_TYPE_DISEASE_COLOR or { r = 0.6, g = 0.4, b = 0 }
-DebuffColors.Poison = _G.DEBUFF_TYPE_POISON_COLOR or { r = 0, g = 0.6, b = 0 }
+local DebuffColours = {}
+DebuffColours.none = _G.DEBUFF_TYPE_NONE_COLOR or { r = 0.8, g = 0, b = 0 }
+DebuffColours.Magic = _G.DEBUFF_TYPE_MAGIC_COLOR or { r = 0.2, g = 0.6, b = 1 }
+DebuffColours.Curse = _G.DEBUFF_TYPE_CURSE_COLOR or { r = 0.6, g = 0, b = 1 }
+DebuffColours.Disease = _G.DEBUFF_TYPE_DISEASE_COLOR or { r = 0.6, g = 0.4, b = 0 }
+DebuffColours.Poison = _G.DEBUFF_TYPE_POISON_COLOR or { r = 0, g = 0.6, b = 0 }
 
 local floor = floor
 local max = max
 
 local CreateFrame = CreateFrame
-local DebuffTypeColor = DebuffTypeColor or DebuffColors
+local DebuffTypeColour = DebuffTypeColor or DebuffColours
 local GetShapeshiftForm = GetShapeshiftForm
 local GetSpecialization = GetSpecialization
 local GetTime = GetTime
@@ -195,15 +195,27 @@ function XPerl_Player_BuffSetup(self)
 	end
 
 	if (pconf.buffs.hideBlizzard) then
-		BuffFrame:UnregisterEvent("UNIT_AURA")
-		BuffFrame:Hide()
-		if not IsRetail and TemporaryEnchantFrame then
-			TemporaryEnchantFrame:Hide()
+		-- Hide the Blizzard BuffFrame if buffs are enabled.
+		if pconf.buffs.enable then
+			BuffFrame:UnregisterEvent("UNIT_AURA")
+			BuffFrame:Hide()
+			if not IsRetail and TemporaryEnchantFrame then
+				TemporaryEnchantFrame:Hide()
+			end
+		end
+
+		-- Hide the Blizzard DebuffFrame if debuffs are enabled.
+		if pconf.debuffs.enable then
+			DebuffFrame:UnregisterEvent("UNIT_AURA")
+			DebuffFrame:Hide()
 		end
 	else
+		-- Make sure that everything is shown.
 		BuffFrame:Show()
 		BuffFrame:RegisterEvent("UNIT_AURA")
-		if not IsRetail and TemporaryEnchantFrame then
+		DebuffFrame:Show()
+		DebuffFrame:RegisterEvent("UNIT_AURA")
+		if not IsRetail and TemporaryEchantFrame then
 			TemporaryEnchantFrame:Show()
 		end
 	end
@@ -406,7 +418,7 @@ function XPerl_PlayerBuffs_Update(self)
 
 			if name and filter == "HARMFUL" then
 				self.border:Show()
-				local borderColor = DebuffTypeColor[(dispelName or "none")]
+				local borderColor = DebuffTypeColour[(dispelName or "none")]
 				self.border:SetVertexColor(borderColor.r, borderColor.g, borderColor.b)
 			else
 				self.border:Hide()
