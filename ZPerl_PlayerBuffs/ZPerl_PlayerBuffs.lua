@@ -90,14 +90,6 @@ function XPerl_Player_Buffs_Position(self)
 		if (pconf.buffs.above) then
 			self.buffFrame:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 3, 0)
 		else
-			--[[if (self.runes and self.runes:IsShown() and ((self.runes.child and self.runes.child:IsShown()) or (self.runes.child2 and self.runes.child2:IsShown())) and pconf.dockRunes) then
-				self.buffFrame:SetPoint("TOPLEFT", self.portraitFrame, "BOTTOMLEFT", 3, -28)
-			elseif ((pconf.xpBar or pconf.repBar) and not pconf.extendPortrait) then
-				local diff = self.statsFrame:GetBottom() - self.portraitFrame:GetBottom()
-				self.buffFrame:SetPoint("TOPLEFT", self.portraitFrame, "BOTTOMLEFT", 3, diff - 5)
-			else
-				self.buffFrame:SetPoint("TOPLEFT", self.portraitFrame, "BOTTOMLEFT", 3, 0)
-			end]]
 
 			local _, playerClass = UnitClass("player")
 			local extraBar
@@ -215,7 +207,7 @@ function XPerl_Player_BuffSetup(self)
 		BuffFrame:RegisterEvent("UNIT_AURA")
 		DebuffFrame:Show()
 		DebuffFrame:RegisterEvent("UNIT_AURA")
-		if not IsRetail and TemporaryEchantFrame then
+		if not IsRetail and TemporaryEnchantFrame then
 			TemporaryEnchantFrame:Show()
 		end
 	end
