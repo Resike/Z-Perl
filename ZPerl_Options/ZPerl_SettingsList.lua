@@ -193,7 +193,7 @@ APPLY["raid.custom.enable"] = {"custom", "raid"}
 APPLY["general.shown.afk"] = {"party", "player", "target", "targettarget", "raid"}
 APPLY["general.shown.readycheck"] = {"party", "raid"} -- the modules that call ZPerl.UnitUpdateReadyState
 local AURAS = {"playerbuffs", "playerpet", "target", "targettarget", "party", "partypet", "raid"} -- modules that style aura buttons
-for _, k in ipairs({"cooldown", "cooldownany", "countdown", "countdownany", "blizzardnumbers"}) do APPLY["general.auras." .. k] = AURAS end
+for _, k in ipairs({"cooldown", "cooldownany", "countdown", "countdownany", "blizzardnumbers", "omnicc"}) do APPLY["general.auras." .. k] = AURAS end
 
 local function throttleOf(apply)
 	local has = {}
@@ -422,7 +422,8 @@ check("general.auras.cooldown", "Cooldown sweep", "Show the cooldown sweep on au
 check("general.auras.cooldownany", "Sweep on all auras", "Show the cooldown sweep on every aura, not only your own.", {path = "buffs.cooldownAny"})
 check("general.auras.countdown", "Countdown numbers", "Show the time left as a number on aura icons.", {path = "buffs.countdown"})
 check("general.auras.countdownany", "Numbers on all auras", "Show the countdown on every aura, not only your own.", {path = "buffs.countdownAny"})
-check("general.auras.blizzardnumbers", "Big countdown numbers", "Show Blizzard's large countdown numbers over the aura icons.", {path = "buffs.blizzard"})
+check("general.auras.blizzardnumbers", "Blizzard cooldown numbers", "Show Blizzard's own countdown numbers over the aura icons.", {path = "buffs.blizzard"})
+check("general.auras.omnicc", "Cooldown text addons", "Let OmniCC, Classic Cooldown Count or a similar cooldown text addon show its timers on the aura icons.", {path = "buffs.omnicc"})
 
 R.section = "Highlights"
 check("general.highlights.enable", "Status highlighting", "Highlight units with the glows below.", {path = "highlight.enable"})

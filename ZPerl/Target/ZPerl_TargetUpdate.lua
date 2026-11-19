@@ -11,8 +11,6 @@ ZPerl.RequestConfig(function(new)
 end, "$Revision:  $")
 
 local CanAccess = ZPerl.CanAccess
-local IsSecret = ZPerl.IsSecret
-local SetAlphaFromBoolean = ZPerl.SetAlphaFromBoolean
 local SafeBool = ZPerl.SafeBool
 -- Upvalues
 local CombatFeedback_OnUpdate = CombatFeedback_OnUpdate
@@ -24,7 +22,6 @@ local UnitGUID = UnitGUID
 local UnitHasIncomingResurrection = UnitHasIncomingResurrection
 local UnitHealth = UnitHealth
 local UnitHealthMax = UnitHealthMax
-local UnitInRange = UnitInRange
 local UnitIsAFK = UnitIsAFK
 local UnitIsConnected = UnitIsConnected
 local UnitIsDead = UnitIsDead
@@ -261,26 +258,7 @@ function ZPerl.Target.UpdateRange(self)
 		self.nameFrame.rangeIcon:Hide()
 		return
 	end
-	local range, checkedRange = UnitInRange(self.partyid)
-	if (IsSecret(range) or IsSecret(checkedRange)) then
-		-- secret booleans drive the icon's alpha directly
-		local icon = self.nameFrame.rangeIcon
-		icon:Show()
-		icon:SetAlpha(1)
-		SetAlphaFromBoolean(icon, checkedRange, 1, 0)
-		SetAlphaFromBoolean(icon, range, 0, icon:GetAlpha())
-		return
-	end
-	-- range and checkedRange are readable here (the secret case returned above)
-	---@diagnostic disable-next-line: secret-condition
-	local inRange = not checkedRange or range
-	---@diagnostic disable-next-line: secret-condition
-	if not UnitIsConnected(self.partyid) or inRange then
-		self.nameFrame.rangeIcon:Hide()
-	else
-		self.nameFrame.rangeIcon:Show()
-		self.nameFrame.rangeIcon:SetAlpha(1)
-	end
+	ZPerl.UpdateRangeIcon(self.nameFrame.rangeIcon, self.partyid)
 end
 
 -- UpdateLeader
@@ -345,7 +323,10 @@ end
 -- CheckDebuffs
 local function CheckDebuffs(self)
 	if (self.conf.highlightDebuffs.enable) then
-		if (self.conf.highlightDebuffs.who == 1 or (self.conf.highlightDebuffs.who == 2 and UnitCanAssist("player", self.partyid)) or (self.conf.highlightDebuffs.who == 3 and not UnitCanAssist("player", self.partyid))) then
+		local who = self.conf.highlightDebuffs.who
+		-- nil while UnitCanAssist is secret: then only "everyone" (1) checks
+		local assist = (who == 2 or who == 3) and ZPerl.SafeBool(UnitCanAssist("player", self.partyid), nil)
+		if (who == 1 or (who == 2 and assist == true) or (who == 3 and assist == false)) then
 			ZPerl.CheckDebuffs(self, self.partyid)
 		else
 			ZPerl.CheckDebuffs(self, self.partyid, true)

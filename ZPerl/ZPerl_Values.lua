@@ -379,6 +379,13 @@ function ZPerl.AuraContainerCreate(self, holderKey, name, groups, lineSize)
 	return container, holder
 end
 
+-- ZPerl.HasClassicCooldownCount(): whether the Classic Cooldown Count addon is loaded. Asked as the aura
+-- buttons are styled (after login, so a normally loaded addon has loaded by then).
+function ZPerl.HasClassicCooldownCount()
+	local loaded = C_AddOns and C_AddOns.IsAddOnLoaded or IsAddOnLoaded
+	return loaded and loaded("ClassicCooldownCount") and true or false
+end
+
 -- ZPerl.AuraContainerInitButtonCommon(button, g, cancel)
 -- g is the group spec of ZPerl.AurasGroups: size, cooldown (swipe) and countdown (duration text).
 -- cancel: right-click cancels the aura. Runs again on every reconfigure.
@@ -450,15 +457,18 @@ function ZPerl.AuraContainerInitButtonCommon(button, g, cancel)
 		if (button.cooldown.SetDrawSwipe) then
 			button.cooldown:SetDrawSwipe(showSwipe and true or false)
 		end
-		-- Countdown-text handling for container buttons:
-		-- without it every icon force-shows Blizzard's
-		-- numbers whatever the option says, and OmniCC-style addons attach too
-		-- (Z-Perl does not support them: noCooldownCount keeps them off).
+		-- Countdown numbers on the cooldown frame, independent of the swipe and of Z-Perl's own
+		-- duration text: buffs.blizzard shows Blizzard's numbers, buffs.omnicc lets OmniCC-style
+		-- addons (anything that honors noCooldownCount) attach their text.
+		-- Classic Cooldown Count restyles the game's own numbers on aura container icons, and leaves an
+		-- icon alone while its addon hides them: with it loaded and buffs.omnicc on, the numbers stay shown.
 		local bconf = ZPerl.layout and ZPerl.layout.buffs
+		local omnicc = bconf and bconf.omnicc
 		if (button.cooldown.SetHideCountdownNumbers) then
-			button.cooldown:SetHideCountdownNumbers(not (bconf and bconf.blizzard))
+			local show = bconf and (bconf.blizzard or (omnicc and ZPerl.HasClassicCooldownCount()))
+			button.cooldown:SetHideCountdownNumbers(not show)
 		end
-		button.cooldown.noCooldownCount = true
+		button.cooldown.noCooldownCount = not omnicc or nil
 	end
 end
 

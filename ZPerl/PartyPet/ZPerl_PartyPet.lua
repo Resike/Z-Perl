@@ -130,6 +130,11 @@ function ZPerl.PartyPet.OnLoad(self)
 	ZPerl.SetChildMembers(self)
 	-- the aura color highlight is for party and raid frames; this frame shows only the HoT highlight
 	self.hotHighlightOnly = true
+	-- the frame is a child of its owner's party frame, whose range fader sets that frame's alpha: the pet runs its
+	-- own range fade, so it must not also fade with its owner (or take the frame transparency twice)
+	if (self.SetIgnoreParentAlpha) then
+		self:SetIgnoreParentAlpha(true)
+	end
 
 	tinsert(AllPetFrames, self)
 

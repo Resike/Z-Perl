@@ -255,8 +255,10 @@ L["Countdown numbers"] = "Countdown numbers"
 L["Show the time left as a number on aura icons."] = "Show the time left as a number on aura icons."
 L["Numbers on all auras"] = "Numbers on all auras"
 L["Show the countdown on every aura, not only your own."] = "Show the countdown on every aura, not only your own."
-L["Big countdown numbers"] = "Big countdown numbers"
-L["Show Blizzard's large countdown numbers over the aura icons."] = "Show Blizzard's large countdown numbers over the aura icons."
+L["Blizzard cooldown numbers"] = "Blizzard cooldown numbers"
+L["Show Blizzard's own countdown numbers over the aura icons."] = "Show Blizzard's own countdown numbers over the aura icons."
+L["Cooldown text addons"] = "Cooldown text addons"
+L["Let OmniCC, Classic Cooldown Count or a similar cooldown text addon show its timers on the aura icons."] = "Let OmniCC, Classic Cooldown Count or a similar cooldown text addon show its timers on the aura icons."
 
 -- General: Highlights
 L["Highlights"] = "Highlights"
@@ -513,7 +515,7 @@ L["Play a sound when the target changes: one for enemies, friendly and neutral u
 L["Alternate raid icon spot"] = "Alternate raid icon spot"
 L["Put the raid icon small in the top right corner of the name plate instead of large in its centre."] = "Put the raid icon small in the top right corner of the name plate instead of large in its centre."
 L["Out-of-range hand icon"] = "Out-of-range hand icon"
-L["Show a hand icon on the name plate when the unit is out of range. Works for group members."] = "Show a hand icon on the name plate when the unit is out of range. Works for group members."
+L["Show a hand icon on the name plate when the unit is out of range: the group range (40 yards) for group members, your longest-range spell for other units."] = "Show a hand icon on the name plate when the unit is out of range: the group range (40 yards) for group members, your longest-range spell for other units."
 
 -- Target: Target of target
 L["Show target of target frame"] = "Show target of target frame"

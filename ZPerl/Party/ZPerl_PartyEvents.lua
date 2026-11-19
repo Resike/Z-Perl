@@ -620,6 +620,7 @@ function ZPerl.Party.SetBits1(self)
 
 	self.targetFrame:SetWidth(pconf.target.size)
 	self.targetFrame:SetAlpha(conf.transparency.frame) -- nothing else resets it once the range fader is off
+	self.targetFrame.healthBar:SetAlpha(1) -- its Bars fade (the health bar is its statsFrame), for the same reason
 
 	pconf.buffs.size = tonumber(pconf.buffs.size) or 20
 	ZPerl.Party.SetWidth(self)

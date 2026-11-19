@@ -45,7 +45,6 @@ local UnitHasIncomingResurrection = UnitHasIncomingResurrection
 local UnitHealth = UnitHealth
 local UnitHealthMax = UnitHealthMax
 local UnitHealthPercent = UnitHealthPercent
-local UnitInRange = UnitInRange
 local UnitIsAFK = UnitIsAFK
 local UnitIsCharmed = UnitIsCharmed
 local UnitIsConnected = UnitIsConnected
@@ -270,6 +269,11 @@ end
 function ZPerl.Party.OnLoad(self)
 	ZPerl.SetChildMembers(self)
 	self.targetFrame.statsFrame = self.targetFrame.healthBar -- So the healthbar fades as part of pseudo statsFrame
+	-- the target frame is a child of this frame, whose range fader sets its alpha: the target runs its own range
+	-- fade, so it must not also fade with the member (or take the frame transparency twice)
+	if (self.targetFrame.SetIgnoreParentAlpha) then
+		self.targetFrame:SetIgnoreParentAlpha(true)
+	end
 
 	partyHeader = ZPerl_Party_SecureHeader
 	partyAnchor = ZPerl_Party_Anchor
@@ -763,27 +767,7 @@ local function UpdateRange(self, overrideUnit)
 		self.nameFrame.rangeIcon:Hide()
 		return
 	end
-	local range, checkedRange = UnitInRange(partyid)
-	if (IsSecret(range) or IsSecret(checkedRange)) then
-		-- secret booleans drive the icon's alpha directly
-		local icon = self.nameFrame.rangeIcon
-		icon:Show()
-		icon:SetAlpha(1)
-		SetAlphaFromBoolean(icon, checkedRange, 1, 0)
-		SetAlphaFromBoolean(icon, range, 0, icon:GetAlpha())
-		return
-	end
-	local inRange = false
-	---@diagnostic disable-next-line: secret-condition
-	if not checkedRange then
-		inRange = true
-	end
-	if not UnitIsConnected(partyid) or inRange then
-		self.nameFrame.rangeIcon:Hide()
-	else
-		self.nameFrame.rangeIcon:Show()
-		self.nameFrame.rangeIcon:SetAlpha(1)
-	end
+	ZPerl.UpdateRangeIcon(self.nameFrame.rangeIcon, partyid)
 end
 
 -- ZPerl.Party.SingleGroup

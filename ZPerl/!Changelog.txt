@@ -1,3 +1,11 @@
+**8.0.2**
+* Added back OmniCC support and Blizzard cooldown numbers for buffs and debuffs.
+* Added Classic Cooldown Count support for buffs and debuffs.
+* The out-of-range hand icon also works on units outside your group, using your longest-range spell.
+* Range fading: the name and bars use their own range settings, and no longer fade twice with the whole frame.
+* Party targets and party pets no longer fade along with their owner's frame.
+* Fixed errors from hidden unit information in combat (debuff highlight, range checks, unit watch changes).
+
 **8.0.1**
 * Fixed raid target marks not showing when the game hides the mark index, the Ctrl tooltip setting.
 * Target frame's out-of-range icon showing in range.

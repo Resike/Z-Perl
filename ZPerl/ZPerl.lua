@@ -218,7 +218,8 @@ local function DoRangeCheck(unit, opt)
 		-- spell, or the one picked from the spellbook when none is set.
 		local spell
 		if not opt.interact then
-			local kind = UnitCanAttack("player", unit) and "harm" or (UnitCanAssist("player", unit) and "help")
+			local kind = ZPerl.SafeBool(UnitCanAttack("player", unit), false) and "harm"
+				or (ZPerl.SafeBool(UnitCanAssist("player", unit), false) and "help")
 			if kind then
 				spell = opt[kind == "harm" and "spell2" or "spell"] or ZPerl.RangeSpells[kind]
 			end
@@ -252,6 +253,45 @@ local function DoRangeCheck(unit, opt)
 	end
 end
 
+-- ZPerl.UpdateRangeIcon(icon, unit)
+-- The out-of-range hand: shown while the unit is out of range. A group member uses the group range (40 yards), any
+-- other unit the range of the player's longest-reaching harmful (enemy) or helpful (friend) spell. Hidden while no
+-- check can tell (no such spell, the player's own unit) and for a disconnected unit (its frame fades instead).
+function ZPerl.UpdateRangeIcon(icon, unit)
+	if (not ZPerl.SafeBool(UnitIsConnected(unit), true)) then
+		icon:Hide()
+		return
+	end
+	local range, checkedRange
+	if (ZPerl.SafeBool(UnitInRaid(unit), false) or ZPerl.SafeBool(UnitInParty(unit), false)) then
+		range, checkedRange = UnitInRange(unit)
+	else
+		local kind = ZPerl.SafeBool(UnitCanAttack("player", unit), false) and "harm"
+			or (ZPerl.SafeBool(UnitCanAssist("player", unit), false) and "help")
+		local spell = kind and ZPerl.RangeSpells[kind]
+		if (spell) then
+			range = C_Spell.IsSpellInRange(spell, unit)
+		end
+		-- IsSecret first: a secret cannot be compared with nil
+		checkedRange = IsSecret(range) or range ~= nil
+	end
+	if (IsSecret(range) or IsSecret(checkedRange)) then
+		-- secret booleans drive the icon's alpha directly: shown only when checked and out of range
+		icon:Show()
+		icon:SetAlpha(1)
+		ZPerl.SetAlphaFromBoolean(icon, checkedRange, 1, 0)
+		ZPerl.SetAlphaFromBoolean(icon, range, 0, icon:GetAlpha())
+		return
+	end
+	---@diagnostic disable-next-line: secret-condition
+	if (checkedRange and not range) then
+		icon:Show()
+		icon:SetAlpha(1)
+	else
+		icon:Hide()
+	end
+end
+
 -- ZPerl.RangeAlpha(result, secret, inAlpha, outAlpha)
 -- Converts a DoRangeCheck result into an alpha value without Lua comparisons
 -- when the result is secret. inAlpha is used when in range, outAlpha when not.
@@ -268,28 +308,39 @@ function ZPerl.RangeAlpha(result, secret, inAlpha, outAlpha)
 	return inAlpha
 end
 
+-- PartAlpha(unit, opt, visible, inAlpha) - one range fader part's alpha: inAlpha in range, inAlpha * opt.FadeAmount
+-- out of range or not visible
+local function PartAlpha(unit, opt, visible, inAlpha)
+	local outAlpha = inAlpha * opt.FadeAmount
+	if (not visible) then
+		return outAlpha
+	end
+	local result, secret = DoRangeCheck(unit, opt)
+	return ZPerl.RangeAlpha(result, secret, inAlpha, outAlpha)
+end
+
 -- ZPerl.UpdateSpellRangeSecure(self, unit, isRaidFrame)
 -- Restricted-client version of the range fader. Every alpha is produced by
 -- ZPerl.RangeAlpha and handed straight to SetAlpha, so nothing here branches
--- on a unit value.
+-- on a secret unit value (visibility and connection only when readable).
 function ZPerl.UpdateSpellRangeSecure(self, unit, isRaidFrame)
 	local rf = conf.rangeFinder
 	local base = conf.transparency.frame
 	local mainA, nameA, statsA = base, 1, 1
 
+	-- each part runs its own check with its own settings; the name and bars sit in the frame, so with the whole
+	-- frame faded too their fades multiply. A unit too far away to be seen is out of range for every part (a secret
+	-- visibility leaves it to the range check).
 	if (rf.enabled and (isRaidFrame or not rf.raidOnly)) then
+		local visible = ZPerl.SafeBool(UnitIsVisible(unit), true)
 		if (rf.Main.enabled) then
-			local result, secret = DoRangeCheck(unit, rf.Main)
-			mainA = ZPerl.RangeAlpha(result, secret, base, base * rf.Main.FadeAmount)
-		else
-			if (rf.NameFrame.enabled) then
-				local result, secret = DoRangeCheck(unit, rf.NameFrame)
-				nameA = ZPerl.RangeAlpha(result, secret, 1, rf.NameFrame.FadeAmount)
-			end
-			if (rf.StatsFrame.enabled) then
-				local result, secret = DoRangeCheck(unit, rf.StatsFrame)
-				statsA = ZPerl.RangeAlpha(result, secret, 1, rf.StatsFrame.FadeAmount)
-			end
+			mainA = PartAlpha(unit, rf.Main, visible, base)
+		end
+		if (rf.NameFrame.enabled) then
+			nameA = PartAlpha(unit, rf.NameFrame, visible, 1)
+		end
+		if (rf.StatsFrame.enabled) then
+			statsA = PartAlpha(unit, rf.StatsFrame, visible, 1)
 		end
 	end
 
@@ -328,83 +379,52 @@ function ZPerl.UpdateSpellRange2(self, overrideUnit, isRaidFrame)
 		local rf = conf.rangeFinder
 		local mainA, nameA, statsA -- Receives main, name and stats alpha levels
 
+		-- each part runs its own check with its own settings (as UpdateSpellRangeSecure); a unit too far away to be
+		-- seen is out of range for every part
 		if (rf.enabled and (isRaidFrame or not conf.rangeFinder.raidOnly)) then
-			if (not UnitIsVisible(unit)) then
-				if (rf.Main.enabled) then
-					mainA = conf.transparency.frame * rf.Main.FadeAmount
-				else
-					if (rf.NameFrame.enabled) then
-						nameA = rf.NameFrame.FadeAmount
-					end
-					if (rf.StatsFrame.enabled) then
-						statsA = rf.StatsFrame.FadeAmount
-					end
-				end
-			else
-				if (rf.Main.enabled) then
+			local visible = ZPerl.SafeBool(UnitIsVisible(unit), true)
+			if (rf.Main.enabled) then
+				if (visible) then
 					mainA = DoRangeCheck(unit, rf.Main)
-					if (mainA) then
-						mainA = mainA * conf.transparency.frame
-					end
+				else
+					mainA = rf.Main.FadeAmount
 				end
-
-				if (rf.NameFrame.enabled) then
-					-- the parts share one range check
-					if (rf.Main.enabled) then
-						if (mainA) then
-							nameA = rf.NameFrame.FadeAmount
-						end
-					else
-						nameA = DoRangeCheck(unit, rf.NameFrame)
-						if (not nameA and mainA) then
-							-- In range, but 'Whole' frame is out of range, so we need to override the fade for name
-							nameA = 1
-						end
-					end
+				if (mainA) then
+					mainA = mainA * conf.transparency.frame
 				end
-				if (rf.StatsFrame.enabled) then
-					-- the parts share one range check
-					if (rf.Main.enabled) then
-						if (mainA) then
-							statsA = rf.StatsFrame.FadeAmount
-						end
-					else
-						statsA = DoRangeCheck(unit, rf.StatsFrame)
-						if (not statsA and mainA) then
-							-- In range, but 'Whole' frame is out of range, so we need to override the fade for stats
-							statsA = 1
-						end
-					end
+			end
+			if (rf.NameFrame.enabled) then
+				if (visible) then
+					nameA = DoRangeCheck(unit, rf.NameFrame)
+				else
+					nameA = rf.NameFrame.FadeAmount
+				end
+			end
+			if (rf.StatsFrame.enabled) then
+				if (visible) then
+					statsA = DoRangeCheck(unit, rf.StatsFrame)
+				else
+					statsA = rf.StatsFrame.FadeAmount
 				end
 			end
 		end
 
-		local forcedMainA
-		if (not mainA) then
-			if (UnitIsConnected(unit)) then
-				mainA = conf.transparency.frame
-				forcedMainA = true
-			else
-				mainA = conf.transparency.frame * rf.Main.FadeAmount
-				nameA, statsA = mainA, mainA
-				forcedMainA = true
-			end
+		-- a disconnected unit: the whole frame fades, its parts do not fade again (as UpdateSpellRangeSecure)
+		if (not ZPerl.SafeBool(UnitIsConnected(unit), true)) then
+			mainA = conf.transparency.frame * rf.Main.FadeAmount
+			nameA, statsA = 1, 1
+		elseif (not mainA) then
+			mainA = conf.transparency.frame
 		end
 
+		-- the parts inherit the main alpha; their own alpha is only their range fade, or they would fade twice
+		-- (as UpdateSpellRangeSecure)
 		self:SetAlpha(mainA)
 		if (self.nameFrame) then
-			if (nameA or forcedMainA) then
-				self.nameFrame:SetAlpha(nameA or mainA)
-			else
-				self.nameFrame:SetAlpha(1)
-			end
+			self.nameFrame:SetAlpha(nameA or 1)
 		end
 		if (self.statsFrame) then
-			if (statsA or forcedMainA) then
-				self.statsFrame:SetAlpha(statsA or mainA)
-			else
-				self.statsFrame:SetAlpha(1)
-			end
+			self.statsFrame:SetAlpha(statsA or 1)
 		end
 	end
 end
@@ -466,7 +486,9 @@ function ZPerl.PickRangeSpells()
 	ZPerl.RangeSpells.help, ZPerl.RangeSpells.harm = help, harm
 end
 
-ZPerl.On("SPELLS_CHANGED", ZPerl.PickRangeSpells)
+ZPerl.On("SPELLS_CHANGED", function()
+	ZPerl.Pcall(ZPerl.PickRangeSpells)
+end)
 
 -- ZPerl.StartupSpellRange()
 function ZPerl.StartupSpellRange()
@@ -745,7 +767,8 @@ function ZPerl.MainFrameStart(frame, on, blizz)
 		return
 	end
 	frame.off = true
-	UnregisterUnitWatch(frame)
+	-- unit watch changes are blocked in combat
+	ZPerl.AfterCombatFor(UnregisterUnitWatch, frame)
 	frame:UnregisterAllEvents()
 	ZPerl.AfterCombatFor(frame.Hide, frame)
 end

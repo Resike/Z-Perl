@@ -354,6 +354,8 @@ function ZPerl.Raid.UpdateDisplay(self)
 	UpdateCombat(self)
 	ZPerl.UnitUpdateReadyState(self)
 	RaidTargetUpdate(self)
+	-- also with the range fader off: the poll then stops, and this puts the name and bars alpha back
+	ZPerl.UpdateSpellRange(self, self.partyid, true)
 
 	--buffUpdates[self] = true -- UpdateBuffs(self)
 

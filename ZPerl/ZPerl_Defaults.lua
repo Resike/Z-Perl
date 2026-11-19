@@ -96,6 +96,8 @@ local function GlobalConfigDefault(default)
 		cooldownAny	= 1,			-- swipe on all auras, not only the player's
 		countdown	= 1,			-- 2.2.2
 		countdownAny	= 1,			-- duration text on all auras
+--		blizzard	= nil,			-- Blizzard's countdown numbers on the cooldown frame
+		omnicc		= 1,			-- let OmniCC-style addons show their text
 	}
 
 	default.rangeFinder = ZPerl.DefaultRangeFinder()
