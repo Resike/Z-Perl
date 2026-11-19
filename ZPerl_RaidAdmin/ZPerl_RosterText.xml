@@ -2,7 +2,7 @@
 
 	<Script file="ZPerl_RosterText.lua"/>
 
-	<CheckButton name="XPerlRosterCheckButtonTemplate" virtual="true">
+	<CheckButton name="ZPerl_RosterCheckButtonTemplate" virtual="true">
 		<Size>
 			<AbsDimension x="22" y="22"/>
 		</Size>
@@ -17,7 +17,7 @@
 				if (self.tooltipText) then
 					GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
 					GameTooltip:SetText(self.text:GetText(), 1, 1, 1)
-					GameTooltip:AddLine(self.tooltipText, nil, nil, nil, 1)
+					GameTooltip:AddLine(self.tooltipText, nil, nil, nil, true)
 					GameTooltip:Show()
 				end
 				self.text:SetTextColor(HIGHLIGHT_FONT_COLOR.r, HIGHLIGHT_FONT_COLOR.g, HIGHLIGHT_FONT_COLOR.b)
@@ -50,22 +50,22 @@
 		<DisabledCheckedTexture file="Interface\Buttons\UI-CheckBox-Check-Disabled"/>
 	</CheckButton>
 
-	<CheckButton name="XPerlRosterGroupCheckButtonTemplate" inherits="XPerlRosterCheckButtonTemplate" virtual="true">
+	<CheckButton name="ZPerl_RosterGroupCheckButtonTemplate" inherits="ZPerl_RosterCheckButtonTemplate" virtual="true">
 		<Scripts>
 			<OnShow>
-				self.text:SetText(format(XPERL_ROSTERTEXT_GROUP, self:GetID()))
-				self.tooltipText = format(XPERL_ROSTERTEXT_GROUP_DESC, self:GetID())
+				self.text:SetText(format(ZPerl.L["ROSTERTEXT_GROUP"], self:GetID()))
+				self.tooltipText = format(ZPerl.L["ROSTERTEXT_GROUP_DESC"], self:GetID())
 				self:SetHitRectInsets(0, -(self.text:GetStringWidth()), 0, 0)
-				self:SetChecked(XPerl_RosterText.group[self:GetID()])
+				self:SetChecked(ZPerl_RosterText.group[self:GetID()])
 			</OnShow>
 			<OnClick>
-				XPerl_RosterText.group[self:GetID()] = self:GetChecked()
-				XPerl_RosterText:Update()
+				ZPerl_RosterText.group[self:GetID()] = self:GetChecked()
+				ZPerl_RosterText:Update()
 			</OnClick>
 		</Scripts>
 	</CheckButton>
 
-	<Button name="XPerlRosterTextOptionsButtonTemplate" virtual="true">
+	<Button name="ZPerl_RosterTextOptionsButtonTemplate" virtual="true">
 		<Size>
 			<AbsDimension x="90" y="21"/>
 		</Size>
@@ -79,7 +79,7 @@
 		<HighlightTexture inherits="UIPanelButtonHighlightTexture"/>
 	</Button>
 
-	<Button name="XPerlRosterGroupSetnButtonTemplate" inherits="XPerlRosterTextOptionsButtonTemplate" virtual="true">
+	<Button name="ZPerl_RosterGroupSetnButtonTemplate" inherits="ZPerl_RosterTextOptionsButtonTemplate" virtual="true">
 		<Size>
 			<AbsDimension x="50" y="22"/>
 		</Size>
@@ -87,28 +87,28 @@
 			<OnShow>
 				self.text = _G[self:GetName().."Text"]
 				if (self:GetID() == 0) then
-					self.text:SetText(XPERL_ROSTERTEXT_TOGGLE)
-					self.tooltipText = XPERL_ROSTERTEXT_TOGGLE_DESC
+					self.text:SetText(ZPerl.L["ROSTERTEXT_TOGGLE"])
+					self.tooltipText = ZPerl.L["ROSTERTEXT_TOGGLE_DESC"]
 				else
-					self.text:SetText(format(XPERL_ROSTERTEXT_SETN, self:GetID()))
-					self.tooltipText = format(XPERL_ROSTERTEXT_SETN_DESC, self:GetID())
+					self.text:SetText(format(ZPerl.L["ROSTERTEXT_SETN"], self:GetID()))
+					self.tooltipText = format(ZPerl.L["ROSTERTEXT_SETN_DESC"], self:GetID())
 				end
 				self:SetWidth(self.text:GetStringWidth() + 20)
 			</OnShow>
 			<OnClick>
 				for i = 1,8 do
 					if (self:GetID() == 0) then
-						XPerl_RosterText.group[i] = not XPerl_RosterText.group[i]
+						ZPerl_RosterText.group[i] = not ZPerl_RosterText.group[i]
 					else
 						if (self:GetID() >= i * 5) then
-							XPerl_RosterText.group[i] = 1
+							ZPerl_RosterText.group[i] = 1
 						else
-							XPerl_RosterText.group[i] = nil
+							ZPerl_RosterText.group[i] = nil
 						end
 					end
 				end
-				XPerl_RosterText:Hide()
-				XPerl_RosterText:Show()
+				ZPerl_RosterText:Hide()
+				ZPerl_RosterText:Show()
 			</OnClick>
 			<OnEnter>
 				if (self.tooltipText) then
@@ -122,22 +122,15 @@
 		</Scripts>
 	</Button>
 
-	<Frame name="XPerl_RosterTextAnchor" clampedToScreen="true" parent="UIParent" movable="true" resizable="true">
-		<Anchors>
-			<Anchor point="CENTER">
-				<Offset>
-					<AbsDimension x="0" y="-270"/>
-				</Offset>
-			</Anchor>
-		</Anchors>
+	<Frame name="ZPerl_RosterTextAnchor" clampedToScreen="true" parent="UIParent" movable="true" resizable="true">
 		<Size>
 			<AbsDimension x="350" y="250"/>
 		</Size>
 	</Frame>
 
-	<Frame name="XPerl_RosterText" clampedToScreen="true" hidden="true" parent="XPerl_RosterTextAnchor" inherits="XPerlBackdropTemplate" enableMouse="true">
+	<Frame name="ZPerl_RosterText" clampedToScreen="true" hidden="true" parent="ZPerl_RosterTextAnchor" inherits="ZPerl_BackdropTemplate" enableMouse="true">
 		<KeyValues>
-			<KeyValue key="backdropInfo" value="XPerl_Options_Backdrop_256_16_5555" type="global"/>
+			<KeyValue key="backdropInfo" value="ZPerl_Options_Backdrop_256_16_5555" type="global"/>
 		</KeyValues>
 		<Anchors>
 			<Anchor point="TOPLEFT"/>
@@ -148,25 +141,27 @@
 		<Scripts>
 			<OnLoad>
 				self:OnBackdropLoaded()
-				XPerl_RosterText_Init(self)
+				_G[self:GetName().."title"]:SetText(ZPerl.L["ROSTERTEXT_TITLE"])
+				_G[self:GetName().."help"]:SetText(ZPerl.L["ROSTERTEXT_HELP"])
+				ZPerl.RaidAdmin.RosterTextInit(self)
 			</OnLoad>
 			<OnShow>
-				XPerl_DoGradient(self)
+				ZPerl.DoGradient(self)
 				self:Update()
 			</OnShow>
 			<OnDragStart>
-				XPerl_RosterTextAnchor:StartMoving()
+				ZPerl_RosterTextAnchor:StartMoving()
 			</OnDragStart>
 			<OnDragStop>
-				XPerl_RosterTextAnchor:StopMovingOrSizing()
-				if (XPerl_SavePosition) then
-					XPerl_SavePosition(XPerl_RosterTextAnchor)
+				ZPerl_RosterTextAnchor:StopMovingOrSizing()
+				if (ZPerl.SavePosition) then
+					ZPerl.SavePosition(ZPerl_RosterTextAnchor)
 				end
 			</OnDragStop>
 		</Scripts>
 		<Layers>
 			<Layer level="BORDER">
-				<FontString name="$parenttitle" inherits="GameFontNormal" justifyV="TOP" justifyH="LEFT" text="XPERL_ROSTERTEXT_TITLE">
+				<FontString name="$parenttitle" inherits="GameFontNormal" justifyV="TOP" justifyH="LEFT">
 					<Anchors>
 						<Anchor point="TOPLEFT">
 							<Offset>
@@ -182,7 +177,7 @@
 					<Color r="1" g="1" b="1"/>
 				</FontString>
 
-				<FontString name="$parenthelp" inherits="GameFontNormal" justifyV="BOTTOM" justifyH="CENTER" text="XPERL_ROSTERTEXT_HELP">
+				<FontString name="$parenthelp" inherits="GameFontNormal" justifyV="BOTTOM" justifyH="CENTER">
 					<Anchors>
 						<Anchor point="BOTTOMLEFT">
 							<Offset>
@@ -224,7 +219,7 @@
 			</Anchors>
 			</Button>
 
-			<Frame name="$parentgroupFrame" inherits="XPerlBackdropTemplate" >
+			<Frame name="$parentgroupFrame" inherits="ZPerl_BackdropTemplate" >
 				<Size>
 					<AbsDimension x="176" y="176"/>
 				</Size>
@@ -237,57 +232,57 @@
 				</Anchors>
 				<Scripts>
 					<OnLoad>
-						XPerl_SetChildMembers(self)
+						ZPerl.SetChildMembers(self)
 					</OnLoad>
 				</Scripts>
 				<Frames>
-					<CheckButton name="$parent1" inherits="XPerlRosterGroupCheckButtonTemplate" id="1">
+					<CheckButton name="$parent1" inherits="ZPerl_RosterGroupCheckButtonTemplate" id="1">
 						<Anchors>
 							<Anchor point="TOPLEFT"/>
 						</Anchors>
 					</CheckButton>
-					<CheckButton name="$parent2" inherits="XPerlRosterGroupCheckButtonTemplate" id="2">
+					<CheckButton name="$parent2" inherits="ZPerl_RosterGroupCheckButtonTemplate" id="2">
 						<Anchors>
 							<Anchor point="TOPLEFT" relativeTo="$parent1" relativePoint="BOTTOMLEFT"/>
 						</Anchors>
 					</CheckButton>
-					<CheckButton name="$parent3" inherits="XPerlRosterGroupCheckButtonTemplate" id="3">
+					<CheckButton name="$parent3" inherits="ZPerl_RosterGroupCheckButtonTemplate" id="3">
 						<Anchors>
 							<Anchor point="TOPLEFT" relativeTo="$parent2" relativePoint="BOTTOMLEFT"/>
 						</Anchors>
 					</CheckButton>
-					<CheckButton name="$parent4" inherits="XPerlRosterGroupCheckButtonTemplate" id="4">
+					<CheckButton name="$parent4" inherits="ZPerl_RosterGroupCheckButtonTemplate" id="4">
 						<Anchors>
 							<Anchor point="TOPLEFT" relativeTo="$parent3" relativePoint="BOTTOMLEFT"/>
 					</Anchors>
 					</CheckButton>
-					<CheckButton name="$parent5" inherits="XPerlRosterGroupCheckButtonTemplate" id="5">
+					<CheckButton name="$parent5" inherits="ZPerl_RosterGroupCheckButtonTemplate" id="5">
 						<Anchors>
 							<Anchor point="TOPLEFT" relativeTo="$parent4" relativePoint="BOTTOMLEFT"/>
 					</Anchors>
 					</CheckButton>
-					<CheckButton name="$parent6" inherits="XPerlRosterGroupCheckButtonTemplate" id="6">
+					<CheckButton name="$parent6" inherits="ZPerl_RosterGroupCheckButtonTemplate" id="6">
 						<Anchors>
 							<Anchor point="TOPLEFT" relativeTo="$parent5" relativePoint="BOTTOMLEFT"/>
 					</Anchors>
 					</CheckButton>
-					<CheckButton name="$parent7" inherits="XPerlRosterGroupCheckButtonTemplate" id="7">
+					<CheckButton name="$parent7" inherits="ZPerl_RosterGroupCheckButtonTemplate" id="7">
 						<Anchors>
 							<Anchor point="TOPLEFT" relativeTo="$parent6" relativePoint="BOTTOMLEFT"/>
 					</Anchors>
 					</CheckButton>
-					<CheckButton name="$parent8" inherits="XPerlRosterGroupCheckButtonTemplate" id="8">
+					<CheckButton name="$parent8" inherits="ZPerl_RosterGroupCheckButtonTemplate" id="8">
 						<Anchors>
 							<Anchor point="TOPLEFT" relativeTo="$parent7" relativePoint="BOTTOMLEFT"/>
 					</Anchors>
 					</CheckButton>
 
-					<Button name="$parentsize10" inherits="XPerlRosterGroupSetnButtonTemplate" id="10">
+					<Button name="$parentsize10" inherits="ZPerl_RosterGroupSetnButtonTemplate" id="10">
 						<Anchors>
 							<Anchor point="TOPRIGHT"/>
 						</Anchors>
 					</Button>
-					<Button name="$parentsize25" inherits="XPerlRosterGroupSetnButtonTemplate" id="25">
+					<Button name="$parentsize25" inherits="ZPerl_RosterGroupSetnButtonTemplate" id="25">
 						<Anchors>
 							<Anchor point="TOPRIGHT" relativeTo="$parentsize10" relativePoint="BOTTOMRIGHT">
 								<Offset>
@@ -296,7 +291,7 @@
 							</Anchor>
 						</Anchors>
 					</Button>
-					<Button name="$parentsize40" inherits="XPerlRosterGroupSetnButtonTemplate" id="40">
+					<Button name="$parentsize40" inherits="ZPerl_RosterGroupSetnButtonTemplate" id="40">
 						<Anchors>
 							<Anchor point="TOPRIGHT" relativeTo="$parentsize25" relativePoint="BOTTOMRIGHT">
 								<Offset>
@@ -305,7 +300,7 @@
 							</Anchor>
 						</Anchors>
 					</Button>
-					<Button name="$parenttoggle" inherits="XPerlRosterGroupSetnButtonTemplate" id="0">
+					<Button name="$parenttoggle" inherits="ZPerl_RosterGroupSetnButtonTemplate" id="0">
 						<Anchors>
 							<Anchor point="TOPRIGHT" relativeTo="$parentsize40" relativePoint="BOTTOMRIGHT">
 								<Offset>
@@ -317,24 +312,24 @@
 				</Frames>
 			</Frame>
 
-			<CheckButton name="$parentzone" inherits="XPerlRosterCheckButtonTemplate" id="8">
+			<CheckButton name="$parentzone" inherits="ZPerl_RosterCheckButtonTemplate" id="8">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentgroupFrame" relativePoint="BOTTOMLEFT"/>
 				</Anchors>
 				<Scripts>
 					<OnShow>
-						self.text:SetText(XPERL_ROSTERTEXT_SAMEZONE)
-						self.tooltipText = XPERL_ROSTERTEXT_SAMEZONE_DESC
-						self:SetChecked(XPerl_RosterText.sameZone)
+						self.text:SetText(ZPerl.L["ROSTERTEXT_SAMEZONE"])
+						self.tooltipText = ZPerl.L["ROSTERTEXT_SAMEZONE_DESC"]
+						self:SetChecked(ZPerl_RosterText.sameZone)
 					</OnShow>
 					<OnClick>
-						XPerl_RosterText.sameZone = self:GetChecked()
-						XPerl_RosterText:Update()
+						ZPerl_RosterText.sameZone = self:GetChecked()
+						ZPerl_RosterText:Update()
 					</OnClick>
 				</Scripts>
 			</CheckButton>
 
-			<Frame name="$parenttextFrame" inherits="XPerlBackdropTemplate">
+			<Frame name="$parenttextFrame" inherits="ZPerl_BackdropTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativeTo="$parentgroupFrame" relativePoint="TOPRIGHT">
 						<Offset>
@@ -378,7 +373,7 @@
 
 								<Scripts>
 									<OnTextChanged>
-										self:SetText(XPerl_RosterText.text or "")
+										self:SetText(ZPerl_RosterText.text or "")
 										self:HighlightText()
 										self:SetFocus()
 									</OnTextChanged>
@@ -392,23 +387,23 @@
 				</Frames>
 			</Frame>
 
-			<CheckButton name="$parentsort" inherits="XPerlRosterCheckButtonTemplate" id="8">
+			<CheckButton name="$parentsort" inherits="ZPerl_RosterCheckButtonTemplate" id="8">
 				<Anchors>
 					<Anchor point="BOTTOMRIGHT" relativeTo="$parenttextFrame" relativePoint="BOTTOMLEFT"/>
 				</Anchors>
 				<Scripts>
 					<OnShow>
-						self.text:SetText(XPERL_ROSTERTEXT_SORT)
-						self.tooltipText = XPERL_ROSTERTEXT_SORT_DESC
-						self:SetChecked(XPerl_RosterText.sortAlpha)
+						self.text:SetText(ZPerl.L["ROSTERTEXT_SORT"])
+						self.tooltipText = ZPerl.L["ROSTERTEXT_SORT_DESC"]
+						self:SetChecked(ZPerl_RosterText.sortAlpha)
 						self.text:ClearAllPoints()
 						self.text:SetPoint("RIGHT", self, "LEFT", 2, 0)
 						self.text:SetJustifyH("RIGHT")
 						self:SetHitRectInsets(-(self.text:GetStringWidth()), 0, 0, 0)
 					</OnShow>
 					<OnClick>
-						XPerl_RosterText.sortAlpha = self:GetChecked()
-						XPerl_RosterText:Update()
+						ZPerl_RosterText.sortAlpha = self:GetChecked()
+						ZPerl_RosterText:Update()
 					</OnClick>
 				</Scripts>
 			</CheckButton>

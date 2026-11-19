@@ -1,0 +1,506 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
+	<Script file="Localization\Localization.lua"/>
+	<Script file="Localization\Localization.deDE.lua"/>
+	<Script file="Localization\Localization.esES.lua"/>
+	<Script file="Localization\Localization.frFR.lua"/>
+	<Script file="Localization\Localization.itIT.lua"/>
+	<Script file="Localization\Localization.koKR.lua"/>
+	<Script file="Localization\Localization.ptBR.lua"/>
+	<Script file="Localization\Localization.ruRU.lua"/>
+	<Script file="Localization\Localization.zhCN.lua"/>
+	<Script file="Localization\Localization.zhTW.lua"/>
+	<Script file="ZPerl_Raid.lua"/>
+	<Script file="ZPerl_RaidEvents.lua"/>
+	<Script file="ZPerl_RaidLayout.lua"/>
+
+	<StatusBar name="ZPerl_RaidStatusBar" virtual="true">
+		<BarTexture name="$parenttex" file="Interface\TargetingFrame\UI-StatusBar"/>
+		<Layers>
+			<Layer level="OVERLAY">
+				<FontString name="$parenttext" inherits="GameFontNormalSmall" text="Error!">
+					<Anchors>
+						<Anchor point="TOPLEFT"/>
+						<Anchor point="BOTTOMRIGHT">
+							<Offset>
+								<AbsDimension x="0" y="1"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+					<Color r="1.0" g="1.0" b="1.0"/>
+				</FontString>
+			</Layer>
+			<Layer level="BACKGROUND">
+				<Texture name="$parentbg" parentKey="bg" file="Interface\TargetingFrame\UI-TargetingFrame-BarFill" setAllPoints="true"/>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnLoad>
+				ZPerl.SetChildMembers(self)
+				ZPerl.RegisterBar(self)
+				if (not ZPerl.OldStatusBarSetValue) then
+					ZPerl.OldStatusBarSetValue = self.SetValue
+				end
+				self.SetValue = ZPerl.StatusBarSetValue
+				ZPerl.RegisterUnitText(self.text)
+			</OnLoad>
+		</Scripts>
+	</StatusBar>
+
+	<Button name="ZPerl_Raid_FrameTemplate" frameStrata="LOW" virtual="true" hidden="true" inherits="ZPerl_BackdropTemplate,SecureUnitButtonTemplate">
+		<Size>
+			<!-- The size of this frame determines what can be clicked for the menu and moving, hence it is the same size as the name frame. -->
+			<AbsDimension x="80" y="43"/>
+		</Size>
+
+		<Scripts>
+			<OnLoad>ZPerl.Raid.SingleOnLoad(self)</OnLoad>
+			<OnEnter>
+				ZPerl.PlayerTip(self)
+				if (ZPerl.layout.highlightSelection) then
+					self.highlight:Select()
+				end
+			</OnEnter>
+			<OnLeave>
+				self.highlight:Deselect()
+				ZPerl.PlayerTipHide()
+			</OnLeave>
+		</Scripts>
+
+		<Frames>
+			<Button name="$parentnameFrame" inherits="ZPerl_BackdropTemplate,SecureUnitButtonTemplate">
+				<KeyValues>
+					<KeyValue key="backdropInfo" value="ZPerl_Frame_Backdrop_256_10_1211" type="global"/>
+				</KeyValues>
+				<Scripts>
+					<OnLoad>
+						self:OnBackdropLoaded()
+						self:RegisterForClicks("AnyUp")
+						ZPerl.RegisterUnitText(_G[self:GetName().."text"])
+					</OnLoad>
+					<OnEnter>
+						ZPerl.PlayerTip(self)
+						if (ZPerl.layout.highlightSelection) then
+							self:GetParent().highlight:Select()
+						end
+					</OnEnter>
+					<OnLeave>
+						self:GetParent().highlight:Deselect()
+						ZPerl.PlayerTipHide()
+					</OnLeave>
+				</Scripts>
+				<Size>
+					<AbsDimension x="80" y="17"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT"/>
+				</Anchors>
+				<Layers>
+					<Layer level="OVERLAY">
+						<!-- Combat Icon -->
+						<Texture name="$parentcombatIcon" file="Interface\CharacterFrame\UI-StateIcon" hidden="true">
+							<Size>
+								<AbsDimension x="24" y="24"/>
+							</Size>
+							<Anchors>
+								<Anchor point="RIGHT" relativePoint="RIGHT">
+									<Offset>
+										<AbsDimension x="2" y="0"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+							<TexCoords left="0.49" right="1.0" top="0.0" bottom="0.49"/>
+						</Texture>
+
+						<!-- Warning Icon -->
+						<Texture name="$parentwarningIcon" file="Interface\Minimap\Ping\ping6" alphaMode="ADD" hidden="true">
+							<Size>
+								<AbsDimension x="24" y="24"/>
+							</Size>
+							<Anchors>
+								<Anchor point="TOP" relativePoint="TOP">
+									<Offset>
+										<AbsDimension x="0" y="2"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+						</Texture>
+
+						<FontString name="$parenttext" inherits="GameFontNormalSmall">
+							<Anchors>
+								<Anchor point="TOPLEFT"/>
+								<Anchor point="BOTTOMRIGHT">
+									<Offset>
+										<AbsDimension x="0" y="2"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+			</Button>
+
+			<Frame name="$parentstatsFrame" inherits="ZPerl_BackdropTemplate">
+				<KeyValues>
+					<KeyValue key="backdropInfo" value="ZPerl_Frame_Backdrop_256_10_1211" type="global"/>
+				</KeyValues>
+				<Size>
+					<AbsDimension x="80" y="26"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" relativeTo="$parentnameFrame">
+						<Offset>
+							<AbsDimension x="0" y="0"/>
+						</Offset>
+					</Anchor>
+				</Anchors>
+				<Frames>
+					<!-- Health Bar -->
+					<StatusBar name="$parenthealthBar" drawLayer="ARTWORK" inherits="ZPerl_RaidStatusBar">
+						<Size>
+							<AbsDimension x="70" y="15"/>
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT">
+								<Offset>
+									<AbsDimension x="3" y="-3"/>
+								</Offset>
+							</Anchor>
+							<Anchor point="BOTTOMRIGHT" relativePoint="TOPRIGHT">
+								<Offset>
+									<AbsDimension x="-3" y="-18"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<BarColor r="0" g="0.8" b="0"/>
+					</StatusBar>
+					<!-- Expected Health Bar -->
+					<StatusBar name="$parentexpectedHealth" drawLayer="BORDER" hidden="true">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parenthealthBar">
+								<Offset>
+									<AbsDimension x="0" y="0"/>
+								</Offset>
+							</Anchor>
+							<Anchor point="BOTTOMRIGHT" relativeTo="$parenthealthBar">
+								<Offset>
+									<AbsDimension x="0" y="0"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<BarTexture name="$parenttex" file="Interface\TargetingFrame\UI-StatusBar"/>
+						<BarColor r="0" g="1" b="1"/>
+						<Scripts>
+							<OnLoad>
+								ZPerl.SetChildMembers(self)
+								ZPerl.RegisterBar(self)
+								self:SetFrameLevel(_G[self:GetParent():GetName().."healthBar"]:GetFrameLevel() - 1)
+							</OnLoad>
+						</Scripts>
+					</StatusBar>
+					<!-- Absorb Health Bar -->
+					<StatusBar name="$parentexpectedAbsorbs" drawLayer="OVERLAY" hidden="true">
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parenthealthBar">
+								<Offset>
+									<AbsDimension x="0" y="0"/>
+								</Offset>
+							</Anchor>
+							<Anchor point="BOTTOMRIGHT" relativeTo="$parenthealthBar">
+								<Offset>
+									<AbsDimension x="0" y="0"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<BarTexture name="$parenttex" file="Interface\Buttons\White8x8"/>
+						<BarColor r="0.14" g="0.33" b="0.7" a="0.7"/>
+						<Scripts>
+							<OnLoad>
+								self:SetReverseFill(true)
+								ZPerl.SetChildMembers(self)
+							</OnLoad>
+						</Scripts>
+					</StatusBar>
+					<!-- Mana Bar -->
+					<StatusBar name="$parentmanaBar" drawLayer="BACKGROUND" inherits="ZPerl_RaidStatusBar">
+						<Size>
+							<AbsDimension x="70" y="7"/>
+						</Size>
+						<Anchors>
+							<Anchor point="TOPLEFT" relativeTo="$parenthealthBar" relativePoint="BOTTOMLEFT">
+								<Offset>
+									<AbsDimension x="0" y="0"/>
+								</Offset>
+							</Anchor>
+							<Anchor point="BOTTOMRIGHT" relativeTo="$parenthealthBar" relativePoint="BOTTOMRIGHT">
+								<Offset>
+									<AbsDimension x="0" y="-7"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+						<BarColor r="0" g="0" b="1"/>
+						<Scripts>
+							<OnLoad>
+								ZPerl.RegisterBar(self)
+								self:SetScale(0.7)
+							</OnLoad>
+						</Scripts>
+					</StatusBar>
+					<Frame name="$parentready" inherits="ZPerl_BackdropTemplate" hidden="true" setAllPoints="true" topLevel="true">
+						<Layers>
+							<Layer level="OVERLAY">
+								<!-- Class Icon -->
+								<Texture name="$parentcheck">
+									<Size>
+										<AbsDimension x="24" y="24"/>
+									</Size>
+									<Anchors>
+										<Anchor point="RIGHT">
+											<Offset>
+												<AbsDimension x="-5" y="0"/>
+											</Offset>
+										</Anchor>
+									</Anchors>
+								</Texture>
+							</Layer>
+						</Layers>
+					</Frame>
+					<Frame name="$parentresurrect" inherits="ZPerl_BackdropTemplate" setAllPoints="true" frameStrata="HIGH" hidden="true">
+						<Layers>
+							<Layer level="OVERLAY">
+								<Texture file="Interface\RaidFrame\Raid-Icon-Rez">
+									<Size>
+										<AbsDimension x="24" y="24"/>
+									</Size>
+									<Anchors>
+										<Anchor point="CENTER" />
+									</Anchors>
+								</Texture>
+							</Layer>
+						</Layers>
+					</Frame>
+				</Frames>
+				<Scripts>
+					<OnLoad>ZPerl.StatsFrameOnLoad(self)</OnLoad>
+				</Scripts>
+			</Frame>
+
+			<Frame name="$parenthighlight" inherits="ZPerl_HighlightTemplate" setAllPoints="true"/>
+		</Frames>
+	</Button>
+
+	<Frame name="ZPerl_Raid_TitleFrameTemplate" inherits="ZPerl_BackdropTemplate,SecureRaidGroupHeaderTemplate" clampedToScreen="true" frameStrata="LOW" virtual="true" hidden="true">
+		<Size>
+			<AbsDimension x="80" y="10"/>
+		</Size>
+		<Anchors>
+			<Anchor point="TOPLEFT">
+				<Offset>
+					<AbsDimension x="0" y="-400"/>
+				</Offset>
+			</Anchor>
+		</Anchors>
+		<Attributes>
+			<Attribute name="template" type="string" value="ZPerl_Raid_FrameTemplate"/>
+		</Attributes>
+	</Frame>
+
+	<Frame name="ZPerl_Raid_TitleDragTemplate" clampedToScreen="true" inherits="ZPerl_BackdropTemplate" movable="true" frameStrata="LOW" virtual="true">
+		<Size>
+			<AbsDimension x="80" y="10"/>
+		</Size>
+
+		<Scripts>
+			<OnLoad>ZPerl.Raid.HeaderOnLoad(self)</OnLoad>
+			<OnDragStart>
+				if (ZPerl.Locked == 0 or self:GetID() == 99) then
+					if (not InCombatLockdown()) then
+						self:SetFrameStrata("DIALOG")
+					end
+					self:StartMoving()
+				end
+			</OnDragStart>
+			<OnDragStop>
+				self:StopMovingOrSizing()
+				if (not InCombatLockdown()) then
+					self:SetFrameStrata("LOW")
+				end
+				ZPerl.Raid.SnapToNearby(self)
+				ZPerl.SavePosition(self)
+			</OnDragStop>
+		</Scripts>
+
+		<Frames>
+			<Frame name="$parentTitle" inherits="ZPerl_BackdropTemplate" setAllPoints="true">
+				<Scripts>
+					<OnShow>
+						self:SetScale(0.75)
+					</OnShow>
+				</Scripts>
+				<Layers>
+					<Layer level="OVERLAY">
+						<FontString name="$parentText" inherits="GameFontNormal">
+							<Anchors>
+								<Anchor point="TOPLEFT"/>
+								<Anchor point="BOTTOMRIGHT">
+									<Offset>
+										<AbsDimension x="0" y="2"/>
+									</Offset>
+								</Anchor>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+			</Frame>
+			<Frame name="$parentVirtual" inherits="ZPerl_BackdropTemplate" hidden="true">
+				<KeyValues>
+					<KeyValue key="backdropInfo" value="ZPerl_Frame_Backdrop_256_10_1211" type="global"/>
+				</KeyValues>
+				<Size>
+					<AbsDimension x="80" y="10"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" relativeTo="$parentTitle"/>
+				</Anchors>
+				<Scripts>
+					<OnLoad>
+						self:OnBackdropLoaded()
+						self:RegisterForDrag("LeftButton")
+					</OnLoad>
+					<OnDragStart>
+						if (ZPerl.Locked == 0) then
+							self:GetParent():StartMoving()
+						end
+					</OnDragStart>
+					<OnDragStop>
+						self:GetParent():StopMovingOrSizing()
+						ZPerl.Raid.SnapToNearby(self:GetParent())
+						ZPerl.SavePosition(self:GetParent())
+					</OnDragStop>
+				</Scripts>
+			</Frame>
+		</Frames>
+	</Frame>
+
+	<Frame name="ZPerl_Raid_Title1" parent="UIParent" inherits="ZPerl_Raid_TitleDragTemplate" id="1">
+	</Frame>
+	<Frame name="ZPerl_Raid_Title2" parent="UIParent" inherits="ZPerl_Raid_TitleDragTemplate" id="2">
+	</Frame>
+	<Frame name="ZPerl_Raid_Title3" parent="UIParent" inherits="ZPerl_Raid_TitleDragTemplate" id="3">
+	</Frame>
+	<Frame name="ZPerl_Raid_Title4" parent="UIParent" inherits="ZPerl_Raid_TitleDragTemplate" id="4">
+	</Frame>
+	<Frame name="ZPerl_Raid_Title5" parent="UIParent" inherits="ZPerl_Raid_TitleDragTemplate" id="5">
+	</Frame>
+	<Frame name="ZPerl_Raid_Title6" parent="UIParent" inherits="ZPerl_Raid_TitleDragTemplate" id="6">
+	</Frame>
+	<Frame name="ZPerl_Raid_Title7" parent="UIParent" inherits="ZPerl_Raid_TitleDragTemplate" id="7">
+	</Frame>
+	<Frame name="ZPerl_Raid_Title8" parent="UIParent" inherits="ZPerl_Raid_TitleDragTemplate" id="8">
+	</Frame>
+	<Frame name="ZPerl_Raid_Title9" parent="UIParent" inherits="ZPerl_Raid_TitleDragTemplate" id="9">
+	</Frame>
+	<Frame name="ZPerl_Raid_Title10" parent="UIParent" inherits="ZPerl_Raid_TitleDragTemplate" id="10">
+	</Frame>
+
+	<Frame name="ZPerl_Raid_Title11" parent="UIParent" inherits="ZPerl_Raid_TitleDragTemplate" id="11">
+	</Frame>
+
+	<Frame name="ZPerl_Raid_Title12" parent="UIParent" inherits="ZPerl_Raid_TitleDragTemplate" id="12">
+	</Frame>
+
+	<Frame name="ZPerl_Raid_Title13" parent="UIParent" inherits="ZPerl_Raid_TitleDragTemplate" id="13">
+	</Frame>
+
+	<Frame name="ZPerl_Raid_Grp1" parent="ZPerl_Raid_Title1" inherits="ZPerl_Raid_TitleFrameTemplate" id="1">
+		<Anchors>
+			<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT"/>
+		</Anchors>
+	</Frame>
+
+	<Frame name="ZPerl_Raid_Grp2" parent="ZPerl_Raid_Title2" inherits="ZPerl_Raid_TitleFrameTemplate" id="2">
+		<Anchors>
+			<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT"/>
+		</Anchors>
+	</Frame>
+
+	<Frame name="ZPerl_Raid_Grp3" parent="ZPerl_Raid_Title3" inherits="ZPerl_Raid_TitleFrameTemplate" id="3">
+		<Anchors>
+			<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT"/>
+		</Anchors>
+	</Frame>
+
+	<Frame name="ZPerl_Raid_Grp4" parent="ZPerl_Raid_Title4" inherits="ZPerl_Raid_TitleFrameTemplate" id="4">
+		<Anchors>
+			<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT"/>
+		</Anchors>
+	</Frame>
+
+	<Frame name="ZPerl_Raid_Grp5" parent="ZPerl_Raid_Title5" inherits="ZPerl_Raid_TitleFrameTemplate" id="5">
+		<Anchors>
+			<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT"/>
+		</Anchors>
+	</Frame>
+
+	<Frame name="ZPerl_Raid_Grp6" parent="ZPerl_Raid_Title6" inherits="ZPerl_Raid_TitleFrameTemplate" id="6">
+		<Anchors>
+			<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT"/>
+		</Anchors>
+	</Frame>
+
+	<Frame name="ZPerl_Raid_Grp7" parent="ZPerl_Raid_Title7" inherits="ZPerl_Raid_TitleFrameTemplate" id="7">
+		<Anchors>
+			<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT"/>
+		</Anchors>
+	</Frame>
+
+	<Frame name="ZPerl_Raid_Grp8" parent="ZPerl_Raid_Title8" inherits="ZPerl_Raid_TitleFrameTemplate" id="8">
+		<Anchors>
+			<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT"/>
+		</Anchors>
+	</Frame>
+
+	<Frame name="ZPerl_Raid_Grp9" parent="ZPerl_Raid_Title9" inherits="ZPerl_Raid_TitleFrameTemplate" id="9">
+		<Anchors>
+			<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT"/>
+		</Anchors>
+	</Frame>
+
+	<Frame name="ZPerl_Raid_Grp10" parent="ZPerl_Raid_Title10" inherits="ZPerl_Raid_TitleFrameTemplate" id="10">
+		<Anchors>
+			<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT"/>
+		</Anchors>
+	</Frame>
+
+	<Frame name="ZPerl_Raid_Grp11" parent="ZPerl_Raid_Title11" inherits="ZPerl_Raid_TitleFrameTemplate" id="11">
+		<Anchors>
+			<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT"/>
+		</Anchors>
+	</Frame>
+
+	<Frame name="ZPerl_Raid_Grp12" parent="ZPerl_Raid_Title12" inherits="ZPerl_Raid_TitleFrameTemplate" id="12">
+		<Anchors>
+			<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT"/>
+		</Anchors>
+	</Frame>
+
+	<Frame name="ZPerl_Raid_Grp13" parent="ZPerl_Raid_Title13" inherits="ZPerl_Raid_TitleFrameTemplate" id="13">
+		<Anchors>
+			<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT"/>
+		</Anchors>
+	</Frame>
+
+	<Frame name="ZPerl_Raid_Frame" parent="UIParent" inherits="ZPerl_BackdropTemplate" hidden="true">
+		<Anchors>
+			<Anchor point="TOPLEFT"/>
+			<Anchor point="BOTTOMRIGHT"/>
+		</Anchors>
+		<Scripts>
+			<OnLoad>ZPerl.Raid.OnLoad(self)</OnLoad>
+			<OnShow>
+				if (not ZPerl.Raid.Initialized) then
+					C_Timer.After(0, ZPerl.Raid.SetInitialized) -- one frame after the first show
+				end
+			</OnShow>
+		</Scripts>
+	</Frame>
+</Ui>

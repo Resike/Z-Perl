@@ -1,13 +1,12 @@
--- X-Perl UnitFrames
 -- Author: Resike
--- License: GNU GPL v3, 29 June 2007 (see LICENSE.txt)
+-- License: GNU GPL v3, 29 June 2007
+
+local L = ZPerl.L
 
 local conf
-XPerl_RequestConfig(function(new)
+ZPerl.RequestConfig(function(new)
 	conf = new
 end, "$Revision:  $")
-
-local IsRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
 
 local myClass
 local playerAggro, petAggro
@@ -17,11 +16,12 @@ local enemyUnitList = {}			-- Players with mobs targetted that target me
 local wholeEnemyUnitList = { }			-- Players with mobs targetted
 local currentPlayerAggro = { }
 
+-- Upvalues
 local GetNumGroupMembers = GetNumGroupMembers
 local GetNumSubgroupMembers = GetNumSubgroupMembers
 
--- XPerl_Assists_OnLoad(self)
-function XPerl_Assists_OnLoad(self)
+-- ZPerl.RaidHelper.AssistsOnLoad(self)
+function ZPerl.RaidHelper.AssistsOnLoad(self)
 	if self.SetResizeBounds then
 		self:SetResizeBounds(170, 40, 1000, 600)
 	else
@@ -37,94 +37,100 @@ function XPerl_Assists_OnLoad(self)
 	self:RegisterEvent("PLAYER_DEAD")
 	self:RegisterEvent("PLAYER_REGEN_ENABLED")
 
-	self:SetScript("OnEvent", XPerl_Assists_OnEvent)
-	self:SetScript("OnMouseDown", XPerl_Assists_MouseDown)
-	self:SetScript("OnMouseUp", XPerl_Assists_MouseUp)
+	self:SetScript("OnEvent", ZPerl.RaidHelper.AssistsOnEvent)
+	self:SetScript("OnMouseDown", ZPerl.RaidHelper.AssistsMouseDown)
+	self:SetScript("OnMouseUp", ZPerl.RaidHelper.AssistsMouseUp)
 
-	XPerl_Assists_OnLoad = nil
+	ZPerl.RaidHelper.AssistsOnLoad = nil
 end
 
--- XPerl_SetFrameSides
-function XPerl_SetFrameSides()
-	if (XPerl_Assists_Frame.LastSetView and XPerl_Assists_Frame.LastSetView[1] == ZPerlConfigHelper.AssistsFrame and XPerl_Assists_Frame.LastSetView[2] == ZPerlConfigHelper.TargettingFrame) then
+-- ZPerl.RaidHelper.SetFrameSides
+function ZPerl.RaidHelper.SetFrameSides()
+	if (ZPerl_Assists_Frame.LastSetView and ZPerl_Assists_Frame.LastSetView[1] == ZPerlRaidHelperDB.AssistsFrame and ZPerl_Assists_Frame.LastSetView[2] == ZPerlRaidHelperDB.TargettingFrame) then
 		-- Frames the same from last time
 		return
 	end
 
-	if (ZPerlConfigHelper.AssistsFrame == 1 or ZPerlConfigHelper.TargettingFrame == 1) then
-		XPerl_Assists_Frame:Show()
+	if (ZPerlRaidHelperDB.AssistsFrame == 1 or ZPerlRaidHelperDB.TargettingFrame == 1) then
+		ZPerl_Assists_Frame:Show()
 
-		XPerl_Target_Targetting_ScrollFrame:ClearAllPoints()
-		XPerl_Target_Assists_ScrollFrame:ClearAllPoints()
+		ZPerl_Target_Targetting_ScrollFrame:ClearAllPoints()
+		ZPerl_Target_Assists_ScrollFrame:ClearAllPoints()
 
-		if (ZPerlConfigHelper.AssistsFrame == 1 and ZPerlConfigHelper.TargettingFrame == 1) then
-			XPerl_Target_Targetting_ScrollFrame:SetPoint("TOPLEFT", 4, -5)
-			XPerl_Target_Targetting_ScrollFrame:SetPoint("BOTTOMRIGHT", XPerl_Assists_Frame, "BOTTOM", -0.5, 5)
-			XPerl_Target_Targetting_ScrollFrame:Show()
+		if (ZPerlRaidHelperDB.AssistsFrame == 1 and ZPerlRaidHelperDB.TargettingFrame == 1) then
+			ZPerl_Target_Targetting_ScrollFrame:SetPoint("TOPLEFT", 4, -5)
+			ZPerl_Target_Targetting_ScrollFrame:SetPoint("BOTTOMRIGHT", ZPerl_Assists_Frame, "BOTTOM", -0.5, 5)
+			ZPerl_Target_Targetting_ScrollFrame:Show()
 
-			XPerl_Target_Assists_ScrollFrame:SetPoint("TOPLEFT", XPerl_Assists_Frame, "TOP", 0.5, -5)
-			XPerl_Target_Assists_ScrollFrame:SetPoint("BOTTOMRIGHT", -4, 5)
-			XPerl_Target_Assists_ScrollFrame:Show()
+			ZPerl_Target_Assists_ScrollFrame:SetPoint("TOPLEFT", ZPerl_Assists_Frame, "TOP", 0.5, -5)
+			ZPerl_Target_Assists_ScrollFrame:SetPoint("BOTTOMRIGHT", -4, 5)
+			ZPerl_Target_Assists_ScrollFrame:Show()
 
-			XPerlScrollSeperator:Show()
-			XPerlScrollSeperator:ClearAllPoints()
-			XPerlScrollSeperator:SetPoint("TOPLEFT", XPerl_Target_Targetting_ScrollFrame, "TOPRIGHT", 0, 0)
-			XPerlScrollSeperator:SetPoint("BOTTOMRIGHT", XPerl_Target_Assists_ScrollFrame, "BOTTOMLEFT", 0, 0)
+			ZPerl_ScrollSeperator:Show()
+			ZPerl_ScrollSeperator:ClearAllPoints()
+			ZPerl_ScrollSeperator:SetPoint("TOPLEFT", ZPerl_Target_Targetting_ScrollFrame, "TOPRIGHT", 0, 0)
+			ZPerl_ScrollSeperator:SetPoint("BOTTOMRIGHT", ZPerl_Target_Assists_ScrollFrame, "BOTTOMLEFT", 0, 0)
 		else
-			XPerlScrollSeperator:Hide()
+			ZPerl_ScrollSeperator:Hide()
 
-			if (ZPerlConfigHelper.AssistsFrame == 1) then
-				XPerl_Target_Assists_ScrollFrame:SetPoint("TOPLEFT", 4, -5)
-				XPerl_Target_Assists_ScrollFrame:SetPoint("BOTTOMRIGHT", -4, 5)
-				XPerl_Target_Assists_ScrollFrame:Show()
-				XPerl_Target_Targetting_ScrollFrame:Hide()
+			if (ZPerlRaidHelperDB.AssistsFrame == 1) then
+				ZPerl_Target_Assists_ScrollFrame:SetPoint("TOPLEFT", 4, -5)
+				ZPerl_Target_Assists_ScrollFrame:SetPoint("BOTTOMRIGHT", -4, 5)
+				ZPerl_Target_Assists_ScrollFrame:Show()
+				ZPerl_Target_Targetting_ScrollFrame:Hide()
 			else
-				XPerl_Target_Targetting_ScrollFrame:SetPoint("TOPLEFT", 4, -5)
-				XPerl_Target_Targetting_ScrollFrame:SetPoint("BOTTOMRIGHT", -4, 5)
-				XPerl_Target_Targetting_ScrollFrame:Show()
-				XPerl_Target_Assists_ScrollFrame:Hide()
+				ZPerl_Target_Targetting_ScrollFrame:SetPoint("TOPLEFT", 4, -5)
+				ZPerl_Target_Targetting_ScrollFrame:SetPoint("BOTTOMRIGHT", -4, 5)
+				ZPerl_Target_Targetting_ScrollFrame:Show()
+				ZPerl_Target_Assists_ScrollFrame:Hide()
 			end
 		end
 	else
-		XPerl_Assists_Frame:Hide()
+		ZPerl_Assists_Frame:Hide()
 	end
 
-	XPerl_Assists_Frame.LastSetView = {ZPerlConfigHelper.AssistsFrame, ZPerlConfigHelper.TargettingFrame}
+	---@diagnostic disable-next-line: inject-field
+	ZPerl_Assists_Frame.LastSetView = {ZPerlRaidHelperDB.AssistsFrame, ZPerlRaidHelperDB.TargettingFrame}
 end
 
 -- ToggleAssistsFrame()
-function XPerl_ToggleAssistsFrame(param)
+function ZPerl.RaidHelper.ToggleAssistsFrame(param)
 	if (param == "assists") then
-		if (ZPerlConfigHelper.AssistsFrame == 1) then
-			ZPerlConfigHelper.AssistsFrame = 0
+		if (ZPerlRaidHelperDB.AssistsFrame == 1) then
+			ZPerlRaidHelperDB.AssistsFrame = 0
 		else
-			ZPerlConfigHelper.AssistsFrame = 1
+			ZPerlRaidHelperDB.AssistsFrame = 1
 		end
 	else
-		if (ZPerlConfigHelper.TargettingFrame == 1) then
-			ZPerlConfigHelper.TargettingFrame = 0
+		if (ZPerlRaidHelperDB.TargettingFrame == 1) then
+			ZPerlRaidHelperDB.TargettingFrame = 0
 		else
-			ZPerlConfigHelper.TargettingFrame = 1
+			ZPerlRaidHelperDB.TargettingFrame = 1
 		end
 	end
 end
 
--- XPerl_AssistsView_Close
-function XPerl_AssistsView_Open()
-	ZPerlConfigHelper.AssistsFrame = 1
-	ZPerlConfigHelper.TargettingFrame = 1
-	XPerl_SetFrameSides()
+-- ZPerl.RaidHelper.AssistsViewClose
+function ZPerl.RaidHelper.AssistsViewOpen()
+	ZPerlRaidHelperDB.AssistsFrame = 1
+	ZPerlRaidHelperDB.TargettingFrame = 1
+	ZPerl.RaidHelper.SetFrameSides()
 	return true
 end
 
-function XPerl_AssistsView_Close()
-	ZPerlConfigHelper.AssistsFrame = 0
-	ZPerlConfigHelper.TargettingFrame = 0
-	XPerl_SetFrameSides()
+function ZPerl.RaidHelper.AssistsViewClose()
+	ZPerlRaidHelperDB.AssistsFrame = 0
+	ZPerlRaidHelperDB.TargettingFrame = 0
+	ZPerl.RaidHelper.SetFrameSides()
 end
 
 -- SortByClass(t1, t2)
 local function SortByClass(t1, t2)
+	-- enemy names are secret inside instances and cannot be
+	-- compared, so they keep their scan order
+	if (not ZPerl.CanAccess(t1[1]) or not ZPerl.CanAccess(t2[1])) then
+		return false
+	end
 	if (t1[2] == t2[2]) then
 		return t1[1] < t2[1]
 	else
@@ -142,15 +148,15 @@ local function SortByClass(t1, t2)
 		elseif (t2c ~= "") then
 			t2c = "B"..t2c
 		else
-			t1c = "Z"
+			t2c = "Z"
 		end
 
 		return t1c..t1[1] < t2c..t2[1]
 	end
 end
 
--- XPerl_MakeAssistsString
-function XPerl_MakeAssistsString(List, title)
+-- ZPerl.RaidHelper.MakeAssistsString
+function ZPerl.RaidHelper.MakeAssistsString(List, title)
 	local text = title
 
 	if (List ~= nil) then
@@ -164,12 +170,17 @@ function XPerl_MakeAssistsString(List, title)
 
 		sort(List, SortByClass)
 
-		for i,unit in ipairs(List) do
+		for i, entry in ipairs(List) do
+			-- a secret name (enemies inside instances) or class cannot be concatenated or used as a key
+			local unit = {
+				ZPerl.CanAccess(entry[1]) and entry[1] or UNKNOWNOBJECT,
+				ZPerl.CanAccess(entry[2]) and entry[2] or "",
+			}
 			if (not any) then
 				if (unit[2] == "") then
 					text = text.."|c00FF0000"..unit[1]
 				else
-					text = text..XPerlColourTable[unit[2]]..unit[1]
+					text = text..ZPerl.ColorTable[unit[2]]..unit[1]
 				end
 				lastClass, any = unit[2], true
 			else
@@ -180,7 +191,7 @@ function XPerl_MakeAssistsString(List, title)
 						if (unit[2] == "") then
 							text = text.."\r|c00FF0000"..unit[1]
 						else
-							text = text.."\r"..XPerlColourTable[unit[2]]..unit[1]
+							text = text.."\r"..ZPerl.ColorTable[unit[2]]..unit[1]
 						end
 					else
 						text = text.." "..unit[1]
@@ -199,72 +210,73 @@ end
 
 -- FillList
 local function FillList(List, cFrame, title)
-	local text = XPerl_MakeAssistsString(List, title)
-	_G["XPerl_Target_Assists_ScrollChild_"..cFrame.."Text"]:SetText(text)
+	local text = ZPerl.RaidHelper.MakeAssistsString(List, title)
+	_G["ZPerl_Target_Assists_ScrollChild_"..cFrame.."Text"]:SetText(text)
 end
 
--- XPerl_ShowAssists()
-function XPerl_ShowAssists()
-	if (ZPerlConfigHelper and (ZPerlConfigHelper.AssistsFrame == 1 or ZPerlConfigHelper.TargettingFrame == 1)) then
-		if (ZPerlConfigHelper.AssistsFrame == 1 and XPerl_Assists_Frame.assists ~= nil) then
-			FillList(XPerl_Assists_Frame.assists, "Assists", XPERL_TOOLTIP_ASSISTING)
+-- ZPerl.RaidHelper.ShowAssists()
+function ZPerl.RaidHelper.ShowAssists()
+	if (ZPerlRaidHelperDB and (ZPerlRaidHelperDB.AssistsFrame == 1 or ZPerlRaidHelperDB.TargettingFrame == 1)) then
+		if (ZPerlRaidHelperDB.AssistsFrame == 1 and ZPerl_Assists_Frame.assists ~= nil) then
+			FillList(ZPerl_Assists_Frame.assists, "Assists", L["TOOLTIP_ASSISTING"])
 		end
 
-		if (ZPerlConfigHelper.TargettingFrame == 1 and XPerl_Assists_Frame.targetting ~= nil) then
+		if (ZPerlRaidHelperDB.TargettingFrame == 1 and ZPerl_Assists_Frame.targetting ~= nil) then
 			local title
-			if (#XPerl_Assists_Frame.targetting > 0 and XPerl_Assists_Frame.targetting[1][2] == "") then
-				title = XPERL_TOOLTIP_ENEMYONME
+			---@diagnostic disable-next-line: secret-comparison
+			if (#ZPerl_Assists_Frame.targetting > 0 and ZPerl_Assists_Frame.targetting[1][2] == "") then
+				title = L["TOOLTIP_ENEMYONME"]
 			else
-				if (ZPerlConfigHelper.TargetCountersSelf == 0) then
-					title = XPERL_TOOLTIP_ALLONME
+				if (ZPerlRaidHelperDB.TargetCountersSelf == 0) then
+					title = L["TOOLTIP_ALLONME"]
 				else
-					title = XPERL_TOOLTIP_HEALERS
+					title = L["TOOLTIP_HEALERS"]
 				end
 			end
 
-			FillList(XPerl_Assists_Frame.targetting, "Targetting", title)
+			FillList(ZPerl_Assists_Frame.targetting, "Targetting", title)
 		end
 	end
 end
 
--- XPerl_Assists_MouseDown
-function XPerl_Assists_MouseDown(self, button, param)
+-- ZPerl.RaidHelper.AssistsMouseDown
+function ZPerl.RaidHelper.AssistsMouseDown(self, button, param)
 	if (button == "LeftButton") then
-		if (not ZPerlConfigHelper or not ZPerlConfigHelper.AssistPinned or (IsAltKeyDown() and IsControlKeyDown() and IsShiftKeyDown())) then
+		if (not ZPerlRaidHelperDB or not ZPerlRaidHelperDB.AssistPinned or (IsAltKeyDown() and IsControlKeyDown() and IsShiftKeyDown())) then
 			--if (param and (param == "TOPLEFT" or param == "BOTTOMLEFT" or param == "BOTTOMRIGHT")) then
 			--	self:StartSizing(param)
 			--else
-				XPerl_Assists_FrameAnchor:StartMoving()
+				ZPerl_Assists_FrameAnchor:StartMoving()
 			--end
 		end
 
 	elseif (button == "RightButton") then
 		local n = self:GetName()
-		if (n and strfind (n, "XPerl_Target_Assists_ScrollChild_Targetting")) then
+		if (n and strfind (n, "ZPerl_Target_Assists_ScrollChild_Targetting")) then
 			param = "targetFrame"
 		end
 
 		if (param and param == "targetFrame") then
-			if (ZPerlConfigHelper.TargetCountersSelf == 1) then
-				ZPerlConfigHelper.TargetCountersSelf = 0
+			if (ZPerlRaidHelperDB.TargetCountersSelf == 1) then
+				ZPerlRaidHelperDB.TargetCountersSelf = 0
 			else
-				ZPerlConfigHelper.TargetCountersSelf = 1
+				ZPerlRaidHelperDB.TargetCountersSelf = 1
 			end
-			XPerl_UpdateAssists()
-			XPerl_ShowAssists()
+			ZPerl.RaidHelper.UpdateAssists()
+			ZPerl.RaidHelper.ShowAssists()
 		end
 	end
 end
 
--- XPerl_Assists_MouseUp
-function XPerl_Assists_MouseUp(self, button)
-	--XPerl_Assists_Frame:StopMovingOrSizing()
-	XPerl_Assists_FrameAnchor:StopMovingOrSizing()
-	if (XPerl_SavePosition) then
-		XPerl_SavePosition(XPerl_Assists_FrameAnchor)
+-- ZPerl.RaidHelper.AssistsMouseUp
+function ZPerl.RaidHelper.AssistsMouseUp(self, button)
+	--ZPerl_Assists_Frame:StopMovingOrSizing()
+	ZPerl_Assists_FrameAnchor:StopMovingOrSizing()
+	if (ZPerl.SavePosition) then
+		ZPerl.SavePosition(ZPerl_Assists_FrameAnchor)
 	end
 
-	-- XPerl_RegisterScalableFrame(self, XPerl_Assists_FrameAnchor, nil, nil, nil, true, true)
+	-- ZPerl.RegisterScalableFrame(self, ZPerl_Assists_FrameAnchor, nil, nil, nil, true, true)
 end
 
 -- MakeFriendlyUnitList
@@ -277,8 +289,8 @@ local function MakeFriendlyUnitList()
 	end
 
 	--friendlyUnitList = {"player", "pet"}
-	--XPerl_FreeTable(friendlyUnitList)
-	--friendlyUnitList = XPerl_GetReusableTable()
+	--ZPerl.FreeTable(friendlyUnitList)
+	--friendlyUnitList = ZPerl.GetReusableTable()
 	friendlyUnitList = { }
 	tinsert(friendlyUnitList, "player")
 	tinsert(friendlyUnitList, "pet")
@@ -291,7 +303,7 @@ local function MakeFriendlyUnitList()
 			name, petname = prefix..i, prefix.."pet"..i
 		end
 
-		if (not UnitIsUnit(name, "player")) then
+		if (not ZPerl.SafeBool(UnitIsUnit(name, "player"), false)) then
 			if (UnitExists(name)) then
 				tinsert(friendlyUnitList, name)
 			end
@@ -303,44 +315,43 @@ local function MakeFriendlyUnitList()
 end
 
 -- Events
-function XPerl_Assists_OnEvent(self, event, unit)
-	if (event == "PLAYER_TARGET_CHANGED" or (event == "UNIT_TARGET" and not UnitIsUnit(unit, "player"))) then
+function ZPerl.RaidHelper.AssistsOnEvent(self, event, unit)
+	-- UNIT_TARGET's own unit argument can itself be an
+	-- indirect unit like "targettarget" (Confirmed crashing
+	-- exactly there) -- this was wrongly judged low-risk earlier in this
+	-- session on the assumption unit would always be a direct party/raid
+	-- member; the live crash disproves that.
+	if (event == "PLAYER_TARGET_CHANGED" or (event == "UNIT_TARGET" and not ZPerl.SafeBool(UnitIsUnit(unit, "player"), true))) then
 		doUpdate = true
 	elseif (event == "VARIABLES_LOADED") then
 		MakeFriendlyUnitList()
-		XPerl_UpdateAssists()
-		XPerl_ShowAssists()
+		ZPerl.RaidHelper.UpdateAssists()
+		ZPerl.RaidHelper.ShowAssists()
 
-		XPerl_RegisterScalableFrame(self, XPerl_Assists_FrameAnchor, nil, nil, nil, true, true)
-		self.corner.onSizeChanged = function(self, x, y)
-			ZPerlConfigHelper.sizeAssistsX = x
-			ZPerlConfigHelper.sizeAssistsY = y
+		ZPerl.RegisterScalableFrame(self, ZPerl_Assists_FrameAnchor, nil, nil, nil, true, true)
+		self.corner.onSizeChanged = function(_, x, y)
+			ZPerlRaidHelperDB.sizeAssistsX = x
+			ZPerlRaidHelperDB.sizeAssistsY = y
 		end
-		self.corner.onScaleChanged = function(self, s)
-			ZPerlConfigHelper.sizeAssistsS = s
+		self.corner.onScaleChanged = function(_, s)
+			ZPerlRaidHelperDB.sizeAssistsS = s
 		end
-		XPerlAssistPin:SetButtonTex()
+		ZPerl_AssistPin:SetButtonTex()
 	elseif (event == "GROUP_ROSTER_UPDATE") then
 		MakeFriendlyUnitList()
 		doUpdate = true
 	elseif (event == "PLAYER_DEAD" or event == "PLAYER_REGEN_ENABLED") then
-		--XPerl_FreeTable(currentPlayerAggro)
-		--currentPlayerAggro = XPerl_GetReusableTable()
+		--ZPerl.FreeTable(currentPlayerAggro)
+		--currentPlayerAggro = ZPerl.GetReusableTable()
 		currentPlayerAggro = { }
-		if (XPerl_Highlight) then
-			XPerl_Highlight:ClearAll("AGGRO")
+		if (ZPerl_Highlight) then
+			ZPerl_Highlight:ClearAll("AGGRO")
 		end
-		XPerl_UpdateAssists()
-		XPerl_ShowAssists()
+		ZPerl.RaidHelper.UpdateAssists()
+		ZPerl.RaidHelper.ShowAssists()
 	elseif (event == "PLAYER_ENTERING_WORLD") then
-		if (XPerl_Highlight) then
-			XPerl_Highlight:ClearAll("AGGRO")
-		end
-
-		if IsRetail then
-			XPerlAssistsCloseButton:SetScale(0.66)
-			XPerlAssistsCloseButton:SetPoint("TOPRIGHT", -6, -6)
-			XPerlAssistPin:SetPoint("RIGHT", XPerlAssistsCloseButton, "LEFT", 0, 0)
+		if (ZPerl_Highlight) then
+			ZPerl_Highlight:ClearAll("AGGRO")
 		end
 
 		MakeFriendlyUnitList()
@@ -348,15 +359,15 @@ function XPerl_Assists_OnEvent(self, event, unit)
 	end
 end
 
--- XPerl_Assists_OnUpdate
+-- ZPerl.RaidHelper.AssistsOnUpdate
 local UpdateTime = 0
-function XPerl_Assists_OnUpdate(self, arg1)
+function ZPerl.RaidHelper.AssistsOnUpdate(self, arg1)
 	UpdateTime = arg1 + UpdateTime
 	if (doUpdate or UpdateTime >= 0.2) then
 		if (doUpdate or #enemyUnitList > 0) then
 			doUpdate = false
-			XPerl_UpdateAssists()
-			XPerl_ShowAssists()
+			ZPerl.RaidHelper.UpdateAssists()
+			ZPerl.RaidHelper.ShowAssists()
 		end
 		UpdateTime = 0
 	end
@@ -369,65 +380,68 @@ end
 local assists
 local targetting
 
--- XPerl_FoundEnemyBefore
-local function XPerl_FoundEnemyBefore(FoundEnemy, name)
+-- FoundEnemyBefore
+local function FoundEnemyBefore(FoundEnemy, name)
+	-- same indirect-unit secret-boolean risk as the rest of
+	-- this file; this helper is called from every site already fixed above.
 	for previous in pairs(FoundEnemy) do
-		if (UnitIsUnit(previous.."target", name.."target")) then
+		if (ZPerl.SafeBool(UnitIsUnit(previous.."target", name.."target"), false)) then
 			return true
 		end
 	end
 	return false
 end
 
--- XPerl_AddEnemy
-local function XPerl_AddEnemy(anyEnemy, FoundEnemy, name)
+-- AddEnemy
+local function AddEnemy(anyEnemy, FoundEnemy, name)
 	local namet = name.."target"
 	local namett = namet.."target"
-	if (not XPerl_FoundEnemyBefore(wholeEnemyUnitList, name)) then
+	if (not FoundEnemyBefore(wholeEnemyUnitList, name)) then
 		if (UnitExists(namet)) then
 			wholeEnemyUnitList[name] = true
 
-			if (XPerl_Highlight and conf and conf.highlight.AGGRO) then
-				if (UnitInRaid(namett) or UnitInParty(namett)) then
-					currentPlayerAggro[UnitName(namett)] = UnitGUID(namett)
+			if (ZPerl_Highlight and conf and conf.highlight.AGGRO) then
+				-- same doubly-indirect secret-boolean risk as
+				-- below; fixed proactively alongside the confirmed crash.
+				if (ZPerl.SafeBool(UnitInRaid(namett), false) or ZPerl.SafeBool(UnitInParty(namett), false)) then
+					local aggroName = UnitName(namett)
+					if (aggroName and ZPerl.CanAccess(aggroName)) then
+						---@diagnostic disable-next-line: secret-table-key
+						currentPlayerAggro[aggroName] = UnitGUID(namett)
+					end
 				end
 			end
 		end
 	end
 
-	if (UnitIsUnit("player", namett)) then
-		if (not XPerl_FoundEnemyBefore(FoundEnemy, name)) then
-			if (not playerAggro and ZPerlConfigHelper.AggroWarning == 1) then
+	-- namett (name.."target".."target") is doubly indirect --
+	-- an even higher secret-boolean risk than the single-indirect units
+	-- already fixed above (section 3). Confirmed crashing on
+	-- UnitIsUnit("target", "playertargettarget").
+	if (ZPerl.SafeBool(UnitIsUnit("player", namett), false)) then
+		if (not FoundEnemyBefore(FoundEnemy, name)) then
+			if (not playerAggro and ZPerlRaidHelperDB.AggroWarning == 1) then
 				playerAggro = true
-				XPerl_AggroPlayer:Show()
+				ZPerl_AggroPlayer:Show()
 			end
 
 			FoundEnemy[name] = true
-			--local n = XPerl_GetReusableTable()
-			--[[local n = { }
-			n[1] = UnitName(namet)
-			n[2] = ""
-			tinsert(targetting, n)]]
 			tinsert(targetting, {UnitName(namet), ""})
 			return true
 		end
 	-- 1.8.3 Added check to see if mob is targetting our target, and add to that list
-	elseif (UnitExists("target") and UnitIsUnit("target", namett)) then
+	elseif (UnitExists("target") and ZPerl.SafeBool(UnitIsUnit("target", namett), false)) then
 		-- We can still use the FoundEnemy list, because it's not too important if
 		-- we're targetting ourself and the mob doesn't show on both self and target lists
-		if (not XPerl_FoundEnemyBefore(FoundEnemy, name)) then
+		if (not FoundEnemyBefore(FoundEnemy, name)) then
 			FoundEnemy[name] = true
-			--local n = XPerl_GetReusableTable()
-			--[[local n = { }
-			n[1] = UnitName(namet)
-			n[2] = ""]]
 			tinsert(assists, {UnitName(namet), ""})
 			return true
 		end
-	elseif (not petAggro and ZPerlConfigHelper.AggroWarning == 1 and UnitExists(namett) and UnitIsUnit("pet", namett)) then
+	elseif (not petAggro and ZPerlRaidHelperDB.AggroWarning == 1 and UnitExists(namett) and ZPerl.SafeBool(UnitIsUnit("pet", namett), false)) then
 		petAggro = true
 		--petFadeStart = GetTime()
-		XPerl_AggroPet:Show()
+		ZPerl_AggroPet:Show()
 	end
 
 	return false
@@ -435,65 +449,49 @@ end
 
 local HealerClasses = {PRIEST = true, SHAMAN = true, PALADIN = true, DRUID = true}
 
--- XPerl_UpdateAssists
-function XPerl_UpdateAssists()
-	--XPerl_FreeTable(wholeEnemyUnitList)
-	--wholeEnemyUnitList = XPerl_GetReusableTable()
+-- ZPerl.RaidHelper.UpdateAssists
+function ZPerl.RaidHelper.UpdateAssists()
+	--ZPerl.FreeTable(wholeEnemyUnitList)
+	--wholeEnemyUnitList = ZPerl.GetReusableTable()
 	wholeEnemyUnitList = { }
 
 	local oldPlayerAggro = currentPlayerAggro
-	--currentPlayerAggro = XPerl_GetReusableTable()
+	--currentPlayerAggro = ZPerl.GetReusableTable()
 	currentPlayerAggro = { }
-	--[[if (XPerl_Highlight) then
-		XPerl_Highlight:ClearAll("AGGRO")
-	--end]]
-
-	if ZPerlConfigHelper and ZPerlConfigHelper.TargetCounters == 0 then
-		if (XPerl_Target_AssistFrame) then
-			XPerl_Target_AssistFrame:Hide()
+	if ZPerlRaidHelperDB and ZPerlRaidHelperDB.TargetCounters == 0 then
+		if (ZPerl_Target_AssistFrame) then
+			ZPerl_Target_AssistFrame:Hide()
 		end
-		if (XPerl_Player_TargettingFrame) then
-			XPerl_Player_TargettingFrame:Hide()
+		if (ZPerl_Player_TargettingFrame) then
+			ZPerl_Player_TargettingFrame:Hide()
 		end
 		return
 	end
 
 	local selfFlag, enemyFlag
-	if ZPerlConfigHelper then
-		selfFlag = ZPerlConfigHelper.TargetCountersSelf == 1
-		enemyFlag = ZPerlConfigHelper.TargetCountersEnemy == 1
+	if ZPerlRaidHelperDB then
+		selfFlag = ZPerlRaidHelperDB.TargetCountersSelf == 1
+		enemyFlag = ZPerlRaidHelperDB.TargetCountersEnemy == 1
 	end
 
 	local assistCount, targettingCount, anyEnemy = 0, 0, false
 	--local start, i, total, prefix, name, petname
 
-	--local FoundEnemy = XPerl_GetReusableTable()
+	--local FoundEnemy = ZPerl.GetReusableTable()
 	local FoundEnemy = { }
 
 	-- Re-use all the old tables from last pass
-	--assists = XPerl_Assists_Frame.assists
-	--targetting = XPerl_Assists_Frame.targetting
-	--[[if (assists) then
-		for k, v in pairs(assists) do
-			--XPerl_FreeTable(v)
-			assists[k] = nil
-		end
-	end]]
-	--[[if (targetting) then
-		for k, v in pairs(targetting) do
-			--XPerl_FreeTable(v)
-			targetting[k] = nil
-		end
-	end]]
-	--XPerl_FreeTable(assists)
-	--XPerl_FreeTable(targetting)
+	--assists = ZPerl_Assists_Frame.assists
+	--targetting = ZPerl_Assists_Frame.targetting
+	--ZPerl.FreeTable(assists)
+	--ZPerl.FreeTable(targetting)
 	--assists = { }
 	--targetting = { }
 
 	-- Get new tables
-	--assists = XPerl_GetReusableTable()
+	--assists = ZPerl.GetReusableTable()
 	assists = { }
-	--targetting = XPerl_GetReusableTable()
+	--targetting = ZPerl.GetReusableTable()
 	targetting = { }
 
 	playerAggro, petAggro = false, false
@@ -503,35 +501,30 @@ function XPerl_UpdateAssists()
 		if (UnitExists(name.."target") and not UnitIsDeadOrGhost(name)) then
 			local _, engClass = UnitClass(name)
 
+			-- name.."target" is an indirect unit -- these
+			-- three UnitIsUnit/UnitCanAttack booleans can be secret (section
+			-- 3), Confirmed crashing on UnitIsUnit("target",
+			-- "playertarget").
 			if (targetname) then
-				if (UnitIsUnit("target", name.."target")) then
+				if (ZPerl.SafeBool(UnitIsUnit("target", name.."target"), false)) then
 					assistCount = assistCount + 1
-					--local n = XPerl_GetReusableTable()
-					--[[local n = { }
-					n[1] = UnitName(name)
-					n[2] = engClass
-					tinsert(assists, n)]]
 					tinsert(assists, {UnitName(name), engClass})
 				end
 			end
 
 			-- 0 for Anyone, 1 for Healers
-			if (not selfFlag or HealerClasses[engClass]) then
-				if (UnitIsUnit("player", name.."target")) then
+			---@diagnostic disable-next-line: secret-table-key
+			if (not selfFlag or (ZPerl.CanAccess(engClass) and HealerClasses[engClass])) then
+				if (ZPerl.SafeBool(UnitIsUnit("player", name.."target"), false)) then
 					targettingCount = targettingCount + 1
-					--local n = XPerl_GetReusableTable()
-					--[[local n = { }
-					n[1] = UnitName(name)
-					n[2] = engClass
-					tinsert(targetting, n)]]
 					tinsert(targetting, {UnitName(name), engClass})
 				end
 			end
 
 			-- Count enemy targetting us?
 			if (enemyFlag) then
-				if (UnitCanAttack("player", name.."target")) then	-- not UnitIsFriend("player", name.."target")) then
-					if (XPerl_AddEnemy(anyEnemy, FoundEnemy, name)) then
+				if (ZPerl.SafeBool(UnitCanAttack("player", name.."target"), false)) then	-- not UnitIsFriend("player", name.."target")) then
+					if (AddEnemy(anyEnemy, FoundEnemy, name)) then
 						anyEnemy = true
 						targettingCount = targettingCount + 1
 					end
@@ -541,142 +534,141 @@ function XPerl_UpdateAssists()
 	end
 
 	if (enemyFlag) then
-		if (not UnitIsFriend("player", "focus")) then
-			if (UnitIsUnit("player", "focustarget")) then
-				if (XPerl_Highlight and conf and conf.highlight.AGGRO) then
+		-- same indirect-unit secret-boolean shape as above;
+		-- "focustarget" is indirect too. Default to "friend"/"not a match" so
+		-- an unreadable state just skips the aggro warning rather than
+		-- risking a false one.
+		if (not ZPerl.SafeBool(UnitIsFriend("player", "focus"), true)) then
+			if (ZPerl.SafeBool(UnitIsUnit("player", "focustarget"), false)) then
+				if (ZPerl_Highlight and conf and conf.highlight.AGGRO) then
 					currentPlayerAggro[UnitName("player")] = UnitGUID("player")
 				end
 
-				if (not XPerl_FoundEnemyBefore(FoundEnemy, "focus")) then
-					if (not playerAggro and ZPerlConfigHelper.AggroWarning == 1) then
+				if (not FoundEnemyBefore(FoundEnemy, "focus")) then
+					if (not playerAggro and ZPerlRaidHelperDB.AggroWarning == 1) then
 						playerAggro = true
-						XPerl_AggroPlayer:Show()
+						ZPerl_AggroPlayer:Show()
 					end
 
 					FoundEnemy["focus"] = true
-					--local n = XPerl_GetReusableTable()
-					--[[local n = { }
-					n[1] = UnitName("focus")
-					n[2] = ""
-					tinsert(targetting, n)]]
 					tinsert(targetting, {UnitName("focus"), ""})
-					return true
+					-- counted as the raid loop counts an AddEnemy hit; returning here (as AddEnemy does) skipped
+					-- the rest of the update: the lists, the aggro highlights and the counters stayed stale
+					anyEnemy = true
+					targettingCount = targettingCount + 1
 				end
 			end
 		end
 	end
 
-	XPerl_Assists_Frame.assists, XPerl_Assists_Frame.targetting = assists, targetting
-
-	--[[if (GetNumGroupMembers() == 0) then
-		-- Don't show it if we're on our own... we know we have aggro..
-		playerAggro, petAggro = false, false
-	end]]
+	---@diagnostic disable-next-line: inject-field
+	ZPerl_Assists_Frame.assists, ZPerl_Assists_Frame.targetting = assists, targetting
 
 	if (playerAggro or petAggro) then
-		XPerl_Aggro:Show()
+		ZPerl_Aggro:Show()
 	end
 
 	enemyUnitList = FoundEnemy
 
-	if (XPerl_Highlight and conf and conf.highlight.AGGRO) then
+	if (ZPerl_Highlight and conf and conf.highlight.AGGRO) then
 		for k, v in pairs(oldPlayerAggro) do
+			---@diagnostic disable-next-line: secret-table-key
 			if (not currentPlayerAggro[k]) then
-				XPerl_Highlight:Remove(v, "AGGRO")
+				ZPerl_Highlight:Remove(v, "AGGRO")
 			end
 		end
 		for k, v in pairs(currentPlayerAggro) do
 			if (not oldPlayerAggro[k]) then
-				XPerl_Highlight:Add(v, "AGGRO", 0)
+				ZPerl_Highlight:Add(v, "AGGRO", 0)
 			end
 		end
 	end
 
-	if ZPerlConfigHelper and ZPerlConfigHelper.ShowTargetCounters == 1 then
-		if (XPerl_Player_TargettingFrame) then
-			if (XPerl_Player) then
-				local color = (conf and conf.colour.border) or (ZPerlConfigHelper and ZPerlConfigHelper.BorderColour) or {r = 0.5, g = 0.5, b = 0.5}
+	if ZPerlRaidHelperDB and ZPerlRaidHelperDB.ShowTargetCounters == 1 then
+		if (ZPerl_Player_TargettingFrame) then
+			if (ZPerl_Player) then
+				local color = (conf and conf.color.border) or (ZPerlRaidHelperDB and ZPerlRaidHelperDB.BorderColor) or {r = 0.5, g = 0.5, b = 0.5}
 
 				if (anyEnemy) then
-					XPerl_Player_TargettingFrame:SetBackdropBorderColor(1, 0.2, 0.2, color.a)
+					ZPerl_Player_TargettingFrame:SetBackdropBorderColor(1, 0.2, 0.2, color.a)
 				else
-					XPerl_Player_TargettingFrame:SetBackdropBorderColor(color.r, color.g, color.b, color.a)
+					ZPerl_Player_TargettingFrame:SetBackdropBorderColor(color.r, color.g, color.b, color.a)
 				end
 
 				if (targettingCount == 0) then
-					XPerl_Player_TargettingFrametext:SetTextColor(1, 0.5, 0.5, conf.transparency.text)
+					ZPerl_Player_TargettingFrametext:SetTextColor(1, 0.5, 0.5, conf.transparency.text)
 				elseif (targettingCount > 5) then
-					XPerl_Player_TargettingFrametext:SetTextColor(0.5, 1, 0.5, conf.transparency.text)
+					ZPerl_Player_TargettingFrametext:SetTextColor(0.5, 1, 0.5, conf.transparency.text)
 				else
-					XPerl_Player_TargettingFrametext:SetTextColor(0.5, 0.5, 1, conf.transparency.text)
+					ZPerl_Player_TargettingFrametext:SetTextColor(0.5, 0.5, 1, conf.transparency.text)
 				end
 
-				XPerl_Player_TargettingFrame:SetText(targettingCount)
-				XPerl_Player_TargettingFrame:Show()
+				ZPerl_Player_TargettingFrame:SetText(tostring(targettingCount))
+				ZPerl_Player_TargettingFrame:Show()
 			else
-				XPerl_Player_TargettingFrame:Hide()
+				ZPerl_Player_TargettingFrame:Hide()
 			end
 		end
 
-		if (XPerl_Target_AssistFrame) then
-			if (XPerl_Target) then
+		if (ZPerl_Target_AssistFrame) then
+			if (ZPerl_Target) then
 				if (assistCount < 2) then
-					XPerl_Target_AssistFrametext:SetTextColor(1, 0.5, 0.5, conf.transparency.text)
+					ZPerl_Target_AssistFrametext:SetTextColor(1, 0.5, 0.5, conf.transparency.text)
 				elseif (assistCount > (#friendlyUnitList / 2)) then
-					XPerl_Target_AssistFrametext:SetTextColor(0.5, 1, 0.5, conf.transparency.text)
+					ZPerl_Target_AssistFrametext:SetTextColor(0.5, 1, 0.5, conf.transparency.text)
 				else
-					XPerl_Target_AssistFrametext:SetTextColor(0.5, 0.5, 1, conf.transparency.text)
+					ZPerl_Target_AssistFrametext:SetTextColor(0.5, 0.5, 1, conf.transparency.text)
 				end
 
 				if (targetname) then
-					XPerl_Target_AssistFrame:SetText(assistCount)
+					ZPerl_Target_AssistFrame:SetText(tostring(assistCount))
 				end
-				XPerl_Target_AssistFrame:Show()
+				ZPerl_Target_AssistFrame:Show()
 			else
-				XPerl_Target_AssistFrame:Hide()
+				ZPerl_Target_AssistFrame:Hide()
 			end
 		end
 	else
-		XPerl_Player_TargettingFrame:Hide()
-		XPerl_Target_AssistFrame:Hide()
+		ZPerl_Player_TargettingFrame:Hide()
+		ZPerl_Target_AssistFrame:Hide()
 	end
 
-	--XPerl_FreeTable(oldPlayerAggro)
-	--XPerl_FreeTable(FoundEnemy)
+	--ZPerl.FreeTable(oldPlayerAggro)
+	--ZPerl.FreeTable(FoundEnemy)
 end
 
--- XPerl_Assists_GetEnemyUnitList
-function XPerl_Assists_GetEnemyUnitList()
+-- ZPerl.RaidHelper.AssistsGetEnemyUnitList
+function ZPerl.RaidHelper.AssistsGetEnemyUnitList()
 	return wholeEnemyUnitList
 end
 
--- XPerl_StartAssists
-function XPerl_StartAssists()
+-- ZPerl.RaidHelper.StartAssists
+function ZPerl.RaidHelper.StartAssists()
 	local _
 	_, myClass = UnitClass("player")
 
-	XPerlColourTable.pet = "|c008080FF"
+	ZPerl.ColorTable.pet = "|c008080FF"
 
-	if (XPerl_RegisterPerlFrames) then
-		XPerl_RegisterPerlFrames(XPerl_Assists_Frame)
+	if (ZPerl.RegisterPerlFrames) then
+		ZPerl.RegisterPerlFrames(ZPerl_Assists_Frame)
 	end
 
-	XPerl_SetFrameSides()
+	ZPerl.RaidHelper.SetFrameSides()
 end
 
--- XPerl_RefreshAggro
-function XPerl_RefreshAggro(self)
+-- ZPerl.RaidHelper.RefreshAggro
+function ZPerl.RaidHelper.RefreshAggro(self)
 	if (playerAggro) then
-		XPerl_AggroPlayer:SetVertexColor(1, 0, 0, 1)
+		ZPerl_AggroPlayer:SetVertexColor(1, 0, 0, 1)
 	else
 		if (self.playerFadeStart) then
 			local elapsed = GetTime() - self.playerFadeStart
 			if (elapsed < 1) then
-				XPerl_AggroPlayer:SetVertexColor(0, 1, 0, 1 - elapsed)
+				ZPerl_AggroPlayer:SetVertexColor(0, 1, 0, 1 - elapsed)
 			else
-				XPerl_AggroPlayer:Hide()
+				ZPerl_AggroPlayer:Hide()
 				self.playerFadeStart = nil
-				if (not XPerl_AggroPet:IsShown()) then
+				if (not ZPerl_AggroPet:IsShown()) then
 					self:Hide()
 				end
 			end
@@ -685,16 +677,16 @@ function XPerl_RefreshAggro(self)
 		end
 	end
 	if (petAggro) then
-		XPerl_AggroPet:SetVertexColor(1, 0, 0, 1)
+		ZPerl_AggroPet:SetVertexColor(1, 0, 0, 1)
 	else
 		if (self.petFadeStart) then
 			local elapsed = GetTime() - self.petFadeStart
 			if (elapsed < 1) then
-				XPerl_AggroPet:SetVertexColor(0, 1, 0, 1 - elapsed)
+				ZPerl_AggroPet:SetVertexColor(0, 1, 0, 1 - elapsed)
 			else
-				XPerl_AggroPet:Hide()
+				ZPerl_AggroPet:Hide()
 				self.petFadeStart = nil
-				if (not XPerl_AggroPlayer:IsShown()) then
+				if (not ZPerl_AggroPlayer:IsShown()) then
 					self:Hide()
 				end
 			end

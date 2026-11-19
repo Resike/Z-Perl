@@ -1,17 +1,17 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 
-	<Script file="localization.lua"/>
-	<Script file="localization.deDE.lua"/>
-	<Script file="localization.frFR.lua"/>
-	<Script file="localization.esES.lua"/>
-	<Script file="localization.zhCN.lua"/>
-	<Script file="localization.zhTW.lua"/>
-	<Script file="localization.koKR.lua"/>
-	<Script file="localization.ruRU.lua"/>
-	<Script file="localization.itIT.lua"/>
+	<Script file="Localization\Localization.lua"/>
+	<Script file="Localization\Localization.deDE.lua"/>
+	<Script file="Localization\Localization.esES.lua"/>
+	<Script file="Localization\Localization.frFR.lua"/>
+	<Script file="Localization\Localization.itIT.lua"/>
+	<Script file="Localization\Localization.koKR.lua"/>
+	<Script file="Localization\Localization.ruRU.lua"/>
+	<Script file="Localization\Localization.zhCN.lua"/>
+	<Script file="Localization\Localization.zhTW.lua"/>
 	<Script file="ZPerl_RaidMonitor.lua"/>
 
-	<Button name="XPerl_RaidMonitor_BasicButton" inherits="XPerlBackdropTemplate" virtual="true">
+	<Button name="ZPerl_RaidMonitor_BasicButton" inherits="ZPerl_BackdropTemplate" virtual="true">
 		<Scripts>
 			<OnEnter>
 				if (self.tooltipText) then
@@ -19,17 +19,17 @@
 					GameTooltip:SetText(self.tooltipText, nil, nil, nil, nil, true)
 				end
 			</OnEnter>
-			<OnLeave function="XPerl_PlayerTipHide"/>
+			<OnLeave>ZPerl.PlayerTipHide(self, motion)</OnLeave>
 		</Scripts>
 	</Button>
 
-	<StatusBar name="XPerl_RaidMonitor_StatusBarTemplate" inherits="XPerlBackdropTemplate" virtual="true">
+	<StatusBar name="ZPerl_RaidMonitor_StatusBarTemplate" inherits="ZPerl_BackdropTemplate" virtual="true">
 		<Scripts>
 			<OnLoad>
 				self.bg = _G[self:GetName().."bg"]
 				self.name = _G[self:GetName().."name"]
 				self.tex = _G[self:GetName().."tex"]
-				XPerl_RegisterBar(self)
+				ZPerl.RegisterBar(self)
 			</OnLoad>
 		</Scripts>
 		<BarTexture name="$parenttex" file="Interface\TargetingFrame\UI-StatusBar"/>
@@ -53,15 +53,15 @@
 		</Layers>
 	</StatusBar>
 
-	<Button name="XPerl_RaidMonitor_BarTemplate" inherits="XPerlBackdropTemplate,SecureUnitButtonTemplate" virtual="true">
+	<Button name="ZPerl_RaidMonitor_BarTemplate" inherits="ZPerl_BackdropTemplate,SecureUnitButtonTemplate" virtual="true">
 		<Size>
 			<AbsDimension x="80" y="12"/>
 		</Size>
-		<HighlightTexture file="Interface\Addons\ZPerl\Images\XPerl_Highlight" alphaMode="ADD">
+		<HighlightTexture file="Interface\Addons\ZPerl\Images\ZPerl_Highlight" alphaMode="ADD">
 			<TexCoords left="0" right="1" top="0.5" bottom="1"/>
 		</HighlightTexture>
 		<Frames>
-			<StatusBar name="$parentBar" inherits="XPerl_RaidMonitor_StatusBarTemplate">
+			<StatusBar name="$parentBar" inherits="ZPerl_RaidMonitor_StatusBarTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT">
 						<Offset>
@@ -78,20 +78,20 @@
 		</Frames>
 		<Scripts>
 			<OnLoad>
-				self.bar = _G[self:GetName().."Bar"]
+				self.statusBar = _G[self:GetName().."Bar"]
 				self:RegisterForClicks("AnyUp")
-				XPerl_RegisterHighlight(self, 3)
+				ZPerl.RegisterHighlight(self, 3)
 			</OnLoad>
 			<OnEnter>
-				if (ZPerlRaidMonConfig.Tooltips == 1) then
-					XPerl_PlayerTip(self)
+				if (ZPerlRaidMonitorDB.Tooltips == 1) then
+					ZPerl.PlayerTip(self)
 				end
 			</OnEnter>
-			<OnLeave function="XPerl_PlayerTipHide"/>
+			<OnLeave>ZPerl.PlayerTipHide(self, motion)</OnLeave>
 		</Scripts>
 	</Button>
 
-	<Button name="XPerl_RaidMonitor_UnitTemplate" inherits="XPerlBackdropTemplate,SecureUnitButtonTemplate" virtual="true">
+	<Button name="ZPerl_RaidMonitor_UnitTemplate" inherits="ZPerl_BackdropTemplate,SecureUnitButtonTemplate" virtual="true">
 		<Scripts>
 			<OnLoad>
 				self.bar = _G[self:GetName().."Bar"]
@@ -108,7 +108,7 @@
 
 				self:RegisterForClicks("AnyUp")
 				self:SetAttribute("type", "target")
-				XPerl_CastMon_ChildUnits(self)
+				ZPerl.RaidMonitor.CastMonChildUnits(self)
 			</OnLoad>
 			<OnSizeChanged>
 				self.castBar.icon:SetHeight(h - 2)
@@ -123,10 +123,10 @@
 				self.groupedIcon:SetHeight(h - 4)
 			</OnSizeChanged>
 			<OnEnter>
-				if (ZPerlRaidMonConfig.Tooltips == 1) then
+				if (ZPerlRaidMonitorDB.Tooltips == 1) then
 					local unit = SecureButton_GetUnit(self)
 					if (unit) then
-						XPerl_PlayerTip(self)
+						ZPerl.PlayerTip(self)
 
 						local left = SecureButton_GetModifiedAttribute(self, "type1")
 						local right = SecureButton_GetModifiedAttribute(self, "type2")
@@ -135,15 +135,15 @@
 							GameTooltip:AddLine(" ")
 						end
 						if (left) then
-							local action = XPerl_Monitor_MakeAction(self, left, 1)
+							local action = ZPerl.RaidMonitor.MonitorMakeAction(self, left, 1)
 							if (action) then
-								GameTooltip:AddLine(string.format(XPERL_MONITOR_LEFTCLICK, action))
+								GameTooltip:AddLine(string.format(ZPerl.L["MONITOR_LEFTCLICK"], action))
 							end
 						end
 						if (right) then
-							local action = XPerl_Monitor_MakeAction(self, right, 2)
+							local action = ZPerl.RaidMonitor.MonitorMakeAction(self, right, 2)
 							if (action) then
-								GameTooltip:AddLine(string.format(XPERL_MONITOR_RIGHTCLICK, action))
+								GameTooltip:AddLine(string.format(ZPerl.L["MONITOR_RIGHTCLICK"], action))
 							end
 						end
 
@@ -151,16 +151,16 @@
 					end
 				end
 			</OnEnter>
-			<OnLeave function="XPerl_PlayerTipHide"/>
+			<OnLeave>ZPerl.PlayerTipHide(self, motion)</OnLeave>
 		</Scripts>
 		<Size>
 			<AbsDimension x="120" y="12"/>
 		</Size>
-		<HighlightTexture file="Interface\Addons\ZPerl\Images\XPerl_Highlight" alphaMode="ADD">
+		<HighlightTexture file="Interface\Addons\ZPerl\Images\ZPerl_Highlight" alphaMode="ADD">
 			<TexCoords left="0" right="1" top="0.5" bottom="1"/>
 		</HighlightTexture>
 		<Frames>
-			<StatusBar name="$parentBar" inherits="XPerl_RaidMonitor_StatusBarTemplate">
+			<StatusBar name="$parentBar" inherits="ZPerl_RaidMonitor_StatusBarTemplate">
 				<Anchors>
 					<Anchor point="TOPLEFT">
 						<Offset>
@@ -174,7 +174,7 @@
 					</Anchor>
 				</Anchors>
 				<Frames>
-					<StatusBar name="$parentCastBar" inherits="XPerl_RaidMonitor_StatusBarTemplate" hidden="true">
+					<StatusBar name="$parentCastBar" inherits="ZPerl_RaidMonitor_StatusBarTemplate" hidden="true">
 						<Anchors>
 							<Anchor point="TOPLEFT" relativePoint="LEFT">
 								<Offset>
@@ -185,7 +185,7 @@
 						</Anchors>
 						<Layers>
 							<Layer level="OVERLAY">
-								<Texture name="$parentSpark" file="Interface\Addons\ZPerl\Images\XPerl_ArcaneBarSpark" alphaMode="ADD">
+								<Texture name="$parentSpark" file="Interface\Addons\ZPerl\Images\ZPerl_ArcaneBarSpark" alphaMode="ADD">
 									<Size>
 										<AbsDimension x="8" y="16"/>
 									</Size>
@@ -217,7 +217,7 @@
 				</Frames>
 				<Layers>
 					<Layer level="OVERLAY">
-						<Texture name="$parentGrouped" file="Interface\Addons\ZPerl_RaidHelper\Images\XPerl_Bits" hidden="true">
+						<Texture name="$parentGrouped" file="Interface\Addons\ZPerl_RaidHelper\Images\ZPerl_Bits" hidden="true">
 							<Size>
 								<AbsDimension x="8" y="8"/>
 							</Size>
@@ -233,7 +233,7 @@
 					</Layer>
 				</Layers>
 			</StatusBar>
-			<Button name="$parentTarget" inherits="XPerl_RaidMonitor_BarTemplate">
+			<Button name="$parentTarget" inherits="ZPerl_RaidMonitor_BarTemplate">
 				<Size>
 					<AbsDimension x="80" y="12"/>
 				</Size>
@@ -244,38 +244,35 @@
 		</Frames>
 	</Button>
 
-	<Frame name="XPerl_RaidMonitor_Anchor" parent="UIParent" inherits="XPerlBackdropTemplate" movable="true" resizable="true" clampedToScreen="true">
-		<Anchors>
-			<Anchor point="CENTER"/>
-		</Anchors>
+	<Frame name="ZPerl_RaidMonitor_Anchor" parent="UIParent" inherits="ZPerl_BackdropTemplate" movable="true" resizable="true" clampedToScreen="true">
 		<Size>
 			<AbsDimension x="200" y="80"/>
 		</Size>
 	</Frame>
 
-	<Frame name="XPerl_RaidMonitor_Frame" enableMouse="true" parent="XPerl_RaidMonitor_Anchor" inherits="XPerlBackdropTemplate" clampedToScreen="true">
+	<Frame name="ZPerl_RaidMonitor_Frame" enableMouse="true" parent="ZPerl_RaidMonitor_Anchor" inherits="ZPerl_BackdropTemplate" clampedToScreen="true">
 		<KeyValues>
-			<KeyValue key="backdropInfo" value="XPerl_Raid_Backdrop_16_9_3333" type="global"/>
+			<KeyValue key="backdropInfo" value="ZPerl_Raid_Backdrop_16_9_3333" type="global"/>
 		</KeyValues>
 		<Scripts>
 			<OnLoad>
 				self:OnBackdropLoaded()
 				self.area = _G[self:GetName().."Area"]
-				XPerl_RaidMonitor_OnLoad(self)
+				ZPerl.RaidMonitor.OnLoad(self)
 				self:RegisterForDrag("LeftButton")
 			</OnLoad>
 			<OnHide>
 				self:EnableDisable()
 			</OnHide>
 			<OnDragStart>
-				if (not ZPerlRaidMonConfig.Pinned) then
-					XPerl_RaidMonitor_Anchor:StartMoving()
+				if (not ZPerlRaidMonitorDB.Pinned) then
+					ZPerl_RaidMonitor_Anchor:StartMoving()
 				end
 			</OnDragStart>
 			<OnDragStop>
-				XPerl_RaidMonitor_Anchor:StopMovingOrSizing()
-				if (XPerl_SavePosition) then
-					XPerl_SavePosition(XPerl_RaidMonitor_Anchor)
+				ZPerl_RaidMonitor_Anchor:StopMovingOrSizing()
+				if (ZPerl.SavePosition) then
+					ZPerl.SavePosition(ZPerl_RaidMonitor_Anchor)
 				end
 			</OnDragStop>
 		</Scripts>
@@ -286,7 +283,7 @@
 			<AbsDimension x="200" y="80"/>
 		</Size>
 		<Frames>
-			<Frame name="$parent_TitleBar" inherits="XPerlBackdropTemplate">
+			<Frame name="$parent_TitleBar" inherits="ZPerl_BackdropTemplate">
 				<Size>
 					<AbsDimension x="160" y="12"/>
 				</Size>
@@ -304,12 +301,13 @@
 				</Anchors>
 				<Scripts>
 					<OnLoad>
-						XPerl_SetChildMembers(self)
+						ZPerl.SetChildMembers(self)
 						self:GetParent().titleBar = self
+						_G[self:GetName().."Title"]:SetText(ZPerl.L["RAID_MONITOR_TITLE"])
 					</OnLoad>
 				</Scripts>
 				<Frames>
-					<Button name="$parentCloseButton" inherits="XPerlBackdropTemplate,UIPanelCloseButton">
+					<Button name="$parentCloseButton" inherits="ZPerl_BackdropTemplate,UIPanelCloseButton">
 						<Size>
 							<AbsDimension x="20" y="20"/>
 						</Size>
@@ -326,13 +324,13 @@
 								self:GetParent():GetParent().Buttons.Close = self
 							</OnLoad>
 							<OnClick>
-								ZPerlRaidMonConfig.enabled = false
-								XPerl_RaidMonitor_Frame:Hide()
+								ZPerlRaidMonitorDB.enabled = false
+								ZPerl_RaidMonitor_Frame:Hide()
 							</OnClick>
 						</Scripts>
 					</Button>
 
-					<Button name="$parentPin" inherits="XPerlBackdropTemplate,XPerl_RaidMonitor_BasicButton">
+					<Button name="$parentPin" inherits="ZPerl_BackdropTemplate,ZPerl_RaidMonitor_BasicButton">
 						<Size>
 							<AbsDimension x="11" y="11"/>
 						</Size>
@@ -343,11 +341,11 @@
 								</Offset>
 							</Anchor>
 						</Anchors>
-						<NormalTexture file="Interface\Addons\ZPerl_RaidHelper\Images\XPerl_Pin">
+						<NormalTexture file="Interface\Addons\ZPerl_RaidHelper\Images\ZPerl_Pin">
 							<TexCoords left="0" right="0.46875" top="0" bottom="0.453125"/>
 						</NormalTexture>
 
-						<PushedTexture file="Interface\Addons\ZPerl_RaidHelper\Images\XPerl_Pin">
+						<PushedTexture file="Interface\Addons\ZPerl_RaidHelper\Images\ZPerl_Pin">
 							<TexCoords left="0" right="0.46875" top="0.5" bottom="0.953125"/>
 						</PushedTexture>
 
@@ -361,50 +359,50 @@
 
 								self.SetButtonTex = function(self)
 									local tex = self:GetNormalTexture()
-									if (ZPerlRaidMonConfig.Pinned) then
+									if (ZPerlRaidMonitorDB.Pinned) then
 										tex:SetTexCoord(0.5, 0.96875, 0, 0.453125)
 									else
 										tex:SetTexCoord(0, 0.46875, 0, 0.453125)
 									end
 
 									tex = self:GetPushedTexture()
-									if (ZPerlRaidMonConfig.Pinned) then
-										if (XPerl_RaidMonitor_Frame.corner) then
-											XPerl_RaidMonitor_Frame.corner:Hide()
+									if (ZPerlRaidMonitorDB.Pinned) then
+										if (ZPerl_RaidMonitor_Frame.corner) then
+											ZPerl_RaidMonitor_Frame.corner:Hide()
 										end
 										tex:SetTexCoord(0.5, 0.96875, 0.5, 0.953125)
 									else
-										if (XPerl_RaidMonitor_Frame.corner) then
-											XPerl_RaidMonitor_Frame.corner:Show()
+										if (ZPerl_RaidMonitor_Frame.corner) then
+											ZPerl_RaidMonitor_Frame.corner:Show()
 										end
 										tex:SetTexCoord(0, 0.46875, 0.5, 0.953125)
 									end
 								end
-								self.tooltipText = XPERL_BUTTON_HELPER_PIN
+								self.tooltipText = ZPerl.L["BUTTON_HELPER_PIN"]
 							</OnLoad>
 							<OnClick>
-								ZPerlRaidMonConfig.Pinned = not ZPerlRaidMonConfig.Pinned
+								ZPerlRaidMonitorDB.Pinned = not ZPerlRaidMonitorDB.Pinned
 								self:SetButtonTex()
 							</OnClick>
 						</Scripts>
 					</Button>
 
-					<Button name="$parentTotals" inherits="XPerlBackdropTemplate,XPerl_RaidMonitor_BasicButton">
+					<Button name="$parentTotals" inherits="ZPerl_BackdropTemplate,ZPerl_RaidMonitor_BasicButton">
 						<Size>
 							<AbsDimension x="11" y="11"/>
 						</Size>
 						<Anchors>
 							<Anchor point="RIGHT" relativeTo="$parentPin" relativePoint="LEFT"/>
 						</Anchors>
-						<NormalTexture file="Interface\Addons\ZPerl_RaidHelper\Images\XPerl_Bits">
+						<NormalTexture file="Interface\Addons\ZPerl_RaidHelper\Images\ZPerl_Bits">
 							<TexCoords left="0.625" right="0.75" top="0.0" bottom="0.125"/>
 						</NormalTexture>
 
-						<PushedTexture file="Interface\Addons\ZPerl_RaidHelper\Images\XPerl_Bits">
+						<PushedTexture file="Interface\Addons\ZPerl_RaidHelper\Images\ZPerl_Bits">
 							<TexCoords left="0.625" right="0.75" top="0.125" bottom="0.25"/>
 						</PushedTexture>
 
-						<DisabledTexture file="Interface\Addons\ZPerl_RaidHelper\Images\XPerl_Bits">
+						<DisabledTexture file="Interface\Addons\ZPerl_RaidHelper\Images\ZPerl_Bits">
 							<TexCoords left="0.625" right="0.75" top="0.25" bottom="0.375"/>
 						</DisabledTexture>
 
@@ -416,18 +414,18 @@
 							<OnLoad>
 								self:GetParent():GetParent().Buttons.Totals = self
 
-								self.tooltipText = XPERL_RAID_MONITOR_TOTALS
+								self.tooltipText = ZPerl.L["RAID_MONITOR_TOTALS"]
 								self.SetButtonTex = function(self)
 									local tex = self:GetNormalTexture()
 
-									if (ZPerlRaidMonConfig.Totals) then
+									if (ZPerlRaidMonitorDB.Totals) then
 										tex:SetTexCoord(0.625, 0.75, 0.125, 0.25)
 									else
 										tex:SetTexCoord(0.625, 0.75, 0, 0.125)
 									end
 
 									tex = self:GetDisabledTexture()
-									if (ZPerlRaidMonConfig.Totals) then
+									if (ZPerlRaidMonitorDB.Totals) then
 										tex:SetTexCoord(0.625, 0.75, 0.375, 0.5)
 									else
 										tex:SetTexCoord(0.625, 0.75, 0.25, 0.375)
@@ -435,7 +433,7 @@
 								end
 							</OnLoad>
 							<OnClick>
-								ZPerlRaidMonConfig.Totals = not ZPerlRaidMonConfig.Totals
+								ZPerlRaidMonitorDB.Totals = not ZPerlRaidMonitorDB.Totals
 								self:SetButtonTex()
 								self:GetParent():GetParent():SetFrameSizes()
 							</OnClick>
@@ -444,7 +442,7 @@
 				</Frames>
 				<Layers>
 					<Layer level="ARTWORK">
-						<FontString name="$parentTitle" inherits="GameFontNormalSmall" text="XPERL_RAID_MONITOR_TITLE" justifyH="LEFT">
+						<FontString name="$parentTitle" inherits="GameFontNormalSmall" justifyH="LEFT">
 							<Color r="1" g="1" b="1"/>
 							<Anchors>
 								<Anchor point="TOPLEFT">
@@ -459,7 +457,7 @@
 				</Layers>
 			</Frame>
 
-			<Frame name="$parentArea" inherits="XPerlBackdropTemplate,SecureRaidGroupHeaderTemplate">
+			<Frame name="$parentArea" inherits="ZPerl_BackdropTemplate,SecureRaidGroupHeaderTemplate">
 				<Size>
 					<AbsDimension x="160" y="26"/>
 				</Size>
@@ -472,7 +470,7 @@
 				</Anchors>
 			</Frame>
 
-			<Frame name="$parentTotals" inherits="XPerlBackdropTemplate" hidden="true">
+			<Frame name="$parentTotals" inherits="ZPerl_BackdropTemplate" hidden="true">
 				<Scripts>
 					<OnLoad>
 						self:GetParent().totals = self
@@ -485,6 +483,12 @@
 						self.LowMana.name:SetJustifyH("CENTER")
 						self.HighMana.name:SetJustifyH("CENTER")
 						self.RaidHealth.name:SetJustifyH("CENTER")
+
+						local L = ZPerl.L
+						self.RaidMana.caption:SetText(L["RAID_MONITOR_STATS_RAID_MANA"])
+						self.LowMana.caption:SetText(L["RAID_MONITOR_STATS_LOW_MANA"])
+						self.HighMana.caption:SetText(L["RAID_MONITOR_STATS_HIGH_MANA"])
+						self.RaidHealth.caption:SetText(L["RAID_MONITOR_STATS_RAID_HEALTH"])
 
 						self.RaidMana:SetMinMaxValues(1, 100)
 						self.LowMana:SetMinMaxValues(1, 100)
@@ -510,7 +514,7 @@
 					</Anchor>
 				</Anchors>
 				<Frames>
-					<StatusBar name="$parentHighMana" inherits="XPerl_RaidMonitor_StatusBarTemplate">
+					<StatusBar name="$parentHighMana" inherits="ZPerl_RaidMonitor_StatusBarTemplate">
 						<Anchors>
 							<Anchor point="TOPLEFT">
 								<Offset>
@@ -525,7 +529,7 @@
 						</Anchors>
 						<Layers>
 							<Layer level="OVERLAY">
-								<FontString inherits="GameFontNormalSmall" text="XPERL_RAID_MONITOR_STATS_HIGH_MANA" justifyH="RIGHT">
+								<FontString parentKey="caption" inherits="GameFontNormalSmall" justifyH="RIGHT">
 									<Size>
 										<AbsDimension x="90" y="10"/>
 									</Size>
@@ -541,7 +545,7 @@
 							</Layer>
 						</Layers>
 					</StatusBar>
-					<StatusBar name="$parentLowMana" inherits="XPerl_RaidMonitor_StatusBarTemplate">
+					<StatusBar name="$parentLowMana" inherits="ZPerl_RaidMonitor_StatusBarTemplate">
 						<Anchors>
 							<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" relativeTo="$parentHighMana">
 								<Offset>
@@ -556,7 +560,7 @@
 						</Anchors>
 						<Layers>
 							<Layer level="OVERLAY">
-								<FontString inherits="GameFontNormalSmall" text="XPERL_RAID_MONITOR_STATS_LOW_MANA" justifyH="RIGHT">
+								<FontString parentKey="caption" inherits="GameFontNormalSmall" justifyH="RIGHT">
 									<Size>
 										<AbsDimension x="90" y="10"/>
 									</Size>
@@ -572,7 +576,7 @@
 							</Layer>
 						</Layers>
 					</StatusBar>
-					<StatusBar name="$parentRaidMana" inherits="XPerl_RaidMonitor_StatusBarTemplate">
+					<StatusBar name="$parentRaidMana" inherits="ZPerl_RaidMonitor_StatusBarTemplate">
 						<Anchors>
 							<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" relativeTo="$parentLowMana">
 								<Offset>
@@ -587,7 +591,7 @@
 						</Anchors>
 						<Layers>
 							<Layer level="OVERLAY">
-								<FontString inherits="GameFontNormalSmall" text="XPERL_RAID_MONITOR_STATS_RAID_MANA" justifyH="RIGHT">
+								<FontString parentKey="caption" inherits="GameFontNormalSmall" justifyH="RIGHT">
 									<Size>
 										<AbsDimension x="90" y="10"/>
 									</Size>
@@ -603,7 +607,7 @@
 							</Layer>
 						</Layers>
 					</StatusBar>
-					<StatusBar name="$parentRaidHealth" inherits="XPerl_RaidMonitor_StatusBarTemplate">
+					<StatusBar name="$parentRaidHealth" inherits="ZPerl_RaidMonitor_StatusBarTemplate">
 						<Anchors>
 							<Anchor point="TOPLEFT" relativePoint="BOTTOMLEFT" relativeTo="$parentRaidMana">
 								<Offset>
@@ -618,7 +622,7 @@
 						</Anchors>
 						<Layers>
 							<Layer level="OVERLAY">
-								<FontString inherits="GameFontNormalSmall" text="XPERL_RAID_MONITOR_STATS_RAID_HEALTH" justifyH="RIGHT">
+								<FontString parentKey="caption" inherits="GameFontNormalSmall" justifyH="RIGHT">
 									<Size>
 										<AbsDimension x="90" y="10"/>
 									</Size>

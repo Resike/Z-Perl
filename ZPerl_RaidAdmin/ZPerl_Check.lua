@@ -1,22 +1,18 @@
--- X-Perl UnitFrames
 -- Author: Resike
--- License: GNU GPL v3, 29 June 2007 (see LICENSE.txt)
+-- License: GNU GPL v3, 29 June 2007
 
-XPerl_SetModuleRevision("$Revision:  $")
+local L = ZPerl.L
 
-if type(C_ChatInfo.RegisterAddonMessagePrefix) == "function" then
-	C_ChatInfo.RegisterAddonMessagePrefix("CTRA")
-end
+ZPerl.SetModuleRevision("$Revision:  $")
 
-ZPerl_CheckItems = {}
-
-local IsRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
-local IsPandaClassic = WOW_PROJECT_ID == WOW_PROJECT_MISTS_CLASSIC
+ZPerlRaidAdminItems = {}
 
 -- Upvalues
 local _G = _G
+
 local floor = floor
 local format = format
+local hooksecurefunc = hooksecurefunc
 local ipairs = ipairs
 local pairs = pairs
 local setmetatable = setmetatable
@@ -33,90 +29,95 @@ local tremove = tremove
 local type = type
 local unpack = unpack
 
+local C_ChatInfo = C_ChatInfo
+local C_Container = C_Container
+local ChatEdit_GetActiveWindow = ChatEdit_GetActiveWindow
 local ChatTypeInfo = ChatTypeInfo
 local CheckInteractDistance = CheckInteractDistance
 local ClearCursor = ClearCursor
 local CursorHasItem = CursorHasItem
 local DressUpItemLink = DressUpItemLink
+local FauxScrollFrame_SetOffset = FauxScrollFrame_SetOffset
+local FauxScrollFrame_Update = FauxScrollFrame_Update
 local GetChannelName = GetChannelName
-local GetContainerItemLink = GetContainerItemLink
+local GetContainerItemLink = GetContainerItemLink or C_Container.GetContainerItemLink
 local GetInventoryItemLink = GetInventoryItemLink
 local GetItemInfo = GetItemInfo
 local GetNumGroupMembers = GetNumGroupMembers
 local GetRaidRosterInfo = GetRaidRosterInfo
 local GetRealZoneText = GetRealZoneText
 local GetTime = GetTime
+local InCombatLockdown = InCombatLockdown
 local IsControlKeyDown = IsControlKeyDown
 local IsInRaid = IsInRaid
 local IsShiftKeyDown = IsShiftKeyDown
 local SecondsToTime = SecondsToTime
 local SendChatMessage = SendChatMessage
+local SetPortraitTexture = SetPortraitTexture
 local UnitClass = UnitClass
 local UnitInRaid = UnitInRaid
 local UnitIsConnected = UnitIsConnected
 local UnitIsGroupAssistant = UnitIsGroupAssistant
 local UnitName = UnitName
 
-local C_ChatInfo = C_ChatInfo
+local CLASS_BUTTONS = CLASS_BUTTONS
+local DURABILITY_TEMPLATE = DURABILITY_TEMPLATE
+local HIGHLIGHT_FONT_COLOR = HIGHLIGHT_FONT_COLOR
+local NONE = NONE
+local NORMAL_FONT_COLOR = NORMAL_FONT_COLOR
+local RAID_CLASS_COLORS = RAID_CLASS_COLORS
+local RESISTANCE_LABEL = RESISTANCE_LABEL
+local SPELL_REAGENTS = SPELL_REAGENTS
 
-local XPerl_ItemResults = {["type"] = "item"}
-local XPerl_ResistResults = {["type"] = "res", count = 0}
-local XPerl_DurResults = {["type"] = "dur", count = 0}
-local XPerl_RegResults = {["type"] = "reg", count = 0}
-local XPerl_PlayerList = {}
-local XPerl_MsgQueue = {}
+local GameTooltip = GameTooltip
+
+local ItemResults = {["type"] = "item"}
+local ResistResults = {["type"] = "res", count = 0}
+local DurResults = {["type"] = "dur", count = 0}
+local RegResults = {["type"] = "reg", count = 0}
+local PlayerList = {}
+local MsgQueue = {}
 local SelectedPlayer
-local XPerl_ActiveScan
+local ActiveScan
 local ActiveScanItem
 local ActiveScanTotals
 local channelList = nil
 local outputChannel = "RAID"
 local outputChannelIndex = nil
 local outputChannelSelection
-local outputChannelColour
+local outputChannelColor
 
 local ITEMLISTSIZE = 12
 local PLAYERLISTSIZE = 10
 
--- XPerl_CheckOnLoad
-function XPerl_CheckOnLoad(self)
+-- ZPerl.RaidAdmin.CheckOnLoad
+function ZPerl.RaidAdmin.CheckOnLoad(self)
 	self:RegisterForDrag("LeftButton")
-	self:SetScript("OnEvent", XPerl_CheckOnEvent)
-	self:SetScript("OnShow", XPerl_CheckOnShow)
-	self:SetScript("OnHide", XPerl_CheckOnHide)
+	self:SetScript("OnEvent", ZPerl.RaidAdmin.CheckOnEvent)
+	self:SetScript("OnShow", ZPerl.RaidAdmin.CheckOnShow)
+	self:SetScript("OnHide", ZPerl.RaidAdmin.CheckOnHide)
 	--self:RegisterEvent("CHAT_MSG_ADDON")
 
-	XPerl_CheckListItemsScrollBar.offset = 0
-	XPerl_CheckListPlayersScrollBar.offset = 0
+	_G["ZPerl_CheckListItemsScrollBar"].offset = 0
+	_G["ZPerl_CheckListPlayersScrollBar"].offset = 0
 
-	if IsRetail then
-		XPerl_CheckTitleBarClose:SetScale(0.66)
-		XPerl_CheckTitleBarClose:SetPoint("TOPRIGHT", 2, 2)
-		XPerl_CheckTitleBarPin:SetPoint("RIGHT", XPerl_CheckTitleBarClose, "LEFT", 0, 0)
-		XPerl_CheckTitleBarLockOpen:SetPoint("RIGHT", XPerl_CheckTitleBarPin, "LEFT", 0, 0)
+	if (ZPerl.RegisterPerlFrames) then
+		ZPerl.RegisterPerlFrames(self)
 	end
 
-	if (XPerl_RegisterPerlFrames) then
-		XPerl_RegisterPerlFrames(self)
-	end
+	ZPerl.RegisterScalableFrame(self, ZPerl_CheckAnchor)
+	self.corner:SetParent(ZPerl_CheckList)
 
-	if (XPerl_SavePosition) then
-		XPerl_SavePosition(XPerl_CheckAnchor, true)
-	end
+	ZPerl_Check:SetWidth(130)
+	ZPerl_Check:SetHeight(18)
 
-	XPerl_RegisterScalableFrame(self, XPerl_CheckAnchor)
-	self.corner:SetParent(XPerl_CheckList)
-
-	XPerl_Check:SetWidth(130)
-	XPerl_Check:SetHeight(18)
-
-	XPerl_CheckOnLoad = nil
+	ZPerl.RaidAdmin.CheckOnLoad = nil
 end
 
-if (not XPerl_GetClassColour) then
-	XPerl_GetClassColour = function(class)
+if (not ZPerl.GetClassColor) then
+	ZPerl.GetClassColor = function(class)
 		if (class) then
-			local color = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[class] -- Now using the WoW class color table
+			local color = (_G.CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[class] -- Now using the WoW class color table
 			if (color) then
 				return color
 			end
@@ -125,18 +126,18 @@ if (not XPerl_GetClassColour) then
 	end
 end
 
-if (not XPerlColourTable) then
-	XPerlColourTable = setmetatable({},{
+if (not ZPerl.ColorTable) then
+	ZPerl.ColorTable = setmetatable({},{
 		__index = function(self, class)
-			local c = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[class] or {r = 0, g = 0, b = 0}
+			local c = (_G.CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[class] or {r = 0, g = 0, b = 0}
 			return format("|c00%02X%02X%02X", 255 * c.r, 255 * c.g, 255 * c.b)
 		end
 	})
 end
 
-if (not XPerl_ClassPos) then
+if (not ZPerl.ClassPos) then
 	local ClassPos = CLASS_BUTTONS
-	function XPerl_ClassPos(class)
+	function ZPerl.ClassPos(class)
 		local b = ClassPos[class] -- Now using the Blizzard supplied from FrameXML/WorldStateFrame.lua
 		if (b) then
 			return unpack(b)
@@ -145,75 +146,15 @@ if (not XPerl_ClassPos) then
 	end
 end
 
--- CTRAItemMsg
-local needUpdate
-local function CTRAItemMsg(nick, item, count)
-	local results = XPerl_ItemResults[item]
-	if (results) then
-		results.last = GetTime()
-		tinsert(results, {name = nick, ["count"] = tonumber(count)})
-		needUpdate = true
-	end
-end
-
-local function ProcessCTRAMessage(unitName, msg)
-	--ChatFrame7:AddMessage(unitName..": "..msg)
-	if (strfind(msg, "^ITM ")) then
-		local numItems, itemName, callPerson = strmatch(msg, "^ITM ([-%d]+) (.+) ([^%s]+)$")
-
-		if (callPerson == UnitName("player")) then		-- Maybe ignore this
-			CTRAItemMsg(unitName, itemName, numItems)
-		end
-
-	elseif (strfind(msg, "^DUR ")) then
-		local currDur, maxDur, brokenItems, callPerson = strmatch(msg, "^DUR (%d+) (%d+) (%d+) ([^%s]+)$")
-
-		if (currDur and maxDur and brokenItems) then
-			currDur, maxDur, brokenItems = tonumber(currDur), tonumber(maxDur), tonumber(brokenItems)
-			XPerl_DurResults[unitName] = {dur = floor((currDur / maxDur) * 100 + 0.5), broken = brokenItems}
-			if (callPerson == UnitName("player")) then
-				XPerl_DurResults.count = XPerl_DurResults.count + 1
-			end
-			XPerl_DurResults.last = GetTime()
-			needUpdate = true
-		end
-
-	elseif (strfind(msg, "^RST ")) then
-		local plrName = strmatch(msg, "^RST %-1 ([^%s]+)$")
-		if (not plrName) then
-			local FR, NR, FRR, SR, AR, callPerson = strmatch(msg, "^RST (%d+) (%d+) (%d+) (%d+) (%d+) ([^%s]+)$")
-			if (FR) then
-				XPerl_ResistResults[unitName] = {fr = tonumber(FR), nr = tonumber(NR), frr = tonumber(FRR), sr = tonumber(SR), ar = tonumber(AR)}
-				if (callPerson == UnitName("player")) then
-					XPerl_ResistResults.count = XPerl_ResistResults.count + 1
-				end
-				XPerl_ResistResults.last = GetTime()
-				needUpdate = true
-			end
-		end
-
-	elseif (strfind(msg, "^REA ")) then
-		local numItems, callPerson = strmatch(msg, "^REA ([^%s]+) ([^%s]+)$")
-		if (numItems) then
-			XPerl_RegResults[unitName] = {count = tonumber(numItems)}
-			if (callPerson == UnitName("player")) then
-				XPerl_RegResults.count = XPerl_RegResults.count + 1
-			end
-			XPerl_RegResults.last = GetTime()
-			needUpdate = true
-		end
-	end
-end
-
--- XPerl_Check_Setup
-function XPerl_Check_Setup()
-	SlashCmdList["XPERLITEM"] = XPerl_ItemCheck
-	SLASH_XPERLITEM1 = "/xpitem"
-	SLASH_XPERLITEM2 = "/raitem"
-	SLASH_XPERLITEM3 = "/radur"
-	SLASH_XPERLITEM4 = "/raresist"
-	SLASH_XPERLITEM5 = "/raresists"
-	SLASH_XPERLITEM6 = "/rareg"
+-- ZPerl.RaidAdmin.CheckSetup
+function ZPerl.RaidAdmin.CheckSetup()
+	SlashCmdList["ZPERLITEM"] = ZPerl.RaidAdmin.ItemCheck
+	SLASH_ZPERLITEM1 = "/zpitem"
+	SLASH_ZPERLITEM2 = "/raitem"
+	SLASH_ZPERLITEM3 = "/radur"
+	SLASH_ZPERLITEM4 = "/raresist"
+	SLASH_ZPERLITEM5 = "/raresists"
+	SLASH_ZPERLITEM6 = "/rareg"
 
 	SlashCmdList["RAITEM"] = nil
 	SLASH_RAITEM1 = nil
@@ -224,72 +165,63 @@ function XPerl_Check_Setup()
 	SlashCmdList["RAREG"] = nil
 	SLASH_RAREG1 = nil
 
-	if (not ZPerl_Admin.ResistSort) then
-		ZPerl_Admin.ResistSort = "fr"
+	if (not ZPerlRaidAdminDB.ResistSort) then
+		ZPerlRaidAdminDB.ResistSort = "fr"
 	end
-	for k,v in ipairs(ZPerl_CheckItems) do
+	for k,v in ipairs(ZPerlRaidAdminItems) do
 		v.query = nil
 	end
 
-	XPerl_CheckTitleBarPin:SetButtonTex()
-	XPerl_CheckTitleBarLockOpen:SetButtonTex()
+	ZPerl_CheckTitleBarPin:SetButtonTex()
+	ZPerl_CheckTitleBarLockOpen:SetButtonTex()
 
-	XPerl_CheckListPlayersTotals:SetHighlightTexture("")
-	XPerl_CheckListPlayersTotals:SetScript("OnClick", nil)
+	_G["ZPerl_CheckListPlayersTotals"]:SetHighlightTexture("")
+	_G["ZPerl_CheckListPlayersTotals"]:SetScript("OnClick", nil)
 
-	XPerl_Check_ItemsChanged()
-	XPerl_Check_UpdatePlayerList()
+	ZPerl.RaidAdmin.CheckItemsChanged()
+	ZPerl.RaidAdmin.CheckUpdatePlayerList()
 
-	XPerl_Check_Setup = nil
+	ZPerl.RaidAdmin.CheckSetup = nil
 end
 
--- XPerl_CheckOnShow
-function XPerl_CheckOnShow(self)
+-- ZPerl.RaidAdmin.CheckOnShow
+function ZPerl.RaidAdmin.CheckOnShow(self)
 	self:RegisterEvent("GROUP_ROSTER_UPDATE")
 end
 
--- XPerl_CheckOnHide
-function XPerl_CheckOnHide(self)
+-- ZPerl.RaidAdmin.CheckOnHide
+function ZPerl.RaidAdmin.CheckOnHide(self)
 	self:UnregisterEvent("GROUP_ROSTER_UPDATE")
 end
 
--- XPerl_CheckOnEvent
-function XPerl_CheckOnEvent(self, event, a1, a2, a3, a4)
+-- ZPerl.RaidAdmin.CheckOnEvent
+function ZPerl.RaidAdmin.CheckOnEvent(self, event, a1)
 	if (event == "GROUP_ROSTER_UPDATE") then
 		if (not IsInRaid()) then
-			XPerl_ItemResults = {["type"] = "item"}
-			XPerl_ResistResults = {["type"] = "res", count = 0}
-			XPerl_DurResults = {["type"] = "dur", count = 0}
-			XPerl_RegResults = {["type"] = "reg", count = 0}
+			ItemResults = {["type"] = "item"}
+			ResistResults = {["type"] = "res", count = 0}
+			DurResults = {["type"] = "dur", count = 0}
+			RegResults = {["type"] = "reg", count = 0}
 		end
-		XPerl_Check_ValidateButtons()
+		ZPerl.RaidAdmin.CheckValidateButtons()
 
-	elseif (event == "CHAT_MSG_ADDON") then
-		if (a1 == "CTRA" and a3 == "RAID") then
-			needUpdate = nil
-			XPerl_ParseCTRA(a4, a2, ProcessCTRAMessage)
-
-			if (needUpdate) then
-				XPerl_Check_UpdateItemList()
-				XPerl_Check_MakePlayerList()
-				XPerl_Check_ShowInfo()
-			end
-		end
 	elseif (event == "UNIT_INVENTORY_CHANGED" or event == "UNIT_MODEL_CHANGED") then
 		local n = UnitName(a1)
-		if (XPerl_ActiveScan and XPerl_ActiveScan[n]) then
-			XPerl_ActiveScan[n].changed = true
-			XPerl_ActiveScan[n].offline = nil
-			XPerl_ActiveScan[n].wrongZone = nil
+		---@diagnostic disable-next-line: secret-table-key
+		local scan = ActiveScan and ZPerl.CanAccess(n) and ActiveScan[n]
+		if (scan) then
+			scan.changed = true
+			scan.offline = nil
+			scan.wrongZone = nil
 		end
 	end
 end
 
--- XPerl_CheckOnUpdate
+-- CheckOnUpdate
 -- Only active after a query, and only for 10 seconds
-local function XPerl_CheckOnUpdate(self, elapsed)
+local function CheckOnUpdate(self, elapsed)
 	-- TODO Total Progress indication
-	if (#XPerl_MsgQueue > 0) then
+	if (#MsgQueue > 0) then
 		local Time = GetTime()
 		local send
 		if (not self.lastMsgsent) then
@@ -304,15 +236,15 @@ local function XPerl_CheckOnUpdate(self, elapsed)
 			local count = 0
 			local msg = ""
 
-			while (#XPerl_MsgQueue > 0 and count < 4) do
-				local sub = XPerl_MsgQueue[1]
+			while (#MsgQueue > 0 and count < 4) do
+				local sub = MsgQueue[1]
 
 				if (strlen(msg..sub) > 220) and UnitInRaid("player") then
 					C_ChatInfo.SendAddonMessage("CTRA", msg, "RAID")
 					break
 				else
 					count = count + 1
-					tremove(XPerl_MsgQueue, 1)
+					tremove(MsgQueue, 1)
 					if (msg == "") then
 						msg = sub
 					else
@@ -327,13 +259,13 @@ local function XPerl_CheckOnUpdate(self, elapsed)
 		end
 
 	elseif (ActiveScanItem) then
-		XPerl_Check_ActiveScan()
+		ZPerl.RaidAdmin.CheckActiveScan()
 	else
 		if (self.queryStart and GetTime() > self.queryStart + 5) then
 			self:SetScript("OnUpdate", nil)
 			self.queryStart, self.lastMsgsent = nil, nil
 
-			XPerl_Check_ValidateButtons()
+			ZPerl.RaidAdmin.CheckValidateButtons()
 		end
 	end
 end
@@ -351,14 +283,14 @@ end
 
 -- ClearSelectedItem
 local function ClearSelectedItem()
-	for k,v in ipairs(ZPerl_CheckItems) do
+	for k,v in ipairs(ZPerlRaidAdminItems) do
 		v.selected = nil
 	end
 end
 
 -- TickItemByName
 local function TickItemByName(itemName)
-	for k,v in ipairs(ZPerl_CheckItems) do
+	for k,v in ipairs(ZPerlRaidAdminItems) do
 		local name = GetVLinkName(v)
 
 		if (name == itemName) then
@@ -374,7 +306,7 @@ end
 -- GotItem
 local function GotItem(link)
 	local findItem = strmatch(link, "item:(%d+):")
-	for k,v in pairs(ZPerl_CheckItems) do
+	for k,v in pairs(ZPerlRaidAdminItems) do
 		local item = strmatch(v.link, "item:(%d+):")
 		if (item == findItem) then
 			return true
@@ -384,7 +316,7 @@ end
 
 -- GotItem
 local function GotItemName(itemName)
-	for k,v in pairs(ZPerl_CheckItems) do
+	for k,v in pairs(ZPerlRaidAdminItems) do
 		local linkName = strmatch(v.link, "%[(.+)%]")
 		if (linkName == itemName) then
 			return true
@@ -398,14 +330,14 @@ local function InsertItemLink(itemLink)
 
 	if (strsub(itemLink, 1, 1) == "|") then
 		if (not GotItem(itemLink)) then
-			tinsert(ZPerl_CheckItems, {link = itemLink, ticked = true, selected = true})
+			tinsert(ZPerlRaidAdminItems, {link = itemLink, ticked = true, selected = true})
 		else
 			local linkName = strmatch(itemLink, "%[(.+)%]")
 			TickItemByName(linkName)
 		end
 	else
 		if (not GotItemName(itemLink)) then
-			tinsert(ZPerl_CheckItems, {link = itemLink, ticked = true, selected = true})
+			tinsert(ZPerlRaidAdminItems, {link = itemLink, ticked = true, selected = true})
 		else
 			local linkName = strmatch(itemLink, "%[(.+)%]")
 			TickItemByName(linkName)
@@ -413,18 +345,19 @@ local function InsertItemLink(itemLink)
 	end
 end
 
--- XPerl_Check_Expand()
-function XPerl_Check_Expand(forced)
-	XPerl_Check:SetWidth(500)
-		XPerl_Check:SetHeight(240)
-		XPerl_CheckList:Show()
-		XPerl_CheckButton:Show()
-	XPerl_Check.forcedOpen = forced
-	XPerl_CheckTitleBarLockOpen:Show()
+-- ZPerl.RaidAdmin.CheckExpand()
+function ZPerl.RaidAdmin.CheckExpand(forced)
+	ZPerl_Check:SetWidth(500)
+		ZPerl_Check:SetHeight(240)
+		ZPerl_CheckList:Show()
+		ZPerl_CheckButton:Show()
+	---@diagnostic disable-next-line: inject-field
+	ZPerl_Check.forcedOpen = forced
+	ZPerl_CheckTitleBarLockOpen:Show()
 end
 
--- XPerl_ItemCheck
-function XPerl_ItemCheck(itemName)
+-- ZPerl.RaidAdmin.ItemCheck
+function ZPerl.RaidAdmin.ItemCheck(itemName)
 	local cmd = "/raitem"
 	if (DEFAULT_CHAT_FRAME.editBox) then
 		local command = DEFAULT_CHAT_FRAME.editBox:GetText()
@@ -437,8 +370,8 @@ function XPerl_ItemCheck(itemName)
 		end
 	end
 
-	XPerl_Check:Show()
-	XPerl_Check_Expand(true)
+	ZPerl_Check:Show()
+	ZPerl.RaidAdmin.CheckExpand(true)
 
 	if (cmd == "/raitem") then
 		if (not itemName or itemName == "") then
@@ -463,10 +396,10 @@ function XPerl_ItemCheck(itemName)
 		TickItemByName("res")
 	end
 
-	XPerl_Check_Query()
+	ZPerl.RaidAdmin.CheckQuery()
 end
 
--- XPerl_PickupContainerItem
+-- ZPerl_PickupContainerItem
 local PickupBag, PickupSlot
 if C_Container then
 	hooksecurefunc(C_Container, "PickupContainerItem", function(bagID, slot)
@@ -496,10 +429,10 @@ local function sortItems(i1, i2)
 end
 
 -- ItemsChanged
-function XPerl_Check_ItemsChanged()
+function ZPerl.RaidAdmin.CheckItemsChanged()
 	-- Validate. Make sure we have our fixed entries
 	local dur, reg, res
-	for k,v in ipairs(ZPerl_CheckItems) do
+	for k,v in ipairs(ZPerlRaidAdminItems) do
 		if (v.link == "res") then
 			res = true
 		elseif (v.link == "dur") then
@@ -509,37 +442,37 @@ function XPerl_Check_ItemsChanged()
 		end
 	end
 	if (not dur) then
-		tinsert(ZPerl_CheckItems, {fixed = true, link = "dur"})
+		tinsert(ZPerlRaidAdminItems, {fixed = true, link = "dur"})
 	end
 	if (not res) then
-		tinsert(ZPerl_CheckItems, {fixed = true, link = "res"})
+		tinsert(ZPerlRaidAdminItems, {fixed = true, link = "res"})
 	end
 	if (not reg) then
-		tinsert(ZPerl_CheckItems, {fixed = true, link = "reg"})
+		tinsert(ZPerlRaidAdminItems, {fixed = true, link = "reg"})
 	end
 
-	sort(ZPerl_CheckItems, sortItems)
+	sort(ZPerlRaidAdminItems, sortItems)
 
-	XPerl_Check_UpdateItemList()
-	XPerl_Check_ValidateButtons()
+	ZPerl.RaidAdmin.CheckUpdateItemList()
+	ZPerl.RaidAdmin.CheckValidateButtons()
 end
 
 -- GetSelectedResults
 local function GetSelectedItem()
-	for k,v in ipairs(ZPerl_CheckItems) do
+	for k,v in ipairs(ZPerlRaidAdminItems) do
 		if (v.selected) then
 			if (v.fixed) then
 				if (v.link == "res") then
-					return XPerl_ResistResults, "res"
+					return ResistResults, "res"
 				elseif (v.link == "dur") then
-					return XPerl_DurResults, "dur"
+					return DurResults, "dur"
 				elseif (v.link == "reg") then
-					return XPerl_RegResults, "reg"
+					return RegResults, "reg"
 				end
 			else
 				local linkName = GetVLinkName(v)
 				if (linkName) then
-					return XPerl_ItemResults[linkName], "item"
+					return ItemResults[linkName], "item"
 				end
 				break
 			end
@@ -549,8 +482,7 @@ end
 
 -- GetSelectedItemLink
 local function GetSelectedItemLink()
-	local link
-	for k,v in ipairs(ZPerl_CheckItems) do
+	for k,v in ipairs(ZPerlRaidAdminItems) do
 		if (v.selected) then
 			return v.link
 		end
@@ -559,8 +491,8 @@ end
 
 -- GetCursorItem
 local function GetCursorItemLink(self)
-	local id = self:GetID() + XPerl_CheckListItemsScrollBar.offset
-	local item = ZPerl_CheckItems[id]
+	local id = self:GetID() + _G["ZPerl_CheckListItemsScrollBar"].offset
+	local item = ZPerlRaidAdminItems[id]
 	if (item and not item.fixed) then
 		return item.link
 	end
@@ -570,7 +502,7 @@ end
 -- SelectClickedTickItem
 local function SelectClickedTickItem(self)
 	local oldSelection
-	for k, v in ipairs(ZPerl_CheckItems) do
+	for k, v in ipairs(ZPerlRaidAdminItems) do
 		if (v.selected) then
 			oldSelection = v
 			v.selected = nil
@@ -585,55 +517,55 @@ local function SelectClickedTickItem(self)
 	end
 
 	if (id and id > 0) then
-		id = id + XPerl_CheckListItemsScrollBar.offset
+		id = id + _G["ZPerl_CheckListItemsScrollBar"].offset
 
-		local item = ZPerl_CheckItems[id]
+		local item = ZPerlRaidAdminItems[id]
 		if (item) then
 			item.selected = true
 		end
 
 		if (oldSelection ~= item) then
-			XPerl_Check_StopActiveScan()
-			XPerl_ActiveScan = nil
+			ZPerl.RaidAdmin.CheckStopActiveScan()
+			ActiveScan = nil
 			ActiveScanTotals = nil
 		end
 
-		XPerl_Check_UpdateItemList()
-		XPerl_Check_MakePlayerList()
-		XPerl_Check_ShowInfo()
+		ZPerl.RaidAdmin.CheckUpdateItemList()
+		ZPerl.RaidAdmin.CheckMakePlayerList()
+		ZPerl.RaidAdmin.CheckShowInfo()
 	end
 end
 
--- XPerl_Check_TickAll
-function XPerl_Check_TickAll(all)
-	for k, v in ipairs(ZPerl_CheckItems) do
+-- ZPerl.RaidAdmin.CheckTickAll
+function ZPerl.RaidAdmin.CheckTickAll(all)
+	for k, v in ipairs(ZPerlRaidAdminItems) do
 		if (not v.fixed) then
 			v.ticked = all
 		end
 	end
-	XPerl_Check_ItemsChanged()
+	ZPerl.RaidAdmin.CheckItemsChanged()
 end
 
--- XPerl_Check_TickLastResults
-function XPerl_Check_TickLastResults()
-	for k, v in ipairs(ZPerl_CheckItems) do
+-- ZPerl.RaidAdmin.CheckTickLastResults
+function ZPerl.RaidAdmin.CheckTickLastResults()
+	for k, v in ipairs(ZPerlRaidAdminItems) do
 		if (not v.fixed) then
 			v.ticked = nil
 
 			local linkName = GetVLinkName(v)
 			if (linkName) then
-				if (XPerl_ItemResults[linkName]) then
+				if (ItemResults[linkName]) then
 					v.ticked = true
 				end
 			end
 		end
 	end
 
-	XPerl_Check_ItemsChanged()
+	ZPerl.RaidAdmin.CheckItemsChanged()
 end
 
--- XPerl_Check_OnClickItem
-function XPerl_Check_OnClickItem(button)
+-- ZPerl.RaidAdmin.CheckOnClickItem
+function ZPerl.RaidAdmin.CheckOnClickItem(button)
 	if (button == "LeftButton") then
 		if (IsShiftKeyDown()) then
 			local activeWindow = ChatEdit_GetActiveWindow()
@@ -653,16 +585,16 @@ function XPerl_Check_OnClickItem(button)
 
 					if (itemLink) then
 						InsertItemLink(itemLink)
-						XPerl_Check_ItemsChanged()
+						ZPerl.RaidAdmin.CheckItemsChanged()
 					end
 				end
 			end
 
-			XPerl_CheckListPlayersScrollBarScrollBar:SetValue(0)
-			XPerl_CheckButtonPlayerPortrait:SetTexture("")	-- SetPortraitTexture(XPerl_CheckButtonPlayerPortrait, "raidx")
+			_G["ZPerl_CheckListPlayersScrollBarScrollBar"]:SetValue(0)
+			ZPerl_CheckButtonPlayerPortrait:SetTexture("")	-- SetPortraitTexture(ZPerl_CheckButtonPlayerPortrait, "raidx")
 			SelectedPlayer = nil
 			SelectClickedTickItem(button)
-			XPerl_Check_ValidateButtons()
+			ZPerl.RaidAdmin.CheckValidateButtons()
 		end
 	end
 end
@@ -683,12 +615,14 @@ local function GetOnlineMembers()
 	for i = 1,GetNumGroupMembers() do
 		if (UnitIsConnected("raid"..i)) then
 			local _, class = UnitClass("raid"..i)
-			if (reagentClasses[class]) then
+			---@diagnostic disable-next-line: secret-table-key
+			if (ZPerl.CanAccess(class) and reagentClasses[class]) then
 				reagentCount = reagentCount + 1
 			end
 
-			if (ZPerl_Roster) then
-				local stats = ZPerl_Roster[UnitName("raid"..i)]
+			if (ZPerlRoster) then
+				---@diagnostic disable-next-line: secret-table-key
+				local stats = ZPerlRoster[UnitName("raid"..i)]
 				if (stats) then
 					if (stats.version) then
 						count = count + 1
@@ -702,8 +636,8 @@ local function GetOnlineMembers()
 	return count, reagentCount
 end
 
--- SmoothColour
-local function SmoothColour(percentage)
+-- SmoothColor
+local function SmoothColor(percentage)
 	local r, g
 	if (percentage < 0.5) then
 		g = 2 * percentage
@@ -719,26 +653,26 @@ end
 
 -- SmoothBarColor
 local function SmoothGuageColor(bar, percentage)
-	local r, g, b = SmoothColour(percentage)
+	local r, g, b = SmoothColor(percentage)
 	bar:SetVertexColor(r, g, b, 0.75)
 end
 
--- XPerl_Check_UpdateItemList
-function XPerl_Check_UpdateItemList()
+-- ZPerl.RaidAdmin.CheckUpdateItemList
+function ZPerl.RaidAdmin.CheckUpdateItemList()
 	local onlineCount, reagentCount = GetOnlineMembers()
 	local index = 1
 	local i = 0
-	for k,v in ipairs(ZPerl_CheckItems) do
+	for k,v in ipairs(ZPerlRaidAdminItems) do
 		if (index > ITEMLISTSIZE) then
 			break
 		end
-		if (i >= XPerl_CheckListItemsScrollBar.offset) then
-			local frame = _G["XPerl_CheckListItems"..index]
-			local nameFrame = _G["XPerl_CheckListItems"..index.."Name"]
-			local countFrame = _G["XPerl_CheckListItems"..index.."Count"]
-			local iconFrame = _G["XPerl_CheckListItems"..index.."Icon"]
-			local gaugeFrame = _G["XPerl_CheckListItems"..index.."Gauge"]
-			local tickFrame = _G["XPerl_CheckListItems"..index.."Tick"]
+		if (i >= _G["ZPerl_CheckListItemsScrollBar"].offset) then
+			local frame = _G["ZPerl_CheckListItems"..index]
+			local nameFrame = _G["ZPerl_CheckListItems"..index.."Name"]
+			local countFrame = _G["ZPerl_CheckListItems"..index.."Count"]
+			local iconFrame = _G["ZPerl_CheckListItems"..index.."Icon"]
+			local gaugeFrame = _G["ZPerl_CheckListItems"..index.."Gauge"]
+			local tickFrame = _G["ZPerl_CheckListItems"..index.."Tick"]
 
 			frame:Show()
 			if (v.selected) then
@@ -754,11 +688,11 @@ function XPerl_Check_UpdateItemList()
 				local div
 				if (v.link == "res") then
 					nameFrame:SetText(RESISTANCE_LABEL)
-					countFrame:SetText(XPerl_ResistResults.count)
+					countFrame:SetText(ResistResults.count)
 					if onlineCount == 0 then
 						div = 1
 					else
-						div = XPerl_ResistResults.count / onlineCount
+						div = ResistResults.count / onlineCount
 					end
 
 				elseif (v.link == "dur") then
@@ -767,20 +701,20 @@ function XPerl_Check_UpdateItemList()
 						dur = "Durability"
 					end
 					nameFrame:SetText(dur)
-					countFrame:SetText(XPerl_DurResults.count)
+					countFrame:SetText(DurResults.count)
 					if onlineCount == 0 then
 						div = 1
 					else
-						div = XPerl_DurResults.count / onlineCount
+						div = DurResults.count / onlineCount
 					end
 
 				elseif (v.link == "reg") then
-					nameFrame:SetText(XPERL_CHECK_REAGENTS)
-					countFrame:SetText(XPerl_RegResults.count)
+					nameFrame:SetText(L["CHECK_REAGENTS"])
+					countFrame:SetText(RegResults.count)
 					if reagentCount == 0 then
 						div = 1
 					else
-						div = XPerl_RegResults.count / reagentCount
+						div = RegResults.count / reagentCount
 					end
 				end
 				nameFrame:SetTextColor(1, 1, 0.7)
@@ -801,7 +735,7 @@ function XPerl_Check_UpdateItemList()
 
 				local itemId = strmatch(v.link, "item:(%d+):")
 				if (itemId) then
-					local itemName, itemString, itemQuality, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture = GetItemInfo(itemId)
+					local _, _, _, _, _, _, _, _, _, itemTexture = GetItemInfo(itemId)
 					iconFrame:SetTexture(itemTexture)
 					iconFrame:Show()
 				else
@@ -811,12 +745,12 @@ function XPerl_Check_UpdateItemList()
 				local linkName = GetVLinkName(v)
 				if (linkName) then
 					local count = ""
-					local result = XPerl_ItemResults[linkName]
+					local result = ItemResults[linkName]
 					if (result) then
 						count = #result
 
-						for k,v in pairs(result) do
-							if (v == -1) then
+						for _, r in pairs(result) do
+							if (r == -1) then
 								-- Don't count Blocked ones, it's misleading
 								count = count - 1
 							end
@@ -846,14 +780,14 @@ function XPerl_Check_UpdateItemList()
 		i = i + 1
 	end
 
-	for i = index,ITEMLISTSIZE do
-			_G["XPerl_CheckListItems"..i]:Hide()
+	for j = index, ITEMLISTSIZE do
+			_G["ZPerl_CheckListItems"..j]:Hide()
 	end
 
-	if (FauxScrollFrame_Update(XPerl_CheckListItemsScrollBar, #ZPerl_CheckItems, ITEMLISTSIZE, 1)) then
-		XPerl_CheckListItemsScrollBar:Show()
+	if (FauxScrollFrame_Update(_G["ZPerl_CheckListItemsScrollBar"], #ZPerlRaidAdminItems, ITEMLISTSIZE, 1)) then
+		_G["ZPerl_CheckListItemsScrollBar"]:Show()
 	else
-		XPerl_CheckListItemsScrollBar:Hide()
+		_G["ZPerl_CheckListItemsScrollBar"]:Hide()
 	end
 end
 
@@ -882,7 +816,7 @@ end
 
 -- ScanOrder
 local function ScanOrder(p)
-	local s = XPerl_ActiveScan[p.name]
+	local s = ActiveScan[p.name]
 	if (s) then
 		if (s.notequipped) then
 			return 1
@@ -909,7 +843,7 @@ local function SortPlayersByDur(p1, p2)
 		if (not p2.connected or p2.noCTRA) then o2 = 1000 end
 		return p1.dur + o1 < p2.dur + o2
 	else
-		if (XPerl_ActiveScan) then
+		if (ActiveScan) then
 			return ScanOrder(p1)..p1.class..p1.name < ScanOrder(p2)..p2.class..p2.name
 		else
 			return SortPlayersByCount(p1, p2)
@@ -922,19 +856,19 @@ local function SortPlayersByResist(p1, p2)
 	local o1, o2 = 0,0
 	if (not p1.connected or p1.noCTRA) then o1 = 1000 end
 	if (not p2.connected or p2.noCTRA) then o2 = 1000 end
-	return p1[ZPerl_Admin.ResistSort] - o1 > p2[ZPerl_Admin.ResistSort] - o2
+	return p1[ZPerlRaidAdminDB.ResistSort] - o1 > p2[ZPerlRaidAdminDB.ResistSort] - o2
 end
 
--- XPerl_Check_MakePlayerList
-function XPerl_Check_MakePlayerList()
+-- ZPerl.RaidAdmin.CheckMakePlayerList
+function ZPerl.RaidAdmin.CheckMakePlayerList()
 
-	FauxScrollFrame_SetOffset(XPerl_CheckListPlayersScrollBar, 0)
+	FauxScrollFrame_SetOffset(_G["ZPerl_CheckListPlayersScrollBar"], 0)
 
 	local function ShowResists(show)
 		local r = {"FR", "FRR", "NR", "SR", "AR"}
 		for k,v in pairs(r) do
-			local title = _G["XPerl_CheckListPlayersTitle"..v]
-			local total = _G["XPerl_CheckListPlayersTotals"..v]
+			local title = _G["ZPerl_CheckListPlayersTitle"..v]
+			local total = _G["ZPerl_CheckListPlayersTotals"..v]
 			if (show) then
 				title:Show()
 				total:Show()
@@ -947,56 +881,56 @@ function XPerl_Check_MakePlayerList()
 
 	local function ShowCount(show)
 		if (show) then
-			XPerl_CheckListPlayersTitleCount:Show()
-			XPerl_CheckListPlayersTotalsCount:Show()
+			_G["ZPerl_CheckListPlayersTitleCount"]:Show()
+			_G["ZPerl_CheckListPlayersTotalsCount"]:Show()
 		else
-			XPerl_CheckListPlayersTitleCount:Hide()
-			XPerl_CheckListPlayersTotalsCount:Hide()
+			_G["ZPerl_CheckListPlayersTitleCount"]:Hide()
+			_G["ZPerl_CheckListPlayersTotalsCount"]:Hide()
 		end
 	end
 
 	local function ShowDur(show)
 		if (show) then
-			XPerl_CheckListPlayersTitleDur:Show()
-			XPerl_CheckListPlayersTotalsNR:Show()
+			_G["ZPerl_CheckListPlayersTitleDur"]:Show()
+			_G["ZPerl_CheckListPlayersTotalsNR"]:Show()
 		else
-			XPerl_CheckListPlayersTitleDur:Hide()
-			XPerl_CheckListPlayersTotalsNR:Hide()
+			_G["ZPerl_CheckListPlayersTitleDur"]:Hide()
+			_G["ZPerl_CheckListPlayersTotalsNR"]:Hide()
 		end
 	end
 
-	XPerl_PlayerList = {}
+	PlayerList = {}
 
 	local results, resType = GetSelectedItem()
 	if (results and results.last) then
-		XPerl_CheckListPlayersTitleClass:Show()
-		XPerl_CheckListPlayersTitleName:Show()
-		XPerl_CheckListPlayersTotalsName:Show()
+		_G["ZPerl_CheckListPlayersTitleClass"]:Show()
+		_G["ZPerl_CheckListPlayersTitleName"]:Show()
+		_G["ZPerl_CheckListPlayersTotalsName"]:Show()
 
 		if (resType == "item" or resType == "reg") then
-			XPerl_CheckListPlayersTotalsName:SetText(XPERL_CHECK_TOTALS)
-			XPerl_CheckListPlayersTitleCount:SetText("#")
+			_G["ZPerl_CheckListPlayersTotalsName"]:SetText(L["CHECK_TOTALS"])
+			_G["ZPerl_CheckListPlayersTitleCount"]:SetText("#")
 
 			ShowCount(true)
 			ShowResists(false)
-			ShowDur(XPerl_ActiveScan)
+			ShowDur(ActiveScan)
 
-			if (XPerl_ActiveScan) then
-				XPerl_CheckListPlayersTitleDur:SetText(XPERL_CHECK_EQUIPED)
+			if (ActiveScan) then
+				_G["ZPerl_CheckListPlayersTitleDur"]:SetText(L["CHECK_EQUIPED"])
 			end
 
 		elseif (resType == "dur") then
-			XPerl_CheckListPlayersTotalsName:SetText(XPERL_CHECK_AVERAGE)
+			_G["ZPerl_CheckListPlayersTotalsName"]:SetText(L["CHECK_AVERAGE"])
 
 			ShowResists(false)
 			ShowCount(true)
 			ShowDur(true)
 
-			XPerl_CheckListPlayersTitleCount:SetText(XPERL_CHECK_BROKEN)
-			XPerl_CheckListPlayersTitleDur:SetText("%")
+			_G["ZPerl_CheckListPlayersTitleCount"]:SetText(L["CHECK_BROKEN"])
+			_G["ZPerl_CheckListPlayersTitleDur"]:SetText("%")
 
 		elseif (resType == "res") then
-			XPerl_CheckListPlayersTotalsName:SetText(XPERL_CHECK_AVERAGE)
+			_G["ZPerl_CheckListPlayersTotalsName"]:SetText(L["CHECK_AVERAGE"])
 
 			ShowCount(false)
 			ShowDur(false)
@@ -1009,8 +943,9 @@ function XPerl_Check_MakePlayerList()
 			local count = 0
 			local noCTRA
 
-			if (ZPerl_Roster) then
-				local stats = ZPerl_Roster[name]
+			if (ZPerlRoster) then
+				---@diagnostic disable-next-line: secret-table-key
+				local stats = ZPerlRoster[name]
 				if (stats) then
 					if (not stats.version) then
 						noCTRA = true
@@ -1029,10 +964,12 @@ function XPerl_Check_MakePlayerList()
 					end
 				end
 
-				tinsert(XPerl_PlayerList, {["name"] = name, unit = "raid"..i, ["count"] = count, ["class"] = class, connected = (UnitIsConnected("raid"..i) == 1), ["noCTRA"] = noCTRA})
+				tinsert(PlayerList, {["name"] = name, unit = "raid"..i, ["count"] = count, ["class"] = class, connected = (UnitIsConnected("raid"..i) == 1), ["noCTRA"] = noCTRA})
 
 			elseif (resType == "reg") then
+				---@diagnostic disable-next-line: secret-table-key
 				if (reagentClasses[class] or results[name]) then
+					---@diagnostic disable-next-line: secret-table-key
 					local p = results[name]
 					local reg = 0
 					if (p) then
@@ -1042,10 +979,11 @@ function XPerl_Check_MakePlayerList()
 						end
 					end
 
-					tinsert(XPerl_PlayerList, {["name"] = name, unit = "raid"..i, ["count"] = reg, ["class"] = class, connected = (UnitIsConnected("raid"..i) == 1), ["noCTRA"] = noCTRA})
+					tinsert(PlayerList, {["name"] = name, unit = "raid"..i, ["count"] = reg, ["class"] = class, connected = (UnitIsConnected("raid"..i) == 1), ["noCTRA"] = noCTRA})
 				end
 
 			elseif (resType == "res") then
+				---@diagnostic disable-next-line: secret-table-key
 				local p = results[name]
 				local fr, frr, nr, sr, ar = 0, 0, 0, 0, 0
 				if (p) then
@@ -1055,9 +993,10 @@ function XPerl_Check_MakePlayerList()
 					end
 				end
 
-				tinsert(XPerl_PlayerList, {["name"] = name, unit = "raid"..i, ["fr"] = fr, ["frr"] = frr, ["nr"] = nr, ["sr"] = sr, ["ar"] = ar, ["class"] = class, connected = (UnitIsConnected("raid"..i) == 1), ["noCTRA"] = noCTRA})
+				tinsert(PlayerList, {["name"] = name, unit = "raid"..i, ["fr"] = fr, ["frr"] = frr, ["nr"] = nr, ["sr"] = sr, ["ar"] = ar, ["class"] = class, connected = (UnitIsConnected("raid"..i) == 1), ["noCTRA"] = noCTRA})
 
 			elseif (resType == "dur") then
+				---@diagnostic disable-next-line: secret-table-key
 				local p = results[name]
 				local dur, broken = 0, 0
 				if (p) then
@@ -1067,39 +1006,39 @@ function XPerl_Check_MakePlayerList()
 					end
 				end
 
-				tinsert(XPerl_PlayerList, {["name"] = name, unit = "raid"..i, ["dur"] = dur, ["broken"] = broken, ["class"] = class, connected = (UnitIsConnected("raid"..i) == 1), ["noCTRA"] = noCTRA})
+				tinsert(PlayerList, {["name"] = name, unit = "raid"..i, ["dur"] = dur, ["broken"] = broken, ["class"] = class, connected = (UnitIsConnected("raid"..i) == 1), ["noCTRA"] = noCTRA})
 			end
 		end
 
 		if (resType == "item" or resType == "reg") then
-			sort(XPerl_PlayerList, SortPlayersByCount)
+			sort(PlayerList, SortPlayersByCount)
 		elseif (resType == "dur") then
-			sort(XPerl_PlayerList, SortPlayersByDur)
+			sort(PlayerList, SortPlayersByDur)
 		elseif (resType == "res") then
-			sort(XPerl_PlayerList, SortPlayersByResist)
+			sort(PlayerList, SortPlayersByResist)
 		end
 	else
-		XPerl_CheckListPlayersTitleClass:Hide()
-		XPerl_CheckListPlayersTitleName:Hide()
-		XPerl_CheckListPlayersTotalsName:Hide()
+		_G["ZPerl_CheckListPlayersTitleClass"]:Hide()
+		_G["ZPerl_CheckListPlayersTitleName"]:Hide()
+		_G["ZPerl_CheckListPlayersTotalsName"]:Hide()
 		ShowCount(false)
 		ShowDur(false)
 		ShowResists(false)
 	end
 
-	XPerl_Check_UpdatePlayerList()
+	ZPerl.RaidAdmin.CheckUpdatePlayerList()
 end
 
--- XPerl_Check_UpdatePlayerList
-function XPerl_Check_UpdatePlayerList()
+-- ZPerl.RaidAdmin.CheckUpdatePlayerList
+function ZPerl.RaidAdmin.CheckUpdatePlayerList()
 	local onlineCount, tFR, tFRR, tNR, tSR, tAR, tDur, tBroken, tCount = 0, 0, 0, 0, 0, 0, 0, 0, 0
 
-	local results, resType = GetSelectedItem()
+	local _, resType = GetSelectedItem()
 	local index = 1
 
-	for i = 1,#XPerl_PlayerList do
-		--    + XPerl_CheckListPlayersScrollBar.offset, PLAYERLISTSIZE + XPerl_CheckListPlayersScrollBar.offset do
-		local v = XPerl_PlayerList[i]
+	for i = 1,#PlayerList do
+		--    + ZPerl_CheckListPlayersScrollBar.offset, PLAYERLISTSIZE + ZPerl_CheckListPlayersScrollBar.offset do
+		local v = PlayerList[i]
 		if (not v) then
 			break
 		end
@@ -1123,18 +1062,19 @@ function XPerl_Check_UpdatePlayerList()
 			onlineCount = onlineCount + 1
 		end
 
-		if (i >= XPerl_CheckListPlayersScrollBar.offset + 1 and index <= PLAYERLISTSIZE) then
-			local frame = _G["XPerl_CheckListPlayers"..index]
-			local iconFrame = _G["XPerl_CheckListPlayers"..index.."Icon"]
-			local nameFrame = _G["XPerl_CheckListPlayers"..index.."Name"]
-			local countFrame = _G["XPerl_CheckListPlayers"..index.."Count"]
-			local resFrameFR = _G["XPerl_CheckListPlayers"..index.."FR"]
-			local resFrameFRR = _G["XPerl_CheckListPlayers"..index.."FRR"]
-			local resFrameNR = _G["XPerl_CheckListPlayers"..index.."NR"]
-			local resFrameSR = _G["XPerl_CheckListPlayers"..index.."SR"]
-			local resFrameAR = _G["XPerl_CheckListPlayers"..index.."AR"]
-			local resFrameEquiped = _G["XPerl_CheckListPlayers"..index.."Equiped"]
+		if (i >= _G["ZPerl_CheckListPlayersScrollBar"].offset + 1 and index <= PLAYERLISTSIZE) then
+			local frame = _G["ZPerl_CheckListPlayers"..index]
+			local iconFrame = _G["ZPerl_CheckListPlayers"..index.."Icon"]
+			local nameFrame = _G["ZPerl_CheckListPlayers"..index.."Name"]
+			local countFrame = _G["ZPerl_CheckListPlayers"..index.."Count"]
+			local resFrameFR = _G["ZPerl_CheckListPlayers"..index.."FR"]
+			local resFrameFRR = _G["ZPerl_CheckListPlayers"..index.."FRR"]
+			local resFrameNR = _G["ZPerl_CheckListPlayers"..index.."NR"]
+			local resFrameSR = _G["ZPerl_CheckListPlayers"..index.."SR"]
+			local resFrameAR = _G["ZPerl_CheckListPlayers"..index.."AR"]
+			local resFrameEquiped = _G["ZPerl_CheckListPlayers"..index.."Equiped"]
 
+			---@diagnostic disable-next-line: secret-comparison
 			if (v.name == SelectedPlayer) then
 				frame:LockHighlight()
 			else
@@ -1142,22 +1082,23 @@ function XPerl_Check_UpdatePlayerList()
 			end
 
 			nameFrame:SetText(v.name)
-			local color = XPerl_GetClassColour(v.class)
+			local color = ZPerl.GetClassColor(v.class)
 			nameFrame:SetTextColor(color.r, color.g, color.b)
 
 			if (v.class) then
-				local r, l, t, b = XPerl_ClassPos(v.class)
+				local r, l, t, b = ZPerl.ClassPos(v.class)
 				iconFrame:SetTexCoord(r, l, t, b)
 				iconFrame:Show()
 			else
 				iconFrame:Hide()
 			end
 
-			_G["XPerl_CheckListPlayers"..index]:Show()
+			_G["ZPerl_CheckListPlayers"..index]:Show()
 
 			local function ShowScanIcon()
-				if (XPerl_ActiveScan) then
-					local z = XPerl_ActiveScan[v.name]
+				if (ActiveScan) then
+					---@diagnostic disable-next-line: secret-table-key
+					local z = ActiveScan[v.name]
 					if (z) then
 						resFrameEquiped:Show()
 						if (z.equipped) then
@@ -1171,7 +1112,7 @@ function XPerl_Check_UpdatePlayerList()
 							resFrameEquiped:SetTexture("Interface\\CharacterFrame\\Disconnect-Icon")
 							resFrameEquiped:SetTexCoord(0.2, 0.8, 0.2, 0.8)
 						elseif (z.notequipped) then
-							resFrameEquiped:SetTexture("Interface\\Addons\\ZPerl_RaidAdmin\\Images\\XPerl_Check")
+							resFrameEquiped:SetTexture("Interface\\AddOns\\ZPerl_RaidAdmin\\Images\\ZPerl_Check")
 							if (z.changed) then
 								resFrameEquiped:SetTexCoord(0.75, 0.875, 0.25, 0.5)
 							else
@@ -1193,7 +1134,7 @@ function XPerl_Check_UpdatePlayerList()
 
 			if (not v.connected or v.noCTRA) then
 				if (not v.connected) then
-					countFrame:SetText(XPERL_LOC_OFFLINE)
+					countFrame:SetText(L["LOC_OFFLINE"])
 				end
 				countFrame:SetTextColor(0.5, 0.5, 0.5)
 				countFrame:Show()
@@ -1239,7 +1180,7 @@ function XPerl_Check_UpdatePlayerList()
 					resFrameNR:SetText(v.dur)
 					countFrame:SetText(v.broken)
 
-					local r, g, b = SmoothColour(v.dur)
+					local r, g, b = SmoothColor(v.dur)
 					resFrameNR:SetTextColor(r, g, b)
 
 					countFrame:Show()
@@ -1286,54 +1227,54 @@ function XPerl_Check_UpdatePlayerList()
 	end
 
 	for i = index,PLAYERLISTSIZE do
-		_G["XPerl_CheckListPlayers"..i]:Hide()
+		_G["ZPerl_CheckListPlayers"..i]:Hide()
 	end
 
 	if (resType == "dur") then
-		XPerl_CheckListPlayersTotalsNR:SetText(floor(tDur / onlineCount))
-		XPerl_CheckListPlayersTotalsNR:SetTextColor(NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b)
-		XPerl_CheckListPlayersTotalsCount:SetText(tBroken)
+		_G["ZPerl_CheckListPlayersTotalsNR"]:SetText(floor(tDur / onlineCount))
+		_G["ZPerl_CheckListPlayersTotalsNR"]:SetTextColor(NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b)
+		_G["ZPerl_CheckListPlayersTotalsCount"]:SetText(tBroken)
 
-		local r, g, b = SmoothColour((tDur / onlineCount) / 100)
-		XPerl_CheckListPlayersTotalsNR:SetTextColor(r, g, b)
+		local r, g, b = SmoothColor((tDur / onlineCount) / 100)
+		_G["ZPerl_CheckListPlayersTotalsNR"]:SetTextColor(r, g, b)
 
 		if (tBroken > 0) then
-			XPerl_CheckListPlayersTotalsCount:SetTextColor(1, 0, 0)
+			_G["ZPerl_CheckListPlayersTotalsCount"]:SetTextColor(1, 0, 0)
 		else
-			XPerl_CheckListPlayersTotalsCount:SetTextColor(0, 1, 0)
+			_G["ZPerl_CheckListPlayersTotalsCount"]:SetTextColor(0, 1, 0)
 		end
 
 	elseif (resType == "res") then
-		XPerl_CheckListPlayersTotalsFR:SetText(floor(tFR / onlineCount))
-		XPerl_CheckListPlayersTotalsNR:SetText(floor(tNR / onlineCount))
-		XPerl_CheckListPlayersTotalsNR:SetTextColor(0, 1, 0)
-		XPerl_CheckListPlayersTotalsFRR:SetText(floor(tFRR / onlineCount))
-		XPerl_CheckListPlayersTotalsSR:SetText(floor(tSR / onlineCount))
-		XPerl_CheckListPlayersTotalsAR:SetText(floor(tAR / onlineCount))
+		_G["ZPerl_CheckListPlayersTotalsFR"]:SetText(floor(tFR / onlineCount))
+		_G["ZPerl_CheckListPlayersTotalsNR"]:SetText(floor(tNR / onlineCount))
+		_G["ZPerl_CheckListPlayersTotalsNR"]:SetTextColor(0, 1, 0)
+		_G["ZPerl_CheckListPlayersTotalsFRR"]:SetText(floor(tFRR / onlineCount))
+		_G["ZPerl_CheckListPlayersTotalsSR"]:SetText(floor(tSR / onlineCount))
+		_G["ZPerl_CheckListPlayersTotalsAR"]:SetText(floor(tAR / onlineCount))
 	else
-		XPerl_CheckListPlayersTotalsCount:SetText(tCount)
+		_G["ZPerl_CheckListPlayersTotalsCount"]:SetText(tCount)
 
 		if (tCount == 0) then
-			XPerl_CheckListPlayersTotalsNR:SetTextColor(1, 0, 0)
+			_G["ZPerl_CheckListPlayersTotalsNR"]:SetTextColor(1, 0, 0)
 		else
-			XPerl_CheckListPlayersTotalsNR:SetTextColor(0, 1, 0)
+			_G["ZPerl_CheckListPlayersTotalsNR"]:SetTextColor(0, 1, 0)
 		end
 	end
 
-	if (FauxScrollFrame_Update(XPerl_CheckListPlayersScrollBar, #XPerl_PlayerList, PLAYERLISTSIZE, 1)) then
-		XPerl_CheckListPlayersScrollBar:Show()
+	if (FauxScrollFrame_Update(_G["ZPerl_CheckListPlayersScrollBar"], #PlayerList, PLAYERLISTSIZE, 1)) then
+		_G["ZPerl_CheckListPlayersScrollBar"]:Show()
 	else
-		XPerl_CheckListPlayersScrollBar:Hide()
+		_G["ZPerl_CheckListPlayersScrollBar"]:Hide()
 	end
 end
 
--- XPerl_Check_ShowInfo
-function XPerl_Check_ShowInfo()
+-- ZPerl.RaidAdmin.CheckShowInfo
+function ZPerl.RaidAdmin.CheckShowInfo()
 	if (ActiveScanTotals) then
 		if (ActiveScanTotals.missing > 0) then
-			XPerl_CheckButtonInfo:SetFormattedText(XPERL_CHECK_SCAN_MISSING, ActiveScanTotals.missing)
+			ZPerl_CheckButtonInfo:SetFormattedText(L["CHECK_SCAN_MISSING"], ActiveScanTotals.missing)
 		else
-			XPerl_CheckButtonInfo:SetText("")
+			ZPerl_CheckButtonInfo:SetText("")
 		end
 	else
 		local results = GetSelectedItem()
@@ -1345,15 +1286,15 @@ function XPerl_Check_ShowInfo()
 			t = ""
 		end
 		if (t ~= "") then
-			XPerl_CheckButtonInfo:SetFormattedText(XPERL_CHECK_LASTINFO, t)
+			ZPerl_CheckButtonInfo:SetFormattedText(L["CHECK_LASTINFO"], t)
 		else
-			XPerl_CheckButtonInfo:SetText("")
+			ZPerl_CheckButtonInfo:SetText("")
 		end
 	end
 end
 
--- XPerl_Check_OnEnter
-function XPerl_Check_OnEnter(self)
+-- ZPerl.RaidAdmin.CheckOnEnter
+function ZPerl.RaidAdmin.CheckOnEnter(self)
 	local f, anc
 	if ((self.GetFrameType or self.GetObjectType)(self) == "CheckButton") then
 		f = _G[self:GetParent():GetName().."Name"]
@@ -1377,57 +1318,56 @@ function XPerl_Check_OnEnter(self)
 		end
 	end
 
-	GameTooltip:SetOwner(XPerl_CheckListItems1, "ANCHOR_LEFT")
-	GameTooltip:SetText(XPERL_CHECK_DROPITEMTIP1, HIGHLIGHT_FONT_COLOR.r, HIGHLIGHT_FONT_COLOR.g, HIGHLIGHT_FONT_COLOR.b)
-	GameTooltip:AddLine(XPERL_CHECK_DROPITEMTIP2, NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b, true)
+	GameTooltip:SetOwner(_G["ZPerl_CheckListItems1"], "ANCHOR_LEFT")
+	GameTooltip:SetText(L["CHECK_DROPITEMTIP1"], HIGHLIGHT_FONT_COLOR.r, HIGHLIGHT_FONT_COLOR.g, HIGHLIGHT_FONT_COLOR.b)
+	GameTooltip:AddLine(L["CHECK_DROPITEMTIP2"], NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b, true)
 	GameTooltip:Show()
 end
 
--- XPerl_Check_OnClickStart
-function XPerl_Check_OnClickTick(self)
-	local id = self:GetParent():GetID() + XPerl_CheckListItemsScrollBar.offset
-	if (ZPerl_CheckItems[id]) then
-		ZPerl_CheckItems[id].ticked = self:GetChecked()
+-- ZPerl_Check_OnClickStart
+function ZPerl.RaidAdmin.CheckOnClickTick(self)
+	local id = self:GetParent():GetID() + _G["ZPerl_CheckListItemsScrollBar"].offset
+	if (ZPerlRaidAdminItems[id]) then
+		ZPerlRaidAdminItems[id].ticked = self:GetChecked()
 	end
-	XPerl_Check_ValidateButtons()
+	ZPerl.RaidAdmin.CheckValidateButtons()
 end
 
--- XPerl_Check_DeleteSelectedItems
-function XPerl_Check_DeleteSelectedItems()
+-- ZPerl.RaidAdmin.CheckDeleteSelectedItems
+function ZPerl.RaidAdmin.CheckDeleteSelectedItems()
 	local newList = {}
 
-	for k, v in ipairs(ZPerl_CheckItems) do
+	for k, v in ipairs(ZPerlRaidAdminItems) do
 		if (v.fixed or not v.ticked) then
 			tinsert(newList, v)
 		else
 			local linkName = GetVLinkName(v)
 			if (linkName) then
-				XPerl_ItemResults[linkName] = nil
+				ItemResults[linkName] = nil
 			end
 		end
 	end
 
-	ZPerl_CheckItems = newList
+	ZPerlRaidAdminItems = newList
 
-	XPerl_Check_ItemsChanged()
+	ZPerl.RaidAdmin.CheckItemsChanged()
 end
 
--- XPerl_Check_Query
-function XPerl_Check_Query()
-	local oldResults = XPerl_ItemResults
-	XPerl_ItemResults = {["type"] = "item"}
+-- ZPerl.RaidAdmin.CheckQuery
+function ZPerl.RaidAdmin.CheckQuery()
+	local oldResults = ItemResults
+	ItemResults = {["type"] = "item"}
 
-	XPerl_CheckListItemsScrollBarScrollBar:SetValue(0)
+	_G["ZPerl_CheckListItemsScrollBarScrollBar"]:SetValue(0)
 
-	tinsert(XPerl_MsgQueue, "DURC")
-	tinsert(XPerl_MsgQueue, "RSTC")
-	tinsert(XPerl_MsgQueue, "REAC")
-	XPerl_ResistResults.count = 0
-	XPerl_DurResults.count = 0
-	XPerl_RegResults.count = 0
+	tinsert(MsgQueue, "DURC")
+	tinsert(MsgQueue, "RSTC")
+	tinsert(MsgQueue, "REAC")
+	ResistResults.count = 0
+	DurResults.count = 0
+	RegResults.count = 0
 
-	local msg
-	for k, v in ipairs(ZPerl_CheckItems) do
+	for k, v in ipairs(ZPerlRaidAdminItems) do
 		if (v.ticked) then
 			v.query = true
 			v.ticked = nil
@@ -1436,9 +1376,9 @@ function XPerl_Check_Query()
 				local linkName = GetVLinkName(v)
 
 				if (linkName) then
-					XPerl_ItemResults[linkName] = {last = 0}
+					ItemResults[linkName] = {last = 0}
 					oldResults[linkName] = nil
-					tinsert(XPerl_MsgQueue, "ITMC "..linkName)
+					tinsert(MsgQueue, "ITMC "..linkName)
 				end
 			end
 		else
@@ -1449,17 +1389,19 @@ function XPerl_Check_Query()
 	for k, v in pairs(oldResults) do
 		if (type(v) == "table") then
 			if (not v.fixed) then
-				XPerl_ItemResults[k] = v
+				ItemResults[k] = v
 			end
 		end
 	end
 
-	XPerl_Check.queryStart = GetTime()
-	XPerl_Check.lastMsgsent = nil
-	XPerl_Check:SetScript("OnUpdate", XPerl_CheckOnUpdate)
+	---@diagnostic disable-next-line: inject-field
+	ZPerl_Check.queryStart = GetTime()
+	---@diagnostic disable-next-line: inject-field
+	ZPerl_Check.lastMsgsent = nil
+	ZPerl_Check:SetScript("OnUpdate", CheckOnUpdate)
 
-	XPerl_Check_ItemsChanged()		-- Re-sort and re-show list with ticked items at top
-	XPerl_Check_ValidateButtons()
+	ZPerl.RaidAdmin.CheckItemsChanged()		-- Re-sort and re-show list with ticked items at top
+	ZPerl.RaidAdmin.CheckValidateButtons()
 end
 
 -- GetActiveScanItem
@@ -1475,7 +1417,7 @@ local function GetActiveScanItem()
 		return
 	end
 
-	local itemName, itemString, itemQuality, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture = GetItemInfo(itemId)
+	local _, _, _, _, _, itemType, _, _, itemEquipLoc = GetItemInfo(itemId)
 
 	if (not itemEquipLoc or not itemType) then
 		return
@@ -1518,7 +1460,8 @@ end
 -- GetSelectedPlayer
 local function GetSelectedPlayer()
 	if (SelectedPlayer) then
-		for k,v in pairs(XPerl_PlayerList) do
+		for k,v in pairs(PlayerList) do
+			---@diagnostic disable-next-line: secret-comparison
 			if (v.name == SelectedPlayer) then
 				return v
 			end
@@ -1526,11 +1469,11 @@ local function GetSelectedPlayer()
 	end
 end
 
--- XPerl_Check_ValidateButtons
-function XPerl_Check_ValidateButtons()
+-- ZPerl.RaidAdmin.CheckValidateButtons
+function ZPerl.RaidAdmin.CheckValidateButtons()
 	local fixedSelected, regSelected
 	local anyTicked
-	for k,v in ipairs(ZPerl_CheckItems) do
+	for k,v in ipairs(ZPerlRaidAdminItems) do
 		if (v.selected) then
 			if (v.fixed) then
 				fixedSelected = true
@@ -1544,90 +1487,91 @@ function XPerl_Check_ValidateButtons()
 		end
 	end
 
-	local results, resType = GetSelectedItem()
+	local results = GetSelectedItem()
 
-	if (anyTicked and not XPerl_Check.queryStart) then
-		XPerl_CheckButtonDelete:Enable()
+	if (anyTicked and not ZPerl_Check.queryStart) then
+		ZPerl_CheckButtonDelete:Enable()
 	else
-		XPerl_CheckButtonDelete:Disable()
+		ZPerl_CheckButtonDelete:Disable()
 	end
 
-	if (not XPerl_Check.queryStart and UnitIsGroupAssistant("player")) then
-		XPerl_CheckButtonQuery:Enable()
+	if (not ZPerl_Check.queryStart and UnitIsGroupAssistant("player")) then
+		ZPerl_CheckButtonQuery:Enable()
 	else
-		XPerl_CheckButtonQuery:Disable()
+		ZPerl_CheckButtonQuery:Disable()
 	end
 
-	if (((results and results.last) or XPerl_ActiveScan) and IsInRaid()) then
-		XPerl_CheckButtonReport:Enable()
+	if (((results and results.last) or ActiveScan) and IsInRaid()) then
+		ZPerl_CheckButtonReport:Enable()
 	else
-		XPerl_CheckButtonReport:Disable()
+		ZPerl_CheckButtonReport:Disable()
 	end
 
 	if (results and results.last and not (fixedSelected and not regSelected) and IsInRaid()) then
-		XPerl_CheckButtonReportWith:Enable()
-		XPerl_CheckButtonReportWithout:Enable()
+		ZPerl_CheckButtonReportWith:Enable()
+		ZPerl_CheckButtonReportWithout:Enable()
 	else
-		XPerl_CheckButtonReportWith:Disable()
-		XPerl_CheckButtonReportWithout:Disable()
+		ZPerl_CheckButtonReportWith:Disable()
+		ZPerl_CheckButtonReportWithout:Disable()
 	end
 
 	if (ActiveScanItem) then
-		local tex = XPerl_CheckButtonEquiped:GetNormalTexture()
+		local tex = ZPerl_CheckButtonEquiped:GetNormalTexture()
 		tex:SetTexCoord(0.75, 0.875, 0.5, 0.75)
-		tex = XPerl_CheckButtonEquiped:GetPushedTexture()
+		tex = ZPerl_CheckButtonEquiped:GetPushedTexture()
 		tex:SetTexCoord(0.875, 1, 0.5, 0.75)
 
-				XPerl_CheckButtonEquiped.tooltipText = "XPERL_CHECK_SCANSTOP_DESC"
+				ZPerl_CheckButtonEquiped.tooltipText = "CHECK_SCANSTOP_DESC"
 	else
-		local tex = XPerl_CheckButtonEquiped:GetNormalTexture()
+		local tex = ZPerl_CheckButtonEquiped:GetNormalTexture()
 		tex:SetTexCoord(0.375, 0.5, 0.5, 0.75)
-		tex = XPerl_CheckButtonEquiped:GetPushedTexture()
+		tex = ZPerl_CheckButtonEquiped:GetPushedTexture()
 		tex:SetTexCoord(0.5, 0.625, 0.5, 0.75)
 
-				XPerl_CheckButtonEquiped.tooltipText = "XPERL_CHECK_SCAN_DESC"
+				ZPerl_CheckButtonEquiped.tooltipText = "CHECK_SCAN_DESC"
 	end
 
 	local myPlayer = GetSelectedPlayer()
-	if (((results and results.last) or (XPerl_ActiveScan and XPerl_ActiveScan[SelectedPlayer])) and myPlayer and myPlayer.connected) then
-		XPerl_CheckButtonPlayer:Enable()
+	---@diagnostic disable-next-line: secret-table-key
+	if (((results and results.last) or (ActiveScan and ActiveScan[SelectedPlayer])) and myPlayer and myPlayer.connected) then
+		ZPerl_CheckButtonPlayer:Enable()
 	else
-		XPerl_CheckButtonPlayer:Disable()
+		ZPerl_CheckButtonPlayer:Disable()
 	end
 
-	XPerl_CheckButtonEquiped:Hide()
-	XPerl_CheckButtonEquiped:Show()
+	ZPerl_CheckButtonEquiped:Hide()
+	ZPerl_CheckButtonEquiped:Show()
 
 	if (results and not fixedSelected and GetActiveScanItem()) then
-		XPerl_CheckButtonEquiped:Enable()
+		ZPerl_CheckButtonEquiped:Enable()
 	else
-		XPerl_CheckButtonEquiped:Disable()
+		ZPerl_CheckButtonEquiped:Disable()
 	end
 end
 
--- XPerl_Check_Players_Sort
-function XPerl_Check_Players_Sort(sortType)
+-- ZPerl.RaidAdmin.CheckPlayersSort
+function ZPerl.RaidAdmin.CheckPlayersSort(sortType)
 	if (sortType == "class") then
-		sort(XPerl_PlayerList, SortPlayersByClass)
+		sort(PlayerList, SortPlayersByClass)
 	elseif (sortType == "name") then
-		sort(XPerl_PlayerList, SortPlayersByName)
+		sort(PlayerList, SortPlayersByName)
 	elseif (sortType == "count") then
-		sort(XPerl_PlayerList, SortPlayersByCount)
+		sort(PlayerList, SortPlayersByCount)
 	elseif (sortType == "dur") then
-		sort(XPerl_PlayerList, SortPlayersByDur)
+		sort(PlayerList, SortPlayersByDur)
 	elseif (strfind("frrsrnrar", sortType)) then
-		ZPerl_Admin.ResistSort = sortType
-		sort(XPerl_PlayerList, SortPlayersByResist)
+		ZPerlRaidAdminDB.ResistSort = sortType
+		sort(PlayerList, SortPlayersByResist)
 	end
 
-	XPerl_Check_UpdatePlayerList()
+	ZPerl.RaidAdmin.CheckUpdatePlayerList()
 end
 
--- XPerl_Check_Report
-function XPerl_Check_Report(showNames)
+-- ZPerl.RaidAdmin.CheckReport
+function ZPerl.RaidAdmin.CheckReport(showNames)
 	local function ReportOutput(msg)
 		if (msg) then
-			SendChatMessage("<X-Perl> "..msg, outputChannel, nil, outputChannelIndex)
+			SendChatMessage("<Z-Perl> "..msg, outputChannel, nil, outputChannelIndex)
 		end
 	end
 
@@ -1637,17 +1581,17 @@ function XPerl_Check_Report(showNames)
 		local myPlayer = GetSelectedPlayer()
 
 		if (link == "res") then
-			if (XPerl_ResistResults.last) then
+			if (ResistResults.last) then
 				if (showNames == "player") then
 					if (SelectedPlayer) then
 						if (myPlayer.connected) then
-							msg = format(XPERL_CHECK_REPORT_PRESISTS, SelectedPlayer, myPlayer.fr, myPlayer.nr, myPlayer.frr, myPlayer.sr, myPlayer.ar)
+							msg = format(L["CHECK_REPORT_PRESISTS"], SelectedPlayer, myPlayer.fr, myPlayer.nr, myPlayer.frr, myPlayer.sr, myPlayer.ar)
 						end
 					end
 				else
 					local fr, frr, nr, sr, ar, count = 0, 0, 0, 0, 0, 0
 
-					for k,v in ipairs(XPerl_PlayerList) do
+					for k,v in ipairs(PlayerList) do
 						if (v.connected) then
 							count = count + 1
 
@@ -1665,23 +1609,23 @@ function XPerl_Check_Report(showNames)
 					sr = sr / count
 					ar = ar / count
 
-					msg = format(XPERL_CHECK_REPORT_RESISTS, fr, nr, frr, sr, ar)
+					msg = format(L["CHECK_REPORT_RESISTS"], fr, nr, frr, sr, ar)
 				end
 				ReportOutput(msg)
 			end
 
 		elseif (link == "dur") then
-			if (XPerl_DurResults.last) then
+			if (DurResults.last) then
 				if (showNames == "player") then
 					if (SelectedPlayer) then
 						if (myPlayer.connected) then
-							msg = format(XPERL_CHECK_REPORT_PDURABILITY, SelectedPlayer, myPlayer.dur, myPlayer.broken)
+							msg = format(L["CHECK_REPORT_PDURABILITY"], SelectedPlayer, myPlayer.dur, myPlayer.broken)
 						end
 					end
 				else
 					local dur, broken, brokenPeople, count = 0, 0, 0, 0
 
-					for k,v in ipairs(XPerl_PlayerList) do
+					for k,v in ipairs(PlayerList) do
 						if (v.connected) then
 							count = count + 1
 							dur = dur + v.dur
@@ -1695,7 +1639,7 @@ function XPerl_Check_Report(showNames)
 
 					dur = dur / count
 
-					msg = format(XPERL_CHECK_REPORT_DURABILITY, dur, brokenPeople, broken)
+					msg = format(L["CHECK_REPORT_DURABILITY"], dur, brokenPeople, broken)
 				end
 				ReportOutput(msg)
 			end
@@ -1704,18 +1648,22 @@ function XPerl_Check_Report(showNames)
 				if (SelectedPlayer) then
 					if (myPlayer.connected) then
 						if (link == "reg") then
-							if (XPerl_RegResults.last) then
-								msg = format(XPERL_CHECK_REPORT_PITEM, SelectedPlayer, myPlayer.count, XPERL_REAGENTS[myPlayer.class])
+							if (RegResults.last) then
+								---@diagnostic disable-next-line: secret-table-key
+								msg = format(L["CHECK_REPORT_PITEM"], SelectedPlayer, myPlayer.count, L["REAGENTS"][myPlayer.class])
 							end
 						else
-							if (XPerl_ActiveScan and XPerl_ActiveScan[SelectedPlayer]) then
-								if (XPerl_ActiveScan[SelectedPlayer].equipped) then
-									msg = format(XPERL_CHECK_REPORT_PEQUIPED, SelectedPlayer, link)
-								elseif (XPerl_ActiveScan[SelectedPlayer].notequipped) then
-									msg = format(XPERL_CHECK_REPORT_PNOTEQUIPED, SelectedPlayer, link)
+							---@diagnostic disable-next-line: secret-table-key
+							if (ActiveScan and ActiveScan[SelectedPlayer]) then
+								---@diagnostic disable-next-line: secret-table-key
+								if (ActiveScan[SelectedPlayer].equipped) then
+									msg = format(L["CHECK_REPORT_PEQUIPED"], SelectedPlayer, link)
+								---@diagnostic disable-next-line: secret-table-key
+								elseif (ActiveScan[SelectedPlayer].notequipped) then
+									msg = format(L["CHECK_REPORT_PNOTEQUIPED"], SelectedPlayer, link)
 								end
 							else
-								msg = format(XPERL_CHECK_REPORT_PITEM, SelectedPlayer, myPlayer.count, link)
+								msg = format(L["CHECK_REPORT_PITEM"], SelectedPlayer, myPlayer.count, link)
 							end
 						end
 						ReportOutput(msg)
@@ -1725,7 +1673,7 @@ function XPerl_Check_Report(showNames)
 				local equipable = ""
 				if (strsub(link, 1, 1) == "|") then
 					local itemId = strmatch(link, "item:(%d+):")
-					local itemName, itemString, itemQuality, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture = GetItemInfo(itemId)
+					local _, _, _, _, _, itemType, _, _, itemEquipLoc = GetItemInfo(itemId)
 					if (itemEquipLoc and itemType) then
 						if (itemType == "Armor" or itemType == "Weapon") then
 							equipable = "_EQ"
@@ -1738,9 +1686,10 @@ function XPerl_Check_Report(showNames)
 				local offline = {}
 				local totalItems = 0
 
-				for k, v in ipairs(XPerl_PlayerList) do
+				for k, v in ipairs(PlayerList) do
 					if (ActiveScanTotals and ActiveScanTotals.missing == 0) then
-						local scan = XPerl_ActiveScan[v.name]
+						---@diagnostic disable-next-line: secret-table-key
+						local scan = ActiveScan[v.name]
 						if (scan.equipped) then
 							tinsert(with, v)
 						elseif (scan.notequipped) then
@@ -1764,9 +1713,9 @@ function XPerl_Check_Report(showNames)
 
 				if (ActiveScanTotals and ActiveScanTotals.missing == 0 and ActiveScanTotals.wrongZone == 0 and ActiveScanTotals.notequipped == 0) then
 					if (ActiveScanTotals.offline == 0) then
-						ReportOutput(format(XPERL_CHECK_REPORT_ALLEQUIPED, link))
+						ReportOutput(format(L["CHECK_REPORT_ALLEQUIPED"], link))
 					else
-						ReportOutput(format(XPERL_CHECK_REPORT_ALLEQUIPEDOFF, link, ActiveScanTotals.offline))
+						ReportOutput(format(L["CHECK_REPORT_ALLEQUIPEDOFF"], link, ActiveScanTotals.offline))
 					end
 				else
 					if (showNames) then
@@ -1782,18 +1731,18 @@ function XPerl_Check_Report(showNames)
 						local showTitle
 						if (showNames == "with") then
 							if (ActiveScanTotals and ActiveScanTotals.missing == 0) then
-								showTitle = link..XPERL_CHECK_REPORT_EQUIPED
+								showTitle = link..L["CHECK_REPORT_EQUIPED"]
 							else
-								showTitle = link.._G["XPERL_CHECK_REPORT_WITH"..equipable]
+								showTitle = link..L["CHECK_REPORT_WITH"..equipable]
 							end
 							if (#with > 0) then
 								showList = with
 							end
 						elseif (showNames == "without") then
 							if (ActiveScanTotals and ActiveScanTotals.missing == 0) then
-								showTitle = link..XPERL_CHECK_REPORT_NOTEQUIPED
+								showTitle = link..L["CHECK_REPORT_NOTEQUIPED"]
 							else
-								showTitle = link.._G["XPERL_CHECK_REPORT_WITHOUT"..equipable]
+								showTitle = link..L["CHECK_REPORT_WITHOUT"..equipable]
 							end
 							if (#without > 0) then
 								showList = without
@@ -1806,11 +1755,12 @@ function XPerl_Check_Report(showNames)
 							local first = true
 
 							for k,v in ipairs(showList) do
-								local name = XPerlColourTable[v.class]..v.name.."|r"
+								---@diagnostic disable-next-line: secret-table-key
+								local name = ZPerl.ColorTable[v.class]..v.name.."|r"
 
 								if (strlen(msg) + strlen(name) > 240) then
 									ReportOutput(msg.."...")
-									DEFAULT_CHAT_FRAME:AddMessage("<X-Perl> "..msgLocal)
+									DEFAULT_CHAT_FRAME:AddMessage("<Z-Perl> "..msgLocal)
 									msg = "  ... "..v.name
 									msgLocal = "  ... "..name
 								else
@@ -1829,10 +1779,10 @@ function XPerl_Check_Report(showNames)
 								ReportOutput(msg)
 							end
 							if (msgLocal) then
-								DEFAULT_CHAT_FRAME:AddMessage("<X-Perl> "..msgLocal)
+								DEFAULT_CHAT_FRAME:AddMessage("<Z-Perl> "..msgLocal)
 							end
 						elseif (showTitle) then
-							DEFAULT_CHAT_FRAME:AddMessage("<X-Perl> "..showTitle..NONE)
+							DEFAULT_CHAT_FRAME:AddMessage("<Z-Perl> "..showTitle..NONE)
 						end
 					else
 						msg = link.." "
@@ -1844,18 +1794,18 @@ function XPerl_Check_Report(showNames)
 						end
 
 						if (ActiveScanTotals) then	-- and ActiveScanTotals.missing == 0) then
-							Out(XPERL_CHECK_REPORT_EQUIPEDSHORT, ActiveScanTotals.equipped)
-							Out(XPERL_CHECK_REPORT_NOTEQUIPEDSHORT, ActiveScanTotals.notequipped)
-							Out(XPERL_CHECK_REPORT_OFFLINE, ActiveScanTotals.offline)
-							Out(XPERL_CHECK_REPORT_NOTSCANNED, ActiveScanTotals.missing + ActiveScanTotals.wrongZone)
+							Out(L["CHECK_REPORT_EQUIPEDSHORT"], ActiveScanTotals.equipped)
+							Out(L["CHECK_REPORT_NOTEQUIPEDSHORT"], ActiveScanTotals.notequipped)
+							Out(L["CHECK_REPORT_OFFLINE"], ActiveScanTotals.offline)
+							Out(L["CHECK_REPORT_NOTSCANNED"], ActiveScanTotals.missing + ActiveScanTotals.wrongZone)
 						else
-							Out(XPERL_CHECK_REPORT_WITHSHORT, #with)
-							Out(XPERL_CHECK_REPORT_WITHOUTSHORT, #without)
-							Out(" : %d "..XPERL_LOC_OFFLINE, #offline)
+							Out(L["CHECK_REPORT_WITHSHORT"], #with)
+							Out(L["CHECK_REPORT_WITHOUTSHORT"], #without)
+							Out(" : %d "..L["LOC_OFFLINE"], #offline)
 						end
 
 						if (link ~= "reg") then
-							Out(XPERL_CHECK_REPORT_TOTAL, totalItems)
+							Out(L["CHECK_REPORT_TOTAL"], totalItems)
 						end
 
 						ReportOutput(msg)
@@ -1866,64 +1816,75 @@ function XPerl_Check_Report(showNames)
 	end
 end
 
--- XPerl_Check_PlayerOnClick
-function XPerl_Check_PlayerOnClick(button)
-	local index = button:GetID() + XPerl_CheckListPlayersScrollBar.offset
+-- ZPerl.RaidAdmin.CheckPlayerOnClick
+function ZPerl.RaidAdmin.CheckPlayerOnClick(button)
+	local index = button:GetID() + _G["ZPerl_CheckListPlayersScrollBar"].offset
 
-	if (index < 1 or index > #XPerl_PlayerList) then
+	if (index < 1 or index > #PlayerList) then
 		return
 	end
 
-	if (SelectedPlayer == XPerl_PlayerList[index].name) then
+	---@diagnostic disable-next-line: secret-comparison
+	if (SelectedPlayer == PlayerList[index].name) then
 		SelectedPlayer = nil
 	else
-		SelectedPlayer = XPerl_PlayerList[index].name
+		SelectedPlayer = PlayerList[index].name
 	end
 
-	XPerl_Check_UpdatePlayerList()
+	ZPerl.RaidAdmin.CheckUpdatePlayerList()
 
-	SetPortraitTexture(XPerl_CheckButtonPlayerPortrait, XPerl_PlayerList[index].unit)
+	SetPortraitTexture(ZPerl_CheckButtonPlayerPortrait, PlayerList[index].unit)
 
-	XPerl_Check_ValidateButtons()
+	ZPerl.RaidAdmin.CheckValidateButtons()
 end
 
--- XPerl_Check_StopActiveScan
-function XPerl_Check_StopActiveScan()
-	XPerl_Check:UnregisterEvent("UNIT_INVENTORY_CHANGED")
-	XPerl_Check:UnregisterEvent("UNIT_MODEL_CHANGED")
+-- ZPerl.RaidAdmin.CheckStopActiveScan
+function ZPerl.RaidAdmin.CheckStopActiveScan()
+	ZPerl_Check:UnregisterEvent("UNIT_INVENTORY_CHANGED")
+	ZPerl_Check:UnregisterEvent("UNIT_MODEL_CHANGED")
 	ActiveScanItem = nil
 end
 
--- XPerl_Check_StartActiveScan
-function XPerl_Check_StartActiveScan()
+-- ZPerl.RaidAdmin.CheckStartActiveScan
+function ZPerl.RaidAdmin.CheckStartActiveScan()
 	if (ActiveScanItem) then
-		XPerl_Check_StopActiveScan()
+		ZPerl.RaidAdmin.CheckStopActiveScan()
 	else
 		local itemId, itemSlot = GetActiveScanItem()
 		if (itemId) then
-			XPerl_ActiveScan = {}
+			ActiveScan = {}
 
 			ActiveScanItem = {id = itemId, slot = itemSlot, missing = GetNumGroupMembers()}
 			ActiveScanTotals = {missing = 0, equipped = 0, notequipped = 0, offline = 0, wrongZone = 0}
 
-			XPerl_Check:SetScript("OnUpdate", XPerl_CheckOnUpdate)
-			XPerl_Check:RegisterEvent("UNIT_INVENTORY_CHANGED")
-			XPerl_Check:RegisterEvent("UNIT_MODEL_CHANGED")
+			ZPerl_Check:SetScript("OnUpdate", CheckOnUpdate)
+			ZPerl_Check:RegisterEvent("UNIT_INVENTORY_CHANGED")
+			ZPerl_Check:RegisterEvent("UNIT_MODEL_CHANGED")
 
-			XPerl_CheckListPlayersTitleDur:SetText(XPERL_CHECK_EQUIPED)
-			XPerl_CheckListPlayersTitleDur:Show()
+			_G["ZPerl_CheckListPlayersTitleDur"]:SetText(L["CHECK_EQUIPED"])
+			_G["ZPerl_CheckListPlayersTitleDur"]:Show()
 		end
 	end
 
-	XPerl_Check_ValidateButtons()
+	ZPerl.RaidAdmin.CheckValidateButtons()
 end
 
--- XPerl_Check_ActiveScan
-function XPerl_Check_ActiveScan()
+-- ZPerl.RaidAdmin.CheckActiveScan
+function ZPerl.RaidAdmin.CheckActiveScan()
 	local function CheckSlot(unit, slot)
 		local link = GetInventoryItemLink(unit, slot)
-		local eq
 		local name = UnitName(unit)
+		if (not ZPerl.CanAccess(name)) then
+			return
+		end
+
+		---@diagnostic disable-next-line: secret-table-key
+		local scan = ActiveScan[name]
+		if (not scan) then
+			scan = {}
+			---@diagnostic disable-next-line: secret-table-key
+			ActiveScan[name] = scan
+		end
 
 		if (link) then
 			local itemId = strmatch(link, "item:(%d+):")
@@ -1931,22 +1892,15 @@ function XPerl_Check_ActiveScan()
 				itemId = tonumber(itemId)
 
 				if (itemId == ActiveScanItem.id) then
-					if (not XPerl_ActiveScan[name]) then
-						XPerl_ActiveScan[name] = {}
-					end
-
-					XPerl_ActiveScan[name].notequipped = nil
-					XPerl_ActiveScan[name].equipped = 1
+					scan.notequipped = nil
+					scan.equipped = 1
 					return true
 				end
 			end
 		end
 
-		if (not XPerl_ActiveScan[name]) then
-			XPerl_ActiveScan[name] = {}
-		end
-		XPerl_ActiveScan[name].equipped = nil
-		XPerl_ActiveScan[name].notequipped = 1
+		scan.equipped = nil
+		scan.notequipped = 1
 	end
 
 	local myZone = GetRealZoneText()
@@ -1958,15 +1912,14 @@ function XPerl_Check_ActiveScan()
 	for i = 1, GetNumGroupMembers() do
 		local name, _, _, _, _, _, zone = GetRaidRosterInfo(i)
 		local unit = "raid"..i
-		local new
-		local myScan = XPerl_ActiveScan[name]
+		local myScan = ActiveScan[name]
 
 		if (not myScan or myScan.changed) then
 			if (myScan) then
 				myScan.changed = nil
 			end
 			any = true
-			if (IsPandaClassic and not InCombatLockdown() and CheckInteractDistance(unit, 1)) then		-- Checks to see if in inspect range
+			if (not InCombatLockdown() and CheckInteractDistance(unit, 1)) then		-- Checks to see if in inspect range
 				local eq
 				if (type(ActiveScanItem.slot) == "table") then
 					for k,v in pairs(ActiveScanItem.slot) do
@@ -1987,20 +1940,20 @@ function XPerl_Check_ActiveScan()
 				update = true
 
 			elseif (not UnitIsConnected(unit)) then
-				if (not XPerl_ActiveScan[name]) then
-					XPerl_ActiveScan[name] = {}
+				if (not ActiveScan[name]) then
+					ActiveScan[name] = {}
 				end
 
-				XPerl_ActiveScan[name].offline = 1
+				ActiveScan[name].offline = 1
 				ActiveScanTotals.offline = ActiveScanTotals.offline + 1
 				update = true
 
 			elseif (zone ~= myZone) then
-				if (not XPerl_ActiveScan[name]) then
-					XPerl_ActiveScan[name] = {}
+				if (not ActiveScan[name]) then
+					ActiveScan[name] = {}
 				end
 
-				XPerl_ActiveScan[name].notinzone = 1
+				ActiveScan[name].notinzone = 1
 				ActiveScanTotals.wrongZone = ActiveScanTotals.wrongZone + 1
 				update = true
 
@@ -2016,18 +1969,18 @@ function XPerl_Check_ActiveScan()
 		end
 	end
 
-	XPerl_Check_ShowInfo()
+	ZPerl.RaidAdmin.CheckShowInfo()
 
 	if (update) then
-		sort(XPerl_PlayerList, SortPlayersByDur)		-- It's actually by equipped, that's sorted out in sort func
-		XPerl_Check_UpdatePlayerList()
-		XPerl_Check_ValidateButtons()
+		sort(PlayerList, SortPlayersByDur)		-- It's actually by equipped, that's sorted out in sort func
+		ZPerl.RaidAdmin.CheckUpdatePlayerList()
+		ZPerl.RaidAdmin.CheckValidateButtons()
 	end
 end
 
--- XPerl_GetChannelList
-if (not XPerl_GetChannelList) then
-local function GetChatColour(name)
+-- ZPerl.RaidAdmin.GetChannelList
+if (not ZPerl.RaidAdmin.GetChannelList) then
+local function GetChatColor(name)
 	local info = ChatTypeInfo[name]
 	local clr = {r = 0.5, g = 0.5, b = 0.5}
 	if (info) then
@@ -2037,17 +1990,17 @@ local function GetChatColour(name)
 	end
 	return clr
 end
-function XPerl_GetChannelList()
+function ZPerl.RaidAdmin.GetChannelList()
 	local cList = {}
 	local l = {"RAID", "OFFICER", "GUILD", "PARTY", "SAY"}
 	for k,v in pairs(l) do
-		tinsert(cList, {display = _G["CHAT_MSG_"..v], channel = v, colour = GetChatColour(v)})
+		tinsert(cList, {display = _G["CHAT_MSG_"..v], channel = v, color = GetChatColor(v)})
 	end
 
 	for i = 1, 10 do
 		local c, name = GetChannelName(i)
 		if (name and c ~= 0) then
-			tinsert(cList, {display = name, channel = "CHANNEL", index = c, colour = GetChatColour("CHANNEL"..c)})
+			tinsert(cList, {display = name, channel = "CHANNEL", index = c, color = GetChatColor("CHANNEL"..c)})
 		end
 	end
 
@@ -2055,47 +2008,47 @@ function XPerl_GetChannelList()
 end
 end
 
--- XPerl_Check_Channels_OnLoad
-function XPerl_Check_Channels_OnLoad(self)
+-- ZPerl.RaidAdmin.CheckChannelsOnLoad
+function ZPerl.RaidAdmin.CheckChannelsOnLoad(self)
 	if (not outputChannelSelection) then
 		outputChannelSelection = 1
 	end
 
 	local dropdown = MSA_DropDownMenu_Create(self:GetName().."_DropDown", self)
 	dropdown:SetAllPoints(self)
-	MSA_DropDownMenu_Initialize(dropdown, XPerl_Check_Channels_Initialize)
+	MSA_DropDownMenu_Initialize(dropdown, ZPerl.RaidAdmin.CheckChannelsInitialize)
 	MSA_DropDownMenu_SetWidth(dropdown, 100)
 	MSA_DropDownMenu_SetSelectedID(dropdown, outputChannelSelection)
-	_G[dropdown:GetName().."Text"]:SetTextColor(unpack(outputChannelColour))
+	_G[dropdown:GetName().."Text"]:SetTextColor(unpack(outputChannelColor))
 end
 
--- XPerl_Channel_OnClick
-local function XPerl_Channel_OnClick(self)
+-- ChannelOnClick
+local function ChannelOnClick(self)
 	local v = self.value
 	outputChannel = v.channel
 	outputChannelIndex = v.index
 	outputChannelSelection = self:GetID()
-	MSA_DropDownMenu_SetSelectedID(XPerl_CheckButtonChannel, outputChannelSelection)
+	MSA_DropDownMenu_SetSelectedID(ZPerl_CheckButtonChannel, outputChannelSelection)
 
-	XPerl_CheckButtonChannelText:SetTextColor(v.red, v.green, v.blue)
+	_G["ZPerl_CheckButtonChannelText"]:SetTextColor(v.red, v.green, v.blue)
 end
 
--- XPerl_Check_Channels_Initialize
-function XPerl_Check_Channels_Initialize()
-	channelList = XPerl_GetChannelList()
+-- ZPerl.RaidAdmin.CheckChannelsInitialize
+function ZPerl.RaidAdmin.CheckChannelsInitialize()
+	channelList = ZPerl.RaidAdmin.GetChannelList()
 
 	for i,entry in pairs(channelList) do
-		local r, g, b = entry.colour.r, entry.colour.g, entry.colour.b
+		local r, g, b = entry.color.r, entry.color.g, entry.color.b
 		if (entry.channel == outputChannel) then
 			if (outputChannel ~= "CHANNEL" or entry.index == outputChannelIndex) then
 				outputChannelSelection = i
-				outputChannelColour = {r, g, b}
+				outputChannelColor = {r, g, b}
 			end
 		end
 
 		local info = MSA_DropDownMenu_CreateInfo()
 		info.text = entry.display
-		info.func = XPerl_Channel_OnClick
+		info.func = ChannelOnClick
 		info.value = {channel = entry.channel, index = entry.index, red = r, green = g, blue = b}
 		info.colorCode = format("|cFF%02X%02X%02X", r * 255, g * 255, b * 255)
 		MSA_DropDownMenu_AddButton(info)

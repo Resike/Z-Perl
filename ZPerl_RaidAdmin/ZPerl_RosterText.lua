@@ -1,8 +1,9 @@
--- X-Perl UnitFrames
 -- Author: Resike
--- License: GNU GPL v3, 29 June 2007 (see LICENSE.txt)
+-- License: GNU GPL v3, 29 June 2007
 
-XPerl_SetModuleRevision("$Revision:  $")
+local L = ZPerl.L
+
+ZPerl.SetModuleRevision("$Revision:  $")
 
 -- onEvent
 local function onEvent(self, event, a, b, c)
@@ -22,7 +23,7 @@ local function Update(self)
 	local myZone = GetRealZoneText()
 	local list = {}
 
-	for unitid, unitName, unitClass, group, zone, online, dead in XPerl_NextMember do
+	for unitid, unitName, unitClass, group, zone, online, dead in ZPerl.NextMember do
 		if (self.group[group]) then
 			if (not self.sameZone or (zone == myZone)) then
 				tinsert(list, {["group"] = group, name = unitName})
@@ -51,13 +52,13 @@ local function Update(self)
 	--end
 	self.textFrame.scroll.text:SetFocus()
 
-	self.totals:SetFormattedText(XPERL_ROSTERTEXT_TOTAL, totals)
+	self.totals:SetFormattedText(L["ROSTERTEXT_TOTAL"], totals)
 end
 
--- XPerl_RosterText_Init
-function XPerl_RosterText_Init(self)
+-- ZPerl.RaidAdmin.RosterTextInit
+function ZPerl.RaidAdmin.RosterTextInit(self)
 
-	XPerl_SetChildMembers(self)
+	ZPerl.SetChildMembers(self)
 
 	self:OnBackdropLoaded()
 	self:SetBackdropColor(0, 0, 0, 0.7)
@@ -65,11 +66,7 @@ function XPerl_RosterText_Init(self)
 
 	self:RegisterForDrag("LeftButton")
 
-	if (XPerl_SavePosition) then
-		XPerl_SavePosition(XPerl_RosterTextAnchor, true)
-	end
-
-	XPerl_RegisterScalableFrame(self, XPerl_RosterTextAnchor)
+	ZPerl.RegisterScalableFrame(self, ZPerl_RosterTextAnchor)
 
 	self.group = {1, 1, 1, 1, 1, nil, nil, nil}
 	self.sameZone = nil
@@ -80,17 +77,18 @@ function XPerl_RosterText_Init(self)
 	self.GROUP_ROSTER_UPDATE = Update
 	self.PLAYER_ENTERING_WORLD = Update
 
-	self:SetScript("OnShow", function(self)
-		self:RegisterEvent("GROUP_ROSTER_UPDATE")
-		self:RegisterEvent("PLAYER_ENTERING_WORLD")
-		Update(self)
+	self:SetScript("OnShow", function(frame)
+		frame:RegisterEvent("GROUP_ROSTER_UPDATE")
+		frame:RegisterEvent("PLAYER_ENTERING_WORLD")
+		Update(frame)
 	end)
-	self:SetScript("OnHide", function(self)
-		XPerl_RosterText.text = nil
-		self.textFrame.scroll.text:SetText("")
-		self:UnregisterAllEvents()
+	self:SetScript("OnHide", function(frame)
+		---@diagnostic disable-next-line: inject-field
+		ZPerl_RosterText.text = nil
+		frame.textFrame.scroll.text:SetText("")
+		frame:UnregisterAllEvents()
 	end)
 
 	self:SetScript("OnLoad", nil)
-	XPerl_RosterText_Init = nil
+	ZPerl.RaidAdmin.RosterTextInit = nil
 end

@@ -1,19 +1,22 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 
+	<Script file="ZPerl_Values.lua"/>
+	<Script file="ZPerl_AuraPolyfill.lua"/>
+	<Script file="ZPerl_HitText.lua"/>
 	<Script file="ZPerl.lua"/>
-	<!--<Script file="ZPerl_Usage.lua"/>-->
+	<Script file="ZPerl_Colors.lua"/>
+	<Script file="ZPerl_Minimap.lua"/>
+	<Script file="ZPerl_Display.lua"/>
+	<Script file="ZPerl_Unit.lua"/>
 	<Script file="ZPerl_Highlight.lua"/>
 
 	<Button name="ZPerl_MinimapButton_Frame" frameStrata="MEDIUM" parent="Minimap" enableMouse="true" movable="true">
 		<Size>
 			<AbsDimension x="33" y="33"/>
 		</Size>
-		<Anchors>
-			<Anchor point="CENTER" relativeTo="Minimap" relativePoint="RIGHT"/>
-		</Anchors>
 		<Layers>
 			<Layer level="BACKGROUND">
-				<Texture name="XPerl_MinimapButton_Icon" file="Interface\Icons\INV_Misc_Gem_Pearl_02">
+				<Texture name="ZPerl_MinimapButton_Icon" file="Interface\Icons\INV_Misc_Gem_Pearl_02">
 					<Size>
 						<AbsDimension x="21" y="21"/>
 					</Size>
@@ -43,11 +46,15 @@
 			<OnLoad>
 				self:RegisterForClicks("LeftButtonUp", "RightButtonUp")
 				self:RegisterForDrag("RightButton")
+				-- free-drag instead of the old minimap-circle
+				-- constraint (ZPerl_MinimapButton_Dragging); matches every
+				-- other movable Z-Perl frame's own StartMoving idiom. The position
+				-- is ours (ZPerl.PlaceFrame), not the client's layout cache.
+				self:SetDontSavePosition(true)
 			</OnLoad>
 			<OnEnter>
 				if (not self.dragging) then
-					XPerl_MinimapButton_OnEnter(self)
-					self:SetScript("OnUpdate", XPerl_MinimapButton_OnUpdate)
+					ZPerl.MinimapButtonOnEnter(self)
 				end
 			</OnEnter>
 			<OnLeave>
@@ -57,36 +64,29 @@
 				GameTooltip:Hide()
 			</OnLeave>
 			<OnMouseDown>
-				XPerl_MinimapButton_Icon:SetTexCoord(0,1,0,1)
+				ZPerl_MinimapButton_Icon:SetTexCoord(0,1,0,1)
 			</OnMouseDown>
 			<OnMouseUp>
-				XPerl_MinimapButton_Icon:SetTexCoord(.075,.925,.075,.925)
+				ZPerl_MinimapButton_Icon:SetTexCoord(.075,.925,.075,.925)
 			</OnMouseUp>
 			<OnDragStart>
 				self.dragging = true
-				self:SetScript("OnUpdate", XPerl_MinimapButton_Dragging)
+				self:StartMoving()
 			</OnDragStart>
 			<OnDragStop>
 				self.dragging = false
-				self:SetScript("OnUpdate", XPerl_MinimapButton_OnUpdate)
-				XPerl_MinimapButton_Icon:SetTexCoord(.075,.925,.075,.925)
+				self:StopMovingOrSizing()
+				ZPerl.SavePosition(self)
+				ZPerl_MinimapButton_Icon:SetTexCoord(.075,.925,.075,.925)
 			</OnDragStop>
 			<OnClick>
-				--XPerl_Toggle()
-				XPerl_MinimapButton_OnClick(self, button)
-				XPerl_MinimapButton_Icon:SetTexCoord(.075,.925,.075,.925)
+				ZPerl.MinimapButtonOnClick(self, button)
+				ZPerl_MinimapButton_Icon:SetTexCoord(.075,.925,.075,.925)
 			</OnClick>
 		</Scripts>
 	</Button>
 
-	<Frame name="XPerl_LowHealthFrame" parent="UIParent" setAllPoints="true" hidden="true">
-		<Layers>
-			<Layer level="BACKGROUND">
-				<Texture file="Interface\FullScreenTextures\LowHealth" alphaMode="ADD"/>
-			</Layer>
-		</Layers>
-	</Frame>
-	<Frame name="XPerl_OutOfControlFrame" parent="UIParent" setAllPoints="true" hidden="true">
+	<Frame name="ZPerl_OutOfControlFrame" parent="UIParent" setAllPoints="true" hidden="true">
 		<Layers>
 			<Layer level="BACKGROUND">
 				<Texture file="Interface\FullScreenTextures\OutOfControl" alphaMode="ADD"/>

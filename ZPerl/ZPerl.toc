@@ -1,33 +1,41 @@
-## Interface: 11508, 20505, 50504
-## Version: 7.7.2
-## Author: Resike
-## Title: Z-Perl UnitFrames
-## Title-itIT: Z-Perl UnitFrames
-## Title-ruRU: Z-Perl UnitFrames
-## Title-deDE: Z-Perl UnitFrames
-## Title-zhCN: Z-Perl 核心
-## Title-zhTW: Z-Perl 主要核心
-## Notes: Replaces the normal unit, party, target, pet frames and adds target-of-target.
-## Notes-itIT: Rimpiazza le finestre del giocatore, del gruppo, del bersaglio, del famiglio e aggiunge la finestra del bersaglio del bersaglio.
-## Notes-ruRU: Заменяет стандартные фреймы игроков, группы, цели, питомца и добавляет цель цели.
-## Notes-deDE: Ersetzt die normalen Fenster (Einheit, Gruppe, Ziel, Begleiter und Ziel des Ziels).
-## Notes-esES: Reemplazo para los marcos de unidades, con nuevo aspecto para jugador, mascota, grupo, objetivo, objetivo del objetivo, y banda
-## Notes-esMX: Reemplazo para los marcos de unidades, con nuevo aspecto para jugador, mascota, grupo, objetivo, objetivo del objetivo, y banda
-## Notes-ptBR: Substituição para os quadros de unidades, com nova aparência para jogador, mascote, grupo, objetivo, objetivo do objetivo e raide
-## Notes-frFR: Remplacement pour les cadres d'unités, avec une nouvelle apparence pour le joueur, la mascotte, le groupe, la cible, la cible de la cible et le raid
-## Notes-zhCN: 玩家头像增强插件，附带团队助手功能
-## Notes-zhTW: 提供玩家單位、隊伍、目標、寵物、目標的目標頭像增強以及團隊框架顯示、團隊助手等等功能
-## SavedVariables: ZPerlConfig, ZPerlConfig_Global, ZPerlConfigNew, ZPerlConfigSavePerCharacter, ZPerlImportDone
+## Interface: 120105, 50504, 20506, 16001, 11509
+## Version: 8.0.0
+## Author: Resike based on work by Zeta0xD, Ziliya, Halfdays, Zek and Nymbia
+## Title: Z-Perl
+## Notes: The classic X-Perl unit-frame experience rebuilt and maintained for all WoW flavours.
+## SavedVariables: ZPerlDB, ZPerlConfigNew
+## SavedVariablesPerCharacter: ZPerlPerCharacter, ZPerlRoster, ZPerlConfigSavePerCharacter, ZPerl_Roster
+## IconTexture: Interface\AddOns\ZPerl\ZPerlIcon
 ## OptionalDeps: Clique
 
 
+ZPerl_Compat.lua
+ZPerl_Core.lua
+ZPerl_Positions.lua
+
 Libs\LibStub\LibStub.lua
 Libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
+Libs\LibDataBroker-1.1\LibDataBroker-1.1.xml
 Libs\LibClassicDurations\LibClassicDurations.xml
 Libs\LibHealComm-4.0\LibHealComm-4.0.xml
 Libs\MSA-DropDownMenu-1.0\MSA-DropDownMenu-1.0.lua
 
-Version.lua
-
 ZPerl_Globals.xml
 ZPerl.xml
+
+ArcaneBar\ZPerl_ArcaneBar.xml
+AuraBlacklist\Localization.lua
+AuraBlacklist\ZPerl_AuraBlacklist.lua
+Party\ZPerl_Party.xml
+PartyPet\ZPerl_PartyPet.xml
+Player\ZPerl_Player.xml
+PlayerBuffs\ZPerl_PlayerBuffs.lua
+PlayerBuffs\ZPerl_WeaponEnchants.lua
+PlayerPet\ZPerl_PlayerPet.xml
+Raid\ZPerl_Raid.xml
+RaidPets\ZPerl_RaidPets.xml
+CustomHighlight\ZPerl_CustomHighlight.lua
+CustomHighlight\ZPerl_CustomHighlightConfig.lua
+Target\ZPerl_Target.xml
+TargetTarget\ZPerl_TargetTarget.xml
+

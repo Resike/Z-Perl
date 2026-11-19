@@ -1,21 +1,16 @@
--- X-Perl UnitFrames
 -- Author: Resike
--- License: GNU GPL v3, 29 June 2007 (see LICENSE.txt)
+-- License: GNU GPL v3, 29 June 2007
+
+local L = ZPerl.L
 
 local init_done, gradient, conf, doneOptions
 local errorCount = 0
-XPerl_RequestConfig(function(new)
+ZPerl.RequestConfig(function(new)
 	conf = new
 end, "$Revision:  $")
 
-local _, _, _, clientRevision = GetBuildInfo()
-
-local IsRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
-local IsPandaClassic = WOW_PROJECT_ID == WOW_PROJECT_MISTS_CLASSIC
-local IsBCClassic = WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC
-local IsVanillaClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
-
-local _G = _G
+-- Upvalues
+local error = error
 local format = format
 local geterrorhandler = geterrorhandler
 local hooksecurefunc = hooksecurefunc
@@ -27,29 +22,32 @@ local pcall = pcall
 local sort = sort
 local tinsert = tinsert
 local tonumber = tonumber
+local tostring = tostring
 local type = type
 local unpack = unpack
+local wipe = wipe
 
 local CreateColor = CreateColor
 local CreateFrame = CreateFrame
 local InCombatLockdown = InCombatLockdown
 local IsAltKeyDown = IsAltKeyDown
 local IsInRaid = IsInRaid
-local UnitAura = UnitAura
-local UnitClass = UnitClass
 local UnitInParty = UnitInParty
 local UnitInRaid = UnitInRaid
-local UnitName = UnitName
 
-local classOrder
-if IsRetail then
-	classOrder = {"WARRIOR", "DEATHKNIGHT", "ROGUE", "HUNTER", "DRUID", "SHAMAN", "PALADIN", "PRIEST", "MAGE", "WARLOCK", "MONK", "DEMONHUNTER", "EVOKER"}
-elseif IsPandaClassic then
-	classOrder = {"WARRIOR", "DEATHKNIGHT", "ROGUE", "HUNTER", "DRUID", "SHAMAN", "PALADIN", "PRIEST", "MAGE", "WARLOCK"}
-elseif IsBCClassic then
-	classOrder = {"WARRIOR", "DEATHKNIGHT", "ROGUE", "HUNTER", "DRUID", "SHAMAN", "PALADIN", "PRIEST", "MAGE", "WARLOCK"}
-else
-	classOrder = {"WARRIOR", "ROGUE", "HUNTER", "DRUID", "SHAMAN", "PALADIN", "PRIEST", "MAGE", "WARLOCK"}
+local LOCALIZED_CLASS_NAMES_MALE = LOCALIZED_CLASS_NAMES_MALE
+
+local GameFontNormal = GameFontNormal
+local GameFontNormalSmall = GameFontNormalSmall
+local GameTooltip = GameTooltip
+local WorldFrame = WorldFrame
+
+local classOrder = {"WARRIOR", "ROGUE", "HUNTER", "DRUID", "SHAMAN", "PALADIN", "PRIEST", "MAGE", "WARLOCK"}
+-- the classes newer than Classic, on the clients that have them
+for _, class in ipairs({"DEATHKNIGHT", "MONK", "DEMONHUNTER", "EVOKER"}) do
+	if (LOCALIZED_CLASS_NAMES_MALE[class]) then
+		tinsert(classOrder, class)
+	end
 end
 
 -- SetTexCreateColor
@@ -64,7 +62,7 @@ local function SetTex(self, num)
 	local p = highlightPositions[num]
 	if ((self.GetFrameType or self.GetObjectType)(self) == "Button") then
 		if (conf.highlightSelection == 1) then
-			self:SetHighlightTexture("Interface\\Addons\\ZPerl\\Images\\XPerl_Highlight", "ADD")
+			self:SetHighlightTexture("Interface\\AddOns\\ZPerl\\Images\\ZPerl_Highlight", "ADD")
 			local tex = self:GetHighlightTexture()
 			tex:SetTexCoord(unpack(p))
 			tex:SetVertexColor(0.86, 0.82, 0.41)
@@ -74,11 +72,13 @@ local function SetTex(self, num)
 
 	elseif ((self.GetFrameType or self.GetObjectType)(self) == "Frame") then
 		if (self.tex) then
-			self.tex:SetTexture("Interface\\Addons\\ZPerl\\Images\\XPerl_Highlight", "ADD")
+			-- SetTexture's second argument is a wrap mode, not a blend mode
+			self.tex:SetTexture("Interface\\AddOns\\ZPerl\\Images\\ZPerl_Highlight")
+			self.tex:SetBlendMode("ADD")
 			self.tex:SetTexCoord(unpack(p))
 			self.tex:SetVertexColor(0.86, 0.82, 0.41)
-			if XPerl_Highlight then
-				XPerl_Highlight:SetHighlight(self:GetParent())
+			if ZPerl_Highlight then
+				ZPerl_Highlight:SetHighlight(self:GetParent())
 			end
 		end
 	end
@@ -86,23 +86,23 @@ end
 
 -- RegisterHighlight
 local HighlightFrames = { }
-function XPerl_RegisterHighlight(frame, ratio)
+function ZPerl.RegisterHighlight(frame, ratio)
 	HighlightFrames[frame] = ratio
 	if (init_done) then
 		SetTex(frame, ratio)
 	end
 end
 
--- XPerl_SetHighlights
-function XPerl_SetHighlights()
+-- ZPerl.SetHighlights
+function ZPerl.SetHighlights()
 	for k, v in pairs(HighlightFrames) do
 		SetTex(k, v)
 	end
 end
 
--- XPerl_MakeGradient(self)
-function XPerl_DoGradient(self, force)
-	if ((force or (conf and conf.colour.gradient.enable)) and not self.tfade) then
+-- ZPerl_MakeGradient(self)
+function ZPerl.DoGradient(self, force)
+	if ((force or (conf and conf.color.gradient.enable)) and not self.tfade) then
 		if (gradient) then
 			if (not self.gradient) then
 				local w = self:GetWidth()
@@ -123,6 +123,7 @@ function XPerl_DoGradient(self, force)
 			end
 			if (self.gradient) then
 				local orient, r, g, b, a, r2, g2, b2, a2 = unpack(gradient)
+				---@diagnostic disable-next-line: type-mismatch
 				self.gradient:SetGradient(orient, CreateColor(r, g, b, a), CreateColor(r2, g2, b2, a2))
 				self.gradient:Show()
 			end
@@ -137,28 +138,29 @@ end
 
 -- SetupUnitFrame
 local function SetupUnitFrame(self)
-	self:OnBackdropLoaded()
-	self:SetBackdropBorderColor(conf.colour.border.r, conf.colour.border.g, conf.colour.border.b, conf.colour.border.a)
-	self:SetBackdropColor(conf.colour.frame.r, conf.colour.frame.g, conf.colour.frame.b, conf.colour.frame.a)
-	XPerl_DoGradient(self)
+	self:SetBackdropBorderColor(conf.color.border.r, conf.color.border.g, conf.color.border.b, conf.color.border.a)
+	self:SetBackdropColor(conf.color.frame.r, conf.color.frame.g, conf.color.frame.b, conf.color.frame.a)
+	ZPerl.DoGradient(self)
 end
 
 -- SetupUnitFrameList
-local function SetupUnitFrameList(frame, subList)
+local function SetupUnitFrameList(frame, subList, keepAlpha)
 
-	if (conf.colour.gradient.enable) then
+	if (conf.color.gradient.enable) then
 		local o
-		if (conf.colour.gradient.horizontal) then
+		if (conf.color.gradient.horizontal) then
 			o = "HORIZONTAL"
 		else
 			o = "VERTICAL"
 		end
 
-		gradient = {o, conf.colour.gradient.e.r, conf.colour.gradient.e.g, conf.colour.gradient.e.b, conf.colour.gradient.e.a, conf.colour.gradient.s.r, conf.colour.gradient.s.g, conf.colour.gradient.s.b, conf.colour.gradient.s.a}
+		gradient = {o, conf.color.gradient.e.r, conf.color.gradient.e.g, conf.color.gradient.e.b, conf.color.gradient.e.a, conf.color.gradient.s.r, conf.color.gradient.s.g, conf.color.gradient.s.b, conf.color.gradient.s.a}
 	end
 
 	if (type(subList) == "table") then
-		frame:SetAlpha(conf.transparency.frame)
+		if (not keepAlpha) then
+			frame:SetAlpha(conf.transparency.frame)
+		end
 		for k,v in pairs(subList) do
 			SetupUnitFrame(v)
 		end
@@ -167,106 +169,106 @@ local function SetupUnitFrameList(frame, subList)
 	end
 end
 
--- XPerl_RegisterUnitFrame(frame)
+-- ZPerl_RegisterUnitFrame(frame)
 local UnitFrames = {}
-function XPerl_RegisterPerlFrames(frame, subList)
+function ZPerl.RegisterPerlFrames(frame, subList)
 	if (not subList) then
 		subList = true
 	end
 	UnitFrames[frame] = subList
+
+	-- Once per frame: a frame that inherits ZPerl_BackdropTemplate and a second template with the
+	-- backdropInfo gets no backdrop at load. No option changes a backdrop, so no re-apply is needed.
+	if (type(subList) == "table") then
+		for k, v in pairs(subList) do
+			v:OnBackdropLoaded()
+		end
+	else
+		frame:OnBackdropLoaded()
+	end
 
 	if (init_done) then
 		SetupUnitFrameList(frame, subList)
 	end
 end
 
--- XPerl_SetupAllPerlFrames
-function XPerl_SetupAllPerlFrames(frame)
+-- ZPerl.SetupAllPerlFrames
+-- keepAlpha: leave the frame alpha alone (the range fader owns it between option changes)
+function ZPerl.SetupAllPerlFrames(frame, keepAlpha)
 	for k, v in pairs(UnitFrames) do
-		SetupUnitFrameList(k, v)
+		SetupUnitFrameList(k, v, keepAlpha)
 	end
 end
 
--- XPerl_SetAllFrames
-function XPerl_SetAllFrames()
-	XPerl_SetupAllPerlFrames()
-	XPerl_SetHighlights()
+-- ZPerl.SetPerlFramesAlpha: the alpha part of ZPerl.SetupAllPerlFrames
+function ZPerl.SetPerlFramesAlpha()
+	for k, v in pairs(UnitFrames) do
+		if (type(v) == "table") then
+			k:SetAlpha(conf.transparency.frame)
+		end
+	end
 end
 
--- XPerl_pcall
-function XPerl_pcall(...)
-	local success, error = pcall(...)
+-- ZPerl.SetAllFrames
+function ZPerl.SetAllFrames()
+	ZPerl.SetupAllPerlFrames()
+	ZPerl.SetHighlights()
+end
+
+-- ZPerl.Pcall
+function ZPerl.Pcall(...)
+	local success, err = pcall(...)
 	if (not success) then
 		errorCount = errorCount + 1
 		if (not doneOptions) then
-			XPerl_Notice("Error:"..error)
+			-- the message goes in as an argument: Notice formats its first one, and an error text can hold a %
+			ZPerl.Notice("Error: %s", tostring(err))
 		end
-		geterrorhandler()(error)
+		geterrorhandler()(err)
 	end
+	return success
 end
 
 -- GetNamesWithoutBuff
---[[local matches = {
-	--{GetSpellInfo(21562)},				-- Fortitude
-	--{GetSpellInfo(1459)},				-- Intellect
-	--{GetSpellInfo(1126)},				-- Mark of the Wild
-	--{GetSpellInfo(27683)},			-- Shadow Protection
-	--{GetSpellInfo(19740)},				-- Blessing of Might
-	--{GetSpellInfo(20217)},				-- Blessing of Kings
-}]]
-
---local checkExpiring
 local lastNamesList
 local lastName
 local lastWith
 local lastNamesCount
+local lastFilter, lastSort, lastTime
+-- the list follows the group's auras, so a cached one is reused only for the same query within a second
+-- (the tooltip asks again while it stays open)
+local NAMES_CACHE_TIME = 1
 local function GetNamesWithoutBuff(spellName, with, filter)
-	if spellName == lastName and with == lastWith and lastNamesList then
+	-- aura names can be secret in restricted content and can
+	-- then neither be compared nor cached
+	if (not ZPerl.CanAccess(spellName)) then
+		return
+	end
+	if spellName == lastName and with == lastWith and filter == lastFilter and conf.buffHelper.sort == lastSort
+		and lastNamesList and lastTime and GetTime() - lastTime < NAMES_CACHE_TIME then
 		return lastNamesList, lastNamesCount
 	end
 
 	local count = 0
 	local names
-	local unitName
 
-	--[[local _, class = UnitClass("player")
-
-	if (not checkExpiring) then
-		local cet = {}
-
-		if (class == "PRIEST" or UnitIsGroupAssistant("player")) then
-			--cet[GetSpellInfo(21562)] = 2			-- Fortitudeh
-			--cet[GetSpellInfo(27683)] = 2			-- Shadow Protection
-		end
-
-		if (class == "DRUID" or UnitIsGroupAssistant("player")) then
-			--cet[GetSpellInfo(1126)] = 2				-- Mark of the Wild
-			--cet[GetSpellInfo(467)] = 1			-- Thorns
-		end
-
-		if (class == "MAGE" or UnitIsGroupAssistant("player")) then
-			--cet[GetSpellInfo(1459)] = 2				-- Intellect
-		end
-
-		if (class == "PALADIN" or UnitIsGroupAssistant("player")) then
-			--cet[GetSpellInfo(19740)] = 2			-- Blessing of Might
-			--cet[GetSpellInfo(20217)] = 2			-- Blessing of Kings
-		end
-
-		checkExpiring = cet
-	end]]
-
-	--local withList = XPerl_GetReusableTable()
+	--local withList = ZPerl.GetReusableTable()
 	local withList = { }
-	for unitid, unitName, unitClass, group, zone, online, dead in XPerl_NextMember do
+	for unitid, unitName, unitClass, group, zone, online, dead in ZPerl.NextMember do
 		local use
 
 		if not conf.buffHelper.visible then
 			use = true
 		else
 			if conf.raid.sortByClass then
-				if (conf.raid.class[group].enable) then
-					use = unitClass == conf.raid.class[group].name
+				-- one column per class: the member counts when its class's column is enabled and shown
+				if (unitClass and ZPerl.CanAccess(unitClass)) then
+					for i, c in ipairs(conf.raid.class) do
+						if (c.name == unitClass) then
+							use = c.enable and conf.raid.group[i]
+							break
+						end
+					end
 				end
 			else
 				use = conf.raid.group[group]
@@ -276,50 +278,14 @@ local function GetNamesWithoutBuff(spellName, with, filter)
 		if unitName and use and online and not dead then
 			local hasBuff
 			for i = 1, 40 do
-				local name, icon, applications, duration, expirationTime, sourceUnit, isStealable
-				if not IsVanillaClassic and C_UnitAuras then
-					local auraData = C_UnitAuras.GetAuraDataByIndex(unitid, i, filter)
-					if auraData then
-						name = auraData.name
-						icon = auraData.icon
-						applications = auraData.applications
-						duration = auraData.duration
-						expirationTime = auraData.expirationTime
-						sourceUnit = auraData.sourceUnit
-						isStealable = auraData.isStealable
-					end
-				else
-					local _
-					name, icon, applications, _, duration, expirationTime, sourceUnit, isStealable = UnitAura(unitid, i, filter)
-				end
+				local name = ZPerl.UnitAuraByIndex(unitid, i, filter)
 				if not name then
 					break
 				end
 
-				if name == spellName then
+				if ZPerl.CanAccess(name) and name == spellName then
 					hasBuff = true
-				--[[else
-					for dups, pair in pairs(matches) do
-						if (name == pair[1] or name == pair[2]) then
-							if (spellName == pair[1] or spellName == pair[2]) then
-								hasBuff = true
-								break
-							end
-						end
-					end]]
 				end
-				--[[if (hasBuff) then
-					if (without and checkExpiring) then
-						local found = checkExpiring[name]
-
-						if (found) then
-							if (endTime and endTime > 0 and endTime <= GetTime() + (found * 60)) then
-								GameTooltip:AddLine(format(XPERL_RAID_TOOLTIP_BUFFEXPIRING, XPerlColourTable[unitClass]..name.."|c", buffName, SecondsToTime(endTime - GetTime())), 1, 0.2, 0)
-							end
-						end
-					end
-					break
-				end--]]
 			end
 
 			if (with and hasBuff) or (not with and not hasBuff) then
@@ -327,18 +293,21 @@ local function GetNamesWithoutBuff(spellName, with, filter)
 
 				if conf.buffHelper.sort == "group" then
 					if (not withList[group]) then
-						--withList[group] = XPerl_GetReusableTable()
+						--withList[group] = ZPerl.GetReusableTable()
 						withList[group] = { }
 					end
 					tinsert(withList[group], {class = unitClass, name = unitName})
 				elseif conf.buffHelper.sort == "class" then
-					if not withList[unitClass] then
-						--withList[unitClass] = XPerl_GetReusableTable()
-						withList[unitClass] = { }
+					-- a member whose class is not known yet has no column (nil cannot be a table key): counted, not listed
+					if unitClass then
+						if not withList[unitClass] then
+							--withList[unitClass] = ZPerl.GetReusableTable()
+							withList[unitClass] = { }
+						end
+						tinsert(withList[unitClass], unitName)
 					end
-					tinsert(withList[unitClass], unitName)
 				else
-					--local n = XPerl_GetReusableTable()
+					--local n = ZPerl.GetReusableTable()
 					local n = { }
 					tinsert(withList, n)
 					n.class = unitClass
@@ -356,13 +325,12 @@ local function GetNamesWithoutBuff(spellName, with, filter)
 
 				names = (names or "").."|r"..i..": "
 				for i, item in ipairs(list) do
-					if item.class and item.class then
-						names = names..XPerlColourTable[item.class]..item.name.." "
-					end
+					-- a member whose class is not known yet still gets listed, in grey
+					names = names..(item.class and ZPerl.ColorTable[item.class] or "|c00808080")..item.name.." "
 				end
 				names = names.."|r\r"
 			end
-			--XPerl_FreeTable(list)
+			--ZPerl.FreeTable(list)
 		end
 	elseif conf.buffHelper.sort == "class" then
 		for j, class in ipairs(classOrder) do
@@ -372,74 +340,49 @@ local function GetNamesWithoutBuff(spellName, with, filter)
 
 				for i, name in ipairs(list) do
 					if i == 1 then
-						names = (names or "")..XPerlColourTable[class]
+						names = (names or "")..ZPerl.ColorTable[class]
 					end
 					names = (names or "")..name.." "
 				end
 
 				names = (names or "").."|r\r"
 			end
-			--XPerl_FreeTable(list)
+			--ZPerl.FreeTable(list)
 		end
 	else
 		sort(withList, function(a, b) return a.name < b.name end)
 		for i, item in ipairs(withList) do
-			names = (names or "")..XPerlColourTable[item.class]..item.name.." "
-			--XPerl_FreeTable(item)
+			names = (names or "")..(item.class and ZPerl.ColorTable[item.class] or "|c00808080")..item.name.." "
+			--ZPerl.FreeTable(item)
 		end
 
 		names = (names or "").."\r"
 	end
 
-	--XPerl_FreeTable(withList)
+	--ZPerl.FreeTable(withList)
 
 	lastNamesList = names
 	lastName = spellName
 	lastWith = with
 	lastNamesCount = count
+	lastFilter, lastSort, lastTime = filter, conf.buffHelper.sort, GetTime()
 
 	return names, count
 end
 
-local function UnitFullName(unit)
-	local name, realm = UnitName(unit)
-	if (name) then
-		if (realm and realm ~= "") then
-			return name .. "-" .. realm
-		else
-			return name
-		end
-	end
-end
-
--- XPerl_ToolTip_AddBuffDuration
-local function XPerl_ToolTip_AddBuffDuration(self, partyid, buffID, filter)
+-- ToolTipAddBuffDuration
+local function ToolTipAddBuffDuration(self, partyid, buffID, filter)
 	if IsInRaid() or UnitInParty("player") then
-		local name, applications, duration, expirationTime, sourceUnit, isStealable
-		if not IsVanillaClassic and C_UnitAuras then
-			local auraData = C_UnitAuras.GetAuraDataByIndex(partyid, buffID, filter)
-			if auraData then
-				name = auraData.name
-				icon = auraData.icon
-				applications = auraData.applications
-				duration = auraData.duration
-				expirationTime = auraData.expirationTime
-				sourceUnit = auraData.sourceUnit
-				isStealable = auraData.isStealable
-			end
-		else
-			local _
-			name, _, applications, _, duration, expirationTime, sourceUnit, isStealable = UnitAura(partyid, buffID, filter)
-		end
+		local name = ZPerl.UnitAuraByIndex(partyid, buffID, filter)
 
 		if conf.buffHelper.enable and partyid and (UnitInParty(partyid) or UnitInRaid(partyid)) then
-			if name then
+			if name and ZPerl.CanAccess(name) then
 				local names, count = GetNamesWithoutBuff(name, IsAltKeyDown(), filter)
 				if names then
 					if IsAltKeyDown() then
-						self:AddLine(format(XPERL_RAID_TOOLTIP_WITHBUFF, count), 0.3, 1, 0.2)
+						self:AddLine(format(L["RAID_TOOLTIP_WITHBUFF"], count), 0.3, 1, 0.2)
 					else
-						self:AddLine(format(XPERL_RAID_TOOLTIP_WITHOUTBUFF, count), 1, 0.3, 0.1)
+						self:AddLine(format(L["RAID_TOOLTIP_WITHOUTBUFF"], count), 1, 0.3, 0.1)
 					end
 
 					if conf.buffHelper.sort then
@@ -450,59 +393,31 @@ local function XPerl_ToolTip_AddBuffDuration(self, partyid, buffID, filter)
 				end
 			end
 		end
-
-		if sourceUnit and conf.buffs.names then
-			local casterName = UnitFullName(sourceUnit)
-			if casterName then
-				local c
-				if UnitIsPlayer(sourceUnit) then
-					local _, class = UnitClass(sourceUnit)
-					c = class and (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[class]
-				else
-					c = XPerl_ReactionColour(sourceUnit)
-				end
-				if c then
-					self:AddLine(casterName, c.r, c.g, c.b)
-				else
-					self:AddLine(casterName)
-				end
-			end
-		end
 	end
-
 
 	GameTooltip:Show()
 end
 
 -- Buff Tooltip Hook
-local function XPerl_GameTooltipSetUnitAura(self, unitId, buffId, filter)
-	XPerl_ToolTip_AddBuffDuration(self, unitId, buffId, filter)
+local function GameTooltipSetUnitAura(self, unitId, buffId, filter)
+	ToolTipAddBuffDuration(self, unitId, buffId, filter)
 end
 
-local function XPerl_GameTooltipSetUnitBuff(self, unitId, buffId)
-	XPerl_ToolTip_AddBuffDuration(self, unitId, buffId, "HELPFUL")
+local function GameTooltipSetUnitBuff(self, unitId, buffId)
+	ToolTipAddBuffDuration(self, unitId, buffId, "HELPFUL")
 end
 
-local function XPerl_GameTooltipSetUnitDebuff(self, unitId, buffId)
-	XPerl_ToolTip_AddBuffDuration(self, unitId, buffId, "HARMFUL")
+local function GameTooltipSetUnitDebuff(self, unitId, buffId)
+	ToolTipAddBuffDuration(self, unitId, buffId, "HARMFUL")
 end
 
--- ZPerl_Init()
-function ZPerl_Init()
+-- ZPerl.Init()
+function ZPerl.Init()
 	init_done = true
 	if GameTooltip.SetUnitAura then
-		hooksecurefunc(GameTooltip, "SetUnitAura", XPerl_GameTooltipSetUnitAura)
-		hooksecurefunc(GameTooltip, "SetUnitBuff", XPerl_GameTooltipSetUnitBuff)
-		hooksecurefunc(GameTooltip, "SetUnitDebuff", XPerl_GameTooltipSetUnitDebuff)
-	end
-
-	C_AddOns.DisableAddOn("XPerl_TeamSpeak")
-
-	-- Check for eCastbar and disable old frame if used.
-	if eCastingBar_Saved and eCastingBar_Player and eCastingBar_Saved[eCastingBar_Player].Enabled == 1 then
-		conf.player.castBar.original = nil
-	elseif BCastBar and BCastingBar and BCastBarDragButton then
-		conf.player.castBar.original = nil
+		hooksecurefunc(GameTooltip, "SetUnitAura", GameTooltipSetUnitAura)
+		hooksecurefunc(GameTooltip, "SetUnitBuff", GameTooltipSetUnitBuff)
+		hooksecurefunc(GameTooltip, "SetUnitDebuff", GameTooltipSetUnitDebuff)
 	end
 
 	local f = CreateFrame("Frame")
@@ -514,104 +429,29 @@ function ZPerl_Init()
 		local size = format("%.0f%.0f", width, height)
 		if size == "11" then
 			conf.bar.texture[1] = "Perl v2"
-			conf.bar.texture[2] = "Interface\\AddOns\\ZPerl\\Images\\XPerl_StatusBar"
-			XPerl_SetBarTextures()
+			conf.bar.texture[2] = "Interface\\AddOns\\ZPerl\\Images\\ZPerl_StatusBar"
+			ZPerl.SetBarTextures()
 		end
 	end)
 	tx:SetTexture(conf.bar.texture[2])
 	tx:SetSize(0, 0)
 
-	XPerl_pcall(XPerl_OptionActions)
+	ZPerl.Pcall(ZPerl.OptionActions)
 
 	--PartyMemberFrame:UnregisterEvent("UNIT_NAME_UPDATE")
 
-	if CT_PartyBuffFrame1 then
-		if (XPerl_party1) then
-			CT_PartyBuffFrame1:Hide()
-			CT_PartyBuffFrame2:Hide()
-			CT_PartyBuffFrame3:Hide()
-			CT_PartyBuffFrame4:Hide()
-		end
-		if XPerl_Player_Pet then
-			CT_PetBuffFrame:Hide()
-		end
-	end
+	--ZPerl.RegisterSMBarTextures()
 
-	if CT_RAMTGroup then
-		-- Fix CTRA lockup issues for WoW 2.1
-		-- Sure it's not my responsibility, but you can bet your ass I'll get blamed for it's lockups...
-		CT_RAMTGroup:UnregisterEvent("UNIT_NAME_UPDATE")
-		if CT_RAMTTGroup then
-			CT_RAMTTGroup:UnregisterEvent("UNIT_NAME_UPDATE")
-		end
-		if CT_RAPTGroup then
-			CT_RAPTGroup:UnregisterEvent("UNIT_NAME_UPDATE")
-		end
-		if CT_RAPTTGroup then
-			CT_RAPTTGroup:UnregisterEvent("UNIT_NAME_UPDATE")
-		end
-		if CT_RAGroup1 then
-			for i = 1, 8 do
-				local f = _G["CT_RAGroup"..i]
-				if f then
-					f:UnregisterEvent("UNIT_NAME_UPDATE")
-				end
-			end
-		end
-	end
+	ZPerl.Pcall(ZPerl.DebufHighlightInit)
 
-	local name, title, notes, enabled = C_AddOns.GetAddOnInfo("SupportFuncs")
-	if name and enabled then
-		local ver = C_AddOns.GetAddOnMetadata(name, "Version")
-		if (tonumber(ver) < 20000.2) then
-			XPerl_Notice("Out-dated version of SupportFuncs detected. This will break the X-Perl Range Finder by replacing standard Blizzard API functions.")
-		end
-	end
-
-	name, title, notes, enabled = C_AddOns.GetAddOnInfo("AutoBar")
-	if name and enabled then
-		local ver = C_AddOns.GetAddOnMetadata(name, "Version")
-		if (ver < "2.01.00.02") then
-			XPerl_Notice("Out-dated version of AutoBar detected. This will taint the Targetting system for all mods that use them, including X-Perl.")
-		end
-	end
-
-	name, title, notes, enabled = C_AddOns.GetAddOnInfo("TrinityBars")
-	if name and enabled then
-		local ver = C_AddOns.GetAddOnMetadata(name, "Version")
-		if (ver <= "20003.14") then
-			XPerl_Notice("Out-dated version of TrinityBars detected. This will taint the Targetting system for all mods that use them, including X-Perl.")
-		end
-	end
-
-	if EarthFeature_AddButton then
-		EarthFeature_AddButton ({name = XPerl_ProductName, icon = XPerl_ModMenuIcon, subtext = "by "..XPerl_Author, tooltip = XPerl_LongDescription, callback = XPerl_Toggle})
-	end
-
-	if CT_RegisterMod then
-		CT_RegisterMod(XPerl_ProductName.." "..XPerl_VersionNumber, "By "..XPerl_Author, 4, XPerl_ModMenuIcon, XPerl_LongDescription, "switch", "", XPerl_Toggle)
-	end
-
-	--[[if (myAddOnsFrame) then
-		myAddOnsList.XPerl_Description = {
-			name			= XPerl_Description,
-			description		= XPerl_LongDescription,
-			version			= XPerl_VersionNumber,
-			category		= MYADDONS_CATEGORY_OTHERS,
-			frame			= "XPerl_Globals",
-			optionsframe	= "XPerl_Options"
-		}
-	end--]]
-
-	--XPerl_RegisterSMBarTextures()
-
-	XPerl_pcall(ZPerl_DebufHighlightInit)
-
-	ZPerl_Init = nil
+	ZPerl.Init = nil
 end
 
--- XPerl_StatsFrame_Setup
-function XPerl_StatsFrameSetup(self, others, offset)
+-- ZPerl.StatsFrameOnLoad
+-- Power events call this; the list of other bars is one table reused per call (the function does not
+-- re-enter and keeps no reference to it).
+local otherBars = {}
+function ZPerl.StatsFrameSetup(self, others, offset)
 	if (not self) then
 		return
 	end
@@ -625,7 +465,7 @@ function XPerl_StatsFrameSetup(self, others, offset)
 	local healthBarPercent = healthBar.percent
 	local manaBar = StatsFrame.manaBar
 	local manaBarPercent = manaBar.percent
-	local otherBars = {}
+	wipe(otherBars)
 	local secondaryBarsShown = 0
 	local percentSize = 0
 	if (healthBarPercent:IsShown() or manaBarPercent:IsShown()) then
@@ -659,16 +499,17 @@ function XPerl_StatsFrameSetup(self, others, offset)
 	end
 
 	if (conf.bar.fat) then
-		if (StatsFrame == XPerl_Player_PetstatsFrame) then
+		if (StatsFrame == ZPerl_Player_PetstatsFrame) then
 			healthBarText:SetFontObject(GameFontNormalSmall)
 		else
 			healthBarText:SetFontObject(GameFontNormal)
 		end
+		healthBarText:SetTextColor(1, 1, 1)
 
 		local x = 10
 
 		local frameName = self:GetName()
-		if frameName == "XPerl_partypet1" or frameName == "XPerl_partypet2" or frameName == "XPerl_partypet3" or frameName == "XPerl_partypet4" or frameName == "XPerl_partypet5" then
+		if frameName == "ZPerl_partypet1" or frameName == "ZPerl_partypet2" or frameName == "ZPerl_partypet3" or frameName == "ZPerl_partypet4" or frameName == "ZPerl_partypet5" then
 			x = 7
 		end
 
@@ -695,6 +536,7 @@ function XPerl_StatsFrameSetup(self, others, offset)
 		end
 	else
 		healthBarText:SetFontObject(GameFontNormalSmall)
+		healthBarText:SetTextColor(1, 1, 1)
 
 		healthBar:ClearAllPoints()
 		healthBar:SetPoint("TOPLEFT", 8, -9 + offset)
@@ -718,14 +560,14 @@ function XPerl_StatsFrameSetup(self, others, offset)
 	end
 end
 
--- XPerl_RegisterUnitText(self)
+-- ZPerl.RegisterUnitText(self)
 local unitText = {}
-function XPerl_RegisterUnitText(self)
+function ZPerl.RegisterUnitText(self)
 	tinsert(unitText, self)
 end
 
--- XPerl_SetTextTransparency()
-function XPerl_SetTextTransparency()
+-- ZPerl.SetTextTransparency()
+function ZPerl.SetTextTransparency()
 	local t = conf.transparency.text
 	for k, v in pairs(unitText) do
 		if (v.GetTextColor) then
@@ -733,13 +575,13 @@ function XPerl_SetTextTransparency()
 			v:SetTextColor(r, g, b, t)
 		end
 	end
-	if XPerl_Player_TargettingFrametext then
-		local r, g, b = XPerl_Player_TargettingFrametext:GetTextColor()
-		XPerl_Player_TargettingFrametext:SetTextColor(r, g, b, t)
+	if ZPerl_Player_TargettingFrametext then
+		local r, g, b = ZPerl_Player_TargettingFrametext:GetTextColor()
+		ZPerl_Player_TargettingFrametext:SetTextColor(r, g, b, t)
 	end
-	if XPerl_Target_AssistFrametext then
-		local r, g, b = XPerl_Target_AssistFrametext:GetTextColor()
-		XPerl_Target_AssistFrametext:SetTextColor(r, g, b, t)
+	if ZPerl_Target_AssistFrametext then
+		local r, g, b = ZPerl_Target_AssistFrametext:GetTextColor()
+		ZPerl_Target_AssistFrametext:SetTextColor(r, g, b, t)
 	end
 end
 
@@ -761,58 +603,141 @@ local function Set1Bar(bar, tex)
 	end
 end
 
--- XPerl_RegisterBar
-local XPerlBars = {}
-function XPerl_RegisterBar(bar)
-	tinsert(XPerlBars, bar)
+-- ZPerl.RegisterBar
+local Bars = {}
+function ZPerl.RegisterBar(bar)
+	tinsert(Bars, bar)
 	if (init_done) then
-		local tex = XPerl_GetBarTexture()
+		local tex = ZPerl.GetBarTexture()
 		Set1Bar(bar, tex)
 	end
 end
 
--- XPerl_SetBarTextures
-function XPerl_SetBarTextures()
-	local tex = XPerl_GetBarTexture()
-	for k, v in pairs(XPerlBars) do
+-- ZPerl.SetBarTextures
+function ZPerl.SetBarTextures()
+	local tex = ZPerl.GetBarTexture()
+	for k, v in pairs(Bars) do
 		Set1Bar(v, tex)
 	end
 end
 
--- XPerl_RegisterOptionChanger
+-- ZPerl.RegisterOptionChanger(f, s, name)
+-- name makes the changer an applier (ZPerl.Appliers) the settings panel can run on its own.
 local optionFuncs = {}
-function XPerl_RegisterOptionChanger(f, s)
-	tinsert(optionFuncs, {func = f, slf = s})
+ZPerl.OptionChangers = optionFuncs -- exported for the test harness
+local appliers = {}
+ZPerl.Appliers = appliers -- applier name -> function; the panel's `apply` names (ZPerl_SettingsList.lua)
+function ZPerl.RegisterOptionChanger(f, s, name)
+	local v = {func = f, slf = s, name = name}
+	if name then
+		v.run = function()
+			ZPerl.NoFadeBars(true)
+			ZPerl.Pcall(v.func, v.slf)
+			ZPerl.NoFadeBars()
+		end
+		appliers[name] = v.run
+	end
+	tinsert(optionFuncs, v)
 end
 
--- XPerl_OptionActions()
-function XPerl_OptionActions(which)
+-- ZPerl.RegisterApplier(name, f)
+-- An applier the settings panel can run that ZPerl.OptionActions does not: work the old window did after a setting changed
+-- but a full re-apply never did (the raid header attributes). Runs first: it can create the frames the others restyle.
+local plain = {}
+function ZPerl.RegisterApplier(name, f)
+	plain[name] = function() ZPerl.Pcall(f) end
+	appliers[name] = plain[name]
+end
 
-	UIParent:UnregisterEvent("GROUP_ROSTER_UPDATE") -- IMPORTANT! Stops raid framerate lagging when members join/leave/zone
-
-	if (InCombatLockdown()) then
-		XPerl_OutOfCombatOptionSet = true
-		return
-	end
-
+local function clampTransparency()
 	conf.transparency.frame	= min(max(tonumber(conf.transparency.frame or 1), 0), 1)
 	conf.transparency.text	= min(max(tonumber(conf.transparency.text or 1), 0), 1)
+end
 
-	XPerl_pcall(XPerl_SetBarTextures)
+-- The pieces of ZPerl.OptionActions that are not changers. Wrapped, as the functions load later.
+appliers.barcolors = function() ZPerl.ResetBarColorCache() end
+appliers.bartextures = function() ZPerl.Pcall(ZPerl.SetBarTextures) end
+appliers.skin = function() ZPerl.Pcall(ZPerl.SetupAllPerlFrames, nil, true) end
+appliers.framealpha = function() ZPerl.Pcall(ZPerl.SetPerlFramesAlpha) end
+appliers.custom = function() -- the custom raid highlights (CustomHighlight/)
+	local c = _G.ZPerl_Custom
+	if c then ZPerl.Pcall(c.Refresh, c) end
+end
+appliers.highlighttex = function() ZPerl.Pcall(ZPerl.SetHighlights) end
+appliers.texttransparency = function() ZPerl.Pcall(ZPerl.SetTextTransparency) end
+ZPerl.RegisterOptionChanger(function()
+	if ZPerl_MinimapButton_Frame then ZPerl_MinimapButton_Frame:SetShown(conf.minimap.enable and true or false) end
+end, nil, "minimap")
+local headAppliers = {"barcolors", "bartextures", "skin", "framealpha", "highlighttex", "custom"}
 
-	XPerl_pcall(XPerl_SetAllFrames)
+-- ZPerl.Apply(names): runs the named appliers, core pieces first, then the changers in registration order,
+-- then the text transparency; "full" is ZPerl.OptionActions. Deferred whole until combat ends, as
+-- ZPerl.OptionActions is; names asked for during combat are merged into one run.
+local queued
+local function applyQueued()
+	local names = queued
+	queued = nil
+	ZPerl.Apply(names)
+end
+-- ZPerl.HasApplier(name): whether the applier is registered (its addon is loaded).
+function ZPerl.HasApplier(name)
+	return appliers[name] ~= nil
+end
+
+function ZPerl.Apply(names)
+	local want = {}
+	for _, n in ipairs(names) do
+		if n ~= "full" and not appliers[n] then error("unknown applier " .. tostring(n), 2) end
+		want[n] = true
+	end
+	if InCombatLockdown() then
+		queued = queued or {}
+		for n in pairs(want) do tinsert(queued, n) end
+		ZPerl.AfterCombat(applyQueued)
+		return
+	end
+	local d = ZPerl.Dev; if d and d.listener then d.Emit("apply", unpack(names)) end
+	if want.full then
+		ZPerl.OptionActions()
+		return
+	end
+	clampTransparency()
+	for n, run in pairs(plain) do
+		if want[n] then run() end
+	end
+	for _, n in ipairs(headAppliers) do
+		if want[n] then appliers[n]() end
+	end
+	for _, v in ipairs(optionFuncs) do
+		if v.name and want[v.name] then v.run() end
+	end
+	if want.texttransparency then appliers.texttransparency() end
+end
+
+-- ZPerl.OptionActions()
+function ZPerl.OptionActions(which)
+
+	if (InCombatLockdown()) then
+		ZPerl.AfterCombat(ZPerl.OptionActions, which)
+		return
+	end
+	local d = ZPerl.Dev; if d and d.listener then d.Emit("optionactions") end
+
+	ZPerl.ResetBarColorCache() -- the health color curve reads the color options
+
+	clampTransparency()
+
+	ZPerl.Pcall(ZPerl.SetBarTextures)
+
+	ZPerl.Pcall(ZPerl.SetAllFrames)
 
 	for k, v in pairs(optionFuncs) do
-		XPerl_NoFadeBars(true)
-		XPerl_pcall(v.func, v.slf, which)
+		ZPerl.NoFadeBars(true)
+		ZPerl.Pcall(v.func, v.slf, which)
 	end
-	XPerl_NoFadeBars()
+	ZPerl.NoFadeBars()
 
-	XPerl_pcall(XPerl_SetTextTransparency)
+	ZPerl.Pcall(ZPerl.SetTextTransparency)
 	doneOptions = true
 
-	-- Avoid tainting default blizzard buffs using cooldown options. Cooldowns won't show immediately atm.
-	--[[if (conf.buffs.blizzardCooldowns and BuffFrame and BuffFrame:IsShown()) then
-		securecall("BuffFrame_Update")
-	end]]
 end

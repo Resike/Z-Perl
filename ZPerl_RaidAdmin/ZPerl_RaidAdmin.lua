@@ -1,18 +1,18 @@
--- X-Perl UnitFrames
 -- Author: Resike
--- License: GNU GPL v3, 29 June 2007 (see LICENSE.txt)
+-- License: GNU GPL v3, 29 June 2007
 
-local AddonName, Addon = ...
+local L = ZPerl.L
 
-XPerl_SetModuleRevision("$Revision:  $")
+local AddonName = ...
 
-local IsRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
+ZPerl.SetModuleRevision("$Revision:  $")
 
 local SavedRoster = nil
 local XswapCount = 0
 local XmoveCount = 0
 local XPendingRosters = 0
 local WaitingForRoster
+local XFinishedLoad
 
 -- AdminCommands
 local function AdminCommands(msg)
@@ -22,46 +22,46 @@ local function AdminCommands(msg)
 	end
 
 	if (not args[1]) then
-			XPerl_AdminFrame:Show()
+			ZPerl_AdminFrame:Show()
 	else
-		if (not XPerl_AdminCommands[args[1]] or not XPerl_AdminCommands[args[1]](args[2], args[3], args[4])) then
-			XPerl_AdminCommands.help()
+		if (not ZPerl.RaidAdmin.AdminCommands[args[1]] or not ZPerl.RaidAdmin.AdminCommands[args[1]](args[2], args[3], args[4])) then
+			ZPerl.RaidAdmin.AdminCommands.help()
 		end
 	end
 end
 
 -- DefaultVar
 local function DefaultVar(name, value)
-	if (ZPerl_Admin[name] == nil or (type(value) ~= type(ZPerl_Admin[name]))) then
-		ZPerl_Admin[name] = value
+	if (ZPerlRaidAdminDB[name] == nil or (type(value) ~= type(ZPerlRaidAdminDB[name]))) then
+		ZPerlRaidAdminDB[name] = value
 	end
 end
 
 -- Defaults
 local function Defaults()
 
-	if (not ZPerl_Admin) then
-		ZPerl_Admin = {}
+	if (not ZPerlRaidAdminDB) then
+		ZPerlRaidAdminDB = {}
 	end
 
 	DefaultVar("AutoHideShow",	1)
 	DefaultVar("SavedRosters",	{})
 	DefaultVar("Transparency",	0.8)
 
-	ZPerl_Admin.Scale_ItemCheck = nil
-	ZPerl_Admin.Scale_Admin = nil
+	ZPerlRaidAdminDB.Scale_ItemCheck = nil
+	ZPerlRaidAdminDB.Scale_Admin = nil
 end
 
--- XPerl_AdminOnLoad
-function XPerl_AdminOnLoad(self)
+-- ZPerl.RaidAdmin.AdminOnLoad
+function ZPerl.RaidAdmin.AdminOnLoad(self)
 	self:RegisterForDrag("LeftButton")
 
-	ZPerl_Admin = { }
+	ZPerlRaidAdminDB = { }
 
-	SlashCmdList["XPERLRAIDADMIN"] = AdminCommands
-	SLASH_XPERLRAIDADMIN1 = "/rad"
-	SLASH_XPERLRAIDADMIN2 = "/xpadmin"
-	SLASH_XPERLRAIDADMIN3 = "/xpad"
+	SlashCmdList["ZPERLRAIDADMIN"] = AdminCommands
+	SLASH_ZPERLRAIDADMIN1 = "/rad"
+	SLASH_ZPERLRAIDADMIN2 = "/zpadmin"
+	SLASH_ZPERLRAIDADMIN3 = "/zpad"
 
 	--self:RegisterEvent("VARIABLES_LOADED")
 	self:RegisterEvent("ADDON_LOADED")
@@ -71,112 +71,102 @@ function XPerl_AdminOnLoad(self)
 	self:SetBackdropColor(0, 0, 0, 1)
 	self:SetBackdropBorderColor(0.5, 0.5, 0.5, 1)
 
-	if IsRetail then
-		XPerl_AdminFrame_TitleBar_CloseButton:SetScale(0.66)
-		XPerl_AdminFrame_TitleBar_CloseButton:SetPoint("TOPRIGHT", 2, 2)
-		XPerl_AdminFrame_TitleBar_Pin:SetPoint("RIGHT", XPerl_AdminFrame_TitleBar_CloseButton, "LEFT", 0, 0)
-		XPerl_AdminFrame_TitleBar_LockOpen:SetPoint("RIGHT", XPerl_AdminFrame_TitleBar_Pin, "LEFT", 0, 0)
-	end
-
 	self.Expand = function()
-		XPerl_AdminFrame_Controls:Show()
-		XPerl_AdminFrame_TitleBar_LockOpen:Show()
+		ZPerl_AdminFrame_Controls:Show()
+		ZPerl_AdminFrame_TitleBar_LockOpen:Show()
 		self:SetWidth(140)
 		self:SetHeight(150)
 	end
 
 	self.Collapse = function()
-		XPerl_AdminFrame_Controls:Hide()
-		XPerl_AdminFrame_TitleBar_LockOpen:Hide()
+		ZPerl_AdminFrame_Controls:Hide()
+		ZPerl_AdminFrame_TitleBar_LockOpen:Hide()
 		self:SetWidth(140)
 		self:SetHeight(18)
 	end
-	self:SetScript("OnEvent", XPerl_AdminOnEvent)
+	self:SetScript("OnEvent", ZPerl.RaidAdmin.AdminOnEvent)
 
-	XPerl_AdminOnLoad = nil
+	ZPerl.RaidAdmin.AdminOnLoad = nil
 end
 
--- XPerl_AdminStartup
-local function XPerl_AdminStartup(self)
+-- ZPerl.RaidAdmin.AdminStartup
+local function AdminStartup(self)
+	ZPerl.MigrateSavedNames(AddonName)
 	Defaults()
-	XPerl_AdminFrame_TitleBar_Pin:SetButtonTex()
+	ZPerl_AdminFrame_TitleBar_Pin:SetButtonTex()
 
-	XPerl_Check_Setup()
-	XPerl_AdminSetupFrames()
+	ZPerl.RaidAdmin.CheckSetup()
+	ZPerl.RaidAdmin.AdminSetupFrames()
 
-	if (XPerl_SavePosition) then
-		XPerl_SavePosition(XPerl_AdminFrameAnchor, true)
-	end
-
-	XPerl_RegisterScalableFrame(self, XPerl_AdminFrameAnchor)
-	self.corner:SetParent(XPerl_AdminFrame_Controls)
+	ZPerl.RegisterScalableFrame(self, ZPerl_AdminFrameAnchor)
+	self.corner:SetParent(ZPerl_AdminFrame_Controls)
 
 	self:SetWidth(140)
 	self:SetHeight(18)
 
-	XPerl_AdminStartup = nil
+	AdminStartup = nil
 end
 
--- XPerl_SetupFrameSimple
-function XPerl_SetupFrameSimple(self, alpha)
+-- SetupFrameSimple: local, RaidHelper defines a global of the same name with other defaults
+local function SetupFrameSimple(self, alpha)
 	self:OnBackdropLoaded()
 	self:SetBackdropColor(0, 0, 0, alpha or 1)
 	self:SetBackdropBorderColor(0.5, 0.5, 0.5, alpha or 1)
 end
 
--- XPerl_AdminSetupFrames()
-function XPerl_AdminSetupFrames()
-	XPerl_SetupFrameSimple(XPerl_Check)
-	XPerl_SetupFrameSimple(XPerl_CheckListItems)
-	XPerl_SetupFrameSimple(XPerl_CheckListPlayers)
+-- ZPerl.RaidAdmin.AdminSetupFrames()
+function ZPerl.RaidAdmin.AdminSetupFrames()
+	SetupFrameSimple(ZPerl_Check)
+	SetupFrameSimple(ZPerl_CheckListItems)
+	SetupFrameSimple(ZPerl_CheckListPlayers)
 
-	XPerl_SetupFrameSimple(XPerl_AdminFrame)
+	SetupFrameSimple(ZPerl_AdminFrame)
 
-	XPerl_Check:SetAlpha(ZPerl_Admin.Transparency)
-	XPerl_AdminFrame:SetAlpha(ZPerl_Admin.Transparency)
+	ZPerl_Check:SetAlpha(ZPerlRaidAdminDB.Transparency)
+	ZPerl_AdminFrame:SetAlpha(ZPerlRaidAdminDB.Transparency)
 
-	XPerl_AdminSetupFrames = nil
+	ZPerl.RaidAdmin.AdminSetupFrames = nil
 end
 
--- XPerl_Help
-local function XPerl_Help()
-	XPerl_Message("/rad [save | load name] [auto]")
+-- Help
+local function Help()
+	ZPerl.Message("/rad [save | load name] [auto]")
 end
 
--- XPerl_AdminCheckMyRank
-function XPerl_AdminCheckMyRank()
-	if (ZPerl_Admin.AutoHideShow == 1) then
+-- ZPerl.RaidAdmin.AdminCheckMyRank
+function ZPerl.RaidAdmin.AdminCheckMyRank()
+	if (ZPerlRaidAdminDB.AutoHideShow == 1) then
 		if (IsInRaid()) then
 			local me = UnitName("player")
 			for i = 1,GetNumGroupMembers() do
 				local name, rank = GetRaidRosterInfo(i)
 				if (name == me) then
 					if (rank > 0) then
-						XPerl_AdminFrame:Show()
+						ZPerl_AdminFrame:Show()
 					else
-						XPerl_AdminFrame:Hide()
+						ZPerl_AdminFrame:Hide()
 					end
 					break
 				end
 			end
 		else
-			XPerl_AdminFrame:Hide()
+			ZPerl_AdminFrame:Hide()
 		end
 	end
 end
 
--- XPerl_ToggleAuto
-local function XPerl_ToggleAuto()
-	if (ZPerl_Admin.AutoHideShow == 1) then
-		ZPerl_Admin.AutoHideShow = 0
+-- ToggleAuto
+local function ToggleAuto()
+	if (ZPerlRaidAdminDB.AutoHideShow == 1) then
+		ZPerlRaidAdminDB.AutoHideShow = 0
 	else
-		ZPerl_Admin.AutoHideShow = 1
+		ZPerlRaidAdminDB.AutoHideShow = 1
 	end
-	XPerl_AdminCheckMyRank()
+	ZPerl.RaidAdmin.AdminCheckMyRank()
 end
 
--- XPerl_SaveRoster
-function XPerl_SaveRoster(saveName)
+-- ZPerl.RaidAdmin.SaveRoster
+function ZPerl.RaidAdmin.SaveRoster(saveName)
 
 	if (not saveName or saveName == "") then
 		local hours, mins = GetGameTime()
@@ -190,12 +180,12 @@ function XPerl_SaveRoster(saveName)
 		Roster[name] = {group = subgroup, class = fileName}
 	end
 
-	if (not ZPerl_Admin.SavedRosters) then
-		ZPerl_Admin.SavedRosters = {}
+	if (not ZPerlRaidAdminDB.SavedRosters) then
+		ZPerlRaidAdminDB.SavedRosters = {}
 	end
-	ZPerl_Admin.SavedRosters[saveName] = Roster
+	ZPerlRaidAdminDB.SavedRosters[saveName] = Roster
 
-	XPerl_Message(format(XPERL_SAVED_ROSTER, saveName))
+	ZPerl.Message(format(L["SAVED_ROSTER"], saveName))
 
 	return true
 end
@@ -204,7 +194,6 @@ local function LoadRoster()
 	local swapCount = 0
 	local moveCount = 0
 	local CurrentRoster = {}
-	local CurrentGroups = {}
 	local FreeFloating = {}
 
 	-- Store the current raid roster, and a list of players in the raid, but not in the saved roster
@@ -318,8 +307,8 @@ local function LoadRoster()
 					if (not done) then
 					-- Nothing done yet, see if we can swap a free floater
 					local free
-					for name2, group in pairs(FreeFloating) do
-						if (group ~= CurrentRoster[name2].group) then
+					for name2, freeGroup in pairs(FreeFloating) do
+						if (freeGroup ~= CurrentRoster[name2].group) then
 							free = name2
 							break
 						end
@@ -345,7 +334,7 @@ local function LoadRoster()
 
 	if (moveCount == 0 and swapCount == 0) then
 		--ChatFrame7:AddMessage("Finished!")
-		XPerl_StopLoad()
+		ZPerl.RaidAdmin.StopLoad()
 	else
 		WaitingForRoster = GetTime()
 		XswapCount = XswapCount + swapCount
@@ -356,12 +345,28 @@ local function LoadRoster()
 	--ChatFrame7:AddMessage("Done arranging (swaps: "..swapCount..")  (moves: "..moveCount..")")
 end
 
--- XPerl_AdminOnEvent
-function XPerl_AdminOnEvent(self, event, ...)
-	XPerl_AdminCheckMyRank()
+-- UpdateDetails: shows how many players differ from the roster named in the edit box
+local function UpdateDetails()
+	local name = ZPerl_AdminFrame_Controls_Edit:GetText()
+	local diff
+	if (name) then
+		diff = ZPerl.RaidAdmin.AdminCountDifferences(name)
+	end
+
+	if (diff) then
+		ZPerl_AdminFrame_Controls_DetailsText:SetFormattedText(L["ADMIN_DIFFERENCES"], diff)
+		ZPerl_AdminFrame_Controls_Details:Show()
+	else
+		ZPerl_AdminFrame_Controls_Details:Hide()
+	end
+end
+
+-- ZPerl.RaidAdmin.AdminOnEvent
+function ZPerl.RaidAdmin.AdminOnEvent(self, event, ...)
+	ZPerl.RaidAdmin.AdminCheckMyRank()
 
 	if (event == "GROUP_ROSTER_UPDATE") then
-		XPerl_AdminFrame_Controls:Details()
+		UpdateDetails()
 
 		if (WaitingForRoster) then
 			if (not XFinishedLoad) then
@@ -376,32 +381,32 @@ function XPerl_AdminOnEvent(self, event, ...)
 		local addon = ...
 
 		if addon == AddonName then
-			XPerl_AdminStartup(self)
+			AdminStartup(self)
 
 			self:UnregisterEvent(event)
 		end
 	end
 end
 
--- XPerl_Admin_OnUpdate
-function XPerl_Admin_OnUpdate(self, elapsed)
+-- ZPerl.RaidAdmin.AdminOnUpdate
+function ZPerl.RaidAdmin.AdminOnUpdate(self, elapsed)
 	if (WaitingForRoster) then
-		if (GetTime() > WaitingForRoster + 5000) then
-			XPerl_StopLoad()
+		if (GetTime() > WaitingForRoster + 5) then
+			ZPerl.RaidAdmin.StopLoad()
 		end
 	end
 end
 
--- XPerl_LoadRoster
-function XPerl_LoadRoster(loadName)
-	if (not ZPerl_Admin.SavedRosters) then
+-- ZPerl.RaidAdmin.LoadRoster
+function ZPerl.RaidAdmin.LoadRoster(loadName)
+	if (not ZPerlRaidAdminDB.SavedRosters) then
 		return
 	end
 
-	SavedRoster = ZPerl_Admin.SavedRosters[loadName]
+	SavedRoster = ZPerlRaidAdminDB.SavedRosters[loadName]
 	if (SavedRoster) then
-		XPerl_AdminFrame_Controls_StopLoad:Show()
-		XPerl_AdminFrame_Controls_LoadRoster:Hide()
+		ZPerl_AdminFrame_Controls_StopLoad:Show()
+		ZPerl_AdminFrame_Controls_LoadRoster:Hide()
 
 		XFinishedLoad = false
 		WaitingForRoster = nil
@@ -409,48 +414,48 @@ function XPerl_LoadRoster(loadName)
 		LoadRoster()
 	else
 		if (not loadName) then
-			XPerl_Message(XPERL_NO_ROSTER_NAME_GIVEN)
+			ZPerl.Message(L["NO_ROSTER_NAME_GIVEN"])
 		else
-			XPerl_Message(format(XPERL_NO_ROSTER_CALLED, loadName))
+			ZPerl.Message(format(L["NO_ROSTER_CALLED"], loadName))
 		end
 	end
 
 	return true
 end
 
--- XPerl_StopLoad
-function XPerl_StopLoad()
-	XPerl_AdminFrame_Controls_StopLoad:Hide()
-	XPerl_AdminFrame_Controls_LoadRoster:Show()
+-- ZPerl.RaidAdmin.StopLoad
+function ZPerl.RaidAdmin.StopLoad()
+	ZPerl_AdminFrame_Controls_StopLoad:Hide()
+	ZPerl_AdminFrame_Controls_LoadRoster:Show()
 
 	XFinishedLoad = true
 	WaitingForRoster = nil
 	SavedRoster = nil
 	XPendingRosters = 0
 
-	XPerl_AdminFrame_Controls:Details()
+	UpdateDetails()
 end
 
-function XPerl_Message(...)
-	DEFAULT_CHAT_FRAME:AddMessage(XPERL_MSG_PREFIX.."- "..format(...))
+function ZPerl.Message(...)
+	DEFAULT_CHAT_FRAME:AddMessage(L["MSG_PREFIX"].."- "..format(...))
 end
 
-XPerl_AdminCommands = {
-	save = XPerl_SaveRoster,
-	load = XPerl_LoadRoster,
-	auto = XPerl_ToggleAuto,
-	help = XPerl_Help
+ZPerl.RaidAdmin.AdminCommands = {
+	save = ZPerl.RaidAdmin.SaveRoster,
+	load = ZPerl.RaidAdmin.LoadRoster,
+	auto = ToggleAuto,
+	help = Help
 }
 
--- XPerl_Admin_CountDifferences
-function XPerl_Admin_CountDifferences(rosterName)
-	if (not ZPerl_Admin.SavedRosters) then
+-- ZPerl.RaidAdmin.AdminCountDifferences
+function ZPerl.RaidAdmin.AdminCountDifferences(rosterName)
+	if (not ZPerlRaidAdminDB.SavedRosters) then
 		return
 	end
 
 	local count = 0
 
-	SavedRoster = ZPerl_Admin.SavedRosters[rosterName]
+	SavedRoster = ZPerlRaidAdminDB.SavedRosters[rosterName]
 	if (SavedRoster) then
 		for i = 1,GetNumGroupMembers() do
 			local name, _, subgroup = GetRaidRosterInfo(i)
@@ -467,31 +472,18 @@ function XPerl_Admin_CountDifferences(rosterName)
 	end
 end
 
-function XPerl_Admin_ControlsOnLoad(self)
-	self.Details = function(self)
-		local name = XPerl_AdminFrame_Controls_Edit:GetText()
-		local diff
-		if (name) then
-			diff = XPerl_Admin_CountDifferences(name)
-		end
+function ZPerl.RaidAdmin.AdminControlsOnLoad(self)
+	self.Details = UpdateDetails
 
-		if (diff) then
-			XPerl_AdminFrame_Controls_DetailsText:SetFormattedText(XPERL_ADMIN_DIFFERENCES, diff)
-			XPerl_AdminFrame_Controls_Details:Show()
-		else
-			XPerl_AdminFrame_Controls_Details:Hide()
-		end
-	end
-
-	self.MakeList = function(self)
+	self.MakeList = function()
 		local index = 1
 		local line = 1
-		local find = XPerl_AdminFrame_Controls_Edit:GetText()
+		local find = ZPerl_AdminFrame_Controls_Edit:GetText()
 
-		local Offset = XPerl_AdminFrame_Controls_RosterScrollBarScrollBar:GetValue() + 1
-		for name,roster in pairs(ZPerl_Admin.SavedRosters) do
+		local Offset = _G.ZPerl_AdminFrame_Controls_RosterScrollBarScrollBar:GetValue() + 1
+		for name,roster in pairs(ZPerlRaidAdminDB.SavedRosters) do
 			if (index >= Offset) then
-				local f = _G["XPerl_AdminFrame_Controls_Roster"..line]
+				local f = _G["ZPerl_AdminFrame_Controls_Roster"..line]
 				if (f) then
 					if (name == find) then
 						f:LockHighlight()
@@ -506,7 +498,7 @@ function XPerl_Admin_ControlsOnLoad(self)
 			index = index + 1
 		end
 		for i = line,5 do
-			local f = _G["XPerl_AdminFrame_Controls_Roster"..i]
+			local f = _G["ZPerl_AdminFrame_Controls_Roster"..i]
 			if (f) then
 				f:SetText("")
 				f:UnlockHighlight()
@@ -514,38 +506,38 @@ function XPerl_Admin_ControlsOnLoad(self)
 			end
 		end
 
-		local offset = XPerl_AdminFrame_Controls_RosterScrollBarScrollBar:GetValue()
-		if (FauxScrollFrame_Update(XPerl_AdminFrame_Controls_RosterScrollBar, index - 1, 5, 1)) then
-			XPerl_AdminFrame_Controls_RosterScrollBar:Show()
+		if (FauxScrollFrame_Update(ZPerl_AdminFrame_Controls_RosterScrollBar, index - 1, 5, 1)) then
+			ZPerl_AdminFrame_Controls_RosterScrollBar:Show()
 		else
-			XPerl_AdminFrame_Controls_RosterScrollBar:Hide()
+			ZPerl_AdminFrame_Controls_RosterScrollBar:Hide()
 		end
 
-		XPerl_AdminFrame_Controls:Details()
+		UpdateDetails()
 	end
 
-	self.Validate = function(self)
-		XPerl_AdminFrame.Valid = false
-		XPerl_AdminFrame_Controls_LoadRoster:Disable()
-		XPerl_AdminFrame_Controls_DeleteRoster:Disable()
+	self.Validate = function()
+		---@diagnostic disable-next-line: inject-field
+		ZPerl_AdminFrame.Valid = false
+		ZPerl_AdminFrame_Controls_LoadRoster:Disable()
+		ZPerl_AdminFrame_Controls_DeleteRoster:Disable()
 
 		local index = 1
 		local line = 1
-		local find = XPerl_AdminFrame_Controls_Edit:GetText()
-		local Offset = XPerl_AdminFrame_Controls_RosterScrollBarScrollBar:GetValue()
-			for name,roster in pairs(ZPerl_Admin.SavedRosters) do
+		local find = ZPerl_AdminFrame_Controls_Edit:GetText()
+		local Offset = _G.ZPerl_AdminFrame_Controls_RosterScrollBarScrollBar:GetValue()
+			for name,roster in pairs(ZPerlRaidAdminDB.SavedRosters) do
 				if (index - 1 >= Offset) then
-					local f = _G["XPerl_AdminFrame_Controls_Roster"..line]
+					local f = _G["ZPerl_AdminFrame_Controls_Roster"..line]
 					if (not f) then
 						break
 					end
 					if (name == find) then
 						f:LockHighlight()
-						XPerl_AdminFrame.Valid = true
+						ZPerl_AdminFrame.Valid = true
 						if (UnitIsGroupAssistant("player") or UnitIsGroupLeader("player")) then
-							XPerl_AdminFrame_Controls_LoadRoster:Enable()
+							ZPerl_AdminFrame_Controls_LoadRoster:Enable()
 						end
-						XPerl_AdminFrame_Controls_DeleteRoster:Enable()
+						ZPerl_AdminFrame_Controls_DeleteRoster:Enable()
 					else
 						f:UnlockHighlight()
 					end

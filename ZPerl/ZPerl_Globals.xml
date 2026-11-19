@@ -1,35 +1,44 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
 
-	<Script file="localization.lua"/>
-	<Script file="localization.deDE.lua"/>
-	<Script file="localization.frFR.lua"/>
-	<Script file="localization.esES.lua"/>
-	<Script file="localization.zhCN.lua"/>
-	<Script file="localization.zhTW.lua"/>
-	<Script file="localization.koKR.lua"/>
-	<Script file="localization.ruRU.lua"/>
-	<Script file="localization.itIT.lua"/>
+	<Script file="Localization\Localization.lua"/>
+	<Script file="Localization\Localization.deDE.lua"/>
+	<Script file="Localization\Localization.esES.lua"/>
+	<Script file="Localization\Localization.frFR.lua"/>
+	<Script file="Localization\Localization.itIT.lua"/>
+	<Script file="Localization\Localization.koKR.lua"/>
+	<Script file="Localization\Localization.ptBR.lua"/>
+	<Script file="Localization\Localization.ruRU.lua"/>
+	<Script file="Localization\Localization.zhCN.lua"/>
+	<Script file="Localization\Localization.zhTW.lua"/>
+	<Script file="ZPerl_SpellData.lua"/>
+	<Script file="ZPerl_CheckboxKeys.lua"/>
+	<Script file="ZPerl_Defaults.lua"/>
 	<Script file="ZPerl_Globals.lua"/>
+	<Script file="ZPerl_Migrate.lua"/>
 	<Script file="ZPerl_Init.lua"/>
-	<!--<Script file="ZPerl_Voice.lua"/>-->
 	<Script file="ZPerl_Slash.lua"/>
+	<Script file="ZPerl_Arrange.lua"/>
+	<Script file="ZPerl_FrameMenu.lua"/>
+	<Script file="ZPerl_OptionsLoader.lua"/>
 
-	<Frame name="XPerlBackdropTemplate" mixin="XPerlBackdropTemplateMixin" virtual="true">
+	<Frame name="ZPerl_BackdropTemplate" mixin="ZPerl_BackdropTemplateMixin" virtual="true">
 		<Scripts>
 			<OnLoad method="OnBackdropLoaded"/>
 			<OnSizeChanged method="OnBackdropSizeChanged"/>
 		</Scripts>
 	</Frame>
 
-	<Button name="XPerl_BasicButton" virtual="true">
+	<Button name="ZPerl_BasicButton" virtual="true">
 		<Scripts>
 			<OnEnter>
 				if (self.tooltipText) then
-					local str1 = _G[self.tooltipText]
+					-- tooltipText is a ZPerl.L key (or a key whose "1"/"2" pair is title and text), else plain text
+					local L = ZPerl.L
+					local str1 = rawget(L, self.tooltipText)
 					local str2
 					if (not str1) then
-						str1 = _G[self.tooltipText.."1"]
-						str2 = _G[self.tooltipText.."2"]
+						str1 = rawget(L, self.tooltipText.."1")
+						str2 = rawget(L, self.tooltipText.."2")
 					end
 					if (not str1) then
 						str1 = self.tooltipText
@@ -56,38 +65,23 @@
 		<DisabledFont style="GameFontDisableSmall"/>
 	</Button>
 
-	<Frame name="XPerl_Globals">
-		<Scripts>
-			<OnLoad>
-				self:RegisterEvent("ADDON_LOADED")
-				self:RegisterEvent("PLAYER_LOGIN")
-				self:RegisterEvent("VARIABLES_LOADED")
-				self:RegisterEvent("PLAYER_REGEN_ENABLED")
-				self:RegisterEvent("UNIT_SPELLCAST_SENT")
-				self:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
-				self:RegisterEvent("UNIT_SPELLCAST_START")
-				--self:RegisterEvent("ADDON_ACTION_BLOCKED")
-				self:RegisterEvent("PLAYER_ENTERING_WORLD")
-				self:SetScript("OnEvent", XPerl_Globals_OnEvent)
-			</OnLoad>
-		</Scripts>
-	</Frame>
+	<Frame name="ZPerl_Globals"/>
 
-	<Frame name="XPerl_BorderStyleTemplate" inherits="XPerlBackdropTemplate" virtual="true">
+	<Frame name="ZPerl_BorderStyleTemplate" inherits="ZPerl_BackdropTemplate" virtual="true">
 		<KeyValues>
-			<KeyValue key="backdropInfo" value="XPerl_Frame_Backdrop_32_16_3333" type="global"/>
+			<KeyValue key="backdropInfo" value="ZPerl_Frame_Backdrop_32_16_3333" type="global"/>
 		</KeyValues>
 	</Frame>
 
-	<Frame name="XPerl_BorderStyleTemplateSecure" inherits="XPerlBackdropTemplate,SecureUnitButtonTemplate" virtual="true">
+	<Frame name="ZPerl_BorderStyleTemplateSecure" inherits="ZPerl_BackdropTemplate,SecureUnitButtonTemplate" virtual="true">
 		<KeyValues>
-			<KeyValue key="backdropInfo" value="XPerl_Frame_Backdrop_32_16_3333" type="global"/>
+			<KeyValue key="backdropInfo" value="ZPerl_Frame_Backdrop_32_16_3333" type="global"/>
 		</KeyValues>
 	</Frame>
 
-	<Frame name="XPerl_Portrait_Template" inherits="XPerl_BorderStyleTemplate" virtual="true">
+	<Frame name="ZPerl_Portrait_Template" inherits="ZPerl_BorderStyleTemplate" virtual="true">
 		<KeyValues>
-			<KeyValue key="backdropInfo" value="XPerl_Frame_Backdrop_32_16_3333" type="global"/>
+			<KeyValue key="backdropInfo" value="ZPerl_Frame_Backdrop_32_16_3333" type="global"/>
 		</KeyValues>
 		<Size>
 			<AbsDimension x="62" y="62"/>
@@ -110,7 +104,7 @@
 					</Anchor>
 				</Anchors>
 			</PlayerModel>
-			<Frame name="$parentresurrect" inherits="XPerlBackdropTemplate" setAllPoints="true" frameStrata="HIGH" hidden="true">
+			<Frame name="$parentresurrect" inherits="ZPerl_BackdropTemplate" setAllPoints="true" frameStrata="HIGH" hidden="true">
 				<Layers>
 					<Layer level="OVERLAY">
 						<Texture file="Interface\RaidFrame\Raid-Icon-Rez">
@@ -158,13 +152,13 @@
 		<Scripts>
 			<OnLoad >
 				self:OnBackdropLoaded()
-				XPerl_SetChildMembers(self)
+				ZPerl.SetChildMembers(self)
 			</OnLoad>
 		</Scripts>
 	</Frame>
-	<Frame name="XPerl_Portrait_Template_Secure" inherits="XPerl_BorderStyleTemplateSecure" virtual="true">
+	<Frame name="ZPerl_Portrait_Template_Secure" inherits="ZPerl_BorderStyleTemplateSecure" virtual="true">
 		<KeyValues>
-			<KeyValue key="backdropInfo" value="XPerl_Frame_Backdrop_32_16_3333" type="global"/>
+			<KeyValue key="backdropInfo" value="ZPerl_Frame_Backdrop_32_16_3333" type="global"/>
 		</KeyValues>
 		<Size>
 			<AbsDimension x="62" y="62"/>
@@ -187,7 +181,7 @@
 					</Anchor>
 				</Anchors>
 			</PlayerModel>
-			<Frame name="$parentresurrect" inherits="XPerlBackdropTemplate" setAllPoints="true" frameStrata="HIGH" hidden="true">
+			<Frame name="$parentresurrect" inherits="ZPerl_BackdropTemplate" setAllPoints="true" frameStrata="HIGH" hidden="true">
 				<Layers>
 					<Layer level="OVERLAY">
 						<Texture file="Interface\RaidFrame\Raid-Icon-Rez">
@@ -235,12 +229,12 @@
 		<Scripts>
 			<OnLoad >
 				self:OnBackdropLoaded()
-				XPerl_SetChildMembers(self)
+				ZPerl.SetChildMembers(self)
 			</OnLoad>
 		</Scripts>
 	</Frame>
 
-	<StatusBar name="XPerlStatusBar" virtual="true">
+	<StatusBar name="ZPerl_StatusBar" virtual="true">
 		<BarTexture name="$parenttex" file="Interface\TargetingFrame\UI-StatusBar"/>
 		<Layers>
 			<!-- Text -->
@@ -276,27 +270,27 @@
 		</Layers>
 		<Scripts>
 			<OnLoad>
-				XPerl_SetChildMembers(self)
-				XPerl_RegisterBar(self)
+				ZPerl.SetChildMembers(self)
+				ZPerl.RegisterBar(self)
 				self:SetScript("OnLoad", nil)
-				if (not XPerl_OldStatusBarSetValue) then
-					XPerl_OldStatusBarSetValue = self.SetValue
+				if (not ZPerl.OldStatusBarSetValue) then
+					ZPerl.OldStatusBarSetValue = self.SetValue
 				end
-				self.SetValue = XPerl_StatusBarSetValue
-				XPerl_RegisterUnitText(self.text)
-				XPerl_RegisterUnitText(self.percent)
+				self.SetValue = ZPerl.StatusBarSetValue
+				ZPerl.RegisterUnitText(self.text)
+				ZPerl.RegisterUnitText(self.percent)
 			</OnLoad>
 		</Scripts>
 	</StatusBar>
 
 	<!-- Stats Template -->
-	<Frame name="XPerl_Stats_Template" inherits="XPerl_BorderStyleTemplate" virtual="true">
+	<Frame name="ZPerl_Stats_Template" inherits="ZPerl_BorderStyleTemplate" virtual="true">
 		<Size>
 			<AbsDimension x="160" y="40"/>
 		</Size>
 		<Frames>
 			<!-- Health Bar -->
-			<StatusBar name="$parenthealthBar" drawLayer="ARTWORK" inherits="XPerlStatusBar">
+			<StatusBar name="$parenthealthBar" drawLayer="ARTWORK" inherits="ZPerl_StatusBar">
 				<Size>
 					<AbsDimension x="112" y="10"/>
 				</Size>
@@ -327,8 +321,8 @@
 				<BarColor r="0" g="1" b="1" a="1"/>
 				<Scripts>
 					<OnLoad>
-						XPerl_SetChildMembers(self)
-						XPerl_RegisterBar(self)
+						ZPerl.SetChildMembers(self)
+						ZPerl.RegisterBar(self)
 						self:SetFrameLevel(_G[self:GetParent():GetName().."healthBar"]:GetFrameLevel() - 1)
 					</OnLoad>
 				</Scripts>
@@ -352,36 +346,12 @@
 				<Scripts>
 					<OnLoad>
 						self:SetReverseFill(true)
-						XPerl_SetChildMembers(self)
-					</OnLoad>
-				</Scripts>
-			</StatusBar>
-			<!-- Hots Health Bar -->
-			<StatusBar name="$parentexpectedHots" drawLayer="BORDER" hidden="true">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="$parenthealthBar">
-						<Offset>
-							<AbsDimension x="0" y="0"/>
-						</Offset>
-					</Anchor>
-					<Anchor point="BOTTOMRIGHT" relativeTo="$parenthealthBar">
-						<Offset>
-							<AbsDimension x="0" y="0"/>
-						</Offset>
-					</Anchor>
-				</Anchors>
-				<BarTexture name="$parenttex" file="Interface\Buttons\White8x8"/>
-				<BarColor r="0.14" g="0.33" b="0.7" a="0.7"/>
-				<Scripts>
-					<OnLoad>
-						XPerl_SetChildMembers(self)
-						XPerl_RegisterBar(self)
-						self:SetFrameLevel(_G[self:GetParent():GetName().."healthBar"]:GetFrameLevel() - 1)
+						ZPerl.SetChildMembers(self)
 					</OnLoad>
 				</Scripts>
 			</StatusBar>
 			<!-- Mana Bar -->
-			<StatusBar name="$parentmanaBar" drawLayer="BACKGROUND" inherits="XPerlStatusBar">
+			<StatusBar name="$parentmanaBar" drawLayer="BACKGROUND" inherits="ZPerl_StatusBar">
 				<Size>
 					<AbsDimension x="112" y="10"/>
 				</Size>
@@ -412,18 +382,18 @@
 		<Scripts>
 			<OnLoad >
 				self:OnBackdropLoaded()
-				XPerl_StatsFrame_Setup(self)
+				ZPerl.StatsFrameOnLoad(self)
 			</OnLoad>
 		</Scripts>
 	</Frame>
 	<!-- Stats Template Secure-->
-	<Frame name="XPerl_Stats_Template_Secure" inherits="XPerl_BorderStyleTemplateSecure" virtual="true">
+	<Frame name="ZPerl_Stats_Template_Secure" inherits="ZPerl_BorderStyleTemplateSecure" virtual="true">
 		<Size>
 			<AbsDimension x="160" y="40"/>
 		</Size>
 		<Frames>
 			<!-- Health Bar -->
-			<StatusBar name="$parenthealthBar" drawLayer="ARTWORK" inherits="XPerlStatusBar">
+			<StatusBar name="$parenthealthBar" drawLayer="ARTWORK" inherits="ZPerl_StatusBar">
 				<Size>
 					<AbsDimension x="112" y="10"/>
 				</Size>
@@ -454,8 +424,8 @@
 				<BarColor r="0" g="1" b="1" a="1"/>
 				<Scripts>
 					<OnLoad>
-						XPerl_SetChildMembers(self)
-						XPerl_RegisterBar(self)
+						ZPerl.SetChildMembers(self)
+						ZPerl.RegisterBar(self)
 						self:SetFrameLevel(_G[self:GetParent():GetName().."healthBar"]:GetFrameLevel() - 1)
 					</OnLoad>
 				</Scripts>
@@ -479,36 +449,12 @@
 				<Scripts>
 					<OnLoad>
 						self:SetReverseFill(true)
-						XPerl_SetChildMembers(self)
-					</OnLoad>
-				</Scripts>
-			</StatusBar>
-			<!-- Hots Health Bar -->
-			<StatusBar name="$parentexpectedHots" drawLayer="OVERLAY" hidden="true">
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="$parenthealthBar">
-						<Offset>
-							<AbsDimension x="0" y="0"/>
-						</Offset>
-					</Anchor>
-					<Anchor point="BOTTOMRIGHT" relativeTo="$parenthealthBar">
-						<Offset>
-							<AbsDimension x="0" y="0"/>
-						</Offset>
-					</Anchor>
-				</Anchors>
-				<BarTexture name="$parenttex" file="Interface\Buttons\White8x8"/>
-				<BarColor r="0.14" g="0.33" b="0.7" a="0.7"/>
-				<Scripts>
-					<OnLoad>
-						XPerl_SetChildMembers(self)
-						XPerl_RegisterBar(self)
-						self:SetFrameLevel(_G[self:GetParent():GetName().."healthBar"]:GetFrameLevel() - 1)
+						ZPerl.SetChildMembers(self)
 					</OnLoad>
 				</Scripts>
 			</StatusBar>
 			<!-- Mana Bar -->
-			<StatusBar name="$parentmanaBar" drawLayer="BACKGROUND" inherits="XPerlStatusBar">
+			<StatusBar name="$parentmanaBar" drawLayer="BACKGROUND" inherits="ZPerl_StatusBar">
 				<Size>
 					<AbsDimension x="112" y="10"/>
 				</Size>
@@ -537,13 +483,13 @@
 			</Frame>
 		</Frames>
 		<Scripts>
-			<OnLoad function="XPerl_StatsFrame_Setup"/>
+			<OnLoad>ZPerl.StatsFrameOnLoad(self)</OnLoad>
 		</Scripts>
 	</Frame>
 
-	<Frame name="XPerl_StatsXP_Template" inherits="XPerl_Stats_Template" virtual="true">
+	<Frame name="ZPerl_StatsXP_Template" inherits="ZPerl_Stats_Template" virtual="true">
 		<Frames>
-			<StatusBar name="$parentxpBar" inherits="XPerlStatusBar" hidden="true">
+			<StatusBar name="$parentxpBar" inherits="ZPerl_StatusBar" hidden="true">
 				<Size>
 					<AbsDimension x="112" y="10"/>
 				</Size>
@@ -564,115 +510,18 @@
 				<BarColor r="0" g="0.8" b="0"/>
 				<Scripts>
 					<OnLoad>
-						XPerl_SetChildMembers(self)
-						XPerl_RegisterBar(self)
+						ZPerl.SetChildMembers(self)
+						ZPerl.RegisterBar(self)
 					</OnLoad>
 				</Scripts>
 			</StatusBar>
 		</Frames>
 	</Frame>
 
-	<Button name="XPerl_BuffTemplate" virtual="true">
-		<Size>
-			<AbsDimension x="32" y="32"/>
-		</Size>
-		<Layers>
-			<Layer level="ARTWORK">
-				<Texture name="$parenticon" setAllPoints="true" />
-			</Layer>
-			<Layer level="OVERLAY">
-				<FontString name="$parentcount" inherits="NumberFontNormalLarge" justifyV="BOTTOM" justifyH="RIGHT">
-					<FontHeight>
-						<AbsValue val="24"/>
-					</FontHeight>
-					<Anchors>
-						<Anchor point="TOPLEFT"/>
-						<Anchor point="BOTTOMRIGHT">
-							<Offset>
-								<AbsDimension x="-2" y="2"/>
-							</Offset>
-						</Anchor>
-					</Anchors>
-				</FontString>
-			</Layer>
-		</Layers>
-		<Scripts>
-			<OnLoad function="XPerl_SetChildMembers"/>
-		</Scripts>
-	</Button>
-
-	<Button name="XPerl_Cooldown_BuffTemplate" inherits="XPerl_BuffTemplate" virtual="true">
-		<Frames>
-			<Cooldown name="$parentcooldown" inherits="CooldownFrameTemplate" setAllPoints="true" reverse="true" drawEdge="true" hidden="true">
-				<Layers>
-					<Layer level="OVERLAY">
-						<FontString name="$parentcountdown" inherits="GameFontNormalHuge">
-							<Anchors>
-								<Anchor point="TOPLEFT"/>
-								<Anchor point="BOTTOMRIGHT">
-									<Offset>
-										<AbsDimension x="-1" y="2"/>
-									</Offset>
-								</Anchor>
-							</Anchors>
-							<Color r="1" g="1" b="0"/>
-						</FontString>
-					</Layer>
-				</Layers>
-			</Cooldown>
-		</Frames>
-	</Button>
-
-	<Button name="XPerl_DeBuffTemplate" virtual="true" inherits="XPerl_BuffTemplate">
-		<Size>
-			<AbsDimension x="32" y="32"/>
-		</Size>
-		<Layers>
-			<Layer level="OVERLAY">
-				<Texture name="$parentborder" file="Interface\Buttons\UI-Debuff-Overlays" setAllPoints="true">
-					<Anchors>
-						<Anchor point="TOPLEFT">
-							<Offset>
-								<AbsDimension x="-1" y="1"/>
-							</Offset>
-						</Anchor>
-						<Anchor point="BOTTOMRIGHT"/>
-					</Anchors>
-					<TexCoords left="0.296875" right="0.5703125" top="0" bottom="0.515625"/>
-				</Texture>
-			</Layer>
-		</Layers>
-		<Scripts>
-			<OnLoad function="XPerl_SetChildMembers"/>
-		</Scripts>
-	</Button>
-
-	<Button name="XPerl_Cooldown_DeBuffTemplate" inherits="XPerl_DeBuffTemplate" virtual="true">
-		<Frames>
-			<Cooldown name="$parentcooldown" inherits="CooldownFrameTemplate" setAllPoints="true" reverse="true" drawEdge="true" hidden="true">
-				<Layers>
-					<Layer level="OVERLAY">
-						<FontString name="$parentcountdown" inherits="GameFontNormalHuge" setAllPoints="true" hidden="true">
-							<Anchors>
-								<Anchor point="TOPLEFT"/>
-								<Anchor point="BOTTOMRIGHT">
-									<Offset>
-										<AbsDimension x="-1" y="2"/>
-									</Offset>
-								</Anchor>
-							</Anchors>
-							<Color r="1" g="1" b="0"/>
-						</FontString>
-					</Layer>
-				</Layers>
-			</Cooldown>
-		</Frames>
-	</Button>
-
-	<Frame name="XPerl_HighlightTemplate" inherits="XPerlBackdropTemplate" virtual="true">
+	<Frame name="ZPerl_HighlightTemplate" inherits="ZPerl_BackdropTemplate" virtual="true">
 		<Scripts>
 			<OnLoad>
-				XPerl_SetChildMembers(self)
+				ZPerl.SetChildMembers(self)
 
 				local p = self:GetParent()
 				local f = _G[p:GetName().."statsFrame"]
@@ -687,7 +536,7 @@
 						if (self.highlight) then
 							self.highlight:Select()
 						end
-						XPerl_PlayerTip(self)
+						ZPerl.PlayerTip(self)
 					end)
 				end
 				if (not p:GetScript("OnLeave")) then
@@ -695,40 +544,44 @@
 						if (self.highlight) then
 							self.highlight:Deselect()
 						end
-						XPerl_PlayerTipHide()
+						ZPerl.PlayerTipHide()
 					end)
 				end
 
 				self.Select = function(self)
-					if (XPerlDB.highlightSelection) then
+					if (ZPerl.layout.highlightSelection) then
 						self.sel = true
 						self.tex:Show()
-						XPerl_Highlight:SetHighlight(self:GetParent())
+						if (ZPerl_Highlight and ZPerl_Highlight.SetHighlight) then
+							ZPerl_Highlight:SetHighlight(self:GetParent())
+						end
 					end
 				end
 
 				self.Deselect = function(self)
-					if (XPerlDB.highlightSelection) then
+					if (ZPerl.layout.highlightSelection) then
 						self.sel = nil
 						self.tex:Hide()
-						XPerl_Highlight:SetHighlight(self:GetParent())
+						if (ZPerl_Highlight and ZPerl_Highlight.SetHighlight) then
+							ZPerl_Highlight:SetHighlight(self:GetParent())
+						end
 					end
 				end
 			</OnLoad>
 		</Scripts>
 		<Layers>
 			<Layer level="OVERLAY">
-				<Texture name="$parenttex" hidden="true" file="Interface\Addons\ZPerl\Images\XPerl_Highlight" alphaMode="ADD">
+				<Texture name="$parenttex" hidden="true" file="Interface\Addons\ZPerl\Images\ZPerl_Highlight" alphaMode="ADD">
 					<TexCoords left="0.25" right="0.75" top="0" bottom="0.5"/>
 				</Texture>
 			</Layer>
 		</Layers>
 	</Frame>
 
-	<Frame name="XPerl_ThreatTemplateportraitFrame" inherits="XPerlBackdropTemplate" virtual="true">
+	<Frame name="ZPerl_ThreatTemplateportraitFrame" inherits="ZPerl_BackdropTemplate" virtual="true">
 		<Scripts>
 			<OnLoad>
-				XPerl_ThreatDisplayOnLoad(self, "portraitFrame")
+				ZPerl.ThreatDisplayOnLoad(self, "portraitFrame")
 			</OnLoad>
 		</Scripts>
 		<Layers>
@@ -755,10 +608,10 @@
 		</Layers>
 	</Frame>
 
-	<Frame name="XPerl_ThreatTemplatenameFrame" inherits="XPerlBackdropTemplate" virtual="true">
+	<Frame name="ZPerl_ThreatTemplatenameFrame" inherits="ZPerl_BackdropTemplate" virtual="true">
 		<Scripts>
 			<OnLoad>
-				XPerl_ThreatDisplayOnLoad(self, "nameFrame")
+				ZPerl.ThreatDisplayOnLoad(self, "nameFrame")
 			</OnLoad>
 		</Scripts>
 		<Layers>

@@ -1,10 +1,11 @@
--- X-Perl UnitFrames
 -- Author: Resike
--- License: GNU GPL v3, 29 June 2007 (see LICENSE.txt)
+-- License: GNU GPL v3, 29 June 2007
 
-XPerl_SetModuleRevision("$Revision:  $")
+local L = ZPerl.L
 
-ZPerl_MainTanks = {}
+ZPerl.SetModuleRevision("$Revision:  $")
+
+ZPerlRaidHelperTanks = {}
 local MainTankCount, blizzMTanks, ctraTanks = 0, 0, 0
 local MainTanks = {}
 local BlizzardMainTanks = {}
@@ -12,24 +13,15 @@ local Events = {}
 local XUnits = {}
 local UpdateTime = 0
 local XGaps = 0
-local XTitle
 local pendingTankListChange -- If in combat when tank list changes, then we'll defer it till next time we're out of combat
 local conf
 
-local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
-local IsVanillaClassic = WOW_PROJECT_ID == WOW_PROJECT_CLASSIC
-local IsPandaClassic = WOW_PROJECT_ID == WOW_PROJECT_MISTS_CLASSIC
-
 local GetNumGroupMembers = GetNumGroupMembers
 
-if type(RegisterAddonMessagePrefix) == "function" then
-	RegisterAddonMessagePrefix("CTRA")
-end
+--local new, del = ZPerl.GetReusableTable, ZPerl.FreeTable
 
---local new, del = XPerl_GetReusableTable, XPerl_FreeTable
-
--- Dup colours used to show which tanks have the same target
-local MTdupColours = {
+-- Dup colors used to show which tanks have the same target
+local MTdupColors = {
 	{r = "0.8", g = "0.2", b = "0.2"},
 	{r = "0.2", g = "0.2", b = "0.8"},
 	{r = "0.8", g = "0.2", b = "0.8"},
@@ -38,15 +30,17 @@ local MTdupColours = {
 }
 
 local GAP_SPACING = 10
-XPERL_UNIT_HEIGHT_MIN = 17
-XPERL_UNIT_HEIGHT_MAX = 30
-XPERL_UNIT_WIDTH_MIN = 50
-XPERL_UNIT_WIDTH_MAX = 125
+---@diagnostic disable: create-global
+ZPERL_UNIT_HEIGHT_MIN = 17
+ZPERL_UNIT_HEIGHT_MAX = 30
+ZPERL_UNIT_WIDTH_MIN = 50
+ZPERL_UNIT_WIDTH_MAX = 125
+---@diagnostic enable: create-global
 
-if (not XPerlColourTable) then
-	XPerlColourTable = setmetatable({},{
+if (not ZPerl.ColorTable) then
+	ZPerl.ColorTable = setmetatable({},{
 		__index = function(self, class)
-			local c = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[class] or {r = 0, g = 0, b = 0}
+			local c = (_G.CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[class] or {r = 0, g = 0, b = 0}
 			return format("|c00%02X%02X%02X", 255 * c.r, 255 * c.g, 255 * c.b)
 		end
 	})
@@ -60,7 +54,7 @@ local function SpecialCaseUnit(self)
 	if (self.type == "MTT") then
 		id = self:GetParent():GetAttribute("unit") -- SecureButton_GetUnit(self:GetParent())
 		if (id) then
-			if (UnitIsUnit("player", id)) then
+			if (ZPerl.SafeBool(UnitIsUnit("player", id), false)) then
 				return "target"
 			end
 			return id.."target"
@@ -68,7 +62,7 @@ local function SpecialCaseUnit(self)
 
 	elseif (self.type == "MT") then
 		id = self:GetAttribute("unit") -- SecureButton_GetUnit(self)
-		if (id and UnitIsUnit("player", id)) then
+		if (id and ZPerl.SafeBool(UnitIsUnit("player", id), false)) then
 			return "player"
 		end
 		return id
@@ -101,65 +95,61 @@ local function UpdateUnit(self,forcedUpdate)
 	end
 
 	local name = UnitName(xunit)
-	local percBar, grey
+	local grey
+	-- creature names and health are secret inside instances
+	local nameReadable = ZPerl.CanAccess(name)
 
 	self.healthBar.bg:Show()
 
-	if (name and name ~= UNKNOWNOBJECT) then
+	---@diagnostic disable-next-line: secret-comparison
+	if (name and (not nameReadable or name ~= UNKNOWNOBJECT)) then
 		-- Name
 		self.text:SetText(name)
 		self.text:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", 0, -12)
 
-		local remCount = 1
-		while ((self.text:GetStringWidth() >= (self:GetWidth() - 2)) and (string.len(name) > remCount)) do
-			name = string.sub(name, 1, string.len(name) - remCount)..".."
-			remCount = 3
-			self.text:SetText(name)
+		if (nameReadable) then
+			local remCount = 1
+			while (string.len(name) > remCount) do
+				-- GetStringWidth() can be secret even for plain text; leave the name untrimmed then
+				local width = self.text:GetStringWidth()
+				if (ZPerl.IsSecret(width) or width < self:GetWidth() - 2) then
+					break
+				end
+				name = string.sub(name, 1, string.len(name) - remCount)..".."
+				remCount = 3
+				self.text:SetText(name)
+			end
 		end
 
 		if (UnitPlayerControlled(xunit)) then
-			XPerl_ColourFriendlyUnit(self.text, xunit)
+			ZPerl.ColorFriendlyUnit(self.text, xunit)
 		else
-			XPerl_SetUnitNameColor(self.text, xunit)
+			ZPerl.SetUnitNameColor(self.text, xunit)
 		end
 
 		-- Health
-		local healthMax = UnitHealthMax(xunit)
-		local health = UnitIsGhost(xunit) and 1 or (UnitIsDead(xunit) and 0 or UnitHealth(xunit))
-		-- Begin 4.3 division by 0 work around to ensure we don't divide if max is 0
-		if UnitIsDeadOrGhost(xunit) or (health == 0 and healthMax == 0) then--Probably dead target
-			percBar = 0 -- So just automatically set percent to 0 and avoid division of 0/0 all together in this situation.
-		elseif health > 0 and healthMax == 0 then -- We have current ho but max hp failed.
-			healthMax = health -- Make max hp at least equal to current health
-			percBar = 1 -- And percent 100% cause a number divided by itself is 1, duh.
-		else
-			percBar = health / healthMax--Everything is dandy, so just do it right way.
+		local _, healthMax, missing = ZPerl.HealthSetBar(self.healthBar, xunit, true)
+		---@diagnostic disable-next-line: secret-comparison
+		if (ZPerl.CanAccess(healthMax) and healthMax == 0) then
+			grey = true
 		end
-		-- end division by 0 check
-		local perc = percBar * 100
-
-		if (healthMax == 0) then
-			grey, health, healthMax, perc = 1, 0, 1, 0
-		end
-
-		self.healthBar:SetMinMaxValues(0, healthMax)
-		self.healthBar:SetValue(health)
 
 		if (UnitIsDeadOrGhost(xunit)) then
-			self.healthBar.text:SetText(XPERL_LOC_DEAD)
+			self.healthBar.text:SetText(L["LOC_DEAD"])
 			grey = true
-		elseif (not UnitIsConnected(xunit)) then
-			self.healthBar.text:SetText(XPERL_LOC_OFFLINE)
+		elseif (not ZPerl.SafeBool(UnitIsConnected(xunit), true)) then
+			self.healthBar.text:SetText(L["LOC_OFFLINE"])
 			grey = true
 		else
-			if (conf.HealerMode == 1 and UnitInRaid(xunit)) then
-				if (conf.HealerModeType == 1) then
-					self.healthBar.text:SetText(health - healthMax.."/"..healthMax)
+			if (conf.HealerMode == 1 and ZPerl.SafeBool(UnitInRaid(xunit), false)) then
+				if (conf.HealerModeType == 1 and ZPerl.CanAccess(missing)) then
+					---@diagnostic disable-next-line: secret-arithmetic
+					self.healthBar.text:SetFormattedText("%d/%d", -missing, healthMax)
 				else
-					self.healthBar.text:SetText(health - healthMax)
+					ZPerl.SetDeficitText(self.healthBar.text, missing, "full")
 				end
 			else
-				self.healthBar.text:SetText(floor(perc + 0.5).."%")
+				ZPerl.FormatPercent(self.healthBar.text, UnitHealthPercent(xunit, true, CurveConstants.ScaleTo100), "whole")
 			end
 		end
 		if (conf.UnitHeight < 23) then
@@ -169,12 +159,12 @@ local function UpdateUnit(self,forcedUpdate)
 		end
 
 		if (self.type == "MTT") then
-			if (BigWigsTargetMonitor) then
-				BigWigsTargetMonitor:TargetCheck(xunit)
+			if (_G.BigWigsTargetMonitor) then
+				_G.BigWigsTargetMonitor:TargetCheck(xunit)
 			end
 
 			local index = GetRaidTargetIndex(xunit)
-			if (index) then
+			if (ZPerl.CanAccess(index)) then
 				SetRaidTargetIconTexture(self.raidIcon, index)
 				self.raidIcon:Show()
 			else
@@ -184,13 +174,14 @@ local function UpdateUnit(self,forcedUpdate)
 			self.raidIcon:Hide()
 		end
 
-		if UnitAffectingCombat(xunit) then
+		if ZPerl.SafeBool(UnitAffectingCombat(xunit), false) then
 			self.combatIcon:Show()
 		else
 			self.combatIcon:Hide()
 		end
 
-		if UnitIsCharmed(xunit) and UnitIsPlayer(xunit) and (not IsVanillaClassic and not UnitInVehicle("player") or true) then
+		-- indirect units can return secret flags; no icon in that case
+		if ZPerl.SafeBool(UnitIsCharmed(xunit), false) and ZPerl.SafeBool(UnitIsPlayer(xunit), false) then
 			self.warningIcon:Show()
 		else
 			self.warningIcon:Hide()
@@ -203,17 +194,16 @@ local function UpdateUnit(self,forcedUpdate)
 			name = UnitName(id)
 
 			if (name) then
-				XPerl_ColourFriendlyUnit(self.text, id)
-				self.text:SetFormattedText(XPERL_XS_TARGET, name)
+				ZPerl.ColorFriendlyUnit(self.text, id)
+				self.text:SetFormattedText(L["XS_TARGET"], name)
 				self.healthBar.bg:Hide()
 			end
 		else
-			self.text:SetText(XPERL_NO_TARGET)
+			self.text:SetText(L["NO_TARGET"])
 			self.text:SetTextColor(0.5, 0.5, 0.5, 1)
 		end
 		self.healthBar:SetMinMaxValues(0, 1)
 		self.healthBar:SetValue(0)
-		percBar = 0
 		grey = true
 		self.healthBar.text:Hide()
 		self.raidIcon:Hide()
@@ -221,8 +211,8 @@ local function UpdateUnit(self,forcedUpdate)
 		self.warningIcon:Hide()
 	end
 
-	if (XPerl_UpdateSpellRange and XPerlDB.rangeFinder.enabled) then
-		XPerl_UpdateSpellRange(self)
+	if (ZPerl.UpdateSpellRange and ZPerl.layout.rangeFinder.enabled) then
+		ZPerl.UpdateSpellRange(self)
 	else
 		self:SetAlpha(1)
 	end
@@ -231,35 +221,42 @@ local function UpdateUnit(self,forcedUpdate)
 		self.healthBar:SetStatusBarColor(0.5, 0.5, 0.5, 1)
 		self.healthBar.bg:SetVertexColor(0.5, 0.5, 0.5, 0.5)
 	else
-		if (XPerlDB and XPerlDB.colour.classbar and UnitIsFriend("player", xunit)) then
+		if (ZPerl.layout and ZPerl.layout.color.classbar and UnitIsFriend("player", xunit)) then
 			local bar = self.healthBar
 			local _, class = UnitClass(xunit)
-			if (class) then
-				local c = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[class]
-
-				bar:SetStatusBarColor(c.r, c.g, c.b)
-				if (bar.bg) then
-					bar.bg:SetVertexColor(c.r, c.g, c.b, 0.25)
+			if (class and ZPerl.CanAccess(class)) then
+				---@diagnostic disable-next-line: secret-table-key
+				local c = (_G.CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[class]
+				if (c) then
+					bar:SetStatusBarColor(c.r, c.g, c.b)
+					if (bar.bg) then
+						bar.bg:SetVertexColor(c.r, c.g, c.b, 0.25)
+					end
+					return
 				end
-				return
 			end
 		end
 
-		XPerl_SetSmoothBarColor(self.healthBar, percBar)
+		ZPerl.SetSmoothBarColor(self.healthBar, xunit)
 	end
 end
 
--- XPerl_RaidHelp_Show
-function XPerl_RaidHelp_Show()
+-- UnitOnShow
+local function UnitOnShow(self)
+	UpdateUnit(self)
+end
+
+-- ZPerl.RaidHelper.RaidHelpShow
+function ZPerl.RaidHelper.RaidHelpShow()
 	conf.RaidHelper = 1
-	XPerl_RaidHelperCheck:Show() -- XPerl_EnableDisable()
+	ZPerl_RaidHelperCheck:Show() -- ZPerl.RaidHelper.EnableDisable()
 	return true
 end
 
--- XPerl_MTListUnit_OnEnter
-function XPerl_MTListUnit_OnEnter(self)
+-- ZPerl.RaidHelper.MTListUnitOnEnter
+function ZPerl.RaidHelper.MTListUnitOnEnter(self)
 
-	local x = XPerl_RaidHelper_Frame:GetCenter()
+	local x = ZPerl_RaidHelper_Frame:GetCenter()
 	local a1, a2 = "ANCHOR_LEFT", "ANCHOR_TOPLEFT"
 	if ( x < (GetScreenWidth() / 2)) then
 		a1, a2 = "ANCHOR_RIGHT", "ANCHOR_TOPRIGHT"
@@ -275,15 +272,10 @@ function XPerl_MTListUnit_OnEnter(self)
 			if (self.type == "MTT" and conf.TooltipsWhich == 2) then
 				local parentID = SecureButton_GetUnit(self:GetParent())
 				if (parentID) then
-					XPerl_BottomTip:SetOwner(GameTooltip, a2, 0, 10)
-					XPerl_BottomTip:SetUnit(parentID)
+					ZPerl_BottomTip:SetOwner(GameTooltip, a2, 0, 10)
+					ZPerl_BottomTip:SetUnit(parentID)
 
-					if IsPandaClassic then
-						XPerl_BottomTip:OnBackdropLoaded()
-						XPerl_BottomTip:SetBackdropColor(0.1, 0.4, 0.1, 0.75)
-					else
-						XPerl_BottomTip.NineSlice:SetCenterColor(0.1, 0.4, 0.1, 0.75)
-					end
+					ZPerl_BottomTip.NineSlice:SetCenterColor(0.1, 0.4, 0.1, 0.75)
 				end
 			end
 		else
@@ -298,19 +290,14 @@ function XPerl_MTListUnit_OnEnter(self)
 				GameTooltip:SetOwner(self, a1)
 				GameTooltip:SetUnit(partyid)
 
-				if IsPandaClassic then
-					GameTooltip:OnBackdropLoaded()
-					GameTooltip:SetBackdropColor(0.1, 0.4, 0.1, 0.75)
-				else
-					GameTooltip.NineSlice:SetCenterColor(0.1, 0.4, 0.1, 0.75)
-				end
+				GameTooltip.NineSlice:SetCenterColor(0.1, 0.4, 0.1, 0.75)
 			end
 		end
 	end
 end
 
--- XPerl_SetupFrameSimple
-function XPerl_SetupFrameSimple(self, alpha)
+-- ZPerl.RaidHelper.SetupFrameSimple
+function ZPerl.RaidHelper.SetupFrameSimple(self, alpha)
 	if self.backdropInfo then
 		self:OnBackdropLoaded()
 	end
@@ -318,16 +305,12 @@ function XPerl_SetupFrameSimple(self, alpha)
 	self:SetBackdropColor(0, 0, 0, alpha or 0.8)
 end
 
--- XPerl_HelperBarTextures
-if (XPerl_GetBarTexture) then
-function XPerl_HelperBarTextures(tex)
-	local function UnitTex(v, tex)
-		v.healthBar.tex:SetTexture(tex)
-		if (XPerlConfig and XPerlConfig.BackgroundTextures == 1) then
-			v.healthBar.bg:SetTexture(tex)
-		else
-			v.healthBar.bg:SetTexture("Interface\\TargetingFrame\\UI-StatusBar")
-		end
+-- ZPerl.RaidHelper.HelperBarTextures
+if (ZPerl.GetBarTexture) then
+function ZPerl.RaidHelper.HelperBarTextures(tex)
+	local function UnitTex(v, texture)
+		v.healthBar.tex:SetTexture(texture)
+		v.healthBar.bg:SetTexture("Interface\\TargetingFrame\\UI-StatusBar")
 	end
 
 	for k,v in pairs(XUnits) do
@@ -336,49 +319,36 @@ function XPerl_HelperBarTextures(tex)
 end
 end
 
--- RemoveDupMT
-local function RemoveDupMT(name)
-	for k, v in pairs(ZPerl_MainTanks) do
-		if (strlower(v[2]) == strlower(name)) then
-			ZPerl_MainTanks[k] = { }
-			return true
-		end
-	end
+-- UnitHasName(unit, name): the unit's name is name, ignoring case. A raid unit has no name in a party (nil) and a
+-- secret one cannot be compared: neither matches.
+local function UnitHasName(unit, name)
+	local n = UnitName(unit)
+	return n ~= nil and type(name) == "string" and ZPerl.CanAccess(n) and strlower(n) == strlower(name)
 end
 
 -- GetRaidIDByName
 local function GetRaidIDByName(name)
 	for i = 1, GetNumGroupMembers() do
-		if (strlower(UnitName("raid"..i)) == strlower(name)) then
+		if (UnitHasName("raid"..i, name)) then
 			return i
 		end
 	end
 end
 
--- GetUnitRank
-local function GetUnitRank(name)
-	local index = GetRaidIDByName(name)
-	if (index) then
-		local _, rank = GetRaidRosterInfo(index)
-		return rank
-	end
-	return 0
-end
-
 -- ValidateTankList
 -- Check the roster for any tanks that have left the raid
 local function ValidateTankList()
-	for index,entry in pairs(ZPerl_MainTanks) do
+	for index,entry in pairs(ZPerlRaidHelperTanks) do
 		local found
 		for i = 1,GetNumGroupMembers() do
-			if (strlower(UnitName("raid"..i)) == strlower(entry[2])) then
+			if (UnitHasName("raid"..i, entry[2])) then
 				found = true
 				break
 			end
 		end
 
 		if (not found) then
-			ZPerl_MainTanks[index] = nil
+			ZPerlRaidHelperTanks[index] = nil
 		end
 	end
 end
@@ -396,8 +366,8 @@ local function inBattlegrounds()
 	end
 end
 
--- XPerl_MTRosterChanged()
-function XPerl_MTRosterChanged()
+-- ZPerl.RaidHelper.MTRosterChanged()
+function ZPerl.RaidHelper.MTRosterChanged()
 	ValidateTankList()
 
 	--del(MainTanks, true)
@@ -410,7 +380,7 @@ function XPerl_MTRosterChanged()
 		return
 	else
 		if (conf and conf.UseCTRATargets == 1) then
-			for index, entry in pairs(ZPerl_MainTanks) do
+			for index, entry in pairs(ZPerlRaidHelperTanks) do
 				local raidid = GetRaidIDByName(entry[2])
 				if (raidid) then
 					ctraTanks = ctraTanks + 1
@@ -427,21 +397,28 @@ function XPerl_MTRosterChanged()
 		-- Remember old tanks
 		local oldBlizzardNames = { }
 		for i, n in ipairs(BlizzardMainTanks) do
+			---@diagnostic disable-next-line: secret-table-key
 			oldBlizzardNames[n] = true
 		end
 
 		-- Scan roster, adding any new ones, and removing found ones from old tanks list
 		for i = 1, GetNumGroupMembers() do
 			local unitid = "raid"..i
-			if ((not IsVanillaClassic and UnitGroupRolesAssigned(unitid) == "TANK") or GetPartyAssignment("maintank", unitid)) then
+			if ((type(UnitGroupRolesAssigned) == "function" and ZPerl.SafeBool(UnitGroupRolesAssigned(unitid), nil) == "TANK") or GetPartyAssignment("maintank", unitid)) then
 				local name = GetUnitName(unitid, true)
 				local name2, realm = UnitName(unitid)
-				if (name ~= name2) then
+				if (not ZPerl.CanAccess(name) or not ZPerl.CanAccess(name2)) then
+					name = UNKNOWN
+				---@diagnostic disable-next-line: secret-comparison
+				elseif (name ~= name2) then
 					name = name2.."-"..realm
 				end
+				---@diagnostic disable-next-line: secret-comparison
 				if (name ~= UNKNOWN) then
+					---@diagnostic disable-next-line: secret-table-key
 					if (oldBlizzardNames[name]) then
 						-- We already had this tank, so leave it where it is
+						---@diagnostic disable-next-line: secret-table-key
 						oldBlizzardNames[name] = nil
 					else
 						-- New tank defined, add it to the end of the list
@@ -454,6 +431,7 @@ function XPerl_MTRosterChanged()
 		-- Remove any that have been demoted
 		for name in pairs(oldBlizzardNames) do
 			for i = #BlizzardMainTanks,1,-1 do
+				---@diagnostic disable-next-line: secret-comparison
 				if (BlizzardMainTanks[i] == name) then
 					tremove(BlizzardMainTanks, i)
 					break
@@ -464,7 +442,8 @@ function XPerl_MTRosterChanged()
 
 		for i,name in ipairs(BlizzardMainTanks) do
 			local found
-			for i,info in ipairs(MainTanks) do
+			for _, info in ipairs(MainTanks) do
+				---@diagnostic disable-next-line: secret-comparison
 				if (name == info[2]) then
 					found = true
 				end
@@ -476,14 +455,15 @@ function XPerl_MTRosterChanged()
 		end
 	end
 
-	if (not next(ZPerl_MainTanks)) then
+	if (not next(ZPerlRaidHelperTanks)) then
 		-- If no defined tanks, then make a list from the warriors in raid
 
 		if (blizzMTanks == 0 and conf.NoAutoList == 0 and not inBattlegrounds()) then
 			for i = 1,GetNumGroupMembers() do
 				local id = "raid"..i
 				local _, class = UnitClass(id)
-				if (class == "WARRIOR") then
+				---@diagnostic disable-next-line: secret-comparison
+				if (ZPerl.CanAccess(class) and class == "WARRIOR") then
 					tinsert(MainTanks, {i, UnitName(id)})
 				end
 			end
@@ -492,125 +472,33 @@ function XPerl_MTRosterChanged()
 
 	MainTankCount = #MainTanks
 
-	XPerl_MakeTankList()
+	ZPerl.RaidHelper.MakeTankList()
 end
 
--- ProcessCTRAMessage
-XPerlCTRASet = {}
-local function ProcessCTRAMessage(unitName, msg)
-
-	local mtListUpdate
-
-	if (strsub(msg, 1, 4) == "SET ") then
-		if (GetUnitRank(unitName) < 1) then
-			return
-		end
-
-		local num, name = strmatch(msg, "^SET (%d+) (.+)$")
-		if (num and name) then
-			num = tonumber(num)
-			local mtID = 0
-			for i = 1, GetNumGroupMembers() do
-				if (strlower(UnitName("raid"..i)) == strlower(name)) then
-					mtID = i
-					break
-				end
-			end
-
-			if (ZPerl_MainTanks[num]) then
-				if (ZPerl_MainTanks[num][1] == mtID and ZPerl_MainTanks[num][2] == name) then
-					return			-- No Change
-				end
-			end
-
-			RemoveDupMT(name)
-
-			--del(ZPerl_MainTanks[tonumber(num)])
-			ZPerl_MainTanks[tonumber(num)] = {mtID, name}
-
-			mtListUpdate = true
-		end
-
-	elseif (strsub(msg, 1, 2) == "R ") then
-		if (GetUnitRank(unitName) < 1) then
-			return
-		end
-
-		local name = strmatch(msg, "^R (.+)$")
-		if (name) then
-			mtListUpdate = RemoveDupMT(name)
-		end
-	end
-
-	if (mtListUpdate) then
-		-- XPerl_MTRosterChanged()
-		XPerl_RaidHelperCheck:Show() -- XPerl_EnableDisable()
-	end
-end
-
--- XPerl_SplitCTRAMessage
-function XPerl_SplitCTRAMessage(msg, char)
-	local arr = { }
-	while (strfind(msg, char) ) do
-		local iStart, iEnd = strfind(msg, char)
-		tinsert(arr, strsub(msg, 1, iStart - 1))
-		msg = strsub(msg, iEnd + 1, strlen(msg))
-	end
-	if ( strlen(msg) > 0 ) then
-		tinsert(arr, msg)
-	end
-	return arr
-end
-
--- XPerl_ParseCTRA
-function XPerl_ParseCTRA(nick, msg, func)
-	if (strfind(msg, "#")) then
-		--local arr = XPerl_SplitCTRAMessage(msg, "#")
-		local arr = {strsplit("#", msg)}
-		for i, subMsg in pairs(arr) do
-			func(nick, subMsg)
-		end
-		--del(arr)
-	else
-		func(nick, msg)
-	end
-end
-
--- CHAT_MSG_ADDON
-function Events:CHAT_MSG_ADDON(arg1, arg2, arg3, arg4)
-	if (arg1 == "CTRA" and arg3 == "RAID") then
-		XPerl_ParseCTRA(arg4, arg2, ProcessCTRAMessage)
-	end
-end
-
--- XPerl_RaidHelper_OnLoad
-function XPerl_RaidHelper_OnLoad(self)
+-- ZPerl.RaidHelper.OnLoad
+function ZPerl.RaidHelper.OnLoad(self)
 	self:OnBackdropLoaded()
 	self:RegisterForDrag("LeftButton")
 	self:RegisterEvent("VARIABLES_LOADED")
 	self:RegisterEvent("GROUP_ROSTER_UPDATE")
 
-	SlashCmdList["XPERLHELPER"] = XPerl_Slash
-	SLASH_XPERLHELPER1 = "/xp"
+	SlashCmdList["ZPERLHELPER"] = ZPerl.RaidHelper.Slash
+	SLASH_ZPERLHELPER1 = "/zphelper"
 
-	if (XPerl_RegisterPerlFrames) then
-		XPerl_RegisterPerlFrames(self)
+	if (ZPerl.RegisterPerlFrames) then
+		ZPerl.RegisterPerlFrames(self)
 	end
 
-	if (XPerl_SavePosition) then
-		XPerl_SavePosition(XPerl_MTList_Anchor, true)
-	end
-
-	XPerl_RaidHelper_OnLoad = nil
+	ZPerl.RaidHelper.OnLoad = nil
 end
 
--- XPerl_RaidHelper_OnEvent
-function XPerl_RaidHelper_OnEvent(self, event, ...)
+-- ZPerl.RaidHelper.OnEvent
+function ZPerl.RaidHelper.OnEvent(self, event, ...)
 	Events[event](self, ...)
 end
 
--- XPerl_GetUnit
-local function XPerl_GetUnit(unit)
+-- GetUnit
+local function GetUnit(unit)
 	for i,search in pairs(XUnits) do
 		if (search.type == "MTT") then
 			local partyid = SecureButton_GetUnit(search:GetParent())
@@ -628,30 +516,34 @@ local function ScanForMTDups()
 	local dups = { }
 
 	for i, unit in pairs(XUnits) do
-		XPerl_SetupFrameSimple(unit, conf.Background_Transparency)
+		ZPerl.RaidHelper.SetupFrameSimple(unit, conf.Background_Transparency)
 	end
 
 	for i, t1 in pairs(MainTanks) do
 		local any = false
 
+		---@diagnostic disable-next-line: secret-argument
 		if (UnitExists("raid"..t1[1].."target") and not UnitIsDeadOrGhost("raid"..t1[1])) then
 			for j,t2 in pairs(MainTanks) do
+				---@diagnostic disable-next-line: secret-table-key
 				if (j > i and not dups["raid"..t2[1]]) then
-					if (UnitIsUnit("raid"..t1[1].."target", "raid"..t2[1].."target")) then
+					---@diagnostic disable-next-line: secret-argument
+					if (ZPerl.SafeBool(UnitIsUnit("raid"..t1[1].."target", "raid"..t2[1].."target"), false)) then
+						---@diagnostic disable-next-line: secret-table-key
 						dups["raid"..t2[1]] = 1
 
-						local unit1 = XPerl_GetUnit("raid"..t1[1])
-						local unit2 = XPerl_GetUnit("raid"..t2[1])
+						local unit1 = GetUnit("raid"..t1[1])
+						local unit2 = GetUnit("raid"..t2[1])
 
 						if (unit1) then
 							unit1:OnBackdropLoaded()
-							unit1:SetBackdropColor(MTdupColours[dup].r, MTdupColours[dup].g, MTdupColours[dup].b)
-							unit1:SetBackdropBorderColor(MTdupColours[dup].r, MTdupColours[dup].g, MTdupColours[dup].b)
+							unit1:SetBackdropColor(MTdupColors[dup].r, MTdupColors[dup].g, MTdupColors[dup].b)
+							unit1:SetBackdropBorderColor(MTdupColors[dup].r, MTdupColors[dup].g, MTdupColors[dup].b)
 						end
 						if (unit2) then
 							unit2:OnBackdropLoaded()
-							unit2:SetBackdropColor(MTdupColours[dup].r, MTdupColours[dup].g, MTdupColours[dup].b)
-							unit2:SetBackdropBorderColor(MTdupColours[dup].r, MTdupColours[dup].g, MTdupColours[dup].b)
+							unit2:SetBackdropColor(MTdupColors[dup].r, MTdupColors[dup].g, MTdupColors[dup].b)
+							unit2:SetBackdropBorderColor(MTdupColors[dup].r, MTdupColors[dup].g, MTdupColors[dup].b)
 						end
 						any = true
 					end
@@ -671,15 +563,15 @@ end
 	--added aug 30, 2012
 function Events:PLAYER_ROLES_ASSIGNED()
 	--check for tanks for efficiency if possible
-	XPerl_MTRosterChanged()
-	XPerl_EnableDisable()
+	ZPerl.RaidHelper.MTRosterChanged()
+	ZPerl.RaidHelper.EnableDisable()
 end
 
 -- MoveArrow
 local function MoveArrow(unit)
-	XPerl_MyTarget:SetParent(unit)
-	XPerl_MyTarget:SetPoint("RIGHT", unit, "LEFT", 2 - (conf.MTLabels * 10), 0)
-	XPerl_MyTarget:Show()
+	ZPerl_MyTarget:SetParent(unit)
+	ZPerl_MyTarget:SetPoint("RIGHT", unit, "LEFT", 2 - (conf.MTLabels * 10), 0)
+	ZPerl_MyTarget:Show()
 end
 
 -- OnUpdate
@@ -703,15 +595,17 @@ local old_CT_RA_IsSendingWithVersion
 -- VARIABLES_LOADED
 function Events:VARIABLES_LOADED()
 	self:UnregisterEvent("VARIABLES_LOADED")
+	ZPerl.MigrateSavedNames("ZPerl_RaidHelper")
 
 	if (InCombatLockdown()) then
-		pendingTankListChange = true
+		-- the setup sets protected attributes; the event is unregistered and does not come again, so it runs at combat end
+		ZPerl.AfterCombat(Events.VARIABLES_LOADED, self)
 		return
 	end
 
-	if (CT_RA_IsSendingWithVersion) then
-		old_CT_RA_IsSendingWithVersion = CT_RA_IsSendingWithVersion
-		CT_RA_IsSendingWithVersion = function(version)
+	if (_G.CT_RA_IsSendingWithVersion) then
+		old_CT_RA_IsSendingWithVersion = _G.CT_RA_IsSendingWithVersion
+		_G.CT_RA_IsSendingWithVersion = function(version)
 			if (version == 1.08) then
 				return 1
 			end
@@ -719,19 +613,19 @@ function Events:VARIABLES_LOADED()
 		end
 	end
 
-	if (type(ZPerl_MainTanks) ~= "table") then
-		ZPerl_MainTanks = {}
+	if (type(ZPerlRaidHelperTanks) ~= "table") then
+		ZPerlRaidHelperTanks = {}
 	end
 
-	XPerl_MTTargets:UnregisterEvent("UNIT_NAME_UPDATE")	-- Fix for WoW 2.1 UNIT_NAME_UPDATE issue
-	XPerl_MTTargets:SetAttribute("template", "XPerl_MTList_UnitTemplate")
+	ZPerl_MTTargets:UnregisterEvent("UNIT_NAME_UPDATE")	-- Fix for WoW 2.1 UNIT_NAME_UPDATE issue
+	ZPerl_MTTargets:SetAttribute("template", "ZPerl_MTList_UnitTemplate")
 
-	XPerl_Startup()
-	conf = ZPerlConfigHelper
-	XPerl_RaidHelperCheck:Show()		-- XPerl_EnableDisable()
+	ZPerl.RaidHelper.Startup()
+	conf = ZPerlRaidHelperDB
+	ZPerl_RaidHelperCheck:Show()		-- ZPerl.RaidHelper.EnableDisable()
 
-	XPerl_RegisterOptionChanger(XPerl_SetFrameSizes)
-	XPerl_SetFrameSizes()
+	ZPerl.RegisterOptionChanger(ZPerl.RaidHelper.SetFrameSizes, nil, "raidsizes")
+	ZPerl.RaidHelper.SetFrameSizes()
 
 	Events.VARIABLES_LOADED = nil
 end
@@ -739,7 +633,7 @@ end
 -- Registration
 local function Registration()
 	local list = {
-		IsClassic and "UNIT_HEALTH_FREQUENT" or "UNIT_HEALTH",
+		ZPerl.ForeverAPI.healthEvent,
 		"UNIT_MAXHEALTH",
 		"UNIT_TARGET",
 		"UNIT_FACTION",
@@ -755,55 +649,56 @@ local function Registration()
 		if not conf then
 			return
 		end
+		-- never error on an event this client does not have
 		if (conf.RaidHelper == 1) then
-			XPerl_RaidHelper_Frame:RegisterEvent(a)
+			ZPerl.RegisterEventSafe(ZPerl_RaidHelper_Frame, a)
 		else
-			XPerl_RaidHelper_Frame:UnregisterEvent(a)
+			ZPerl.UnregisterEventSafe(ZPerl_RaidHelper_Frame, a)
 		end
 	end
 end
 
--- XPerl_HelperCheck_OnUpdate
-function XPerl_HelperCheck_OnUpdate(self)
+-- ZPerl.RaidHelper.HelperCheckOnUpdate
+function ZPerl.RaidHelper.HelperCheckOnUpdate(self)
 	self:Hide()
-	XPerl_EnableDisable()
+	ZPerl.RaidHelper.EnableDisable()
 end
 
--- XPerl_EnableDisable
-function XPerl_EnableDisable()
+-- ZPerl.RaidHelper.EnableDisable
+function ZPerl.RaidHelper.EnableDisable()
 	if (InCombatLockdown()) then
 		pendingTankListChange = true
 		return
 	end
 
-	if (ZPerlConfigHelper and conf and conf.RaidHelper == 1 and IsInRaid()) then
-		if (not XPerl_RaidHelper_Frame:IsShown()) then
-			XPerl_RaidHelper_Frame:Show()
-			XPerl_RaidHelper_Frame:SetScript("OnUpdate", OnUpdate)
+	if (ZPerlRaidHelperDB and conf and conf.RaidHelper == 1 and IsInRaid()) then
+		if (not ZPerl_RaidHelper_Frame:IsShown()) then
+			ZPerl_RaidHelper_Frame:Show()
+			ZPerl_RaidHelper_Frame:SetScript("OnUpdate", OnUpdate)
 		end
 
-		if (CT_RAMenu_Options and CT_RA_UpdateVisibility) then
-			conf.OldCTMTListHide = CT_RAMenu_Options["temp"]["HideMTs"]
-			CT_RAMenu_Options["temp"]["HideMTs"] = true
-			CT_RA_UpdateVisibility(1)
+		if (_G.CT_RAMenu_Options and _G.CT_RA_UpdateVisibility) then
+			conf.OldCTMTListHide = _G.CT_RAMenu_Options["temp"]["HideMTs"]
+			_G.CT_RAMenu_Options["temp"]["HideMTs"] = true
+			_G.CT_RA_UpdateVisibility(1)
 		end
 	else
-		if (XPerl_RaidHelper_Frame:IsShown()) then
-			XPerl_RaidHelper_Frame:Hide()
-			XPerl_RaidHelper_Frame:SetScript("OnUpdate", nil)
+		if (ZPerl_RaidHelper_Frame:IsShown()) then
+			ZPerl_RaidHelper_Frame:Hide()
+			ZPerl_RaidHelper_Frame:SetScript("OnUpdate", nil)
 		end
 
-		if (ZPerlConfigHelper and conf and conf.RaidHelper == 0 and CT_RAMenu_Options and CT_RA_UpdateVisibility) then
+		if (ZPerlRaidHelperDB and conf and conf.RaidHelper == 0 and _G.CT_RAMenu_Options and _G.CT_RA_UpdateVisibility) then
 			if (conf.OldCTMTListHide ~= true) then
 				conf.OldCTMTListHide = nil
-				CT_RAMenu_Options["temp"]["HideMTs"] = false
-				CT_RA_UpdateVisibility(1)
+				_G.CT_RAMenu_Options["temp"]["HideMTs"] = false
+				_G.CT_RA_UpdateVisibility(1)
 			end
 		end
 	end
 
 	Registration()
-	XPerl_MTRosterChanged()
+	ZPerl.RaidHelper.MTRosterChanged()
 end
 
 -- GROUP_ROSTER_UPDATE
@@ -814,23 +709,7 @@ function Events:GROUP_ROSTER_UPDATE()
 		--del(BlizzardMainTanks)
 		BlizzardMainTanks = { }
 	end
-	--XPerlRaidHelperCheck:show()
-end
-
--- UNIT_HEALTH_FREQUENT
-function Events:UNIT_HEALTH_FREQUENT(unit)
-	if not unit then
-		return
-	end
-
-	if (strfind(unit, "^raid%d")) then
-		for k, frame in pairs(XUnits) do
-			local partyid = SecureButton_GetUnit(frame)
-			if (partyid and UnitIsUnit(partyid, unit)) then
-				UpdateUnit(frame)
-			end
-		end
-	end
+	--ZPerl_RaidHelperCheck:show()
 end
 
 -- UNIT_HEALTH
@@ -842,7 +721,7 @@ function Events:UNIT_HEALTH(unit)
 	if (strfind(unit, "^raid%d")) then
 		for k, frame in pairs(XUnits) do
 			local partyid = SecureButton_GetUnit(frame)
-			if (partyid and UnitIsUnit(partyid, unit)) then
+			if (partyid and ZPerl.SafeBool(UnitIsUnit(partyid, unit), false)) then
 				UpdateUnit(frame)
 			end
 		end
@@ -858,7 +737,7 @@ function Events:UNIT_MAXHEALTH(unit)
 	if (strfind(unit, "^raid%d")) then
 		for k, frame in pairs(XUnits) do
 			local partyid = SecureButton_GetUnit(frame)
-			if (partyid and UnitIsUnit(partyid, unit)) then
+			if (partyid and ZPerl.SafeBool(UnitIsUnit(partyid, unit), false)) then
 				UpdateUnit(frame)
 			end
 		end
@@ -882,7 +761,8 @@ function Events:UNIT_FACTION(unit)
 						frame.combatIcon:Hide()
 					end
 
-					if (UnitIsCharmed(partyid)) then
+					-- indirect units can return secret flags; no icon in that case
+					if (ZPerl.SafeBool(UnitIsCharmed(partyid), false)) then
 						frame.warningIcon:Show()
 					else
 						frame.warningIcon:Hide()
@@ -903,9 +783,9 @@ local function CheckArrowPosition()
 		arrowExtra = "target"
 	end
 
-	XPerl_MyTarget:Hide()
-	XPerl_MainAssist:Hide()
-	XPerl_MainTank:Hide()
+	ZPerl_MyTarget:Hide()
+	ZPerl_MainAssist:Hide()
+	ZPerl_MainTank:Hide()
 
 	local maAssignment, tankAssignment
 	if (GetPartyAssignment) then
@@ -917,7 +797,7 @@ local function CheckArrowPosition()
 	for i, unit in pairs(XUnits) do
 		local xunit = SpecialCaseUnit(unit)
 		if (xunit) then
-			if (not arrowDone and unit.type == arrowType and UnitIsUnit("target", xunit..arrowExtra) and UnitExists("target")) then
+			if (not arrowDone and unit.type == arrowType and ZPerl.SafeBool(UnitIsUnit("target", xunit..arrowExtra), false) and ZPerl.SafeBool(UnitExists("target"), false)) then
 				MoveArrow(unit)
 				arrowDone = true
 			end
@@ -929,28 +809,28 @@ local function CheckArrowPosition()
 			local name = UnitName(xunit)
 			if (maAssignment and unit.type == arrowType and not maDone and name == maAssignment) then
 				maDone = true
-				XPerl_MainAssist:SetParent(unit.healthBar)
-				XPerl_MainAssist:ClearAllPoints()
+				ZPerl_MainAssist:SetParent(unit.healthBar)
+				ZPerl_MainAssist:ClearAllPoints()
 
 				if (conf.MTLabels == 1) then
-					XPerl_MainAssist:SetPoint("BOTTOMRIGHT", unit, "BOTTOMLEFT", 3, 1)
+					ZPerl_MainAssist:SetPoint("BOTTOMRIGHT", unit, "BOTTOMLEFT", 3, 1)
 				else
-					XPerl_MainAssist:SetPoint("BOTTOMRIGHT", -1, 1)
+					ZPerl_MainAssist:SetPoint("BOTTOMRIGHT", -1, 1)
 				end
-				XPerl_MainAssist:Show()
+				ZPerl_MainAssist:Show()
 			end
 
 			if (tankAssignment and unit.type == arrowType and not mtDone and name == tankAssignment) then
 				mtDone = true
-				XPerl_MainTank:SetParent(unit.healthBar)
-				XPerl_MainTank:ClearAllPoints()
+				ZPerl_MainTank:SetParent(unit.healthBar)
+				ZPerl_MainTank:ClearAllPoints()
 
 				if (conf.MTLabels == 1) then
-					XPerl_MainTank:SetPoint("BOTTOMRIGHT", unit, "BOTTOMLEFT", 3, 1)
+					ZPerl_MainTank:SetPoint("BOTTOMRIGHT", unit, "BOTTOMLEFT", 3, 1)
 				else
-					XPerl_MainTank:SetPoint("BOTTOMRIGHT", -1, 1)
+					ZPerl_MainTank:SetPoint("BOTTOMRIGHT", -1, 1)
 				end
-				XPerl_MainTank:Show()
+				ZPerl_MainTank:Show()
 			end
 		end
 	end
@@ -958,11 +838,11 @@ end
 
 -- TargetChanged
 local function TargetChanged(xunit)
-	local unit, i = XPerl_MTTargets:GetAttribute("child1"), 1
+	local unit, i = ZPerl_MTTargets:GetAttribute("child1"), 1
 	local any
 	while (unit) do
 		local id = unit:GetAttribute("unit")
-		if (id and UnitIsUnit(id, xunit)) then
+		if (id and ZPerl.SafeBool(UnitIsUnit(id, xunit), false)) then
 			UpdateUnit(unit.target)
 			UpdateUnit(unit.targettarget)
 			any = true
@@ -970,7 +850,7 @@ local function TargetChanged(xunit)
 		end
 
 		i = i + 1
-		unit = XPerl_MTTargets:GetAttribute("child"..i)
+		unit = ZPerl_MTTargets:GetAttribute("child"..i)
 	end
 
 	if (any) then
@@ -981,14 +861,14 @@ end
 
 -- PLAYER_TARGET_CHANGED
 function Events:PLAYER_TARGET_CHANGED()
-	if (XPerl_RaidHelper_Frame:IsShown()) then
+	if (ZPerl_RaidHelper_Frame:IsShown()) then
 		TargetChanged("player")
 	end
 end
 
 -- UNIT_TARGET
 function Events:UNIT_TARGET(u)
-	if (XPerl_RaidHelper_Frame:IsShown() and strmatch(u, "^raid")) then
+	if (ZPerl_RaidHelper_Frame:IsShown() and strmatch(u, "^raid")) then
 		TargetChanged(u)
 	end
 end
@@ -996,32 +876,32 @@ end
 -- DoButtons
 local function DoButtons(disable)
 	if (disable or InCombatLockdown()) then
-		XPerl_RaidHelper_Frame_TitleBar_CloseButton:Disable()
-		XPerl_RaidHelper_Frame_TitleBar_ToggleShowMT:Disable()
-		XPerl_RaidHelper_Frame_TitleBar_ToggleMTTargets:Disable()
-		XPerl_RaidHelper_Frame_TitleBar_ToggleLabels:Disable()
-		XPerl_RaidHelper_Frame.corner:EnableMouse(false)
+		ZPerl_RaidHelper_Frame_TitleBar_CloseButton:Disable()
+		ZPerl_RaidHelper_Frame_TitleBar_ToggleShowMT:Disable()
+		ZPerl_RaidHelper_Frame_TitleBar_ToggleMTTargets:Disable()
+		ZPerl_RaidHelper_Frame_TitleBar_ToggleLabels:Disable()
+		ZPerl_RaidHelper_Frame.corner:EnableMouse(false)
 	else
-		XPerl_RaidHelper_Frame_TitleBar_CloseButton:Enable()
-		XPerl_RaidHelper_Frame_TitleBar_ToggleShowMT:Enable()
-		XPerl_RaidHelper_Frame_TitleBar_ToggleMTTargets:Enable()
-		XPerl_RaidHelper_Frame_TitleBar_ToggleLabels:Enable()
-		XPerl_RaidHelper_Frame.corner:EnableMouse(true)
+		ZPerl_RaidHelper_Frame_TitleBar_CloseButton:Enable()
+		ZPerl_RaidHelper_Frame_TitleBar_ToggleShowMT:Enable()
+		ZPerl_RaidHelper_Frame_TitleBar_ToggleMTTargets:Enable()
+		ZPerl_RaidHelper_Frame_TitleBar_ToggleLabels:Enable()
+		ZPerl_RaidHelper_Frame.corner:EnableMouse(true)
 	end
 
-	XPerl_RaidHelper_Frame_TitleBar_ToggleShowMT:SetButtonTex()
-	XPerl_RaidHelper_Frame_TitleBar_ToggleMTTargets:SetButtonTex()
-	XPerl_RaidHelper_Frame_TitleBar_ToggleLabels:SetButtonTex()
+	ZPerl_RaidHelper_Frame_TitleBar_ToggleShowMT:SetButtonTex()
+	ZPerl_RaidHelper_Frame_TitleBar_ToggleMTTargets:SetButtonTex()
+	ZPerl_RaidHelper_Frame_TitleBar_ToggleLabels:SetButtonTex()
 end
 
 -- PLAYER_REGEN_ENABLED
 function Events:PLAYER_REGEN_ENABLED()
 	if (pendingTankListChange) then
-		XPerl_MakeTankList()
-		XPerl_MTRosterChanged()
+		ZPerl.RaidHelper.MakeTankList()
+		ZPerl.RaidHelper.MTRosterChanged()
 	end
 	DoButtons()
-	XPerl_RaidHelperCheck:Show() -- XPerl_EnableDisable()
+	ZPerl_RaidHelperCheck:Show() -- ZPerl.RaidHelper.EnableDisable()
 end
 Events.PLAYER_ENTERING_WORLD = Events.PLAYER_REGEN_ENABLED
 
@@ -1036,30 +916,26 @@ local function DisplayableColumns()
 	return 1 + conf.ShowMT + conf.MTTargetTargets
 end
 
--- XPerl_SetTitle
-function XPerl_SetTitle()
+-- ZPerl.RaidHelper.SetTitle
+function ZPerl.RaidHelper.SetTitle()
 	if (DisplayableColumns() > 1 and conf.UnitWidth >= 70) then
 		if (ctraTanks > 0 or blizzMTanks > 0) then
-			XPerl_Frame_Title:SetText(XPERL_TITLE_MT_LONG)
+			ZPerl_Frame_Title:SetText(L["TITLE_MT_LONG"])
 		else
-			XPerl_Frame_Title:SetText(XPERL_TITLE_WARRIOR_LONG)
+			ZPerl_Frame_Title:SetText(L["TITLE_WARRIOR_LONG"])
 		end
 	else
 		if (ctraTanks > 0 or blizzMTanks > 0) then
-			XPerl_Frame_Title:SetText(XPERL_TITLE_MT_SHORT)
+			ZPerl_Frame_Title:SetText(L["TITLE_MT_SHORT"])
 		else
-			XPerl_Frame_Title:SetText(XPERL_TITLE_WARRIOR_SHORT)
+			ZPerl_Frame_Title:SetText(L["TITLE_WARRIOR_SHORT"])
 		end
 	end
 end
 
-local bEdge = {	bgFile = "Interface\\AddOns\\ZPerl_RaidHelper\\Images\\XPerl_FrameBack",
+local bEdge = {	bgFile = "Interface\\AddOns\\ZPerl_RaidHelper\\Images\\ZPerl_FrameBack",
 		edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
 		tile = true, tileSize = 16, edgeSize = 9,
-		insets = { left = 3, right = 3, top = 3, bottom = 3 }
-	}
-local bNoEdge = {bgFile = "Interface\\AddOns\\ZPerl_RaidHelper\\Images\\XPerl_FrameBack",
-		edgeFile = "", tile = true, tileSize = 16, edgeSize = 9,
 		insets = { left = 3, right = 3, top = 3, bottom = 3 }
 	}
 
@@ -1071,24 +947,24 @@ local function SetVisibility()
 	end
 
 	local left = 3 + (conf.MTLabels * 10)
-	XPerl_RaidHelper_Frame:ClearAllPoints()
-	XPerl_RaidHelper_Frame_TitleBar:ClearAllPoints()
-	XPerl_MTTargets:ClearAllPoints()
+	ZPerl_RaidHelper_Frame:ClearAllPoints()
+	ZPerl_RaidHelper_Frame_TitleBar:ClearAllPoints()
+	ZPerl_MTTargets:ClearAllPoints()
 	if (conf.MTListUpward == 1) then
-		XPerl_RaidHelper_Frame:SetPoint("BOTTOMLEFT", XPerl_MTList_Anchor, "BOTTOMLEFT", 0, 0)
-		XPerl_RaidHelper_Frame_TitleBar:SetPoint("BOTTOMLEFT", 3, 3)
-		XPerl_RaidHelper_Frame_TitleBar:SetPoint("TOPRIGHT", XPerl_RaidHelper_Frame, "BOTTOMRIGHT", -3, 13)
-		XPerl_MTTargets:SetAttribute("point", "BOTTOM")
-		XPerl_MTTargets:SetPoint("BOTTOMLEFT", left, 13)
+		ZPerl_RaidHelper_Frame:SetPoint("BOTTOMLEFT", ZPerl_MTList_Anchor, "BOTTOMLEFT", 0, 0)
+		ZPerl_RaidHelper_Frame_TitleBar:SetPoint("BOTTOMLEFT", 3, 3)
+		ZPerl_RaidHelper_Frame_TitleBar:SetPoint("TOPRIGHT", ZPerl_RaidHelper_Frame, "BOTTOMRIGHT", -3, 13)
+		ZPerl_MTTargets:SetAttribute("point", "BOTTOM")
+		ZPerl_MTTargets:SetPoint("BOTTOMLEFT", left, 13)
 	else
-		XPerl_RaidHelper_Frame:SetPoint("TOPLEFT", XPerl_MTList_Anchor, "TOPLEFT", 0, 0)
-		XPerl_RaidHelper_Frame_TitleBar:SetPoint("TOPLEFT", 3, -3)
-		XPerl_RaidHelper_Frame_TitleBar:SetPoint("BOTTOMRIGHT", XPerl_RaidHelper_Frame, "TOPRIGHT", -3, -13)
-		XPerl_MTTargets:SetAttribute("point", "TOP")
-		XPerl_MTTargets:SetPoint("TOPLEFT", left, -13)
+		ZPerl_RaidHelper_Frame:SetPoint("TOPLEFT", ZPerl_MTList_Anchor, "TOPLEFT", 0, 0)
+		ZPerl_RaidHelper_Frame_TitleBar:SetPoint("TOPLEFT", 3, -3)
+		ZPerl_RaidHelper_Frame_TitleBar:SetPoint("BOTTOMRIGHT", ZPerl_RaidHelper_Frame, "TOPRIGHT", -3, -13)
+		ZPerl_MTTargets:SetAttribute("point", "TOP")
+		ZPerl_MTTargets:SetPoint("TOPLEFT", left, -13)
 	end
 
-	local v, k = XPerl_MTTargets:GetAttribute("child1"), 1
+	local v, k = ZPerl_MTTargets:GetAttribute("child1"), 1
 	while (v) do
 		-- We don't actually hide the MT if it's not shown, just make it unclickable and no visible content
 		if (conf.ShowMT == 1) then
@@ -1135,7 +1011,8 @@ local function SetVisibility()
 				local lbl
 				local name = UnitName(u)
 				for i, tank in pairs(MainTanks) do
-					if (tank[2] == name) then
+					---@diagnostic disable-next-line: secret-comparison
+					if (ZPerl.CanAccess(name) and tank[2] == name) then
 						lbl = i
 						break
 					end
@@ -1149,12 +1026,12 @@ local function SetVisibility()
 		end
 
 		k = k + 1
-		v = XPerl_MTTargets:GetAttribute("child"..k)
+		v = ZPerl_MTTargets:GetAttribute("child"..k)
 	end
 end
 
--- XPerl_MakeTankList
-function XPerl_MakeTankList()
+-- ZPerl.RaidHelper.MakeTankList
+function ZPerl.RaidHelper.MakeTankList()
 	if (InCombatLockdown()) then
 		pendingTankListChange = true
 		return
@@ -1162,13 +1039,13 @@ function XPerl_MakeTankList()
 		pendingTankListChange = nil
 	end
 
-	if (not ZPerlConfigHelper or (conf and conf.RaidHelper == 0) or not IsInRaid()) then
-		XPerl_SetFrameSizes()
+	if (not ZPerlRaidHelperDB or (conf and conf.RaidHelper == 0) or not IsInRaid()) then
+		ZPerl.RaidHelper.SetFrameSizes()
 		return
 	end
 
-	XPerl_SetTitle()
-	XPerl_MyTarget:Hide()
+	ZPerl.RaidHelper.SetTitle()
+	ZPerl_MyTarget:Hide()
 	XGaps = 0
 
 	local tanks = { }
@@ -1182,19 +1059,19 @@ function XPerl_MakeTankList()
 	end
 
 	if (#tanks == 0) then
-		XPerl_RaidHelper_Frame:Hide()
+		ZPerl_RaidHelper_Frame:Hide()
 	else
-		XPerl_RaidHelper_Frame:Show()
+		ZPerl_RaidHelper_Frame:Show()
 	end
 
-	XPerl_MTTargets:SetAttribute("nameList", table.concat(tanks, ","))
-	XPerl_MTTargets:Show()
+	ZPerl_MTTargets:SetAttribute("nameList", table.concat(tanks, ","))
+	ZPerl_MTTargets:Show()
 
 	--del(tanks)
 
-	if (XPerl_NoFadeBars) then XPerl_NoFadeBars() end
+	if (ZPerl.NoFadeBars) then ZPerl.NoFadeBars() end
 
-	XPerl_SetFrameSizes()
+	ZPerl.RaidHelper.SetFrameSizes()
 end
 
 -- SetUnitSettings
@@ -1202,11 +1079,11 @@ local function SetUnitSettings(self)
 	self:SetWidth(conf.UnitWidth)
 	self:SetHeight(conf.UnitHeight)
 
-	if (XPerl_GetBarTexture) then
-		local tex = XPerl_GetBarTexture()
+	if (ZPerl.GetBarTexture) then
+		local tex = ZPerl.GetBarTexture()
 		self.healthBar.tex:SetTexture(tex)
 
-		if (not XPerlDB or XPerlDB.bar.background) then
+		if (not ZPerl.layout or ZPerl.layout.bar.background) then
 			self.healthBar.bg:SetTexture(tex)
 		else
 			self.healthBar.bg:SetTexture("Interface\\TargetingFrame\\UI-StatusBar")
@@ -1222,8 +1099,8 @@ local function SetUnitSettings(self)
 		self.healthBar:SetPoint("BOTTOMRIGHT", -4, 4)
 	end
 
-	if (XPerl_RegisterHighlight) then
-		XPerl_RegisterHighlight(self, 3)
+	if (ZPerl.RegisterHighlight) then
+		ZPerl.RegisterHighlight(self, 3)
 	else
 		local tex = self:GetHighlightTexture()
 		tex:SetVertexColor(0.86, 0.82, 0.41)
@@ -1241,67 +1118,30 @@ local function onAttrChanged(self, name, value)
 	end
 end
 
--- SetChildAttributes(self, child)
---[[local function SetChildAttributes(self, Type, suffix)
-
-	local frame = self
-
-	frame.type = Type
-
-	if (suffix) then
-		frame = CreateFrame("Button", self:GetName()..suffix, self, "XPerl_MTList_UnitTemplate")
-		frame:SetAttribute("useparent-unit", true)
-		frame:SetAttribute("unitsuffix", suffix)
-		frame:SetPoint("TOPLEFT", self.target or self, "TOPRIGHT", 0, 0)
-		self[suffix] = frame
-	else
-		self.hidden = false
-	end
-
-	frame:SetAttribute("*type1", "target")
-
-	XPerl_RegisterClickCastFrame(frame)
-	SetUnitSettings(frame)
-	frame:SetScript("OnShow", UpdateUnit)
-
-	if (not suffix) then
-		self:SetScript("OnAttributeChanged", onAttrChanged)
-	end
-
-	frame:Show()
-	tinsert(XUnits, frame)
-end
-
-function XPerl_MTList_ChildUnits(self)
-	SetChildAttributes(self, "MT")
-	SetChildAttributes(self, "MTT", "target")
-	SetChildAttributes(self, "MTTT", "targettarget")
-end--]]
-
--- XPerl_MTList_ChildUnits
-function XPerl_MTList_ChildUnits(self)
+-- ZPerl.RaidHelper.MTListChildUnits
+function ZPerl.RaidHelper.MTListChildUnits(self)
 	self.type = "MT"
 	self.hidden = false
 	self:SetAttribute("*type1", "target")
-	XPerl_RegisterClickCastFrame(self)
+	ZPerl.RegisterClickCastFrame(self)
 	SetUnitSettings(self)
 
-	local c1 = CreateFrame("Button", self:GetName().."Target", self, "XPerl_MTList_UnitTemplate")
+	local c1 = CreateFrame("Button", self:GetName().."Target", self, "ZPerl_MTList_UnitTemplate")
 	c1.type = "MTT"
 	c1:SetAttribute("useparent-unit", true)
 	c1:SetAttribute("unitsuffix", "target")
 	c1:SetAttribute("*type1", "target")
-	XPerl_RegisterClickCastFrame(c1)
+	ZPerl.RegisterClickCastFrame(c1)
 
 	c1:SetPoint("TOPLEFT", self, "TOPRIGHT", 0, 0)
 	SetUnitSettings(c1)
 
-	local c2 = CreateFrame("Button", self:GetName().."TargetTarget", self, "XPerl_MTList_UnitTemplate")
+	local c2 = CreateFrame("Button", self:GetName().."TargetTarget", self, "ZPerl_MTList_UnitTemplate")
 	c2.type = "MTTT"
 	c2:SetAttribute("useparent-unit", true)
 	c2:SetAttribute("unitsuffix", "targettarget")
 	c2:SetAttribute("*type1", "target")
-	XPerl_RegisterClickCastFrame(c2)
+	ZPerl.RegisterClickCastFrame(c2)
 
 	c2:SetPoint("TOPLEFT", c1, "TOPRIGHT", 0, 0)
 	SetUnitSettings(c2)
@@ -1309,9 +1149,9 @@ function XPerl_MTList_ChildUnits(self)
 	self.target = c1
 	self.targettarget = c2
 
-	self:SetScript("OnShow", UpdateUnit)
-	c1:SetScript("OnShow", UpdateUnit)
-	c2:SetScript("OnShow", UpdateUnit)
+	self:SetScript("OnShow", UnitOnShow)
+	c1:SetScript("OnShow", UnitOnShow)
+	c2:SetScript("OnShow", UnitOnShow)
 
 	self:SetScript("OnAttributeChanged", onAttrChanged)
 
@@ -1324,12 +1164,16 @@ function XPerl_MTList_ChildUnits(self)
 	tinsert(XUnits, c2)
 end
 
--- XPerl_SetFrameSizes
-function XPerl_SetFrameSizes()
-	conf = ZPerlConfigHelper
+-- ZPerl.RaidHelper.SetFrameSizes
+function ZPerl.RaidHelper.SetFrameSizes()
+	if (InCombatLockdown()) then
+		ZPerl.AfterCombat(ZPerl.RaidHelper.SetFrameSizes)
+		return
+	end
+	conf = ZPerlRaidHelperDB
 	local tanks = MainTankCount
 
-	if (ZPerlConfigHelper) then
+	if (ZPerlRaidHelperDB) then
 		SetVisibility() -- Change which of MT, MTT and MTTT we can see
 		ScanForMTDups()
 
@@ -1337,26 +1181,30 @@ function XPerl_SetFrameSizes()
 			tanks = conf.MaxMainTanks
 		end
 
-		XPerl_SwitchAnchor(XPerl_MTList_Anchor, (conf.MTListUpward == 1 and "BOTTOMLEFT") or "TOPLEFT")
+		ZPerl.SwitchAnchor(ZPerl_MTList_Anchor, (conf.MTListUpward == 1 and "BOTTOMLEFT") or "TOPLEFT")
 
 		if (conf) then
-			XPerl_MTTargets:SetHeight((conf.UnitHeight * tanks) + (XGaps * GAP_SPACING))
+			ZPerl_MTTargets:SetHeight((conf.UnitHeight * tanks) + (XGaps * GAP_SPACING))
 
 			local ExtraWidth = (conf.MTLabels * 10)	-- 0 for off, 10 for on
-			XPerl_RaidHelper_Frame:SetWidth(DisplayableColumns() * conf.UnitWidth + 6 + ExtraWidth)
+			ZPerl_RaidHelper_Frame:SetWidth(DisplayableColumns() * conf.UnitWidth + 6 + ExtraWidth)
 
-			XPerl_RaidHelper_Frame:SetHeight((conf.UnitHeight * tanks) + (XGaps * GAP_SPACING) + 6 + XPerl_RaidHelper_Frame_TitleBar:GetHeight())
+			ZPerl_RaidHelper_Frame:SetHeight((conf.UnitHeight * tanks) + (XGaps * GAP_SPACING) + 6 + ZPerl_RaidHelper_Frame_TitleBar:GetHeight())
 
-			XPerl_RegisterScalableFrame(XPerl_RaidHelper_Frame, XPerl_MTList_Anchor, nil, nil, conf.MTListUpward == 1)
+			ZPerl.RegisterScalableFrame(ZPerl_RaidHelper_Frame, ZPerl_MTList_Anchor, nil, nil, conf.MTListUpward == 1)
 		end
-		XPerl_RaidHelper_Frame_TitleBar_Pin:SetButtonTex()
+		ZPerl_RaidHelper_Frame_TitleBar_Pin:SetButtonTex()
 
 		CheckArrowPosition()
 	end
 end
 
--- XPerl_RaidHelper_MTList_ApplyUnitSizes
-function XPerl_RaidHelper_MTList_ApplyUnitSizes()
+-- ZPerl.RaidHelper.MTListApplyUnitSizes
+function ZPerl.RaidHelper.MTListApplyUnitSizes()
+	if (InCombatLockdown()) then
+		ZPerl.AfterCombat(ZPerl.RaidHelper.MTListApplyUnitSizes)
+		return
+	end
 	for k,unit in pairs(XUnits) do
 		unit:SetWidth(conf.UnitWidth)
 		unit:SetHeight(conf.UnitHeight)
@@ -1364,79 +1212,59 @@ function XPerl_RaidHelper_MTList_ApplyUnitSizes()
 	end
 end
 
--- XPerl_RaidHelper_ToggleUseCTRATargets
-function XPerl_RaidHelper_ToggleUseCTRATargets()
+-- ZPerl.RaidHelper.ToggleUseCTRATargets
+function ZPerl.RaidHelper.ToggleUseCTRATargets()
 	if (conf.UseCTRATargets == 1) then
 		conf.UseCTRATargets = 0
 	else
 		conf.UseCTRATargets = 1
 	end
 
-	--XPerl_MTRosterChanged()
-	XPerl_RaidHelperCheck:Show() -- XPerl_EnableDisable()
+	--ZPerl.RaidHelper.MTRosterChanged()
+	ZPerl_RaidHelperCheck:Show() -- ZPerl.RaidHelper.EnableDisable()
 	return true
 end
 
--- XPerl_RaidHelper_ToggleMTTargets
-function XPerl_RaidHelper_ToggleMTTargets()
+-- ZPerl.RaidHelper.ToggleMTTargets
+function ZPerl.RaidHelper.ToggleMTTargets()
 	if (conf.MTTargetTargets == 1) then
 		conf.MTTargetTargets = 0
 	else
 		conf.MTTargetTargets = 1
 	end
 
-	XPerl_SetFrameSizes()
+	ZPerl.RaidHelper.SetFrameSizes()
 
-	XPerl_RaidHelper_Frame_TitleBar_ToggleMTTargets:SetButtonTex()
+	ZPerl_RaidHelper_Frame_TitleBar_ToggleMTTargets:SetButtonTex()
 	return true
 end
 
--- XPerl_RaidHelper_ToggleLabels
-function XPerl_RaidHelper_ToggleLabels()
+-- ZPerl.RaidHelper.ToggleLabels
+function ZPerl.RaidHelper.ToggleLabels()
 	if (conf.MTLabels == 1) then
 		conf.MTLabels = 0
 	else
 		conf.MTLabels = 1
 	end
 
-	XPerl_SetFrameSizes()
+	ZPerl.RaidHelper.SetFrameSizes()
 
-	XPerl_RaidHelper_Frame_TitleBar_ToggleLabels:SetButtonTex()
+	ZPerl_RaidHelper_Frame_TitleBar_ToggleLabels:SetButtonTex()
 
 	return true
 end
 
--- XPerl_RaidHelper_ToggleShowMT
-function XPerl_RaidHelper_ToggleShowMT()
+-- ZPerl.RaidHelper.ToggleShowMT
+function ZPerl.RaidHelper.ToggleShowMT()
 	if (conf.ShowMT == 1) then
 		conf.ShowMT = 0
 	else
 		conf.ShowMT = 1
 	end
 
-	XPerl_SetFrameSizes()
+	ZPerl.RaidHelper.SetFrameSizes()
 
-	XPerl_RaidHelper_Frame_TitleBar_ToggleShowMT:SetButtonTex()
+	ZPerl_RaidHelper_Frame_TitleBar_ToggleShowMT:SetButtonTex()
 
 	return true
-end
-
--- SmoothBarColor
-local function SmoothBarColor(bar, barBG)
-	local barmin, barmax = bar:GetMinMaxValues()
-	local percentage = (bar:GetValue() / (barmax - barmin))
-
-	local r, g
-	if (percentage < 0.5) then
-		r = 2 * percentage
-		g = 1
-	else
-		r = 1
-		g = 2 * (1 - percentage)
-	end
-
-	if ((r >= 0) and (g >= 0) and (r <= 1) and (g <= 1)) then
-		bar:SetStatusBarColor(r, g, 0)
-		barBG:SetVertexColor(r, g, 0, 0.25)
-	end
 end

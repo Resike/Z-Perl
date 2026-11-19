@@ -1,18 +1,12 @@
--- X-Perl UnitFrames
 -- Author: Resike
--- License: GNU GPL v3, 29 June 2007 (see LICENSE.txt)
+-- License: GNU GPL v3, 29 June 2007
 
-local IsRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
-local IsPandaClassic = WOW_PROJECT_ID == WOW_PROJECT_MISTS_CLASSIC
-local IsBCClassic = WOW_PROJECT_ID == WOW_PROJECT_BURNING_CRUSADE_CLASSIC
-
-XPerlLocked = 1
+ZPerl.Locked = 1
 local conf
 local ConfigRequesters = {}
-XPerl_OutOfCombatQueue	= {}
 local playerName
-local lastConfigMode
 local maxRevision
+local ValidateClassNames
 
 local LOCALIZED_CLASS_NAMES_MALE = LOCALIZED_CLASS_NAMES_MALE
 local CLASS_COUNT = 0
@@ -22,20 +16,15 @@ for k, v in pairs(LOCALIZED_CLASS_NAMES_MALE) do
 	end
 end
 
-XPerl_Tooltip_Edge_9 = {
+ZPerl.TooltipEdge9 = {
 	edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
 	edgeSize = 9,
 	title = true
 }
 
-XPerl_Tooltip_Edge_6 = {
-	edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
-	edgeSize = 6,
-	title = true
-}
-
-XPerl_Frame_Backdrop_32_16_3333 = {
-	bgFile = "Interface\\Addons\\ZPerl\\Images\\XPerl_FrameBack",
+---@diagnostic disable-next-line: create-global
+ZPerl_Frame_Backdrop_32_16_3333 = {
+	bgFile = "Interface\\AddOns\\ZPerl\\Images\\ZPerl_FrameBack",
 	edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
 	tile = true,
 	tileSize = 32,
@@ -43,8 +32,9 @@ XPerl_Frame_Backdrop_32_16_3333 = {
 	insets = { left = 3, right = 3, top = 3, bottom = 3 }
 }
 
-XPerl_Frame_Backdrop_32_16_4444 = {
-	bgFile = "Interface\\Addons\\ZPerl\\Images\\XPerl_FrameBack",
+---@diagnostic disable-next-line: create-global
+ZPerl_Frame_Backdrop_32_16_4444 = {
+	bgFile = "Interface\\AddOns\\ZPerl\\Images\\ZPerl_FrameBack",
 	edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
 	tile = true,
 	tileSize = 32,
@@ -52,8 +42,9 @@ XPerl_Frame_Backdrop_32_16_4444 = {
 	insets = { left = 4, right = 4, top = 4, bottom = 4 }
 }
 
-XPerl_Frame_Backdrop_16_16_4444 = {
-	bgFile = "Interface\\Addons\\ZPerl\\Images\\XPerl_FrameBack",
+---@diagnostic disable-next-line: create-global
+ZPerl_Frame_Backdrop_16_16_4444 = {
+	bgFile = "Interface\\AddOns\\ZPerl\\Images\\ZPerl_FrameBack",
 	edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
 	tile = true,
 	tileSize = 16,
@@ -61,8 +52,9 @@ XPerl_Frame_Backdrop_16_16_4444 = {
 	insets = { left = 4, right = 4, top = 4, bottom = 4 }
 }
 
-XPerl_Frame_Backdrop_8_16_3333 = {
-	bgFile = "Interface\\Addons\\ZPerl\\Images\\XPerl_FrameBack",
+---@diagnostic disable-next-line: create-global
+ZPerl_Frame_Backdrop_8_16_3333 = {
+	bgFile = "Interface\\AddOns\\ZPerl\\Images\\ZPerl_FrameBack",
 	edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
 	tile = true,
 	tileSize = 8,
@@ -70,7 +62,8 @@ XPerl_Frame_Backdrop_8_16_3333 = {
 	insets = { left = 3, right = 3, top = 3, bottom = 3 }
 }
 
-XPerl_Icon_Backdrop_8_16_3333 = {
+---@diagnostic disable-next-line: create-global
+ZPerl_Icon_Backdrop_8_16_3333 = {
 	bgFile = "",
 	edgeFile = "",
 	tile = true,
@@ -79,17 +72,19 @@ XPerl_Icon_Backdrop_8_16_3333 = {
 	insets = { left = 3, right = 4, top = 3, bottom = 3 }
 }
 
-XPerl_Frame_Backdrop_256_10_1211 = {
-	bgFile = "Interface\\AddOns\\ZPerl\\Images\\XPerl_FrameBack",
-	edgeFile = "Interface\\Addons\\ZPerl\\Images\\XPerl_ThinEdge",
+---@diagnostic disable-next-line: create-global
+ZPerl_Frame_Backdrop_256_10_1211 = {
+	bgFile = "Interface\\AddOns\\ZPerl\\Images\\ZPerl_FrameBack",
+	edgeFile = "Interface\\AddOns\\ZPerl\\Images\\ZPerl_ThinEdge",
 	tile = true,
 	tileSize = 256,
 	edgeSize = 10,
 	insets = { left = 1, right = 2, top = 1, bottom = 1 }
 }
 
-XPerl_Raid_Backdrop_16_9_3333 = {
-	bgFile = "Interface\\AddOns\\ZPerl_RaidHelper\\Images\\XPerl_FrameBack",
+---@diagnostic disable-next-line: create-global
+ZPerl_Raid_Backdrop_16_9_3333 = {
+	bgFile = "Interface\\AddOns\\ZPerl_RaidHelper\\Images\\ZPerl_FrameBack",
 	edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
 	tile = true,
 	tileSize = 16,
@@ -97,8 +92,9 @@ XPerl_Raid_Backdrop_16_9_3333 = {
 	insets = { left = 3, right = 3, top = 3, bottom = 3 }
 }
 
-XPerl_Raid_Backdrop_32_16_3333 = {
-	bgFile = "Interface\\AddOns\\ZPerl_RaidHelper\\Images\\XPerl_FrameBack",
+---@diagnostic disable-next-line: create-global
+ZPerl_Raid_Backdrop_32_16_3333 = {
+	bgFile = "Interface\\AddOns\\ZPerl_RaidHelper\\Images\\ZPerl_FrameBack",
 	edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
 	tile = true,
 	tileSize = 32,
@@ -106,8 +102,9 @@ XPerl_Raid_Backdrop_32_16_3333 = {
 	insets = { left = 3, right = 3, top = 3, bottom = 3 }
 }
 
-XPerl_Options_Backdrop_256_16_3333 = {
-	bgFile = "Interface\\Addons\\ZPerl_Options\\Images\\ZPerl_FancyBack",
+---@diagnostic disable-next-line: create-global
+ZPerl_Options_Backdrop_256_16_5555 = {
+	bgFile = "Interface\\AddOns\\ZPerl\\Images\\ZPerl_FancyBack",
 	edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
 	tile = true,
 	tileSize = 256,
@@ -115,25 +112,8 @@ XPerl_Options_Backdrop_256_16_3333 = {
 	insets = { left = 3, right = 3, top = 3, bottom = 3 }
 }
 
-XPerl_Options_Backdrop_256_16_5555 = {
-	bgFile = "Interface\\Addons\\ZPerl_Options\\Images\\ZPerl_FancyBack",
-	edgeFile = "Interface\\Tooltips\\UI-Tooltip-Border",
-	tile = true,
-	tileSize = 256,
-	edgeSize = 16,
-	insets = { left = 3, right = 3, top = 3, bottom = 3 }
-}
-
-XPerl_UISlider_Backdrop_8_8_3366 = {
-	bgFile = "Interface\\Buttons\\UI-SliderBar-Background",
-	edgeFile = "Interface\\Buttons\\UI-SliderBar-Border",
-	tile = true,
-	tileSize = 8,
-	edgeSize = 8,
-	insets = { left = 3, right = 3, top = 6, bottom = 6 }
-}
-
-XPerl_Frame_Backdrop_32_16_2222 = {
+---@diagnostic disable-next-line: create-global
+ZPerl_Frame_Backdrop_32_16_2222 = {
 	bgFile = "Interface\\Buttons\\UI-SliderBar-Background",
 	edgeFile = "Interface\\Buttons\\UI-SliderBar-Border",
 	tile = true,
@@ -142,85 +122,9 @@ XPerl_Frame_Backdrop_32_16_2222 = {
 	insets = { left = 2, right = 2, top = 2, bottom = 2 }
 }
 
-local BackdropTemplatePolyfillMixin = {}
+ZPerl_BackdropTemplateMixin = CreateFromMixins(BackdropTemplateMixin)
 
-function BackdropTemplatePolyfillMixin:OnBackdropLoaded()
-	if not self.backdropInfo then
-		return
-	end
-
-	if not self.backdropInfo.edgeFile and not self.backdropInfo.bgFile then
-		self.backdropInfo = nil
-		return
-	end
-
-	self:ApplyBackdrop()
-
-	if self.backdropColor then
-		local r, g, b = self.backdropColor:GetRGB()
-		self:SetBackdropColor(r, g, b, self.backdropColorAlpha or 1)
-	end
-
-	if self.backdropBorderColor then
-		local r, g, b = self.backdropBorderColor:GetRGB()
-		self:SetBackdropBorderColor(r, g, b, self.backdropBorderColorAlpha or 1)
-	end
-
-	if self.backdropBorderBlendMode then
-		self:SetBackdropBorderBlendMode(self.backdropBorderBlendMode)
-	end
-end
-
-function BackdropTemplatePolyfillMixin:OnBackdropSizeChanged()
-	if self.backdropInfo then
-		self:SetupTextureCoordinates()
-	end
-end
-
-function BackdropTemplatePolyfillMixin:ApplyBackdrop()
-	-- The SetBackdrop call will implicitly reset the background and border
-	-- texture vertex colors to white, consistent across all client versions.
-
-	self:SetBackdrop(self.backdropInfo)
-end
-
-function BackdropTemplatePolyfillMixin:ClearBackdrop()
-	self:SetBackdrop(nil)
-	self.backdropInfo = nil
-end
-
-function BackdropTemplatePolyfillMixin:GetEdgeSize()
-	-- The below will indeed error if there's no backdrop assigned this is
-	-- consistent with how it works on 9.x clients.
-
-	return self.backdropInfo.edgeSize or 39
-end
-
-function BackdropTemplatePolyfillMixin:HasBackdropInfo(backdropInfo)
-	return self.backdropInfo == backdropInfo
-end
-
-function BackdropTemplatePolyfillMixin:SetBorderBlendMode()
-	-- The pre-9.x API doesn't support setting blend modes for backdrop
-	-- borders, so this is a no-op that just exists in case we ever assume
-	-- it exists.
-end
-
-function BackdropTemplatePolyfillMixin:SetupPieceVisuals()
-	-- Deliberate no-op as backdrop internals are handled C-side pre-9.x.
-end
-
-function BackdropTemplatePolyfillMixin:SetupTextureCoordinates()
-	-- Deliberate no-op as texture coordinates are handled C-side pre-9.x.
-end
-
-XPerlBackdropTemplateMixin = CreateFromMixins(BackdropTemplateMixin or BackdropTemplatePolyfillMixin)
-
-function XPerl_GetRevision()
-	return (maxRevision and "r"..maxRevision) or ""
-end
-
-function XPerl_SetModuleRevision(rev)
+function ZPerl.SetModuleRevision(rev)
 	if (rev) then
 		rev = strmatch(rev, "Revision: (%d+)")
 		if (rev) then
@@ -231,169 +135,153 @@ function XPerl_SetModuleRevision(rev)
 		end
 	end
 end
-local AddRevision = XPerl_SetModuleRevision
+local AddRevision = ZPerl.SetModuleRevision
 
-XPerl_SetModuleRevision("$Revision:  $")
+ZPerl.SetModuleRevision("$Revision:  $")
 
-function XPerl_Notice(...)
+function ZPerl.Notice(...)
 	if (DEFAULT_CHAT_FRAME) then
-		DEFAULT_CHAT_FRAME:AddMessage(XPerl_ProductName.." - |c00FFFF80"..format(...))
+		DEFAULT_CHAT_FRAME:AddMessage(ZPerl.ProductName.." - |c00FFFF80"..format(...))
 	end
 end
 
-do
-	local function DisableOther(modName, issues)
-		local name, title, notes, enabled = C_AddOns.GetAddOnInfo(modName)
-		if (name and enabled) then
-			C_AddOns.DisableAddOn(modName)
-			local notice = "Disabled '"..modName.."' addon. It is not compatible or needed with X-Perl"
-			if (issues) then
-				notice = notice..", and creates display issues."
-			end
-			XPerl_Notice(notice)
-		end
-	end
-
-	DisableOther("PerlButton")		-- PerlButton was made for Nymbia's Perl UnitFrames. We have our own minimap button
-	DisableOther("WT_ZoningTimeFix", true)
-
-	local name, _, _, enabled, loadable = C_AddOns.GetAddOnInfo("XPerl_Party")
-	if (enabled) then
-		DisableOther("CT_PartyBuffs", true)
-	end
-
-	local name, _, _, enabled, loadable = C_AddOns.GetAddOnInfo("XPerl_GrimReaper")
-	if (enabled) then
-		C_AddOns.DisableAddOn("XPerl_GrimReaper")
-		XPerl_Notice("Disabled XPerl_GrimReaper. This has been replaced by a standalone version 'GrimReaper' available on the WoW Ace Updater or from files.wowace.com")
-	end
-end
-
--- XPerl_RequestConfig
+-- ZPerl.RequestConfig
 -- Setup a callback to give config around to local variables
-function XPerl_RequestConfig(getConfig, rev)
+function ZPerl.RequestConfig(getConfig, rev)
 	tinsert(ConfigRequesters, getConfig)
-	if (XPerlDB) then
-		getConfig(XPerlDB)
+	if (ZPerl.layout) then
+		getConfig(ZPerl.layout)
 	end
 	AddRevision(rev)
 end
 
 -- CurrentConfig()
+-- The active layout of this character (ZPerlDB.active["Realm / Name"]), created from the defaults when
+-- absent, else backfilled. A character with no active layout starts on the one the schema 5 migration made
+-- for it (ZPerlDB.migrated; a stale per-character profile gives way to Default's settings, positions
+-- kept), else on Default. A layout another character deleted gives a notice and Default.
 local function CurrentConfig()
-	local ret
+	local s = ZPerlDB
+	s.layouts = s.layouts or {}
+	s.active = s.active or {}
+	local layouts, me = s.layouts, GetRealmName() .. " / " .. playerName
 
-	local function QuickValidate(set)
-		return set.player and set.pet and set.colour and set.target and set.targettarget and set.focus and set.party and set.partypet and set.raid and set.rangeFinder and set.highlight and set.highlightDebuffs and set.buffs and set.buffHelper and set.bar
+	local defaults = {}
+	ZPerl.Defaults(defaults)
+	if (type(layouts.Default) ~= "table") then
+		layouts.Default = ZPerl.CopyTable(defaults)
 	end
 
-	if (ZPerlConfigSavePerCharacter) then
-		if (not ZPerlConfigNew[GetRealmName()]) then
-			ZPerlConfigNew[GetRealmName()] = {}
+	local name = s.active[me]
+	if (name == nil) then
+		local m = s.migrated and s.migrated[me]
+		if (m and type(layouts[m]) == "table") then
+			name = m
+			local shared = false
+			for _, n in pairs(s.active) do
+				if (n == m) then
+					shared = true
+				end
+			end
+			if (not ZPerlPerCharacter and not shared) then
+				local positions = layouts[m].positions
+				layouts[m] = ZPerl.CopyTable(layouts.Default)
+				layouts[m].positions = positions
+			end
+		else
+			if (m) then
+				ZPerl.Notice("Layout %s no longer exists, using Default.", tostring(m))
+			end
+			name = "Default"
 		end
-
-		if (not ZPerlConfigNew[GetRealmName()][playerName] or not QuickValidate(ZPerlConfigNew[GetRealmName()][playerName])) then
-			local new = {}
-			XPerl_Defaults(new)
-			ZPerlConfigNew[GetRealmName()][playerName] = new -- TODO: use last used config
+		if (s.migrated) then
+			s.migrated[me] = nil
 		end
+	elseif (type(layouts[name]) ~= "table") then
+		ZPerl.Notice("Layout %s no longer exists, using Default.", tostring(name))
+		name = "Default"
+	end
+	s.active[me] = name
 
-		ret = ZPerlConfigNew[GetRealmName()][playerName]
-	else
-		if (not ZPerlConfigNew.global or not QuickValidate(ZPerlConfigNew.global)) then
-			local new = {}
-			XPerl_Defaults(new)
-			ZPerlConfigNew.global = new -- TODO: use last used config
-		end
-
-		ret = ZPerlConfigNew.global
+	local report = ZPerl.Backfill(layouts[name], defaults)
+	if (report[1]) then
+		ZPerl.Notice("Settings kept as stored, wrong type: %s", table.concat(report, ", ", 1, math.min(#report, 5)))
 	end
 
-	return ret
+	return layouts[name]
 end
 
 -- GiveConfig
 local function GiveConfig()
 	conf = CurrentConfig()
-	XPerlDB = conf
+	ZPerl.layout = conf
 
 	for k, v in pairs(ConfigRequesters) do
 		v(conf)
 	end
 end
 
-XPerl_GiveConfig = GiveConfig
+ZPerl.GiveConfig = GiveConfig
 
--- XPerl_ResetDefaults
-function XPerl_ResetDefaults()
-	local conf = {}
+-- ZPerl.AfterConfig(fn, ...)
+-- fn(...) at once when the profile is handed out, else when the first hand-out has finished (the addon's
+-- files run before SavedVariables are read). For an XML OnLoad that builds a frame from the profile.
+local afterConfig = {}
+function ZPerl.AfterConfig(fn, ...)
+	if (ZPerl.layout) then
+		return fn(...)
+	end
+	local args = {...}
+	tinsert(afterConfig, function() fn(unpack(args)) end)
+end
 
-	XPerl_Defaults(conf)
+-- ZPerl.ResetDefaults
+-- Resets the active layout: its settings and its frame positions.
+function ZPerl.ResetDefaults()
+	local fresh = {}
 
-	if (ZPerlConfigSavePerCharacter) then
-		ZPerlConfigNew[GetRealmName()][playerName] = conf
+	ZPerl.Defaults(fresh)
+
+	ZPerlDB.layouts[ZPerl.ActiveLayout()] = fresh
+
+	ZPerl.ReapplyLayout()
+
+	ZPerl.ResetFramePositions()
+	print("Z-Perl: settings and frame positions reset to defaults.")
+end
+
+-- ZPerl.ResetFramePositions
+-- Forget this character's saved positions and move every frame to its default anchor now.
+-- Also the "Default" entry in the layout list.
+function ZPerl.ResetFramePositions()
+	if (InCombatLockdown()) then
+		ZPerl.AfterCombat(ZPerl.ResetFramePositions)
 	else
-		ZPerlConfigNew.global = conf
-	end
-
-	GiveConfig()
-
-	if XPerl_Assists_FrameAnchor then
-		XPerl_Assists_FrameAnchor:ClearAllPoints()
-		XPerl_Assists_FrameAnchor:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
-		if (XPerl_SavePosition) then
-			XPerl_SavePosition(XPerl_Assists_FrameAnchor)
+		local positions = ZPerl.GetSavePositionTable()
+		if (positions) then
+			wipe(positions)
 		end
-	end
-	if XPerl_RaidMonitor_Anchor then
-		XPerl_RaidMonitor_Anchor:ClearAllPoints()
-		XPerl_RaidMonitor_Anchor:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
-		if (XPerl_SavePosition) then
-			XPerl_SavePosition(XPerl_RaidMonitor_Anchor)
+		for name in pairs(ZPerl.DefaultPoints) do
+			local frame = _G[name]
+			if (frame) then
+				ZPerl.Pcall(ZPerl.PlaceFrame, frame)
+			end
 		end
-	end
-	if XPerl_RosterTextAnchor then
-		XPerl_RosterTextAnchor:ClearAllPoints()
-		XPerl_RosterTextAnchor:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
-		if (XPerl_SavePosition) then
-			XPerl_SavePosition(XPerl_RosterTextAnchor)
-		end
-	end
-	if XPerl_CheckAnchor then
-		XPerl_CheckAnchor:ClearAllPoints()
-		XPerl_CheckAnchor:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
-		if (XPerl_SavePosition) then
-			XPerl_SavePosition(XPerl_CheckAnchor)
-		end
-	end
-	if XPerl_AdminFrameAnchor then
-		XPerl_AdminFrameAnchor:ClearAllPoints()
-		XPerl_AdminFrameAnchor:SetPoint("CENTER", UIParent, "CENTER", 0, 0)
-		if (XPerl_SavePosition) then
-			XPerl_SavePosition(XPerl_AdminFrameAnchor)
-		end
-	end
-
-	XPerl_OptionActions()
-
-	if (XPerl_Options and XPerl_Options:IsShown()) then
-		XPerl_Options:Hide()
-		XPerl_Options:Show()
 	end
 end
 
 -- CopyTable
-function XPerl_CopyTable(old)
+function ZPerl.CopyTable(old)
 	if (not old) then
 		return
 	end
 
-	--local new = XPerl_GetReusableTable()
+	--local new = ZPerl.GetReusableTable()
 	local new = { }
 
 	for k, v in pairs(old) do
 		if (type(v) == "table") then
-			new[k] = XPerl_CopyTable(v)
+			new[k] = ZPerl.CopyTable(v)
 		else
 			new[k] = v
 		end
@@ -402,376 +290,529 @@ function XPerl_CopyTable(old)
 	return new
 end
 
--- ImportOldConfigs()
-local function ImportOldConfigs()
-	if (ZPerlConfig_Global) then
-		-- Convert old global configs
-		ZPerlConfigNew = {}
-
-		for realm, realmList in pairs(ZPerlConfig_Global) do
-			ZPerlConfigNew[realm] = {}
-			for player, settings in pairs(realmList) do
-				ZPerlConfigNew[realm][player] = XPerl_ImportOldConfig(settings)
-			end
-		end
-
-		ZPerlConfig_Global = nil
-	end
-	if (ZPerlConfig) then
-		-- Convert old config
-		if (not ZPerlConfigNew) then
-			ZPerlConfigNew = {}
-		end
-
-		if (ZPerlConfig) then
-			ZPerlConfigNew.global = XPerl_ImportOldConfig(ZPerlConfig)
-			ZPerlConfig = nil
-		end
-	end
-end
-
--- onEventPostSetup
-local function onEventPostSetup(self, event, unit, ...)
-	if (not XPerlDB) then
-		return
-	end
-	if (XPerl_OutOfCombatOptionSet) then
-		XPerl_OutOfCombatOptionSet = nil
-		XPerl_OptionActions()
-	end
-	for func, arg in pairs(XPerl_OutOfCombatQueue) do
-		assert(type(func) == "function")
-		func(arg)
-		XPerl_OutOfCombatQueue[func] = nil
-	end
-end
-
--- XPerl_RegisterLDB
-local function XPerl_RegisterLDB()
+-- ZPerl.RegisterLDB
+local function RegisterLDB()
 	local LDB = LibStub and LibStub("LibDataBroker-1.1", true)
 	if (LDB) then
-		local ldbSource = LDB:NewDataObject("X-Perl UnitFrames", {
+		LDB:NewDataObject("Z-Perl", {
 			type = "launcher",
-			text = XPerl_ShortProductName,
-			icon = XPerl_ModMenuIcon,
+			label = ZPerl.ShortProductName,
+			icon = ZPerl.ModMenuIcon,
+			OnClick = ZPerl.MinimapButtonOnClick,
+			OnTooltipShow = function(tooltip) ZPerl.MinimapButtonDetails(tooltip, true) end,
 		})
-
-		if (ldbSource) then
-			function ldbSource:Update()
-				self.text = XPerl_Version
-			end
-			ldbSource.OnClick = XPerl_MinimapButton_OnClick
-			ldbSource.OnTooltipShow = function(tooltip) XPerl_MinimapButton_Details(tooltip, true) end
-		end
 	end
-	XPerl_RegisterLDB = nil
+	RegisterLDB = nil
 end
 
 
-local function settingspart1(self, event)
+local function settingspart1()
 	playerName = UnitName("player")
-	self:UnregisterEvent(event)
 
-	local newUser = not ZPerlConfigNew and not ZPerlConfig
-
-	if (not ZPerlConfigNew) then
-		if (ZPerlConfig_Global or ZPerlConfig) then
-			XPerl_pcall(ImportOldConfigs)
-		else
-			ZPerlConfigNew = {}
-		end
+	if (not ZPerlDB) then
+		ZPerlDB = {}
 	end
 
+	ZPerl.MigrateConfig()
+	ZPerl.MigrateLayouts()
+	ZPerl.MigrateDeadKeys()
+	ZPerl.MigrateEngineNames()
+	ZPerl.MigrateGroupNine()
+	ZPerl.MigratePartyDebuffs()
+	ZPerl.MigrateColorNames()
 	GiveConfig()
 
-	-- Variable checking only occurs for new install and version number change
-	if (not ZPerlConfigNew.ConfigVersion or ZPerlConfigNew.ConfigVersion ~= XPerl_VersionNumber) then
-		XPerl_pcall(XPerl_UpgradeSettings)
-		ZPerlConfigNew.ConfigVersion = XPerl_VersionNumber
+	-- Informational only: settings migrations key on ZPerlDB.schema (ZPerl.MigrateConfig)
+	ZPerlDB.ConfigVersion = ZPerl.VersionNumber
+
+	ZPerl.Pcall(ZPerl.ValidateSettings)
+
+	ZPerl.RegisterSMBarTextures()
+end
+
+local function startupCheckSettings()
+	ZPerl.Pcall(ZPerl.Init)
+	RegisterLDB()
+end
+
+-- The three login events of this file, on the ZPerl.On bus. ADDON_LOADED filters by addon name; the
+-- login pair run once.
+local function onAddonLoaded(_, addon)
+	-- 0.x saved-variable names to the new ones, before settingspart1 and before AuraBlacklist's own ADDON_LOADED
+	ZPerl.Pcall(ZPerl.MigrateSavedNames, addon)
+	if (addon == "ZPerl") then
+		-- a dev run cut off between Begin and End: the saved settings go back (ZPerl_Migrate.lua)
+		ZPerl.Pcall(ZPerl.RestoreAtLoad)
+		settingspart1()
+		for _, run in ipairs(afterConfig) do
+			ZPerl.Pcall(run)
+		end
 	end
-
-	ImportOldConfigs = nil
-	XPerl_ImportOldConfig = nil
-	XPerl_UpgradeSettings = nil
-
-	XPerl_pcall(XPerl_ValidateSettings)
-
-	XPerl_RegisterSMBarTextures()
-end
-
-local function startupCheckSettings(self,event)
-	ZPerl_Init()
-	XPerl_BlizzFrameDisable = nil
-	XPerl_RegisterLDB()
-
-	lastConfigMode = ZPerlConfigSavePerCharacter
-	XPerl_Globals_AddonLoaded = nil
-end
-
-function ZPerl_ForceImportAll()
-	if C_AddOns.IsAddOnLoaded("XPerl") then
-		if (XPerlConfig) then
-			ZPerlConfig = XPerlConfig
-		end
-		if (XPerlConfig_Global) then
-			ZPerlConfig_Global = XPerlConfig_Global
-		end
-		if (XPerlConfigNew) then
-			ZPerlConfigNew = XPerlConfigNew
-		end
-		if (XPerlConfigSavePerCharacter) then
-			ZPerlConfigSavePerCharacter = XPerlConfigSavePerCharacter
-		end
-		C_AddOns.DisableAddOn("XPerl")
-		print("Z-Perl: Profile importing done, please reload you UI for the process to complete.")
-	else
-		print("X-Perl is not loaded. You must load it first, to access it's variables for the import.")
+	-- An addon's frames exist, unanchored, when its ADDON_LOADED fires; its own handler
+	-- may measure them.
+	if (strsub(addon, 1, 5) == "ZPerl") then
+		ZPerl.PlaceNewFrames()
 	end
 end
 
--- XPerl_GetLayout
-function XPerl_GetLayout(name)
-	if (ZPerlConfigNew.savedPositions) then
-		for realmName, realmList in pairs(ZPerlConfigNew.savedPositions) do
-			for playerName, frames in pairs(realmList) do
-				local find
-				if (realmName == "saved") then
-					find = playerName
-				else
-					find = format("%s(%s)", realmName, playerName)
+local function onLogin()
+	ZPerl.Off("ADDON_LOADED", onAddonLoaded)
+	ZPerl.Off("PLAYER_LOGIN", onLogin)
+	ZPerl.PrintRestoreNotice()
+	startupCheckSettings()
+	ZPerl.MinimapButtonInit(ZPerl_MinimapButton_Frame)
+end
+
+local function onEnteringWorld()
+	ZPerl.Off("PLAYER_ENTERING_WORLD", onEnteringWorld)
+	-- Restore the layout's saved positions (a first install has none: PlaceNewFrames placed the defaults).
+	if (ZPerl.GetSavePositionTable()) then
+		ZPerl.RestoreAllPositions()
+	end
+end
+
+ZPerl.On("ADDON_LOADED", onAddonLoaded)
+ZPerl.On("PLAYER_LOGIN", onLogin)
+ZPerl.On("PLAYER_ENTERING_WORLD", onEnteringWorld)
+
+-- ZPerl.LayoutKey(): this character's key in ZPerlDB.active and .migrated.
+function ZPerl.LayoutKey()
+	return GetRealmName() .. " / " .. UnitName("player")
+end
+
+-- ZPerl.ActiveLayout(): the name of this character's layout.
+function ZPerl.ActiveLayout()
+	return ZPerlDB.active[ZPerl.LayoutKey()]
+end
+
+-- ZPerl.LayoutNames(): all layout names, Default first, the rest sorted ignoring case.
+function ZPerl.LayoutNames()
+	local names = {}
+	for name in pairs(ZPerlDB.layouts) do
+		if (name ~= "Default") then
+			names[#names + 1] = name
+		end
+	end
+	table.sort(names, function(a, b)
+		local la, lb = a:lower(), b:lower()
+		if (la ~= lb) then
+			return la < lb
+		end
+		return a < b
+	end)
+	table.insert(names, 1, "Default")
+	return names
+end
+
+-- ZPerl.CleanLayoutName(name, except)
+-- The trimmed name, or nil and a reason: empty, or taken by a layout other than `except`, ignoring case.
+function ZPerl.CleanLayoutName(name, except)
+	name = tostring(name or ""):match("^%s*(.-)%s*$")
+	if (name == "") then
+		return nil, "A layout needs a name."
+	end
+	for other in pairs(ZPerlDB.layouts) do
+		if (other ~= except and other:lower() == name:lower()) then
+			return nil, string.format("A layout named %s exists.", other)
+		end
+	end
+	return name
+end
+
+-- The layout functions refuse with a notice and return nil; on success they return true.
+function ZPerl.LayoutRefuse(reason)
+	ZPerl.Notice("%s", reason)
+end
+function ZPerl.LayoutInCombat()
+	if (InCombatLockdown()) then
+		ZPerl.LayoutRefuse("Not available in combat.")
+		return true
+	end
+end
+
+-- ZPerl.SelectLayout(name)
+-- The one switch, for the panel and the slash command. Prunes the layout in use, makes `name` this
+-- character's, and re-applies everything (ZPerl.ReapplyLayout). The Player, Pet and Target
+-- enable keys and raid.enable need a reload.
+function ZPerl.SelectLayout(name)
+	local d = ZPerl.Dev; if d and d.listener then d.Emit("layout.select", name) end
+	if (ZPerl.LayoutInCombat()) then
+		return
+	end
+	if (type(ZPerlDB.layouts[name]) ~= "table") then
+		ZPerl.LayoutRefuse(string.format("No layout named %s.", tostring(name)))
+		return
+	end
+	local before = ZPerl.layout and ZPerl.CopyTable(ZPerl.layout) -- the outgoing layout as the frames show it, before the prune
+	ZPerl.PruneConfig()
+	ZPerlDB.active[ZPerl.LayoutKey()] = name
+	ZPerl.ReapplyLayout(before)
+	return true
+end
+
+-- ZPerl.LayoutAppliers(a, b)
+-- The appliers needed by the keys that differ between the settings tables a and b, as a set; nil when a differing key has
+-- no settings row (then everything runs). Positions are not settings. Keys map to appliers through ZPerl.SettingsList:
+-- the union over the rows that save the key: `path`, `with`, `also`, the keys of a `map`, and `keys` (a row with
+-- get/set). A color row saves a table: its keys r, g, b, a belong to the row.
+-- ZPerl.SettingsList is in ZPerl_Options (load on demand): before the options were first opened there is no list, every
+-- key is unmatched and everything runs.
+-- ZPerl.LayoutApplyStats counts both outcomes, and holds the keys without a row of the last full run.
+ZPerl.LayoutApplyStats = {scoped = 0, full = 0, unmatched = {}}
+function ZPerl.LayoutAppliers(a, b)
+	local index = {}
+	local function add(key, apply)
+		local set = index[key]
+		if (not set) then
+			set = {}
+			index[key] = set
+		end
+		for _, n in ipairs(apply) do
+			set[n] = true
+		end
+	end
+	for _, e in ipairs(ZPerl.SettingsList or {}) do
+		local apply = e.apply or {"full"}
+		if (e.path) then
+			add(e.path, apply)
+		end
+		for _, k in ipairs(e.with or {}) do
+			add(k, apply)
+		end
+		for k in pairs(e.also or {}) do
+			add(k, apply)
+		end
+		for _, k in ipairs(e.keys or {}) do
+			add(k, apply)
+		end
+		for _, m in ipairs(e.map or {}) do
+			for _, part in ipairs({m[2] or {}, m[3] or {}}) do
+				for k in pairs(part) do
+					add((e.base and e.base ~= "" and (e.base .. ".") or "") .. tostring(k), apply)
 				end
-
-				if (name == find) then
-					return frames
-				end
 			end
 		end
 	end
-end
-
--- XPerl_LoadFrameLayout
-function XPerl_LoadFrameLayout(name)
-	local layout = XPerl_GetLayout(name)
-
-	if (layout) then
-		local name = UnitName("player")
-		local realm = GetRealmName()
-
-		if (not ZPerlConfigNew.savedPositions) then
-			ZPerlConfigNew.savedPositions = { }
+	local need, unmatched = {}, {}
+	local function note(path)
+		local key = path
+		while (key and not index[key]) do
+			key = key:match("^(.*)%.[^.]*$")
 		end
-		local c = ZPerlConfigNew.savedPositions
-		if (not c[realm]) then
-			c[realm] = { }
+		if (not key) then
+			unmatched[#unmatched + 1] = path
+			return
 		end
-		if (not c[realm][name]) then
-			c[realm][name] = { }
-		end
-
-		XPerl_RestoreAllPositions()
-	end
-end
-
--- XPerl_Raid_GetGap
-function XPerl_Raid_GetGap()
-	if (XPerl_Raid_Grp2) then
-		if (XPerlDB.raid.anchor == "TOP" or XPerlDB.raid.anchor == "BOTTOM") then
-			return tonumber(floor(floor(((XPerl_Raid_Grp2:GetLeft() or 0) - (XPerl_Raid_Grp1:GetRight() or XPerl_Raid_Grp2:GetLeft() or 80) + 0.5) * 100) / 100))
-		else
-			return tonumber(floor((floor(((XPerl_Raid_Grp1:GetTop() or XPerl_Raid_Grp2:GetTop() or 200) - (XPerl_Raid_Grp2:GetBottom() or 200) + 0.5) * 100) / 100) - 46))
+		for n in pairs(index[key]) do
+			need[n] = true
 		end
 	end
-	return 0
-end
-
--- XPerl_Globals_OnEvent
-function XPerl_Globals_OnEvent(self, event, arg1, ...)
-	if (event == "ADDON_LOADED" and arg1 == "ZPerl") then
-		if not C_AddOns.IsAddOnLoaded("XPerl") and (not ZPerlConfig and not ZPerlConfig_Global and not ZPerlConfigNew and not ZPerlConfigSavePerCharacter) then
-			C_AddOns.EnableAddOn("XPerl")
-		end
-		if C_AddOns.IsAddOnLoaded("XPerl") and not ZPerlImportDone then
-			if (XPerlConfig) then
-				ZPerlConfig = XPerlConfig
+	local function walk(x, y, prefix)
+		for k, v in pairs(x) do
+			local w, path = y[k], prefix .. tostring(k)
+			if (type(v) == "table" and type(w) == "table") then
+				walk(v, w, path .. ".")
+			elseif (v ~= w) then
+				note(path)
 			end
-			if (XPerlConfig_Global) then
-				ZPerlConfig_Global = XPerlConfig_Global
+		end
+		for k in pairs(y) do
+			if (x[k] == nil) then
+				note(prefix .. tostring(k))
 			end
-			if (XPerlConfigNew) then
-				ZPerlConfigNew = XPerlConfigNew
+		end
+	end
+	for k, v in pairs(a) do
+		if (k ~= "positions") then
+			if (type(v) == "table" and type(b[k]) == "table") then
+				walk(v, b[k], k .. ".")
+			elseif (v ~= b[k]) then
+				note(k)
 			end
-			if (XPerlConfigSavePerCharacter) then
-				ZPerlConfigSavePerCharacter = XPerlConfigSavePerCharacter
+		end
+	end
+	for k in pairs(b) do
+		if (k ~= "positions" and a[k] == nil) then
+			note(k)
+		end
+	end
+	local stats = ZPerl.LayoutApplyStats
+	if (unmatched[1]) then
+		stats.full = stats.full + 1
+		stats.unmatched = unmatched
+		return nil
+	end
+	stats.scoped = stats.scoped + 1
+	return need
+end
+
+-- ZPerl.ReapplyLayout(before)
+-- Applies the active layout everywhere: config consumers, positions (before the scale appliers, which
+-- save the position of a frame with no entry), spell range, class list, option changers, the raid
+-- header appliers the option changers do not run. Shared by the layout switch and Reset to defaults.
+-- before: the settings of the layout just left (a copy). With it only the appliers of the settings
+-- that differ run (ZPerl.Apply); without it, or with a differing key no settings row covers, every
+-- option changer runs.
+function ZPerl.ReapplyLayout(before)
+	local d = ZPerl.Dev; if d and d.listener then d.Emit("layout.reapply") end
+	ZPerl.GiveConfig()
+	ZPerl.RestoreAllPositions()
+	ZPerl.StartupSpellRange()
+	ValidateClassNames(ZPerl.layout.raid)
+	local need = before and ZPerl.LayoutAppliers(before, ZPerl.layout)
+	if (need and not need.full) then
+		-- these follow the layout or the restored positions whether or not a key differs: the raid headers and widths,
+		-- and the raid helper, which anchors its frame after the restore
+		need.raidheaders, need.raidwidth, need.raidsizes = true, true, true
+		local names = {}
+		for n in pairs(need) do
+			if (ZPerl.HasApplier(n)) then
+				names[#names + 1] = n
 			end
-			C_AddOns.DisableAddOn("XPerl")
-			ZPerlImportDone = true
-			print("Z-Perl: Profile importing done, please reload you UI for the process to complete.")
 		end
-		if C_AddOns.IsAddOnLoaded("XPerl") then
-			C_AddOns.DisableAddOn("XPerl")
-		end
-		self:UnregisterEvent(event)
-		settingspart1(self, event)
-	elseif (event == "PLAYER_LOGIN") then
-		self:UnregisterEvent(event)
-		startupCheckSettings(self, event)
-		ZPerl_MinimapButton_Init(ZPerl_MinimapButton_Frame)
-	elseif (event == "PLAYER_ENTERING_WORLD") then
-		self:UnregisterEvent(event)
-		self:UnregisterAllEvents()
-		self:RegisterEvent("PLAYER_REGEN_ENABLED")
-		self:SetScript("OnEvent", onEventPostSetup)
-		-- Load the player's layout, will be profile dependent later.
-		local layout = format("%s(%s)", GetRealmName(), UnitName("player"))
-		XPerl_LoadFrameLayout(layout)
-		XPerl_Globals_OnEvent = nil
-	end
-end
-
--- XPerl_SetMyGlobal
-function XPerl_SetMyGlobal()
-	local realm = GetRealmName()
-
-	if (not lastConfigMode and ZPerlConfigSavePerCharacter) then
-		if (not ZPerlConfigNew[realm]) then
-			ZPerlConfigNew[realm] = {}
-		end
-		if (ZPerlConfigNew.global) then
-			ZPerlConfigNew[realm][playerName] = XPerl_CopyTable(ZPerlConfigNew.global)
-		else
-			XPerl_LoadOptions()
-			ZPerlConfigNew[realm][playerName] = {}
-			XPerl_Options_Defaults(ZPerlConfigNew[realm][playerName])
-		end
-
-	elseif (lastConfigMode and not ZPerlConfigSavePerCharacter) then
-		if (ZPerlConfigNew[realm] and ZPerlConfigNew[realm][playerName]) then
-			ZPerlConfigNew.global = XPerl_CopyTable(ZPerlConfigNew[realm][playerName])
-		else
-			XPerl_LoadOptions()
-			ZPerlConfigNew.global = {}
-			XPerl_Options_Defaults(ZPerlConfigNew.global)
-		end
-	end
-
-	lastConfigMode = ZPerlConfigSavePerCharacter
-
-	GiveConfig()
-end
-
--- XPerl_LoadOptions
-function XPerl_LoadOptions()
-	if (not C_AddOns.IsAddOnLoaded("ZPerl_Options")) then
-		C_AddOns.EnableAddOn("ZPerl_Options")
-		local ok, reason = C_AddOns.LoadAddOn("ZPerl_Options")
-
-		if (not ok) then
-			XPerl_Notice("Failed to load Z-Perl Options ("..tostring(reason)..")")
-		--[[else
-			collectgarbage()]]			-- Reclaims about 1.4Mb from loading options
-		end
-	end
-
-	return XPerl_Options_Defaults
-end
-
--- XPerl_ImportOldConfig
-function XPerl_ImportOldConfig(old)
-	if (XPerl_LoadOptions()) then
-		return XPerl_Options_ImportOldConfig(old)
-	end
-
-	return {}
-end
-
--- XPerl_Defaults()
-function XPerl_Defaults(new)
-	if (XPerl_LoadOptions()) then
-		XPerl_Options_Defaults(new)
-	end
-end
-
--- XPerl_UpgradeSettings
-function XPerl_UpgradeSettings()
-	if (XPerl_LoadOptions()) then
-		XPerl_Options_UpgradeSettings()
-	end
-end
-
--- DefaultRaidClasses
-local function DefaultRaidClasses()
-	if IsRetail then
-		return {
-			{enable = true, name = "WARRIOR"},
-			{enable = true, name = "DEATHKNIGHT"},
-			{enable = true, name = "ROGUE"},
-			{enable = true, name = "HUNTER"},
-			{enable = true, name = "MAGE"},
-			{enable = true, name = "WARLOCK"},
-			{enable = true, name = "PRIEST"},
-			{enable = true, name = "DRUID"},
-			{enable = true, name = "SHAMAN"},
-			{enable = true, name = "PALADIN"},
-			{enable = true, name = "MONK"},
-			{enable = true, name = "DEMONHUNTER"},
-			{enable = true, name = "EVOKER"}
-		}
-	elseif IsPandaClassic then
-		return {
-			{enable = true, name = "WARRIOR"},
-			{enable = true, name = "DEATHKNIGHT"},
-			{enable = true, name = "ROGUE"},
-			{enable = true, name = "HUNTER"},
-			{enable = true, name = "MAGE"},
-			{enable = true, name = "WARLOCK"},
-			{enable = true, name = "PRIEST"},
-			{enable = true, name = "DRUID"},
-			{enable = true, name = "SHAMAN"},
-			{enable = true, name = "PALADIN"},
-		}
-	elseif IsBCClassic then
-		return {
-			{enable = true, name = "WARRIOR"},
-			{enable = true, name = "ROGUE"},
-			{enable = true, name = "HUNTER"},
-			{enable = true, name = "MAGE"},
-			{enable = true, name = "WARLOCK"},
-			{enable = true, name = "PRIEST"},
-			{enable = true, name = "DRUID"},
-			{enable = true, name = "SHAMAN"},
-			{enable = true, name = "PALADIN"},
-		}
+		ZPerl.Apply(names)
 	else
-		return {
-			{enable = true, name = "WARRIOR"},
-			{enable = true, name = "ROGUE"},
-			{enable = true, name = "HUNTER"},
-			{enable = true, name = "MAGE"},
-			{enable = true, name = "WARLOCK"},
-			{enable = true, name = "PRIEST"},
-			{enable = true, name = "DRUID"},
-			{enable = true, name = "SHAMAN"},
-			{enable = true, name = "PALADIN"},
-		}
+		ZPerl.OptionActions()
+		for _, applier in ipairs({"raidheaders", "raidwidth"}) do
+			if (ZPerl.HasApplier(applier)) then
+				ZPerl.Apply({applier})
+			end
+		end
 	end
+	if (ZPerl.SettingsRefresh) then
+		ZPerl.SettingsRefresh()
+	end
+end
+
+-- ZPerl.NewLayout(name): a layout of the defaults, selected.
+function ZPerl.NewLayout(name)
+	if (ZPerl.LayoutInCombat()) then
+		return
+	end
+	local clean, reason = ZPerl.CleanLayoutName(name)
+	if (not clean) then
+		ZPerl.LayoutRefuse(reason)
+		return
+	end
+	local d = {}
+	ZPerl.Defaults(d)
+	ZPerlDB.layouts[clean] = d
+	return ZPerl.SelectLayout(clean)
+end
+
+-- ZPerl.CopyLayout(name): a copy of the active layout, positions included, selected.
+function ZPerl.CopyLayout(name)
+	if (ZPerl.LayoutInCombat()) then
+		return
+	end
+	local clean, reason = ZPerl.CleanLayoutName(name)
+	if (not clean) then
+		ZPerl.LayoutRefuse(reason)
+		return
+	end
+	ZPerl.PruneConfig()
+	ZPerlDB.layouts[clean] = ZPerl.CopyTable(ZPerlDB.layouts[ZPerl.ActiveLayout()])
+	return ZPerl.SelectLayout(clean)
+end
+
+-- ZPerl.RenameLayout(old, new): not Default; every character on it follows.
+function ZPerl.RenameLayout(old, new)
+	if (ZPerl.LayoutInCombat()) then
+		return
+	end
+	local s = ZPerlDB
+	if (old == "Default") then
+		ZPerl.LayoutRefuse("The Default layout cannot be renamed.")
+		return
+	end
+	if (type(s.layouts[old]) ~= "table") then
+		ZPerl.LayoutRefuse(string.format("No layout named %s.", tostring(old)))
+		return
+	end
+	local clean, reason = ZPerl.CleanLayoutName(new, old)
+	if (not clean) then
+		ZPerl.LayoutRefuse(reason)
+		return
+	end
+	if (clean == old) then
+		return true
+	end
+	local layout = s.layouts[old]
+	s.layouts[old] = nil
+	s.layouts[clean] = layout
+	for _, map in ipairs({s.active, s.migrated or {}}) do
+		for key, name in pairs(map) do
+			if (name == old) then
+				map[key] = clean
+			end
+		end
+	end
+	if (ZPerl.SettingsRefresh) then
+		ZPerl.SettingsRefresh()
+	end
+	return true
+end
+
+-- ZPerl.DeleteLayout(name): not Default, not this character's own layout. A character on it goes back to
+-- Default at its next login.
+function ZPerl.DeleteLayout(name)
+	if (ZPerl.LayoutInCombat()) then
+		return
+	end
+	local s = ZPerlDB
+	if (name == "Default") then
+		ZPerl.LayoutRefuse("The Default layout cannot be deleted.")
+		return
+	end
+	if (type(s.layouts[name]) ~= "table") then
+		ZPerl.LayoutRefuse(string.format("No layout named %s.", tostring(name)))
+		return
+	end
+	if (ZPerl.ActiveLayout() == name) then
+		ZPerl.LayoutRefuse("The layout in use cannot be deleted.")
+		return
+	end
+	s.layouts[name] = nil
+	if (ZPerl.SettingsRefresh) then
+		ZPerl.SettingsRefresh()
+	end
+	return true
+end
+
+-- ZPerl.Backfill(profile, defaults)
+-- Copies every key absent from profile out of defaults, recursively (at login, after ZPerl.MigrateConfig:
+-- run before it, an unticked option stored as nil would come back ticked). A stored value is never
+-- replaced. A list (a table with an array part: raid.class, raid.group) is a leaf: a stored list is not
+-- merged with the default one. Where one side is a table and the other is not, the stored value stays.
+-- Returns the paths of those mismatches. Keys the defaults lack (savedPositions) are not touched.
+function ZPerl.Backfill(profile, defaults, report, path)
+	report = report or {}
+	for k, d in pairs(defaults) do
+		local v = profile[k]
+		local name = (path and path .. "." or "") .. tostring(k)
+		if (v == nil) then
+			profile[k] = (type(d) == "table") and ZPerl.CopyTable(d) or d
+		elseif ((type(v) == "table") ~= (type(d) == "table")) then
+			report[#report + 1] = name
+		elseif (type(d) == "table" and d[1] == nil and v[1] == nil) then
+			ZPerl.Backfill(v, d, report, name)
+		end
+	end
+	return report
+end
+
+-- ZPerl.Prune(profile, defaults)
+-- The inverse of ZPerl.Backfill, run at PLAYER_LOGOUT: deletes every key whose stored value equals the
+-- default, so a default changed later reaches a key the profile never changed (the backfill at the next
+-- login restores the pruned keys). Walks the defaults only: keys they lack (savedPositions, extra keys)
+-- stay. A list is a leaf, compared element by element. A table left empty is deleted because the defaults
+-- hold it, and the backfill recreates it.
+function ZPerl.Prune(profile, defaults)
+	local function same(a, b)
+		if (type(a) ~= "table" or type(b) ~= "table") then
+			return a == b
+		end
+		for k, v in pairs(a) do
+			if (not same(v, b[k])) then
+				return false
+			end
+		end
+		for k in pairs(b) do
+			if (a[k] == nil) then
+				return false
+			end
+		end
+		return true
+	end
+
+	for k, d in pairs(defaults) do
+		local v = profile[k]
+		if (type(d) == "table" and type(v) == "table" and d[1] == nil and v[1] == nil) then
+			ZPerl.Prune(v, d)
+			if (next(v) == nil) then
+				profile[k] = nil
+			end
+		elseif (v ~= nil and same(v, d)) then
+			profile[k] = nil
+		end
+	end
+end
+
+-- ZPerl.PruneConfig()
+-- Prunes the active profile (ZPerl.layout, set by every GiveConfig: login, profile switch, Reset Defaults,
+-- Copy Settings) against freshly built defaults. Only that profile: the defaults hold the logged-in
+-- character's class (target.hitIndicator), so another character's profile is not pruned with them.
+-- A ConfigDefault function that raises leaves partial defaults, which delete fewer keys, never more.
+function ZPerl.PruneConfig()
+	if (type(ZPerl.layout) == "table") then
+		local defaults = {}
+		ZPerl.Pcall(ZPerl.Defaults, defaults)
+		-- Defaults by class: a profile shared by characters of different classes keeps the stored value
+		if (defaults.target) then
+			defaults.target.highlightDebuffs = nil
+		end
+		ZPerl.Prune(ZPerl.layout, defaults)
+	end
+end
+
+ZPerl.On("PLAYER_LOGOUT", ZPerl.PruneConfig)
+
+
+-- ZPerl.Defaults()
+function ZPerl.Defaults(new)
+	ZPerl.OptionsDefaults(new)
+end
+
+-- ZPerl.DefaultRaidClasses
+-- Must have one entry per class the client knows about (ZPerl_Raid.lua's
+-- CLASS_COUNT counts LOCALIZED_CLASS_NAMES_MALE), or its repair path rebuilds
+-- this, still comes up short for the newer classes, and crashes again on the
+-- very next lookup -- which aborts raid frame setup entirely.
+local allClasses = {"WARRIOR", "ROGUE", "HUNTER", "MAGE", "WARLOCK", "PRIEST", "DRUID", "SHAMAN", "PALADIN",
+	"DEATHKNIGHT", "MONK", "DEMONHUNTER", "EVOKER"}
+
+-- ClientClasses(): every class token the client has, in Z-Perl's order, then any the list above does not know
+-- (sorted), the same set CLASS_COUNT counts, so the raid code's per-class loops never run past the list
+local function ClientClasses()
+	local tokens, known = {}, {}
+	for _, class in ipairs(allClasses) do
+		known[class] = true
+		if (LOCALIZED_CLASS_NAMES_MALE[class]) then
+			tinsert(tokens, class)
+		end
+	end
+	local extra = {}
+	for class in pairs(LOCALIZED_CLASS_NAMES_MALE) do
+		if (not known[class] and class ~= "Adventurer" and class ~= "TRAVELER") then
+			tinsert(extra, class)
+		end
+	end
+	sort(extra)
+	for _, class in ipairs(extra) do
+		tinsert(tokens, class)
+	end
+	return tokens
+end
+
+function ZPerl.DefaultRaidClasses()
+	local list = {}
+	for _, class in ipairs(ClientClasses()) do
+		tinsert(list, {enable = true, name = class})
+	end
+	return list
 end
 
 -- ValidateClassNames
-local function ValidateClassNames(part)
+function ValidateClassNames(part)
 	if not part then
 		return
 	end
 	-- This should never happen, but I'm sure someone will find a way to break it
 
-	local list
-	if IsRetail then
-		list = {WARRIOR = false, MAGE = false, ROGUE = false, DRUID = false, HUNTER = false, SHAMAN = false, PRIEST = false, WARLOCK = false, PALADIN = false, DEATHKNIGHT = false, MONK = false, DEMONHUNTER = false, EVOKER = false}
-	elseif IsPandaClassic then
-		list = {WARRIOR = false, MAGE = false, ROGUE = false, DRUID = false, HUNTER = false, SHAMAN = false, PRIEST = false, WARLOCK = false, PALADIN = false, DEATHKNIGHT = false}
-	elseif IsBCClassic then
-		list = {WARRIOR = false, MAGE = false, ROGUE = false, DRUID = false, HUNTER = false, SHAMAN = false, PRIEST = false, WARLOCK = false, PALADIN = false}
-	else
-		list = {WARRIOR = false, MAGE = false, ROGUE = false, DRUID = false, HUNTER = false, SHAMAN = false, PRIEST = false, WARLOCK = false, PALADIN = false}
+	-- every class the client has must be in the list
+	local list = {}
+	for _, class in ipairs(ClientClasses()) do
+		list[class] = false
 	end
 	local valid
 	if (part.class) then
@@ -803,118 +844,23 @@ local function ValidateClassNames(part)
 	end
 
 	if (not valid) then
-		part.class = DefaultRaidClasses(true)
+		part.class = ZPerl.DefaultRaidClasses()
+	end
+
+	-- Sort by Class shows one column per class through raid.group 9 and up; a profile saved with fewer
+	-- entries than the client has classes (12, before retail's 13th) would keep the last columns hidden
+	if (part.group) then
+		for i = 9, CLASS_COUNT do
+			if (part.group[i] == nil) then
+				part.group[i] = 1
+			end
+		end
 	end
 end
 
--- XPerl_ValidateSettings()
-function XPerl_ValidateSettings()
+-- ZPerl.ValidateSettings()
+function ZPerl.ValidateSettings()
+	ValidateClassNames(ZPerl.layout.raid)
 
-	local function validate(set)
-		if (set) then
-			if (not set.buffs) then
-				set.buffs = {enable = 1, size = 20, maxrows = 2}
-			else
-				if (not set.buffs.size) then
-					set.buffs.size = 20
-				end
-				if (not set.buffs.maxrows) then
-					set.buffs.maxrows = 2
-				end
-			end
-			if (not set.debuffs) then
-				set.debuffs = {enable = 1, size = 20}
-			elseif (not set.debuffs.size) then
-				set.debuffs.size = set.buffs.size
-			end
-
-			if (not set.healerMode) then
-				set.healerMode = {type = 1}
-			end
-			if (not set.size) then
-				set.size = {width = 0}
-			end
-		end
-	end
-
-	local list = {"player", "pet", "party", "partypet", "target", "focus", "targettarget", "targettargettarget", "focustarget", "pettarget", "raid"}
-
-	for k, v in pairs(list) do
-		validate(conf[v])
-	end
-
-	if (not conf.pet) then
-		conf.pet = {enable = 1}
-	end
-	if (not conf.pet.castBar) then
-		conf.pet.castBar = {enable = 1}
-	end
-
-	if (conf.colour and not conf.colour.gradient) then
-		conf.colour.gradient = {
-			enable = 1,
-			s = {r = 0.25, g = 0.25, b = 0.25, a = 1},
-			e = {r = 0.1, g = 0.1, b = 0.1, a = 0}
-		}
-	end
-
-	if (not conf.colour.bar.absorb or conf.colour.bar.absorb[1]) then
-		conf.colour.bar.absorbs = {r = 0.14, g = 0.33, b = 0.7, a = 0.7}
-	end
-
-	if (not conf.colour.bar.healprediction or conf.colour.bar.healprediction[1]) then
-		conf.colour.bar.healprediction = {r = 0, g = 1, b = 1, a = 1}
-	end
-
-	if (not conf.colour.bar.runic_power or conf.colour.bar.runic_power[1]) then
-		if (PowerBarColor) then
-			conf.colour.bar.runic_power = {r = PowerBarColor["RUNIC_POWER"].r, g = PowerBarColor["RUNIC_POWER"].g, b = PowerBarColor["RUNIC_POWER"].b}
-		else
-			conf.colour.bar.runic_power = {r = 1, g = 0.25, b = 1}
-		end
-	end
-
-	if (not conf.colour.bar.insanity or conf.colour.bar.insanity[1]) then
-		if (PowerBarColor) then
-			conf.colour.bar.insanity = {r = PowerBarColor["INSANITY"].r, g = PowerBarColor["INSANITY"].g, b = PowerBarColor["INSANITY"].b}
-		else
-			conf.colour.bar.insanity = {r = 0.4, g = 0, b = 0.8}
-		end
-	end
-
-	if (not conf.colour.bar.lunar or conf.colour.bar.lunar[1]) then
-		if (PowerBarColor) then
-			conf.colour.bar.lunar = {r = PowerBarColor["LUNAR_POWER"].r, g = PowerBarColor["LUNAR_POWER"].g, b = PowerBarColor["LUNAR_POWER"].b}
-		else
-			conf.colour.bar.lunar = {r = 0.3, g = 0.52, b = 0.9}
-		end
-	end
-
-	if (not conf.colour.bar.maelstrom or conf.colour.bar.maelstrom[1]) then
-		if (PowerBarColor) then
-			conf.colour.bar.maelstrom = {r = PowerBarColor["MAELSTROM"].r, g = PowerBarColor["MAELSTROM"].g, b = PowerBarColor["MAELSTROM"].b}
-		else
-			conf.colour.bar.maelstrom = {r = 0, g = 0.5, b = 1}
-		end
-	end
-
-	if (not conf.colour.bar.fury or conf.colour.bar.fury[1]) then
-		if (PowerBarColor) then
-			conf.colour.bar.fury = {r = PowerBarColor["FURY"].r, g = PowerBarColor["FURY"].g, b = PowerBarColor["FURY"].b}
-		else
-			conf.colour.bar.fury = {r = 0.788, g = 0.259, b = 0.992}
-		end
-	end
-
-	if (not conf.colour.bar.pain or conf.colour.bar.pain[1]) then
-		if (PowerBarColor) then
-			conf.colour.bar.pain = {r = PowerBarColor["PAIN"].r, g = PowerBarColor["PAIN"].g, b = PowerBarColor["PAIN"].b}
-		else
-			conf.colour.bar.pain = {r = 1, g = 0.611, b = 0}
-		end
-	end
-
-	ValidateClassNames(XPerlDB.raid)
-
-	XPerl_ValidateSettings = nil
+	ZPerl.ValidateSettings = nil
 end

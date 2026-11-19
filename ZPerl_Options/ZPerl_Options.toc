@@ -1,16 +1,25 @@
-## Interface: 11508, 20505, 50504
-## Author: Resike
-## Title: Z-Perl |cffeda55fOptions|r |cFF40FF40(LoadOnDemand)|r
-## Title-itIT: Z-Perl |cffeda55fOpzioni|r |cFF40FF40(Caricabile su richiesta)|r
-## Title-ruRU: Z-Perl |cffeda55fНастройки|r |cFF40FF40(LoadOnDemand)|r
-## Title-zhCN: Z-Perl |cffeda55f选项|r |cFF40FF40(LoadOnDemand)|r
-## Title-zhTW: Z-Perl |cffeda55f功能設定|r |cFF40FF40(隨機載入)|r
-## Notes: Z-Perl Options GUI
-## Notes-itIT: Finestra opzioni di Z-Perl
-## Notes-ruRU: Интерфейс настроек Z-Perl'а
-## Notes-deDE: Z-Perl UnitFrames Optionen GUI
-## Notes-zhTW: Z-Perl 單位框架功能設定 GUI
+## Interface: 120105, 50504, 20506, 16001, 11509
+## IconTexture: Interface\AddOns\ZPerl\ZPerlIcon
+## Version: 8.0.0
+## Author: Resike based on work by Zeta0xD, Ziliya, Halfdays, Zek and Nymbia
+## Title: Z-Perl |cffeda55fOptions|r
+## Notes: The Z-Perl options window. Loaded when it is first opened.
 ## RequiredDeps: ZPerl
 ## LoadOnDemand: 1
 
-ZPerl_FrameOptions.xml
+Localization\Localization.lua
+Localization\Localization.deDE.lua
+Localization\Localization.esES.lua
+Localization\Localization.frFR.lua
+Localization\Localization.itIT.lua
+Localization\Localization.koKR.lua
+Localization\Localization.ptBR.lua
+Localization\Localization.ruRU.lua
+Localization\Localization.zhCN.lua
+Localization\Localization.zhTW.lua
+
+ZPerl_Settings.lua
+ZPerl_SettingsList.lua
+ZPerl_SettingsListPages.lua
+ZPerl_OptionsControls.lua
+ZPerl_OptionsWindow.lua

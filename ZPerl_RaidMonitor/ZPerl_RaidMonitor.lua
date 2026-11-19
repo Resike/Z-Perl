@@ -1,71 +1,92 @@
--- X-Perl UnitFrames
 -- Author: Resike
--- License: GNU GPL v3, 29 June 2007 (see LICENSE.txt)
+-- License: GNU GPL v3, 29 June 2007
+
+local L = ZPerl.L
 
 local cast
 local MonUnits = {}			-- Fixed list of all monitor units
 local TableUnits = {}			-- Dynamic list of units indexed by raid id, changed on attr change
-ZPerlRaidMonConfig = {}
-local config = ZPerlRaidMonConfig
+ZPerlRaidMonitorDB = {}
+local config = ZPerlRaidMonitorDB
 
-local IsRetail = WOW_PROJECT_ID == WOW_PROJECT_MAINLINE
-local IsClassic = WOW_PROJECT_ID >= WOW_PROJECT_CLASSIC
+-- Upvalues
+local ipairs = ipairs
+local pairs = pairs
+local strfind = strfind
+local strmatch = strmatch
+local tinsert = tinsert
+local type = type
+local unpack = unpack
 
 local GetNumGroupMembers = GetNumGroupMembers
 local GetNumSubgroupMembers = GetNumSubgroupMembers
+local GetTime = GetTime
+local InCombatLockdown = InCombatLockdown
+local IsInRaid = IsInRaid
+local SecureButton_GetModifiedAttribute = SecureButton_GetModifiedAttribute
+local SecureButton_GetUnit = SecureButton_GetUnit
 local UnitCastingInfo = UnitCastingInfo
 local UnitChannelInfo = UnitChannelInfo
+local UnitClass = UnitClass
+local UnitHealth = UnitHealth
+local UnitHealthMax = UnitHealthMax
+local UnitInParty = UnitInParty
+local UnitIsConnected = UnitIsConnected
+local UnitIsDead = UnitIsDead
+local UnitIsDeadOrGhost = UnitIsDeadOrGhost
+local UnitIsGhost = UnitIsGhost
+local UnitIsUnit = UnitIsUnit
+local UnitIsVisible = UnitIsVisible
+local UnitName = UnitName
+local UnitPower = UnitPower
+local UnitPowerMax = UnitPowerMax
+local UnitPowerType = UnitPowerType
 
+local FAILED = FAILED
+local LOCALIZED_CLASS_NAMES_MALE = LOCALIZED_CLASS_NAMES_MALE
+local RAID_CLASS_COLORS = RAID_CLASS_COLORS
+local SPELL_FAILED_INTERRUPTED = SPELL_FAILED_INTERRUPTED
 
-XPerl_SetModuleRevision("$Revision:  $")
+ZPerl.SetModuleRevision("$Revision:  $")
 
-XPERL_RAIDMON_UNIT_WIDTH_MIN = 50
-XPERL_RAIDMON_UNIT_WIDTH_MAX = 150
-XPERL_RAIDMON_UNIT_HEIGHT_MIN = 9
-XPERL_RAIDMON_UNIT_HEIGHT_MAX = 20
-XPERL_RAIDMON_TARGET_WIDTH_MIN = 50
-XPERL_RAIDMON_TARGET_WIDTH_MAX = 150
+---@diagnostic disable: create-global
+ZPERL_RAIDMON_UNIT_WIDTH_MIN = 50
+ZPERL_RAIDMON_UNIT_WIDTH_MAX = 150
+ZPERL_RAIDMON_UNIT_HEIGHT_MIN = 9
+ZPERL_RAIDMON_UNIT_HEIGHT_MAX = 20
+ZPERL_RAIDMON_TARGET_WIDTH_MIN = 50
+ZPERL_RAIDMON_TARGET_WIDTH_MAX = 150
+---@diagnostic enable: create-global
 
-local castColours = {
+local castColors = {
 	main    = {r = 1.0, g = 0.7, b = 0.0},
 	channel = {r = 0.0, g = 1.0, b = 0.0},
 	success = {r = 0.0, g = 1.0, b = 0.0},
 	failure = {r = 1.0, g = 0.0, b = 0.0}
 }
 
--- XPerl_RaidMonitor_OnLoad
-function XPerl_RaidMonitor_OnLoad(self)
+-- ZPerl.RaidMonitor.OnLoad
+function ZPerl.RaidMonitor.OnLoad(self)
 	cast = self
-	XPerl_RaidMonitor_Init(self)
+	ZPerl.RaidMonitor.Init(self)
 
 	--self:RegisterEvent("VARIABLES_LOADED")
 	self:RegisterEvent("PLAYER_ENTERING_WORLD")
 	self:RegisterEvent("GROUP_ROSTER_UPDATE")
-	self:SetScript("OnEvent", XPerl_RaidMonitor_OnEvent)
+	self:SetScript("OnEvent", ZPerl.RaidMonitor.OnEvent)
 	self:SetScript("OnUpdate", self.OnUpdate)
 
-	if IsRetail then
-		XPerl_RaidMonitor_Frame_TitleBarCloseButton:SetScale(0.66)
-		XPerl_RaidMonitor_Frame_TitleBarCloseButton:SetPoint("TOPRIGHT", 2, 2)
-		XPerl_RaidMonitor_Frame_TitleBarPin:SetPoint("RIGHT", XPerl_RaidMonitor_Frame_TitleBarCloseButton, "LEFT", 0, 0)
-		XPerl_RaidMonitor_Frame_TitleBarTotals:SetPoint("RIGHT", XPerl_RaidMonitor_Frame_TitleBarPin, "LEFT", 0, 0)
+	if (ZPerl.RegisterPerlFrames) then
+		ZPerl.RegisterPerlFrames(ZPerl_RaidMonitor_Frame)
 	end
 
-	if (XPerl_RegisterPerlFrames) then
-		XPerl_RegisterPerlFrames(XPerl_RaidMonitor_Frame)
-	end
+	ZPerl.RegisterScalableFrame(self, ZPerl_RaidMonitor_Anchor)
 
-	if (XPerl_SavePosition) then
-		XPerl_SavePosition(XPerl_RaidMonitor_Anchor, true)
-	end
-
-	XPerl_RegisterScalableFrame(self, XPerl_RaidMonitor_Anchor)
-
-	XPerl_RaidMonitor_OnLoad = nil
+	ZPerl.RaidMonitor.OnLoad = nil
 end
 
--- ScaleBarColour
-local function ScaleBarColour(self, perc, cOrder)
+-- ScaleBarColor
+local function ScaleBarColor(self, perc, cOrder)
 	if (not cOrder) then
 		cOrder = "rgb"
 	end
@@ -90,7 +111,7 @@ local function CastBar_OnUpdate(self)
 	if (self.casting) then
 		local status = GetTime()
 		if (status > self.maxValue) then
-			self.castBar:SetStatusBarColor(castColours.success.r, castColours.success.g, castColours.success.b)
+			self.castBar:SetStatusBarColor(castColors.success.r, castColors.success.g, castColors.success.b)
 			self.casting = nil
 
 			status = self.maxValue
@@ -123,7 +144,7 @@ local function CastBar_OnUpdate(self)
 		self.castBar.spark:SetPoint("CENTER", self.castBar, "LEFT", sparkPosition, 1)
 
 	elseif (self.fadeOut) then
-		local alpha = self.castBar:GetAlpha() - CASTING_BAR_ALPHA_STEP
+		local alpha = self.castBar:GetAlpha() - (_G.CASTING_BAR_ALPHA_STEP or 0.02)
 		if (alpha > 0) then
 			self.castBar:SetAlpha(alpha)
 			self.bar.name:SetAlpha(1 - alpha)
@@ -142,52 +163,57 @@ local function UpdateTarget(self)
 	local id = SecureButton_GetUnit(self)
 	if (id) then
 		local subid = strmatch(id, "^(raid%d+)")
-		if (UnitIsUnit("player", subid)) then
+		if (ZPerl.SafeBool(UnitIsUnit("player", subid), false)) then
 			id = "target"
 		end
 
 		local name, reason
 		if (not UnitIsConnected(subid)) then
-			reason = XPERL_LOC_OFFLINE
+			reason = L["LOC_OFFLINE"]
 		elseif (UnitIsDead(subid)) then
-			reason = XPERL_LOC_DEAD
+			reason = L["LOC_DEAD"]
 		elseif (UnitIsGhost(subid)) then
-			reason = XPERL_LOC_GHOST
+			reason = L["LOC_GHOST"]
 		elseif (not UnitIsVisible(subid)) then
-			reason = XPERL_LOC_OOR
+			reason = L["LOC_OOR"]
 		else
 			name = UnitName(id)
 			if (not name) then
-				reason = XPERL_NO_TARGET
+				reason = L["NO_TARGET"]
 			end
 		end
 
 		if (not name) then
-			self.bar.name:SetText(reason)
-			self.bar.name:SetTextColor(0.5, 0.5, 0.5)
+			self.statusBar.name:SetText(reason)
+			self.statusBar.name:SetTextColor(0.5, 0.5, 0.5)
 
-			self.bar:SetMinMaxValues(0, 1)
-			self.bar:SetValue(0)
-			self.bar:SetStatusBarColor(0, 0, 0)
-			self.bar.bg:SetVertexColor(0, 0, 0, 0.5)
+			self.statusBar:SetMinMaxValues(0, 1)
+			self.statusBar:SetValue(0)
+			self.statusBar:SetStatusBarColor(0, 0, 0)
+			self.statusBar.bg:SetVertexColor(0, 0, 0, 0.5)
 		else
-			self.bar.name:SetText(name)
-			if (UnitIsUnit("target", id)) then
-				self.bar.name:SetTextColor(0, 1, 0)
+			self.statusBar.name:SetText(name)
+			if (ZPerl.SafeBool(UnitIsUnit("target", id), false)) then
+				self.statusBar.name:SetTextColor(0, 1, 0)
 			else
-				self.bar.name:SetTextColor(0.5, 0.5, 0.5)
+				self.statusBar.name:SetTextColor(0.5, 0.5, 0.5)
 			end
 
-			local hp, hpMax = UnitIsGhost(id) and 1 or (UnitIsDead(id) and 0 or UnitHealth(id)), UnitHealthMax(id)
-			self.bar:SetMinMaxValues(0, hpMax)
-			self.bar:SetValue(hp)
+			-- secret health goes straight into the bar
+			local hp, hpMax = UnitHealth(id), UnitHealthMax(id)
+			if (ZPerl.CanAccess(hp)) then
+				hp = UnitIsGhost(id) and 1 or (UnitIsDead(id) and 0 or hp)
+			end
+			self.statusBar:SetMinMaxValues(0, hpMax)
+			self.statusBar:SetValue(hp)
 
 			local _, class = UnitClass(id)
-			if (class) then
-				local c = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[class]
+			if (class and ZPerl.CanAccess(class)) then
+				---@diagnostic disable-next-line: secret-table-key
+				local c = (_G.CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[class]
 				if (c) then
-					self.bar:SetStatusBarColor(c.r, c.g, c.b)
-					self.bar.bg:SetVertexColor(c.r, c.g, c.b, 0.5)
+					self.statusBar:SetStatusBarColor(c.r, c.g, c.b)
+					self.statusBar.bg:SetVertexColor(c.r, c.g, c.b, 0.5)
 				end
 			end
 		end
@@ -198,7 +224,8 @@ end
 local function UpdateUnit(self)
 	local id = SecureButton_GetUnit(self)
 	if (id) then
-		self.bar.name:SetText(UnitName(id))
+		-- full "First Last" (or "First-Realm") display name
+		self.bar.name:SetText(ZPerl.UnitFullName(id))
 
 		self.powerType = UnitPowerType(id)
 		self.mana, self.manaMax = UnitPower(id), UnitPowerMax(id)
@@ -214,13 +241,18 @@ local function UpdateUnit(self)
 		if (not UnitIsConnected(id) or UnitIsDeadOrGhost(id) or not UnitIsVisible(id)) then
 			self.bar:SetStatusBarColor(0.5, 0.5, 0.5)
 			self.bar.bg:SetVertexColor(0.5, 0.5, 0.5, 0.5)
+		elseif (ZPerl.CanAccess(self.mana) and ZPerl.CanAccess(self.manaMax) and self.manaMax > 0) then
+			ScaleBarColor(self.bar, self.mana / self.manaMax, "rbg")
 		else
-			ScaleBarColour(self.bar, self.mana / self.manaMax, "rbg")
+			-- secret power cannot be graded, use the mana color
+			self.bar:SetStatusBarColor(0, 0, 1)
+			self.bar.bg:SetVertexColor(0, 0, 1, 0.5)
 		end
 
 		local _, class = UnitClass(id)
-		if (class) then
-			local c = (CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[class]
+		if (class and ZPerl.CanAccess(class)) then
+			---@diagnostic disable-next-line: secret-table-key
+			local c = (_G.CUSTOM_CLASS_COLORS or RAID_CLASS_COLORS)[class]
 			if (c) then
 				self.bar.name:SetTextColor(c.r, c.g, c.b)
 			end
@@ -259,24 +291,24 @@ local function onAttrChanged(self, name, value)
 	end
 end
 
--- XPerl_MTList_ChildUnits
-function XPerl_CastMon_ChildUnits(self)
+-- ZPerl.RaidHelper.MTListChildUnits
+function ZPerl.RaidMonitor.CastMonChildUnits(self)
 	self.mana, self.manaMax = 1, 1
 
 	self:SetScript("OnShow", UpdateUnit)
-	XPerl_RegisterHighlight(self, 3)
-	XPerl_RegisterClickCastFrame(self)
-	XPerl_RegisterClickCastFrame(self.target)
+	ZPerl.RegisterHighlight(self, 3)
+	ZPerl.RegisterClickCastFrame(self)
+	ZPerl.RegisterClickCastFrame(self.target)
 
 	self:SetScript("OnAttributeChanged", onAttrChanged)
 
 	local _, class = UnitClass("player")
 	if (class == "DRUID") then
 		self:SetAttribute("type2", "spell")
-		self:SetAttribute("spell2", XPERL_MONITOR_INNERVATE)
+		self:SetAttribute("spell2", L["MONITOR_INNERVATE"])
 	elseif (class == "SHAMAN") then
 		self:SetAttribute("type2", "spell")
-		self:SetAttribute("spell2", XPERL_MONITOR_MANATIDE)
+		self:SetAttribute("spell2", L["MONITOR_MANATIDE"])
 	end
 
 	self.target:SetWidth(config.TargetWidth)
@@ -286,17 +318,17 @@ function XPerl_CastMon_ChildUnits(self)
 end
 
 -- cast:OnEvent
-function XPerl_RaidMonitor_OnEvent(self, event, ...)
+function ZPerl.RaidMonitor.OnEvent(self, event, ...)
 	local e = self[event]
 	if (e) then
 		e(self, ...)
 	end
 end
 
--- XPerl_Monitor_MakeAction
-function XPerl_Monitor_MakeAction(self, str, type)
+-- ZPerl.RaidMonitor.MonitorMakeAction
+function ZPerl.RaidMonitor.MonitorMakeAction(self, str, type)
 	if (str == "target") then
-		return XPERL_MONITOR_CLICKTARGET
+		return L["MONITOR_CLICKTARGET"]
 	elseif (str == "spell") then
 		local b
 		if (type == 1) then
@@ -306,14 +338,14 @@ function XPerl_Monitor_MakeAction(self, str, type)
 		end
 		local spell = SecureButton_GetModifiedAttribute(self, "spell", b)
 		if (spell) then
-			return string.format(XPERL_MONITOR_CLICKCAST, spell)
+			return string.format(L["MONITOR_CLICKCAST"], spell)
 		end
 	end
 end
 
--- XPerl_RaidMonitor_Init
-function XPerl_RaidMonitor_Init(self)
-	self.updateTimer = 0
+-- ZPerl.RaidMonitor.Init
+function ZPerl.RaidMonitor.Init(monitor)
+	monitor.updateTimer = 0
 
 	-- cast:DoButtons
 	function cast:DoButtons(disable)
@@ -362,7 +394,8 @@ function XPerl_RaidMonitor_Init(self)
 			end
 			if (v.powerType == 0 and v:IsShown()) then
 				local unit = v:GetAttribute("unit")
-				if (UnitIsConnected(unit) and not UnitIsDeadOrGhost(unit)) then
+				-- secret power is left out of the totals
+				if (UnitIsConnected(unit) and not ZPerl.SafeBool(UnitIsDeadOrGhost(unit), false) and ZPerl.CanAccess(v.mana) and ZPerl.CanAccess(v.manaMax)) then
 					local perc
 					if (v.manaMax == 0) then
 						perc = 0
@@ -405,9 +438,9 @@ function XPerl_RaidMonitor_Init(self)
 		st.HighMana.name:SetText(manaHigh)
 		st.LowMana.name:SetText(manaLow)
 
-		ScaleBarColour(st.RaidMana, manaTotal / 100, "rbg")
-		ScaleBarColour(st.HighMana, manaHigh / count, "rbg")
-		ScaleBarColour(st.LowMana, 1 - (manaLow / count), "rbg")
+		ScaleBarColor(st.RaidMana, manaTotal / 100, "rbg")
+		ScaleBarColor(st.HighMana, manaHigh / count, "rbg")
+		ScaleBarColor(st.LowMana, 1 - (manaLow / count), "rbg")
 	end
 
 	-- cast:HealthTotals()
@@ -419,16 +452,20 @@ function XPerl_RaidMonitor_Init(self)
 		if IsInRaid() then--actually check if we are in a raid
 			for i = 1, GetNumGroupMembers() do
 				local id = "raid"..i
-				if (UnitIsConnected(id)) then
+				-- units with secret health are left out of the total
+				if (UnitIsConnected(id) and ZPerl.CanAccess(UnitHealth(id)) and ZPerl.CanAccess(UnitHealthMax(id))) then
 					local hp, hpMax = UnitIsGhost(id) and 1 or (UnitIsDead(id) and 0 or UnitHealth(id)), UnitHealthMax(id)
 					--Begin 4.3 anti /0 fix.
 					local percent
+					---@diagnostic disable-next-line: secret-comparison
 					if UnitIsDeadOrGhost(id) or (hp == 0 and hpMax == 0) then--They are dead
 						percent = 0
+					---@diagnostic disable-next-line: secret-comparison
 					elseif hp > 0 and hpMax == 0 then --They have more then 1 HP so they have to be alive, so we need to fix hpmax being wrong.
 						hpMax = hp --Make max hp equal to current HP
 						percent = 1
 					else
+						---@diagnostic disable-next-line: secret-arithmetic
 						percent = hp / hpMax
 					end
 					--end /0 fix.
@@ -439,16 +476,19 @@ function XPerl_RaidMonitor_Init(self)
 		elseif GetNumSubgroupMembers() > 0 then--if not a raid see if it's a party
 			for i = 1, GetNumSubgroupMembers() do
 				local id = "party"..i
-				if (UnitIsConnected(id)) then
+				if (UnitIsConnected(id) and ZPerl.CanAccess(UnitHealth(id)) and ZPerl.CanAccess(UnitHealthMax(id))) then
 					local hp, hpMax = UnitIsGhost(id) and 1 or (UnitIsDead(id) and 0 or UnitHealth(id)), UnitHealthMax(id)
 					--Begin 4.3 anti /0 fix.
 					local percent
+					---@diagnostic disable-next-line: secret-comparison
 					if UnitIsDeadOrGhost(id) or (hp == 0 and hpMax == 0) then--They are dead
 						percent = 0
+					---@diagnostic disable-next-line: secret-comparison
 					elseif hp > 0 and hpMax == 0 then --They have more then 1 HP so they have to be alive, so we need to fix hpmax being wrong.
 						hpMax = hp --Make max hp equal to current HP
 						percent = 1
 					else
+						---@diagnostic disable-next-line: secret-arithmetic
 						percent = hp / hpMax
 					end
 					--end /0 fix.
@@ -457,20 +497,26 @@ function XPerl_RaidMonitor_Init(self)
 				end
 			end
 			--GetNumSubgroupMembers() doesn't return player, unlike GetNumGroupMembers which does, so we have to manually add player in for 5 mans
-			local hp, hpMax = UnitIsGhost("player") and 1 or (UnitIsDead("player") and 0 or UnitHealth("player")), UnitHealthMax("player")
-			--Begin 4.3 anti /0 fix.
-			local percent
-			if UnitIsDeadOrGhost("player") or (hp == 0 and hpMax == 0) then--They are dead
-				percent = 0
-			elseif hp > 0 and hpMax == 0 then --They have more then 1 HP so they have to be alive, so we need to fix hpmax being wrong.
-				hpMax = hp --Make max hp equal to current HP
-				percent = 1
-			else
-				percent = hp / hpMax
+			local hp, hpMax = UnitHealth("player"), UnitHealthMax("player")
+			if (ZPerl.CanAccess(hp) and ZPerl.CanAccess(hpMax)) then
+				hp = UnitIsGhost("player") and 1 or (UnitIsDead("player") and 0 or hp)
+				--Begin 4.3 anti /0 fix.
+				local percent
+				---@diagnostic disable-next-line: secret-comparison
+				if UnitIsDeadOrGhost("player") or (hp == 0 and hpMax == 0) then--They are dead
+					percent = 0
+				---@diagnostic disable-next-line: secret-comparison
+				elseif hp > 0 and hpMax == 0 then --They have more then 1 HP so they have to be alive, so we need to fix hpmax being wrong.
+					hpMax = hp --Make max hp equal to current HP
+					percent = 1
+				else
+					---@diagnostic disable-next-line: secret-arithmetic
+					percent = hp / hpMax
+				end
+				--end /0 fix.
+				totalHealth = totalHealth + (100 * percent)
+				total = total + 1
 			end
-			--end /0 fix.
-			totalHealth = totalHealth + (100 * percent)
-			total = total + 1
 		end
 		if totalHealth ~= 0 and total ~= 0 then--Make sure neither is 0, if they are don't bother division, no one is alive.
 			totalHealth = totalHealth / total
@@ -479,9 +525,9 @@ function XPerl_RaidMonitor_Init(self)
 		self.totals.RaidHealth:SetValue(totalHealth)
 		self.totals.RaidHealth.name:SetFormattedText("%d%%", totalHealth)
 		if totalHealth ~= 0 then
-			ScaleBarColour(self.totals.RaidHealth, totalHealth / 100)
+			ScaleBarColor(self.totals.RaidHealth, totalHealth / 100)
 		else--don't divide 0 by 100, if total health is 0 then that's all we need to put in.
-			ScaleBarColour(self.totals.RaidHealth, 0)
+			ScaleBarColor(self.totals.RaidHealth, 0)
 		end
 	end
 
@@ -498,7 +544,9 @@ function XPerl_RaidMonitor_Init(self)
 				u.mana, u.manaMax = UnitPower(id), UnitPowerMax(id)
 				u.bar:SetMinMaxValues(0, u.manaMax)
 				u.bar:SetValue(u.mana)
-				ScaleBarColour(u.bar, u.mana / u.manaMax, "rbg")
+				if (ZPerl.CanAccess(u.mana) and ZPerl.CanAccess(u.manaMax) and u.manaMax > 0) then
+					ScaleBarColor(u.bar, u.mana / u.manaMax, "rbg")
+				end
 				self.doneMana = false
 
 				if (self.lastManaUpdate or 0) >= GetTime() then
@@ -526,7 +574,9 @@ function XPerl_RaidMonitor_Init(self)
 				u.mana, u.manaMax = UnitPower(id), UnitPowerMax(id)
 				u.bar:SetMinMaxValues(0, u.manaMax)
 				u.bar:SetValue(u.mana)
-				ScaleBarColour(u.bar, u.mana / u.manaMax, "rbg")
+				if (ZPerl.CanAccess(u.mana) and ZPerl.CanAccess(u.manaMax) and u.manaMax > 0) then
+					ScaleBarColor(u.bar, u.mana / u.manaMax, "rbg")
+				end
 				self.doneMana = false
 
 				if (self.lastManaUpdate or 0) >= GetTime() then
@@ -554,7 +604,9 @@ function XPerl_RaidMonitor_Init(self)
 				u.mana, u.manaMax = UnitPower(id), UnitPowerMax(id)
 				u.bar:SetMinMaxValues(0, u.manaMax)
 				u.bar:SetValue(u.mana)
-				ScaleBarColour(u.bar, u.mana / u.manaMax, "rbg")
+				if (ZPerl.CanAccess(u.mana) and ZPerl.CanAccess(u.manaMax) and u.manaMax > 0) then
+					ScaleBarColor(u.bar, u.mana / u.manaMax, "rbg")
+				end
 				self.doneMana = false
 
 				if (self.lastManaUpdate or 0) >= GetTime() then
@@ -569,13 +621,6 @@ function XPerl_RaidMonitor_Init(self)
 		end
 	end
 
-	--[[cast.UNIT_MAXMANA = cast.UNIT_MANA
-	cast.UNIT_RAGE = cast.UNIT_MANA
-	cast.UNIT_MAXRAGE = cast.UNIT_MANA
-	cast.UNIT_ENERGY = cast.UNIT_MANA
-	cast.UNIT_MAXENERGY = cast.UNIT_MANA
-	cast.UNIT_RUNIC_POWER = cast.UNIT_MANA
-	cast.UNIT_MAXRUNIC_POWER = cast.UNIT_MANA]]
 
 	-- cast:PLAYER_REGEN_DISABLED
 	function cast:PLAYER_REGEN_DISABLED()
@@ -589,7 +634,8 @@ function XPerl_RaidMonitor_Init(self)
 
 	-- cast:PLAYER_ENTERING_WORLD
 	function cast:PLAYER_ENTERING_WORLD()
-		config = ZPerlRaidMonConfig
+		ZPerl.MigrateSavedNames("ZPerl_RaidMonitor")
+		config = ZPerlRaidMonitorDB
 		self:Vars()
 		self:DoButtons()
 		self:SetupAlpha()
@@ -604,12 +650,12 @@ function XPerl_RaidMonitor_Init(self)
 			self.area:SetAttribute("point", nil)
 		end
 
-		self.area:SetAttribute("template", "XPerl_RaidMonitor_UnitTemplate")
+		self.area:SetAttribute("template", "ZPerl_RaidMonitor_UnitTemplate")
 		self.area:SetAttribute("templateType", "Button")
 		self.area:SetAttribute("sortMethod", "NAME")
 		self.area:SetAttribute("sortDir", "ASC")
 		self.area:SetAttribute("groupBy", "CLASS")		-- For API version 20003
-		self.area:SetAttribute("groupingOrder", "PRIEST,DRUID,SHAMAN,PALADIN,MAGE,WARLOCK,HUNTER,ROGUE,WARRIOR,DEATHKNIGHT,MONK,DEMONHUNTER,EVOKER")
+		self.area:SetAttribute("groupingOrder", "PRIEST,DRUID,SHAMAN,PALADIN,MONK,EVOKER,MAGE,WARLOCK,HUNTER,ROGUE,WARRIOR,DEATHKNIGHT,DEMONHUNTER")
 
 		self:SetAttribute("type", "target")
 		self:SetAttribute("initial-height", config.UnitHeight)
@@ -654,17 +700,20 @@ function XPerl_RaidMonitor_Init(self)
 		end
 		local bar = TableUnits[unit]
 		if (bar and bar:IsShown()) then
-			local name, text, texture, startTime, endTime, isTradeSkill = UnitCastingInfo(unit)
-			if not name or not startTime or not endTime or startTime >= endTime then
+			local name, _, texture, startTime, endTime = UnitCastingInfo(unit)
+			---@diagnostic disable-next-line: secret-comparison
+			if name == nil or not ZPerl.CanAccess(startTime) or not ZPerl.CanAccess(endTime) or startTime >= endTime then
 				return
 			end
 			bar.castBar.name:SetText(name)
 			bar.castBar.icon:SetTexture(texture)
 			bar.castBar.spark:Show()
 			bar.bar.name:Hide()
+			---@diagnostic disable-next-line: secret-arithmetic
 			bar.startTime = startTime / 1000
+			---@diagnostic disable-next-line: secret-arithmetic
 			bar.maxValue = endTime / 1000
-			bar.castBar:SetStatusBarColor(castColours.main.r, castColours.main.g, castColours.main.b)
+			bar.castBar:SetStatusBarColor(castColors.main.r, castColors.main.g, castColors.main.b)
 			bar.castBar:SetMinMaxValues(bar.startTime, bar.maxValue)
 			bar.castBar:SetValue(bar.startTime)
 			bar.castBar:Show()
@@ -684,7 +733,7 @@ function XPerl_RaidMonitor_Init(self)
 		local bar = TableUnits[unit]
 		if (bar and bar.casting and bar:IsShown()) then
 			--bar.bar:SetValue(bar.maxValue)
-			--bar.bar:SetStatusBarColor(castColours.success.r, castColours.success.g, castColours.success.b)
+			--bar.bar:SetStatusBarColor(castColors.success.r, castColors.success.g, castColors.success.b)
 			bar.castBar.spark:Hide()
 			bar.casting = nil
 			bar.channeling = nil
@@ -701,7 +750,7 @@ function XPerl_RaidMonitor_Init(self)
 		if (bar and bar.casting and bar:IsShown()) then
 			bar.castBar.name:SetText(FAILED)
 			bar.castBar:SetValue(bar.maxValue or 1)
-			bar.castBar:SetStatusBarColor(castColours.failure.r, castColours.failure.g, castColours.failure.b)
+			bar.castBar:SetStatusBarColor(castColors.failure.r, castColors.failure.g, castColors.failure.b)
 			bar.castBar.spark:Hide()
 			bar.casting = nil
 			bar.channeling = nil
@@ -718,7 +767,7 @@ function XPerl_RaidMonitor_Init(self)
 		if (bar and bar.casting and bar:IsShown()) then
 			bar.castBar.name:SetText(SPELL_FAILED_INTERRUPTED)
 			bar.castBar:SetValue(bar.maxValue or 1)
-			bar.castBar:SetStatusBarColor(castColours.failure.r, castColours.failure.g, castColours.failure.b)
+			bar.castBar:SetStatusBarColor(castColors.failure.r, castColors.failure.g, castColors.failure.b)
 			bar.castBar.spark:Hide()
 			bar.casting = nil
 			bar.channeling = nil
@@ -734,7 +783,7 @@ function XPerl_RaidMonitor_Init(self)
 		local bar = TableUnits[unit]
 		if (bar and bar.casting and bar:IsShown()) then
 			bar.castBar:SetValue(bar.maxValue or 1)
-			bar.castBar:SetStatusBarColor(castColours.success.r, castColours.success.g, castColours.success.b)
+			bar.castBar:SetStatusBarColor(castColors.success.r, castColors.success.g, castColors.success.b)
 			bar.casting = nil
 			bar.channeling = nil
 			bar.fadeOut = true
@@ -749,11 +798,14 @@ function XPerl_RaidMonitor_Init(self)
 		end
 		local bar = TableUnits[unit]
 		if (bar and bar.casting and bar:IsShown()) then
-			local name, text, texture, startTime, endTime, isTradeSkill = UnitCastingInfo(unit)
-			if not name or not startTime or not endTime or startTime >= endTime then
+			local name, _, _, startTime, endTime = UnitCastingInfo(unit)
+			---@diagnostic disable-next-line: secret-comparison
+			if name == nil or not ZPerl.CanAccess(startTime) or not ZPerl.CanAccess(endTime) or startTime >= endTime then
 				return
 			end
+			---@diagnostic disable-next-line: secret-arithmetic
 			bar.startTime = startTime / 1000
+			---@diagnostic disable-next-line: secret-arithmetic
 			bar.maxValue = endTime / 1000
 			bar.castBar:SetMinMaxValues(bar.startTime, bar.maxValue)
 		end
@@ -766,17 +818,20 @@ function XPerl_RaidMonitor_Init(self)
 		end
 		local bar = TableUnits[unit]
 		if (bar and bar:IsShown()) then
-			local name, text, texture, startTime, endTime, isTradeSkill = UnitChannelInfo(unit)
-			if not name or not startTime or not endTime or startTime >= endTime then
+			local name, _, texture, startTime, endTime = UnitChannelInfo(unit)
+			---@diagnostic disable-next-line: secret-comparison
+			if name == nil or not ZPerl.CanAccess(startTime) or not ZPerl.CanAccess(endTime) or startTime >= endTime then
 				return
 			end
-			bar.castBar:SetStatusBarColor(castColours.channel.r, castColours.channel.g, castColours.channel.b)
+			bar.castBar:SetStatusBarColor(castColors.channel.r, castColors.channel.g, castColors.channel.b)
 			bar.castBar.name:SetText(name)
 			bar.castBar.spark:Show()
 			bar.bar.name:Hide()
 			bar.castBar.icon:SetTexture(texture)
 			bar.maxValue = 1
+			---@diagnostic disable-next-line: secret-arithmetic
 			bar.startTime = startTime / 1000
+			---@diagnostic disable-next-line: secret-arithmetic
 			bar.endTime = endTime / 1000
 			bar.castBar:SetMinMaxValues(bar.startTime, bar.endTime)
 			bar.castBar:SetValue(bar.endTime)
@@ -795,11 +850,14 @@ function XPerl_RaidMonitor_Init(self)
 		end
 		local bar = TableUnits[unit]
 		if (bar and bar.channeling and bar:IsShown()) then
-			local name, text, texture, startTime, endTime, isTradeSkill = UnitChannelInfo(unit)
-			if not name or not startTime or not endTime or startTime >= endTime then
+			local name, _, _, startTime, endTime = UnitChannelInfo(unit)
+			---@diagnostic disable-next-line: secret-comparison
+			if name == nil or not ZPerl.CanAccess(startTime) or not ZPerl.CanAccess(endTime) or startTime >= endTime then
 				return
 			end
+			---@diagnostic disable-next-line: secret-arithmetic
 			bar.startTime = startTime / 1000
+			---@diagnostic disable-next-line: secret-arithmetic
 			bar.endTime = endTime / 1000
 			bar.maxValue = bar.startTime
 			bar.castBar:SetMinMaxValues(bar.startTime, bar.endTime)
@@ -814,7 +872,7 @@ function XPerl_RaidMonitor_Init(self)
 		local bar = TableUnits[unit]
 		if (bar and bar.channeling and bar:IsShown()) then
 			bar.castBar:SetValue(bar.maxValue)
-			bar.castBar:SetStatusBarColor(castColours.success.r, castColours.success.g, castColours.success.b)
+			bar.castBar:SetStatusBarColor(castColors.success.r, castColors.success.g, castColors.success.b)
 			bar.castBar.spark:Hide()
 			bar.casting = nil
 			bar.channeling = nil
@@ -836,27 +894,6 @@ function XPerl_RaidMonitor_Init(self)
 	-- cast:PLAYER_TARGET_CHANGED
 	function cast:PLAYER_TARGET_CHANGED()
 		self:OnUpdate(1)
-	end
-
-	-- cast:UNIT_HEALTH_FREQUENT
-	function cast:UNIT_HEALTH_FREQUENT(unit)
-		if not unit or not strfind(unit, "^raid%d+$") then
-			return
-		end
-		self.doneHealth = nil
-		local bar = self:GetTarget(unit)
-		if (bar and bar:IsShown()) then
-			UpdateTarget(bar)
-		end
-
-		if (self.lastHealthUpdate or 0) >= GetTime() then
-			return
-		end
-
-		if config.Totals and self:IsShown() then
-			self:HealthTotals()
-			self.lastHealthUpdate = GetTime()
-		end
 	end
 
 	-- cast:UNIT_HEALTH
@@ -917,15 +954,6 @@ function XPerl_RaidMonitor_Init(self)
 			end
 		end
 
-		--[[if config.Totals then
-			if (not self.doneHealth) then
-				self:HealthTotals()
-			end
-
-			if (not self.doneMana) then
-				self:ManaTotals()
-			end
-		end--]]
 	end
 
 	-- cast:Vars
@@ -939,6 +967,12 @@ function XPerl_RaidMonitor_Init(self)
 
 		if (type(config.classes) ~= "table") then
 			config.classes = {PRIEST = true, DRUID = true, SHAMAN = true, PALADIN = true}
+		end
+		-- the healer classes newer than Classic, on the clients that have them (nil: never set)
+		for _, class in ipairs({"MONK", "EVOKER"}) do
+			if (config.classes[class] == nil and LOCALIZED_CLASS_NAMES_MALE[class]) then
+				config.classes[class] = true
+			end
 		end
 
 		DefaultVar("UnitWidth", 120)
@@ -964,7 +998,7 @@ function XPerl_RaidMonitor_Init(self)
 	function cast:GetTarget(unit)
 		for k, v in pairs(MonUnits) do
 			local id = v:GetAttribute("unit")
-			if (id and UnitIsUnit(id.."target", unit)) then
+			if (id and ZPerl.SafeBool(UnitIsUnit(id.."target", unit), false)) then
 				return v.target
 			end
 		end
@@ -973,7 +1007,7 @@ function XPerl_RaidMonitor_Init(self)
 	-- cast:SetUnitSizes
 	function cast:SetUnitSizes()
 		if (InCombatLockdown()) then
-			XPerl_OutOfCombatQueue[cast.SetUnitSizes] = self
+			ZPerl.AfterCombat(cast.SetUnitSizes, self)
 			return
 		end
 
@@ -997,7 +1031,7 @@ function XPerl_RaidMonitor_Init(self)
 			"UNIT_POWER_FREQUENT",
 			"UNIT_MAXPOWER",
 			"UNIT_MANA",
-			IsClassic and "UNIT_HEALTH_FREQUENT" or "UNIT_HEALTH",
+			ZPerl.ForeverAPI.healthEvent,
 			"UNIT_MAXHEALTH",
 			"UNIT_TARGET",
 			"UNIT_SPELLCAST_START",
@@ -1014,15 +1048,12 @@ function XPerl_RaidMonitor_Init(self)
 			"PLAYER_REGEN_DISABLED",
 		}
 
-		local CastbarEventHandler = function(event, ...)
-			return XPerl_RaidMonitor_OnEvent(self, event, ...)
-		end
-
 		for k, v in pairs(events) do
+			-- never error on an event this client does not have
 			if (self:IsShown()) then
-				self:RegisterEvent(v)
+				ZPerl.RegisterEventSafe(self, v)
 			else
-				self:UnregisterEvent(v)
+				ZPerl.UnregisterEventSafe(self, v)
 			end
 		end
 	end
@@ -1038,14 +1069,15 @@ function XPerl_RaidMonitor_Init(self)
 	-- cast:SetFrameSizes
 	function cast:SetFrameSizes()
 		if (InCombatLockdown()) then
-			XPerl_OutOfCombatQueue[cast.SetFrameSizes] = self
+			ZPerl.AfterCombat(cast.SetFrameSizes, self)
 			return
 		end
 
 		local count = 0
 		for i = 1, GetNumGroupMembers() do
 			local _, class = UnitClass("raid"..i)
-			if (config.classes[class]) then
+			---@diagnostic disable-next-line: secret-table-key
+			if (ZPerl.CanAccess(class) and config.classes[class]) then
 				count = count + 1
 			end
 		end
@@ -1062,7 +1094,7 @@ function XPerl_RaidMonitor_Init(self)
 			self.totals:Hide()
 		end
 
-		XPerl_RegisterScalableFrame(self, XPerl_RaidMonitor_Anchor, nil, nil, config.GrowUp)
+		ZPerl.RegisterScalableFrame(self, ZPerl_RaidMonitor_Anchor, nil, nil, config.GrowUp)
 
 		self:ClearAllPoints()
 		self.area:ClearAllPoints()
@@ -1070,7 +1102,7 @@ function XPerl_RaidMonitor_Init(self)
 		self.totals:ClearAllPoints()
 		self.totals.sep:ClearAllPoints()
 		if (config.GrowUp) then
-			XPerl_SwitchAnchor(XPerl_RaidMonitor_Anchor, "BOTTOMLEFT")
+			ZPerl.SwitchAnchor(ZPerl_RaidMonitor_Anchor, "BOTTOMLEFT")
 			self:SetPoint("BOTTOMLEFT", 0, 0)
 			self.titleBar:SetPoint("BOTTOMLEFT", 3, 3)
 			self.titleBar:SetPoint("TOPRIGHT", self, "BOTTOMRIGHT", -3, 13)
@@ -1080,7 +1112,7 @@ function XPerl_RaidMonitor_Init(self)
 			self.totals.sep:SetPoint("TOPLEFT", self.totals, "BOTTOMLEFT", 0, -1)
 			self.totals.sep:SetPoint("BOTTOMRIGHT", self.totals, "BOTTOMRIGHT", 0, -5)
 		else
-			XPerl_SwitchAnchor(XPerl_RaidMonitor_Anchor, "TOPLEFT")
+			ZPerl.SwitchAnchor(ZPerl_RaidMonitor_Anchor, "TOPLEFT")
 			self:SetPoint("TOPLEFT", 0, 0)
 			self.titleBar:SetPoint("TOPLEFT", 3, -3)
 			self.titleBar:SetPoint("BOTTOMRIGHT", self, "TOPRIGHT", -3, -13)
@@ -1115,5 +1147,5 @@ function XPerl_RaidMonitor_Init(self)
 	end
 
 
-	XPerl_RaidMonitor_Init = nil
+	ZPerl.RaidMonitor.Init = nil
 end

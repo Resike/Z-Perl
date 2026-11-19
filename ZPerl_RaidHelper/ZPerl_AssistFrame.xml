@@ -2,7 +2,7 @@
 
 	<Script file="ZPerl_AssistFrame.lua"/>
 
-	<Frame name="XPerlListTemplate" inherits="XPerlBackdropTemplate" virtual="true">
+	<Frame name="ZPerl_ListTemplate" inherits="ZPerl_BackdropTemplate" virtual="true">
 		<Layers>
 			<Layer level="ARTWORK">
 				<FontString name="$parentText" inherits="GameFontNormalSmall" justifyH="LEFT" justifyV="TOP">
@@ -15,18 +15,15 @@
 		</Layers>
 	</Frame>
 
-	<Frame name="XPerl_Assists_FrameAnchor" movable="true" resizable="true" parent="UIParent" inherits="XPerlBackdropTemplate" clampedToScreen="true">
+	<Frame name="ZPerl_Assists_FrameAnchor" movable="true" resizable="true" parent="UIParent" inherits="ZPerl_BackdropTemplate" clampedToScreen="true">
 		<Size>
 			<AbsDimension x="330" y="124"/>
 		</Size>
-		<Anchors>
-			<Anchor point="CENTER"/>
-		</Anchors>
 	</Frame>
 
-	<Frame name="XPerl_Assists_Frame" frameStrata="LOW" resizable="true" parent="XPerl_Assists_FrameAnchor" inherits="XPerlBackdropTemplate" hidden="true" enableMouse="true" clampedToScreen="true">
+	<Frame name="ZPerl_Assists_Frame" frameStrata="LOW" resizable="true" parent="ZPerl_Assists_FrameAnchor" inherits="ZPerl_BackdropTemplate" hidden="true" enableMouse="true" clampedToScreen="true">
 		<KeyValues>
-			<KeyValue key="backdropInfo" value="XPerl_Raid_Backdrop_32_16_3333" type="global"/>
+			<KeyValue key="backdropInfo" value="ZPerl_Raid_Backdrop_32_16_3333" type="global"/>
 		</KeyValues>
 		<Size>
 			<AbsDimension x="330" y="124"/>
@@ -35,7 +32,7 @@
 			<Anchor point="TOPLEFT"/>
 		</Anchors>
 		<Frames>
-			<Button name="XPerlAssistsCloseButton" inherits="UIPanelCloseButton">
+			<Button name="ZPerl_AssistsCloseButton" inherits="UIPanelCloseButton">
 				<Size>
 					<AbsDimension x="20" y="20"/>
 				</Size>
@@ -44,26 +41,26 @@
 				</Anchors>
 				<Scripts>
 					<OnClick>
-						XPerl_AssistsView_Close()
+						ZPerl.RaidHelper.AssistsViewClose()
 					</OnClick>
 				</Scripts>
 			</Button>
 
-			<Button name="XPerlAssistPin" inherits="XPerl_BasicButton">
+			<Button name="ZPerl_AssistPin" inherits="ZPerl_BasicButton">
 				<Size>
 					<AbsDimension x="11" y="11"/>
 				</Size>
 				<Anchors>
-					<Anchor point="RIGHT" relativeTo="XPerlAssistsCloseButton" relativePoint="LEFT">
+					<Anchor point="RIGHT" relativeTo="ZPerl_AssistsCloseButton" relativePoint="LEFT">
 						<Offset>
 							<AbsDimension x="4" y="0"/>
 						</Offset>
 					</Anchor>
 				</Anchors>
-				<NormalTexture file="Interface\Addons\ZPerl_RaidHelper\Images\XPerl_Pin">
+				<NormalTexture file="Interface\Addons\ZPerl_RaidHelper\Images\ZPerl_Pin">
 					<TexCoords left="0" right="0.46875" top="0" bottom="0.453125"/>
 				</NormalTexture>
-				<PushedTexture file="Interface\Addons\ZPerl_RaidHelper\Images\XPerl_Pin">
+				<PushedTexture file="Interface\Addons\ZPerl_RaidHelper\Images\ZPerl_Pin">
 					<TexCoords left="0" right="0.46875" top="0.5" bottom="0.953125"/>
 				</PushedTexture>
 				<HighlightTexture file="Interface\Buttons\UI-Panel-MinimizeButton-Highlight" alphaMode="ADD">
@@ -72,36 +69,36 @@
 				<Scripts>
 					<OnLoad>
 						self.SetButtonTex = function()
-							local tex = XPerlAssistPin:GetNormalTexture()
-							if (ZPerlConfigHelper and ZPerlConfigHelper.AssistPinned) then
+							local tex = ZPerl_AssistPin:GetNormalTexture()
+							if (ZPerlRaidHelperDB and ZPerlRaidHelperDB.AssistPinned) then
 								tex:SetTexCoord(0.5, 0.96875, 0, 0.453125)
 							else
 								tex:SetTexCoord(0, 0.46875, 0, 0.453125)
 							end
 
-							tex = XPerlAssistPin:GetPushedTexture()
-							if (ZPerlConfigHelper and ZPerlConfigHelper.AssistPinned) then
-								if (XPerl_Assists_Frame.corner) then
-									XPerl_Assists_Frame.corner:Hide()
+							tex = ZPerl_AssistPin:GetPushedTexture()
+							if (ZPerlRaidHelperDB and ZPerlRaidHelperDB.AssistPinned) then
+								if (ZPerl_Assists_Frame.corner) then
+									ZPerl_Assists_Frame.corner:Hide()
 								end
 								tex:SetTexCoord(0.5, 0.96875, 0.5, 0.953125)
 							else
-								if (XPerl_Assists_Frame.corner) then
-									XPerl_Assists_Frame.corner:Show()
+								if (ZPerl_Assists_Frame.corner) then
+									ZPerl_Assists_Frame.corner:Show()
 								end
 								tex:SetTexCoord(0, 0.46875, 0.5, 0.953125)
 							end
 						end
-						self.tooltipText = XPERL_BUTTON_HELPER_PIN
+						self.tooltipText = ZPerl.L["BUTTON_HELPER_PIN"]
 					</OnLoad>
 					<OnClick>
-						ZPerlConfigHelper.AssistPinned = not ZPerlConfigHelper.AssistPinned
+						ZPerlRaidHelperDB.AssistPinned = not ZPerlRaidHelperDB.AssistPinned
 						self:SetButtonTex()
 					</OnClick>
 				</Scripts>
 			</Button>
 
-			<ScrollFrame name="XPerl_Target_Targetting_ScrollFrame">
+			<ScrollFrame name="ZPerl_Target_Targetting_ScrollFrame">
 				<Anchors>
 					<Anchor point="TOPLEFT">
 						<Offset>
@@ -115,7 +112,7 @@
 					</Anchor>
 				</Anchors>
 				<ScrollChild>
-					<Frame name="XPerl_Target_Assists_ScrollChild_Targetting" inherits="XPerlListTemplate">
+					<Frame name="ZPerl_Target_Assists_ScrollChild_Targetting" inherits="ZPerl_ListTemplate">
 						<Size>
 							<AbsDimension x="300" y="400"/>
 						</Size>
@@ -123,17 +120,17 @@
 				</ScrollChild>
 				<Scripts>
 					<OnMouseDown>
-						XPerl_Assists_MouseDown(XPerl_Assists_Frame, button, "targetFrame")
+						ZPerl.RaidHelper.AssistsMouseDown(ZPerl_Assists_Frame, button, "targetFrame")
 					</OnMouseDown>
 					<OnMouseUp>
-						XPerl_Assists_MouseUp(XPerl_Assists_Frame, button, "targetFrame")
+						ZPerl.RaidHelper.AssistsMouseUp(ZPerl_Assists_Frame, button, "targetFrame")
 					</OnMouseUp>
 					<OnSizeChanged>
-						XPerl_Target_Assists_ScrollChild_Targetting:SetWidth(XPerl_Target_Targetting_ScrollFrame:GetWidth() / XPerl_Target_Targetting_ScrollFrame:GetEffectiveScale())
+						ZPerl_Target_Assists_ScrollChild_Targetting:SetWidth(ZPerl_Target_Targetting_ScrollFrame:GetWidth() / ZPerl_Target_Targetting_ScrollFrame:GetEffectiveScale())
 					</OnSizeChanged>
 				</Scripts>
 			</ScrollFrame>
-			<ScrollFrame name="XPerl_Target_Assists_ScrollFrame">
+			<ScrollFrame name="ZPerl_Target_Assists_ScrollFrame">
 				<Anchors>
 					<Anchor point="TOPLEFT" relativePoint="TOP">
 						<Offset>
@@ -147,7 +144,7 @@
 					</Anchor>
 				</Anchors>
 				<ScrollChild>
-					<Frame name="XPerl_Target_Assists_ScrollChild_Assists" inherits="XPerlListTemplate">
+					<Frame name="ZPerl_Target_Assists_ScrollChild_Assists" inherits="ZPerl_ListTemplate">
 						<Size>
 							<AbsDimension x="300" y="400"/>
 						</Size>
@@ -155,25 +152,25 @@
 				</ScrollChild>
 				<Scripts>
 					<OnSizeChanged>
-						XPerl_Target_Assists_ScrollChild_Assists:SetWidth(XPerl_Target_Assists_ScrollFrame:GetWidth() / XPerl_Target_Assists_ScrollFrame:GetEffectiveScale())
+						ZPerl_Target_Assists_ScrollChild_Assists:SetWidth(ZPerl_Target_Assists_ScrollFrame:GetWidth() / ZPerl_Target_Assists_ScrollFrame:GetEffectiveScale())
 					</OnSizeChanged>
 					<OnMouseDown>
-						XPerl_Assists_MouseDown(XPerl_Assists_Frame, button)
+						ZPerl.RaidHelper.AssistsMouseDown(ZPerl_Assists_Frame, button)
 					</OnMouseDown>
 					<OnMouseUp>
-						XPerl_Assists_MouseUp(XPerl_Assists_Frame, button)
+						ZPerl.RaidHelper.AssistsMouseUp(ZPerl_Assists_Frame, button)
 					</OnMouseUp>
 				</Scripts>
 			</ScrollFrame>
 
-			<Frame name="XPerlScrollSeperator">
+			<Frame name="ZPerl_ScrollSeperator">
 				<Anchors>
-					<Anchor point="TOPLEFT" relativePoint="TOPRIGHT" relativeTo="XPerl_Target_Targetting_ScrollFrame"/>
-					<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMLEFT" relativeTo="XPerl_Target_Assists_ScrollFrame"/>
+					<Anchor point="TOPLEFT" relativePoint="TOPRIGHT" relativeTo="ZPerl_Target_Targetting_ScrollFrame"/>
+					<Anchor point="BOTTOMRIGHT" relativePoint="BOTTOMLEFT" relativeTo="ZPerl_Target_Assists_ScrollFrame"/>
 				</Anchors>
 				<Layers>
 					<Layer level="ARTWORK">
-						<Texture file="Interface\AddOns\ZPerl_RaidHelper\Images\XPerl_FrameBack" setAllPoints="true"/>
+						<Texture file="Interface\AddOns\ZPerl_RaidHelper\Images\ZPerl_FrameBack" setAllPoints="true"/>
 					</Layer>
 				</Layers>
 			</Frame>
@@ -181,7 +178,7 @@
 		<Scripts>
 			<OnLoad>
 				self:OnBackdropLoaded()
-				XPerl_Assists_OnLoad(self)
+				ZPerl.RaidHelper.AssistsOnLoad(self)
 			</OnLoad>
 		</Scripts>
 	</Frame>
@@ -189,26 +186,26 @@
 	<Frame>
 		<Scripts>
 			<OnLoad>
-				self:SetScript("OnUpdate", XPerl_Assists_OnUpdate)
+				self:SetScript("OnUpdate", ZPerl.RaidHelper.AssistsOnUpdate)
 			</OnLoad>
 		</Scripts>
 	</Frame>
 
 	<!-- These two frames add to X-Perl UnitFrames. If X-Perl not loaded, then WoW will just ignore these without error -->
-	<Button name="XPerl_Player_TargettingFrame" inherits="XPerlBackdropTemplate" enableMouse="true" text="0" hidden="true">
+	<Button name="ZPerl_Player_TargettingFrame" inherits="ZPerl_BackdropTemplate" enableMouse="true" text="0" hidden="true">
 		<KeyValues>
-			<KeyValue key="backdropInfo" value="XPerl_Frame_Backdrop_32_16_3333" type="global"/>
+			<KeyValue key="backdropInfo" value="ZPerl_Frame_Backdrop_32_16_3333" type="global"/>
 		</KeyValues>
 		<Size>
 			<AbsDimension x="27" y="20"/>
 		</Size>
 		<NormalFont style="GameFontNormalSmall"/>
 		<ButtonText name="$parenttext" setAllPoints="true"/>
-		<HighlightTexture file="Interface\Addons\ZPerl\Images\XPerl_Highlight" alphaMode="ADD">
+		<HighlightTexture file="Interface\Addons\ZPerl\Images\ZPerl_Highlight" alphaMode="ADD">
 			<TexCoords left="0" right="0.25" top="0" bottom="0.5"/>
 		</HighlightTexture>
 		<!--<Anchors>
-			<Anchor point="TOPRIGHT" relativePoint="TOPLEFT" relativeTo="XPerl_PlayerportraitFrame">
+			<Anchor point="TOPRIGHT" relativePoint="TOPLEFT" relativeTo="ZPerl_PlayerportraitFrame">
 				<Offset>
 					<AbsDimension x="2" y="-19"/>
 				</Offset>
@@ -217,53 +214,53 @@
 		<Scripts>
 			<OnLoad>
 				self:OnBackdropLoaded()
-				if C_AddOns.IsAddOnLoaded("ZPerl_Player") then
-					self:SetParent(XPerl_Player)
-					self:SetPoint("TOPRIGHT", XPerl_PlayerportraitFrame, "TOPLEFT", 2, -19)
+				if ZPerl_Player then
+					self:SetParent(ZPerl_Player)
+					self:SetPoint("TOPRIGHT", ZPerl_PlayerportraitFrame, "TOPLEFT", 2, -19)
 				end
-				if (XPerl_RegisterUnitText) then
-					XPerl_RegisterUnitText(self)
+				if (ZPerl.RegisterUnitText) then
+					ZPerl.RegisterUnitText(self)
 				end
 			</OnLoad>
 			<OnClick>
-				XPerl_ToggleAssistsFrame("targetting")
-				XPerl_SetFrameSides()
-				XPerl_ShowAssists()
+				ZPerl.RaidHelper.ToggleAssistsFrame("targetting")
+				ZPerl.RaidHelper.SetFrameSides()
+				ZPerl.RaidHelper.ShowAssists()
 			</OnClick>
 			<OnEnter>
 				local title
-				if (table.getn(XPerl_Assists_Frame.targetting) > 0 and XPerl_Assists_Frame.targetting[1][2] == "") then
-					title = XPERL_TOOLTIP_ENEMYONME
+				if (table.getn(ZPerl_Assists_Frame.targetting) > 0 and ZPerl_Assists_Frame.targetting[1][2] == "") then
+					title = ZPerl.L["TOOLTIP_ENEMYONME"]
 				else
-					if (ZPerlConfigHelper.TargetCountersSelf == 0) then
-						title = XPERL_TOOLTIP_ALLONME
+					if (ZPerlRaidHelperDB.TargetCountersSelf == 0) then
+						title = ZPerl.L["TOOLTIP_ALLONME"]
 					else
-						title = XPERL_TOOLTIP_HEALERS
+						title = ZPerl.L["TOOLTIP_HEALERS"]
 					end
 				end
 
-				local t = XPerl_MakeAssistsString(XPerl_Assists_Frame.targetting, title)
-				t = "|c00FFFFFF"..t.."\r|c009F6000"..XPERL_TOOLTIP_HELP
+				local t = ZPerl.RaidHelper.MakeAssistsString(ZPerl_Assists_Frame.targetting, title)
+				t = "|c00FFFFFF"..t.."\r|c009F6000"..ZPerl.L["TOOLTIP_HELP"]
 				GameTooltip:SetOwner(self, "ANCHOR_BOTTOMRIGHT")
 				GameTooltip:SetText(t)
 				GameTooltip:Show()
 			</OnEnter>
 			<OnLeave>
-				XPerl_PlayerTipHide()
+				ZPerl.PlayerTipHide()
 			</OnLeave>
 		</Scripts>
 	</Button>
 
-	<Button name="XPerl_Target_AssistFrame" inherits="XPerlBackdropTemplate" hidden="true">
+	<Button name="ZPerl_Target_AssistFrame" inherits="ZPerl_BackdropTemplate" hidden="true">
 		<KeyValues>
-			<KeyValue key="backdropInfo" value="XPerl_Frame_Backdrop_32_16_3333" type="global"/>
+			<KeyValue key="backdropInfo" value="ZPerl_Frame_Backdrop_32_16_3333" type="global"/>
 		</KeyValues>
 		<Size>
 			<AbsDimension x="27" y="20"/>
 		</Size>
 		<NormalFont style="GameFontNormalSmall"/>
 		<ButtonText name="$parenttext" setAllPoints="true"/>
-		<HighlightTexture file="Interface\Addons\ZPerl\Images\XPerl_Highlight" alphaMode="ADD">
+		<HighlightTexture file="Interface\Addons\ZPerl\Images\ZPerl_Highlight" alphaMode="ADD">
 			<TexCoords left="0" right="0.25" top="0" bottom="0.5"/>
 		</HighlightTexture>
 		<Anchors>
@@ -276,40 +273,43 @@
 		<Scripts>
 			<OnLoad>
 				self:OnBackdropLoaded()
-				if (XPerl_RegisterUnitText) then
-					XPerl_RegisterUnitText(self)
+				if (ZPerl_Target) then
+					self:SetParent(ZPerl_Target)
+					self:ClearAllPoints()
+					self:SetPoint("TOPLEFT", ZPerl_Target.portraitFrame, "TOPRIGHT", -2, -20)
+					self:Raise()
+				end
+				if (ZPerl.RegisterUnitText) then
+					ZPerl.RegisterUnitText(self)
 				end
 			</OnLoad>
 			<OnClick>
-				XPerl_ToggleAssistsFrame("assists")
-				XPerl_SetFrameSides()
-				XPerl_ShowAssists()
+				ZPerl.RaidHelper.ToggleAssistsFrame("assists")
+				ZPerl.RaidHelper.SetFrameSides()
+				ZPerl.RaidHelper.ShowAssists()
 			</OnClick>
 			<OnEnter>
-				local t = XPerl_MakeAssistsString(XPerl_Assists_Frame.assists, XPERL_TOOLTIP_ASSISTING)
-				t = "|c00FFFFFF"..t.."\r|c009F6000"..XPERL_TOOLTIP_HELP
+				local t = ZPerl.RaidHelper.MakeAssistsString(ZPerl_Assists_Frame.assists, ZPerl.L["TOOLTIP_ASSISTING"])
+				t = "|c00FFFFFF"..t.."\r|c009F6000"..ZPerl.L["TOOLTIP_HELP"]
 				GameTooltip:SetOwner(self, "ANCHOR_BOTTOMRIGHT")
 				GameTooltip:SetText(t)
 				GameTooltip:Show()
 			</OnEnter>
 			<OnLeave>
-				XPerl_PlayerTipHide()
+				ZPerl.PlayerTipHide()
 			</OnLeave>
 		</Scripts>
 	</Button>
 
-	<Frame name="XPerl_AggroAnchor" frameStrata="HIGH" parent="UIParent" inherits="XPerlBackdropTemplate" movable="true">
+	<Frame name="ZPerl_AggroAnchor" frameStrata="HIGH" parent="UIParent" inherits="ZPerl_BackdropTemplate" movable="true">
 		<Size>
 			<AbsDimension x="32" y="32"/>
 		</Size>
-		<Anchors>
-			<Anchor point="CENTER"/>
-		</Anchors>
 		<Frames>
-			<Frame name="$parentArrows" inherits="XPerlBackdropTemplate" setAllPoints="true">
+			<Frame name="$parentArrows" inherits="ZPerl_BackdropTemplate" setAllPoints="true">
 				<Layers>
 					<Layer level="ARTWORK">
-						<Texture name="$parenttex" file="Interface\Addons\ZPerl_RaidHelper\Images\XPerl_MoveCursor" setAllPoints="true"/>
+						<Texture name="$parenttex" file="Interface\Addons\ZPerl_RaidHelper\Images\ZPerl_MoveCursor" setAllPoints="true"/>
 					</Layer>
 				</Layers>
 				<Scripts>
@@ -317,47 +317,47 @@
 						self:RegisterForDrag("LeftButton")
 					</OnLoad>
 					<OnHide>
-						XPerl_AggroAnchor:StopMovingOrSizing()
-						if (XPerl_Aggro) then
-							XPerl_Aggro:SetScript("OnUpdate", XPerl_RefreshAggro)
-							XPerl_AggroPlayer:Hide()
-							XPerl_AggroPet:Hide()
-							XPerl_Aggro:Hide()
+						ZPerl_AggroAnchor:StopMovingOrSizing()
+						if (ZPerl_Aggro) then
+							ZPerl_Aggro:SetScript("OnUpdate", ZPerl.RaidHelper.RefreshAggro)
+							ZPerl_AggroPlayer:Hide()
+							ZPerl_AggroPet:Hide()
+							ZPerl_Aggro:Hide()
 						end
 					</OnHide>
 					<OnEnter>
 						GameTooltip:SetOwner(self, "ANCHOR_CURSOR")
-						GameTooltip:SetText(XPERL_AGGRO_DRAGTIP, 1, 1, 1)
+						GameTooltip:SetText(ZPerl.L["AGGRO_DRAGTIP"], 1, 1, 1)
 					</OnEnter>
 					<OnLeave>
 						GameTooltip:Hide()
 					</OnLeave>
 					<OnDragStart>
-						XPerl_AggroAnchor:SetFrameStrata("DIALOG")
+						ZPerl_AggroAnchor:SetFrameStrata("DIALOG")
 						GameTooltip:Hide()
 						self.tex:Hide()
-						XPerl_AggroPlayer:SetVertexColor(0, 0, 1)
-						XPerl_AggroPet:SetVertexColor(0, 0, 1)
-						XPerl_AggroPlayer:SetAlpha(1)
-						XPerl_AggroPet:SetAlpha(1)
-						XPerl_AggroPlayer:Show()
-						XPerl_AggroPet:Show()
-						XPerl_Aggro:SetScript("OnUpdate", nil)
-						XPerl_Aggro:Show()
-						XPerl_AggroAnchor:StartMoving()
+						ZPerl_AggroPlayer:SetVertexColor(0, 0, 1)
+						ZPerl_AggroPet:SetVertexColor(0, 0, 1)
+						ZPerl_AggroPlayer:SetAlpha(1)
+						ZPerl_AggroPet:SetAlpha(1)
+						ZPerl_AggroPlayer:Show()
+						ZPerl_AggroPet:Show()
+						ZPerl_Aggro:SetScript("OnUpdate", nil)
+						ZPerl_Aggro:Show()
+						ZPerl_AggroAnchor:StartMoving()
 					</OnDragStart>
 					<OnDragStop>
-						XPerl_AggroAnchor:SetFrameStrata("MEDIUM")
+						ZPerl_AggroAnchor:SetFrameStrata("MEDIUM")
 						self.tex:Show()
-						XPerl_Aggro:SetScript("OnUpdate", XPerl_RefreshAggro)
-						XPerl_AggroAnchor:StopMovingOrSizing()
+						ZPerl_Aggro:SetScript("OnUpdate", ZPerl.RaidHelper.RefreshAggro)
+						ZPerl_AggroAnchor:StopMovingOrSizing()
 
-						XPerl_AggroPlayer:Hide()
-						XPerl_AggroPet:Hide()
-						XPerl_Aggro:Hide()
+						ZPerl_AggroPlayer:Hide()
+						ZPerl_AggroPet:Hide()
+						ZPerl_Aggro:Hide()
 
-						if (XPerl_SavePosition) then
-							XPerl_SavePosition(XPerl_AggroAnchor)
+						if (ZPerl.SavePosition) then
+							ZPerl.SavePosition(ZPerl_AggroAnchor)
 						end
 					</OnDragStop>
 				</Scripts>
@@ -365,7 +365,7 @@
 		</Frames>
 		<Scripts>
 			<OnLoad>
-				XPerl_SetChildMembers(self)
+				ZPerl.SetChildMembers(self)
 
 				self.Enable = function(self)
 					self.Arrows:Show()
@@ -383,10 +383,12 @@
 		</Scripts>
 	</Frame>
 
-	<Frame name="XPerl_Aggro" parent="XPerl_AggroAnchor" inherits="XPerlBackdropTemplate" hidden="true">
+	<Frame name="ZPerl_Aggro" parent="ZPerl_AggroAnchor" inherits="ZPerl_BackdropTemplate" hidden="true">
 		<Scripts>
 			<OnLoad>
-				self:SetScript("OnUpdate", XPerl_RefreshAggro)
+				ZPerl_AggroPlayer:SetText(ZPerl.L["AGGRO_PLAYER"])
+				ZPerl_AggroPet:SetText(ZPerl.L["AGGRO_PET"])
+				self:SetScript("OnUpdate", ZPerl.RaidHelper.RefreshAggro)
 			</OnLoad>
 			<OnHide>
 				self.playerFadeStart = nil
@@ -401,12 +403,12 @@
 		</Anchors>
 		<Layers>
 			<Layer level="OVERLAY">
-				<FontString name="$parentPlayer" outline="THICK" font="GameFont_Gigantic" justifyH="CENTER" text="XPERL_AGGRO_PLAYER" hidden="true">
+				<FontString name="$parentPlayer" outline="THICK" font="GameFont_Gigantic" justifyH="CENTER" hidden="true">
 					<FontHeight>
 						<AbsValue val="42"/>
 					</FontHeight>
 				</FontString>
-				<FontString name="$parentPet" outline="THICK" font="SystemFont_Huge1" justifyH="CENTER" text="XPERL_AGGRO_PET" hidden="true">
+				<FontString name="$parentPet" outline="THICK" font="SystemFont_Huge1" justifyH="CENTER" hidden="true">
 					<Anchors>
 						<Anchor point="TOP" relativeTo="$parentPlayer" relativePoint="BOTTOM" />
 					</Anchors>
