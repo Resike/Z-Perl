@@ -24,7 +24,6 @@ local random = random
 local select = select
 local sin = sin
 local strfind = strfind
-local strmatch = strmatch
 local tinsert = tinsert
 local tremove = tremove
 local type = type
@@ -288,7 +287,7 @@ function xpHigh:SetHighlight(frame, guid)
 					-- a type without a color draws no border
 				else
 					if (not r1 or t1 == "TARGET") then
-						if not (frame == ZPerl_Player or frame == ZPerl_Player_Pet or frame == ZPerl_Target or frame == ZPerl_TargetTarget or frame == ZPerl_TargetTargetTarget or frame == ZPerl_Focus or frame == ZPerl_FocusTarget or frame == ZPerl_partypet1 or frame == ZPerl_partypet2 or frame == ZPerl_partypet3 or frame == ZPerl_partypet4 or frame == ZPerl_partypet5 or strmatch(frame:GetName(), "ZPerl_Raid_GrpPetsUnitButton")) then
+						if (not frame.hotHighlightOnly) then
 							t1 = k
 							r1, g1, b1 = colors[k].r, colors[k].g, colors[k].b
 						end

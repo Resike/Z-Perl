@@ -163,13 +163,7 @@ local function UpdateUnit(self,forcedUpdate)
 				_G.BigWigsTargetMonitor:TargetCheck(xunit)
 			end
 
-			local index = GetRaidTargetIndex(xunit)
-			if (ZPerl.CanAccess(index)) then
-				SetRaidTargetIconTexture(self.raidIcon, index)
-				self.raidIcon:Show()
-			else
-				self.raidIcon:Hide()
-			end
+			ZPerl.UpdateRaidIcon(self.raidIcon, xunit)
 		else
 			self.raidIcon:Hide()
 		end

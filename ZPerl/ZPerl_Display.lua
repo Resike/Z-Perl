@@ -257,9 +257,11 @@ function ZPerl.SecureUnitButtonOnLoad(self, unit, menufunc, m1, m2, toggledisabl
 end
 
 -- ZPerl.UpdateRaidIcon
+-- GetRaidTargetIndex can return a mark's index secret and no mark as nil: the index is tested for truth only,
+-- and SetRaidTargetIconTexture hands it to SetSpriteSheetCell, which takes a secret.
 function ZPerl.UpdateRaidIcon(self, unit)
 	local index = GetRaidTargetIndex(unit)
-	if CanAccess(index) then
+	if index then
 		local mark
 		if unit == "player" or unit == "vehicle" or unit == "target" or unit == "focus" then
 			if self.texture then
@@ -414,7 +416,7 @@ function ZPerl.UnitUpdatePortrait(self, force)
 	if (self.conf and self.conf.portrait) then
 		if self.conf.classPortrait then
 			local _, englishClass = UnitClass(self.partyid)
-			if UnitIsPlayer(self.partyid) and englishClass then
+			if ZPerl.SafeBool(UnitIsPlayer(self.partyid), false) and englishClass and CanAccess(englishClass) then
 				SetPortraitToTexture(self.portraitFrame.portrait, "Interface\\Icons\\ClassIcon_"..englishClass)
 			else
 				SetPortraitTexture(self.portraitFrame.portrait, self.partyid)

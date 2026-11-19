@@ -21,16 +21,13 @@ local tonumber = tonumber
 local wipe = wipe
 
 local CombatFeedback_OnUpdate = CombatFeedback_OnUpdate
-local GetLootMethod = GetLootMethod or C_PartyInfo.GetLootMethod
 local GetNumSubgroupMembers = GetNumSubgroupMembers
 local InCombatLockdown = InCombatLockdown
 local RegisterUnitWatch = RegisterUnitWatch
 local UnitExists = UnitExists
 local UnitGUID = UnitGUID
-local UnitIsUnit = UnitIsUnit
 local UnregisterUnitWatch = UnregisterUnitWatch
 local CanAccess = ZPerl.CanAccess
-local SafeBool = ZPerl.SafeBool
 
 local ShowHideValues = shared.ShowHideValues
 local UpdateResurrectionStatus = shared.UpdateResurrectionStatus

@@ -671,7 +671,7 @@ end
 local function raidGroupsAll(on)
 	local r = ZPerl.layout.raid
 	for i = 1, #r.group do r.group[i] = on and 1 or false end
-	for _, c in ipairs(r.class) do c.enable = on and 1 or nil end
+	for _, c in ipairs(r.class) do c.enable = on and 1 or false end
 	ZPerl.Apply({"raidheaders", "raid"})
 end
 function ZPerl.SettingsRaidGroupsAll() raidGroupsAll(true) end

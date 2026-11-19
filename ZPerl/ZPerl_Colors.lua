@@ -271,7 +271,7 @@ function ZPerl.ColorHealthBar(self, partyid)
 	if (conf.color.classbar) then
 		local class = ZPerl.UnitClassToken(partyid)
 		if (class) then
-			if (UnitIsPlayer(partyid)) then
+			if (ZPerl.SafeBool(UnitIsPlayer(partyid), false)) then
 				---@diagnostic disable-next-line: secret-table-key
 				local c = barColors[class]
 				if (c) then
@@ -414,7 +414,7 @@ function ZPerl.TooltipModiferPressed(buffs)
 		mod = IsAltKeyDown()
 	elseif (mod == "shift") then
 		mod = IsShiftKeyDown()
-	elseif (mod == "control") then
+	elseif (mod == "ctrl") then
 		mod = IsControlKeyDown()
 	else
 		mod = true
@@ -581,7 +581,12 @@ end
 -- ZPerl.CombatFlashSet
 function ZPerl.CombatFlashSet(self, elapsed, argNew, argGreen)
 	if (not conf.combatFlash) then
-		self.PlayerFlash = nil
+		-- turned off mid-flash: end the flash, so CombatFlashSetFrames puts the base color back
+		if (self.PlayerFlash) then
+			self.PlayerFlash = 0
+			self.PlayerFlashGreen = nil
+			return true
+		end
 		return
 	end
 

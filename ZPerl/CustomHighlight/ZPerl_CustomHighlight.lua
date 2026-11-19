@@ -334,14 +334,22 @@ local function Enabled()
 	return conf and conf.enable and rconf and rconf.enable
 end
 
+local function OnUnitAura(_, unit)
+	CustomHighlight:UNIT_AURA(unit)
+end
+
+local function OnZoneChanged()
+	CustomHighlight:PLAYER_ENTERING_WORLD()
+end
+
 -- CustomHighlight:ReadZone - picks the current zone's list ({[spellID] = true}, matched against the aura's spellId)
+-- The UNIT_AURA and zone handlers are registered only while the highlight is on.
 function CustomHighlight:ReadZone()
 	if Enabled() then
 		if not self.listening then
-			-- ZPerl.On handlers stay for the session: Check returns at once while the highlight is off
 			self.listening = true
-			ZPerl.On("UNIT_AURA", function(_, unit) CustomHighlight:UNIT_AURA(unit) end)
-			ZPerl.On("ZONE_CHANGED_NEW_AREA", function() CustomHighlight:PLAYER_ENTERING_WORLD() end)
+			ZPerl.On("UNIT_AURA", OnUnitAura)
+			ZPerl.On("ZONE_CHANGED_NEW_AREA", OnZoneChanged)
 		end
 
 		if not conf.zones then
@@ -349,6 +357,11 @@ function CustomHighlight:ReadZone()
 		end
 		self.zoneData = conf.zones[GetRealZoneText()]
 	else
+		if self.listening then
+			self.listening = nil
+			ZPerl.Off("UNIT_AURA", OnUnitAura)
+			ZPerl.Off("ZONE_CHANGED_NEW_AREA", OnZoneChanged)
+		end
 		self.zoneData = nil
 	end
 end

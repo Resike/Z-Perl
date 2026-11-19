@@ -125,7 +125,7 @@ function ZPerl.RaidHelper.Slash(msg)
 		end
 	end
 
-	ZPerl.Message("Options: /zphelper [|c00FFFF00find|r] [|c00FFFF00assists|r] [|c00FFFF00raid|r] [|c00FFFF00alpha|r raid|assists] [|c00FFFF00scale|r raid|assists] [|c00FFFF00ctra|r]")
+	ZPerl.Message("Options: /zphelper [|c00FFFF00assists|r] [|c00FFFF00raid|r] [|c00FFFF00alpha|r raid|assists] [|c00FFFF00ctra|r]")
 end
 
 local function DefaultVar(name, value)

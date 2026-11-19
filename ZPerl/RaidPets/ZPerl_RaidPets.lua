@@ -28,7 +28,6 @@ local GetNumGroupMembers = GetNumGroupMembers
 local GetRaidTargetIndex = GetRaidTargetIndex
 local InCombatLockdown = InCombatLockdown
 local SecureButton_GetUnit = SecureButton_GetUnit
-local SetRaidTargetIconTexture = SetRaidTargetIconTexture
 local UnitClass = UnitClass
 local UnitExists = UnitExists
 local UnitGUID = UnitGUID
@@ -195,24 +194,20 @@ end
 -- RaidTargetUpdate
 local function RaidTargetUpdate(self)
 	local icon = self.raidIcon
-	local raidIcon
-	if self.partyid then
-		raidIcon = GetRaidTargetIndex(self.partyid)
-	end
-
-	if (CanAccess(raidIcon)) then
-		if (not icon) then
-			icon = self:CreateTexture(nil, "OVERLAY")
-			self.raidIcon = icon
-			icon:SetTexture("Interface\\TargetingFrame\\UI-RaidTargetingIcons")
-			icon:SetPoint("TOPLEFT")
-			icon:SetWidth(13)
-			icon:SetHeight(13)
-		else
-			icon:Show()
+	if (not icon) then
+		-- the texture is made on the first mark
+		if (not self.partyid or not GetRaidTargetIndex(self.partyid)) then
+			return
 		end
-		SetRaidTargetIconTexture(icon, raidIcon)
-	elseif (icon) then
+		icon = self:CreateTexture(nil, "OVERLAY")
+		self.raidIcon = icon
+		icon:SetTexture("Interface\\TargetingFrame\\UI-RaidTargetingIcons")
+		icon:SetPoint("TOPLEFT")
+		icon:SetSize(13, 13)
+	end
+	if (self.partyid) then
+		ZPerl.UpdateRaidIcon(icon, self.partyid)
+	else
 		icon:Hide()
 	end
 end
@@ -374,6 +369,8 @@ end
 
 -- ZPerl.RaidPets.RaidPetSingleOnLoad
 function ZPerl.RaidPets.RaidPetSingleOnLoad(self)
+	-- the aura color highlight is for party and raid frames; this frame shows only the HoT highlight
+	self.hotHighlightOnly = true
 	self:OnBackdropLoaded()
 	self.updateHealth = UpdateHealth
 	ZPerl.UnitFrameInit(self, nil, {})

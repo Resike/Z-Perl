@@ -69,6 +69,32 @@ function ZPerl.MinimapMenuInitialize(self, level)
 	info.text = L["MINIMENU_OPTIONS"]
 	MSA_DropDownMenu_AddButton(info)
 
+	if (C_AddOns.IsAddOnLoaded("ZPerl_RaidAdmin")) then
+		if (ZPerl_AdminFrame and not ZPerl_AdminFrame:IsShown()) then
+			info = MSA_DropDownMenu_CreateInfo()
+			info.notCheckable = 1
+			info.text = L["MINIMENU_RAIDAD"]
+			info.func = function() ZPerl_AdminFrame:Show() end
+			MSA_DropDownMenu_AddButton(info)
+		end
+
+		if (ZPerl_Check and not ZPerl_Check:IsShown()) then
+			info = MSA_DropDownMenu_CreateInfo()
+			info.notCheckable = 1
+			info.text = L["MINIMENU_ITEMCHK"]
+			info.func = function() ZPerl_Check:Show() end
+			MSA_DropDownMenu_AddButton(info)
+		end
+
+		if (ZPerl_RosterText and not ZPerl_RosterText:IsShown()) then
+			info = MSA_DropDownMenu_CreateInfo()
+			info.notCheckable = 1
+			info.text = L["MINIMENU_ROSTERTEXT"]
+			info.func = function() ZPerl_RosterText:Show() end
+			MSA_DropDownMenu_AddButton(info)
+		end
+	end
+
 	if (C_AddOns.IsAddOnLoaded("ZPerl_RaidHelper")) then
 		if (ZPerl_Assists_Frame and not ZPerl_Assists_Frame:IsShown()) then
 			info = MSA_DropDownMenu_CreateInfo()
@@ -92,32 +118,6 @@ function ZPerl.MinimapMenuInitialize(self, level)
 				ZPerlRaidMonitorDB.enabled = 1
 				ZPerl_RaidMonitor_Frame:SetFrameSizes()
 			end
-			MSA_DropDownMenu_AddButton(info)
-		end
-	end
-
-	if (C_AddOns.IsAddOnLoaded("ZPerl_RaidAdmin")) then
-		if (ZPerl_AdminFrame and not ZPerl_AdminFrame:IsShown()) then
-			info = MSA_DropDownMenu_CreateInfo()
-			info.notCheckable = 1
-			info.text = L["MINIMENU_RAIDAD"]
-			info.func = function() ZPerl_AdminFrame:Show() end
-			MSA_DropDownMenu_AddButton(info)
-		end
-
-		if (ZPerl_Check and not ZPerl_Check:IsShown()) then
-			info = MSA_DropDownMenu_CreateInfo()
-			info.notCheckable = 1
-			info.text = L["MINIMENU_ITEMCHK"]
-			info.func = function() ZPerl_Check:Show() end
-			MSA_DropDownMenu_AddButton(info)
-		end
-
-		if (ZPerl_RosterText and not ZPerl_RosterText:IsShown()) then
-			info = MSA_DropDownMenu_CreateInfo()
-			info.notCheckable = 1
-			info.text = L["MINIMENU_ROSTERTEXT"]
-			info.func = function() ZPerl_RosterText:Show() end
 			MSA_DropDownMenu_AddButton(info)
 		end
 	end

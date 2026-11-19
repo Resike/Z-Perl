@@ -297,9 +297,7 @@ local function unitPage(pageName, k, isTarget)
 	end
 	check(own .. ".sound", "Sound on " .. k .. " change", "Play a sound when the " .. k .. " changes: one for enemies, friendly and neutral units.", {path = k .. ".sound", apply = {}})
 	check(own .. ".raidicon", "Alternate raid icon spot", "Put the raid icon small in the top right corner of the name plate instead of large in its centre.", {path = k .. ".raidIconAlternate", apply = isTarget and {"target", "targettarget"} or ap})
-	if isTarget then
-		check(own .. ".rangehand", "Out-of-range hand icon", "Show a hand icon on the name plate when the unit is out of range. Works for group members.", {path = k .. ".range30yard", apply = ap})
-	end
+	check(own .. ".rangehand", "Out-of-range hand icon", "Show a hand icon on the name plate when the unit is out of range. Works for group members.", {path = k .. ".range30yard", apply = ap})
 
 	if isTarget then
 		unitFrame("Target of target", id .. ".tot", "targettarget", "target of target")

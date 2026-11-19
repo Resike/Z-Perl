@@ -61,6 +61,8 @@ local EnableEvents
 -- ZPerl.PlayerPet.OnLoad
 function ZPerl.PlayerPet.OnLoad(self)
 	ZPerl.SetChildMembers(self)
+	-- the aura color highlight is for party and raid frames; this frame shows only the HoT highlight
+	self.hotHighlightOnly = true
 	self.partyid = "pet"
 
 	CombatFeedback_Initialize(self, self.hitIndicator.text, 30)
@@ -130,7 +132,7 @@ local function UpdateName(self)
 	if partyid == "pet" then
 		local c = conf.color.reaction.none
 		self.nameFrame.text:SetTextColor(c.r, c.g, c.b, conf.transparency.text)
-	elseif not UnitIsFriend("player", "pet") then		-- Pet or you charmed
+	elseif not SafeBool(UnitIsFriend("player", "pet"), true) then		-- Pet or you charmed
 		local c = conf.color.reaction.enemy
 		self.nameFrame.text:SetTextColor(c.r, c.g, c.b, conf.transparency.text)
 	else
@@ -317,7 +319,7 @@ end
 local function UpdateCombat(self)
 	local partyid = self.partyid
 	if UnitExists(partyid) then
-		if (UnitAffectingCombat(partyid)) then
+		if (SafeBool(UnitAffectingCombat(partyid), false)) then
 			self.nameFrame.combatIcon:Show()
 		else
 			self.nameFrame.combatIcon:Hide()

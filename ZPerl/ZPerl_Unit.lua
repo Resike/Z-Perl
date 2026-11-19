@@ -13,6 +13,7 @@ local largeNumTag = L["LOC_LARGENUMTAG"]
 local hugeNumTag = L["LOC_HUGENUMTAG"]
 local veryhugeNumTag = L["LOC_VERYHUGENUMTAG"]
 local percD = "%d%%"
+local perc0F = "%.0f%%"
 local perc1F = "%.1f%%"
 
 -- ZPerl.ShortNumber(v, compact, cap)
@@ -87,11 +88,12 @@ end
 
 -- ZPerl.FormatPercent(fs, pct, precise)
 -- pct is 0..100. Readable: one decimal below 10 (always, when precise), else rounded. Secret:
--- truncated by %d (one decimal when precise), because a secret cannot be added to. precise "whole"
--- never prints a decimal (readable: rounded).
+-- rounded by %.0f (one decimal when precise), because a secret cannot be added to. precise "whole"
+-- never prints a decimal.
 function ZPerl.FormatPercent(fs, pct, precise)
 	if (ZPerl.IsSecret(pct)) then
-		fs:SetFormattedText((precise and precise ~= "whole") and perc1F or percD, pct)
+		-- a secret cannot be offset by 0.5 for rounding, so the format rounds it (99.6 shows 100)
+		fs:SetFormattedText((precise and precise ~= "whole") and perc1F or perc0F, pct)
 	elseif (precise == "whole" or (not precise and pct >= 10)) then
 		fs:SetFormattedText(percD, pct + 0.5)
 	else

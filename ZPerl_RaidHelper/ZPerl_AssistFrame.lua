@@ -124,12 +124,17 @@ function ZPerl.RaidHelper.AssistsViewClose()
 	ZPerl.RaidHelper.SetFrameSides()
 end
 
--- SortByClass(t1, t2)
+-- SortByClass(t1, t2) - comparator for sort; every entry needs .order, its index in the list before the sort
 local function SortByClass(t1, t2)
-	-- enemy names are secret inside instances and cannot be
-	-- compared, so they keep their scan order
-	if (not ZPerl.CanAccess(t1[1]) or not ZPerl.CanAccess(t2[1])) then
-		return false
+	-- enemy names are secret inside instances and cannot be compared, so they follow the readable
+	-- names in their scan order (.order): sort needs a consistent comparator, and an inconsistent one
+	-- misorders the list or raises "invalid order function for sorting"
+	local r1, r2 = ZPerl.CanAccess(t1[1]), ZPerl.CanAccess(t2[1])
+	if (not r1 or not r2) then
+		if ((not r1) ~= (not r2)) then
+			return r1
+		end
+		return t1.order < t2.order
 	end
 	if (t1[2] == t2[2]) then
 		return t1[1] < t2[1]
@@ -168,6 +173,9 @@ function ZPerl.RaidHelper.MakeAssistsString(List, title)
 		end
 		text = text.."\13"
 
+		for i, entry in ipairs(List) do
+			entry.order = i
+		end
 		sort(List, SortByClass)
 
 		for i, entry in ipairs(List) do

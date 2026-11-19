@@ -459,7 +459,7 @@ local function rangePart(sectionName, key, idPart, first)
 	R.section = sectionName
 	check("general.range." .. idPart .. ".enable", "Enable", "Fade this part of the frame when out of range.", {path = "rangeFinder." .. key .. ".enabled", on = true})
 	slider("general.range." .. idPart .. ".fade", "Fade amount", "How much to fade from the normal transparency when out of range.", {path = "rangeFinder." .. key .. ".FadeAmount", min = 0.1, max = 0.8, step = 0.1, percent = true})
-	check("general.range." .. idPart .. ".debuff", "Debuff check", "Only units that need curing and are in range are clear.", {path = "rangeFinder." .. key .. ".PlusDebuff", on = true})
+	check("general.range." .. idPart .. ".debuff", "Debuff check", "Only units that need curing and are in range are clear. In combat, while debuffs are hidden, every unit in range is clear.", {path = "rangeFinder." .. key .. ".PlusDebuff", on = true})
 	check("general.range." .. idPart .. ".health", "Health check", "Units with more health than the Health marker fade too: only units that need healing and are in range are clear. With Debuff check on, a unit with a curable debuff is clear whatever its health.", {path = "rangeFinder." .. key .. ".PlusHealth", on = true})
 	slider("general.range." .. idPart .. ".healthmark", "Health marker", "Health check fades units with more health than this.", {path = "rangeFinder." .. key .. ".HealthLowPoint", min = 0.1, max = 0.95, step = 0.05, percent = true, default = 0.85})
 	dropdown("general.range." .. idPart .. ".check", "Range check", "Spell: the range of the Assist spell on friendly units and of the Attack spell on enemies. Group range: a fixed 40 yards for group members, whatever the spells.", {

@@ -70,9 +70,9 @@ function ZPerl.Elements.TargetOnly.events:PLAYER_TARGET_CHANGED()
 		return
 	end
 	if (self.conf.sound and UnitExists("target")) then
-		if (UnitIsEnemy("target", "player")) then
+		if (SafeBool(UnitIsEnemy("target", "player"), false)) then
 			PlaySound(873)
-		elseif (UnitIsFriend("player", "target")) then
+		elseif (SafeBool(UnitIsFriend("player", "target"), false)) then
 			PlaySound(867)
 		else
 			PlaySound(871)
@@ -100,9 +100,9 @@ function ZPerl.Elements.FocusOnly.events:PLAYER_FOCUS_CHANGED()
 		return
 	end
 	if (self.conf.sound and UnitExists("focus")) then
-		if (UnitIsEnemy("focus", "player")) then
+		if (SafeBool(UnitIsEnemy("focus", "player"), false)) then
 			PlaySound(873)
-		elseif (UnitIsFriend("player", "focus")) then
+		elseif (SafeBool(UnitIsFriend("player", "focus"), false)) then
 			PlaySound(867)
 		else
 			PlaySound(871)
@@ -211,7 +211,7 @@ Events.GROUP_ROSTER_UPDATE = Events.PARTY_LOOT_METHOD_CHANGED
 Events.PARTY_LEADER_CHANGED = Events.PARTY_LOOT_METHOD_CHANGED
 
 function Events:UNIT_THREAT_LIST_UPDATE(unit)
-	if (UnitCanAttack("player", self.partyid or "target")) then
+	if (SafeBool(UnitCanAttack("player", self.partyid or "target"), false)) then
 		ZPerl.UnitThreatStatus(self, self.partyid == "target" and "player" or nil)
 	else
 		ZPerl.UnitThreatStatus(self)

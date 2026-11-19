@@ -1,3 +1,14 @@
+**8.0.1**
+* Fixed raid target marks not showing when the game hides the mark index, the Ctrl tooltip setting.
+* Target frame's out-of-range icon showing in range.
+* Raid > class None not being saved.
+* Border staying colored when combat flash is turned off mid-flash.
+* Focus has its own out-of-range icon option its range icon and hit text follow the Focus options.
+* The pet's target frame no longer takes the aura color highlight.
+* Hidden health percents round to the nearest whole number.
+* Raid Helper: fixed sorting of hidden enemy names and the /zphelper usage line.
+* The Aura blacklist's "Show if mine" column is removed it had no effect.
+
 **8.0.0**
 * Updated for 12.1.5.
 * Updated for 5.5.4.
@@ -8,7 +19,7 @@
 * Retail: Evoker empowered casts show their stages on the cast bars.
 * Retail: Debuff highlighting follows the dispels your spec and talents give you.
 * New options window: every option in one place, a tab per frame group, advanced options toggle, search, and a Reload button where needed. It now loads on demand as ZPerl_Options.
-* Unlock mode: click a frame to open a popup with its basic options; drag buff and debuff blocks to move them, with dummy icons showing where they go and which way they grow.
+* Unlock mode: click a frame to open a popup with its basic options, drag buff and debuff blocks to move them, with dummy icons showing where they go and which way they grow.
 * Fixed party target name, master looter icon, raid frames in party, raid anchor BOTTOM layout, reputation and XP bar edge cases, target class text, and custom highlight icons.
 * Fixed range fading while auras are hidden, HoT and shield highlight refreshes, and class color changes from other addons.
 * Localization updates.

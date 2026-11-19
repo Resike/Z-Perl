@@ -84,6 +84,8 @@ local HighlightCallback
 ----------------------
 function ZPerl.Player.OnLoad(self)
 	ZPerl.SetChildMembers(self)
+	-- the aura color highlight is for party and raid frames; this frame shows only the HoT highlight
+	self.hotHighlightOnly = true
 	self.partyid = "player"
 	self.unit = self.partyid
 

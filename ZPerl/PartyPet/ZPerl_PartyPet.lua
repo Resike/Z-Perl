@@ -128,6 +128,8 @@ end
 -- ZPerl.PartyPet.OnLoad
 function ZPerl.PartyPet.OnLoad(self)
 	ZPerl.SetChildMembers(self)
+	-- the aura color highlight is for party and raid frames; this frame shows only the HoT highlight
+	self.hotHighlightOnly = true
 
 	tinsert(AllPetFrames, self)
 
@@ -357,7 +359,7 @@ local function OnUpdate(self, elapsed)
 		return
 	end
 
-	if (conf.combatFlash and self.PlayerFlash) then
+	if (self.PlayerFlash) then
 		CombatFlash(self, elapsed, false)
 	end
 	ZPerl.OnUpdateIdle(self)

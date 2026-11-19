@@ -63,6 +63,8 @@ function ZPerl.TargetTarget.OnLoad(self)
 	self:RegisterForClicks("AnyUp")
 	self:RegisterForDrag("LeftButton")
 	ZPerl.SetChildMembers(self)
+	-- the aura color highlight is for party and raid frames; this frame shows only the HoT highlight
+	self.hotHighlightOnly = true
 
 	self.guid = 0
 

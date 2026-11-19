@@ -14,7 +14,6 @@ local GetTime = GetTime
 local IsInGroup = IsInGroup
 local IsInRaid = IsInRaid
 local SetCVar = SetCVar
-local SetRaidTargetIconTexture = SetRaidTargetIconTexture
 local UnitAffectingCombat = UnitAffectingCombat
 local UnitCastingInfo = UnitCastingInfo
 local UnitExists = UnitExists
@@ -226,7 +225,7 @@ function ZPerl.Raid.OnUpdate(self, elapsed)
 		local flashing
 		for i, frame in pairs(FrameArray) do
 			if (frame:IsShown()) then
-				if (conf.combatFlash and frame.PlayerFlash) then
+				if (frame.PlayerFlash) then
 					CombatFlash(frame, elapsed, false)
 				end
 				if (frame.PlayerFlash) then
@@ -258,23 +257,18 @@ end)
 -- RaidTargetUpdate
 local function RaidTargetUpdate(self)
 	local icon = self.nameFrame.raidIcon
-	local raidIcon = GetRaidTargetIndex(self.partyid)
-
-	if (CanAccess(raidIcon)) then
-		if (not icon) then
-			icon = self.nameFrame:CreateTexture(nil, "OVERLAY")
-			self.nameFrame.raidIcon = icon
-			icon:SetTexture("Interface\\TargetingFrame\\UI-RaidTargetingIcons")
-			icon:SetPoint("LEFT")
-			icon:SetWidth(16)
-			icon:SetHeight(16)
-		else
-			icon:Show()
+	if (not icon) then
+		-- the texture is made on the first mark
+		if (not GetRaidTargetIndex(self.partyid)) then
+			return
 		end
-		SetRaidTargetIconTexture(icon, raidIcon)
-	elseif (icon) then
-		icon:Hide()
+		icon = self.nameFrame:CreateTexture(nil, "OVERLAY")
+		self.nameFrame.raidIcon = icon
+		icon:SetTexture("Interface\\TargetingFrame\\UI-RaidTargetingIcons")
+		icon:SetPoint("LEFT")
+		icon:SetSize(16, 16)
 	end
+	ZPerl.UpdateRaidIcon(icon, self.partyid)
 end
 
 local function SetRoleIconTexture(texture, role)

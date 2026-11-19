@@ -257,7 +257,7 @@ function ZPerl.Target.UpdateRange(self)
 	if not self.partyid then
 		return
 	end
-	if not tconf.range30yard then
+	if not self.conf.range30yard then
 		self.nameFrame.rangeIcon:Hide()
 		return
 	end
@@ -271,11 +271,10 @@ function ZPerl.Target.UpdateRange(self)
 		SetAlphaFromBoolean(icon, range, 0, icon:GetAlpha())
 		return
 	end
-	local inRange = false
+	-- range and checkedRange are readable here (the secret case returned above)
 	---@diagnostic disable-next-line: secret-condition
-	if not checkedRange then
-		inRange = true
-	end
+	local inRange = not checkedRange or range
+	---@diagnostic disable-next-line: secret-condition
 	if not UnitIsConnected(self.partyid) or inRange then
 		self.nameFrame.rangeIcon:Hide()
 	else
@@ -332,8 +331,9 @@ local function RaidTargetUpdate(self)
 
 	raidIcon:ClearAllPoints()
 	if (self.conf.raidIconAlternate) then
-		raidIcon:SetHeight(16)
-		raidIcon:SetWidth(16)
+		-- the corner mark matches the Player frame's (20x20)
+		raidIcon:SetHeight(20)
+		raidIcon:SetWidth(20)
 		raidIcon:SetPoint("CENTER", self.nameFrame, "TOPRIGHT", -5, -4)
 	else
 		raidIcon:SetHeight(32)
@@ -393,7 +393,7 @@ function ZPerl.Target.UpdateDisplay(self)
 
 	ZPerl_Highlight:SetHighlight(self, UnitGUID(partyid))
 
-	if tconf.range30yard then
+	if self.conf.range30yard then
 		ZPerl.Target.UpdateRange(self)
 	else
 		self.nameFrame.rangeIcon:Hide()
@@ -422,12 +422,12 @@ function ZPerl.Target.OnUpdate(self, elapsed)
 		return
 	end
 
-	local feedback = tconf.hitIndicator or fconf.hitIndicator
+	local feedback = self.conf.hitIndicator
 	if feedback then
 		CombatFeedback_OnUpdate(self, elapsed)
 	end
 
-	if (conf.combatFlash and self.PlayerFlash) then
+	if (self.PlayerFlash) then
 		CombatFlash(self, elapsed, false)
 	end
 	ZPerl.OnUpdateIdle(self, feedback)
@@ -438,7 +438,7 @@ local function PollRangeOne(self)
 	do
 		local partyid = self and self.partyid
 		if (partyid and self:IsVisible()) then
-			if tconf.range30yard then
+			if self.conf.range30yard then
 				ZPerl.Target.UpdateRange(self)
 			end
 			if conf.rangeFinder.enabled then

@@ -109,6 +109,8 @@ function ZPerl.Target.OnLoad(self, partyid)
 	self:RegisterForClicks("AnyUp")
 	self:RegisterForDrag("LeftButton")
 	ZPerl.SetChildMembers(self)
+	-- the aura color highlight is for party and raid frames; this frame shows only the HoT highlight
+	self.hotHighlightOnly = true
 
 	CombatFeedback_Initialize(self, self.hitIndicator.text, 30)
 
@@ -196,7 +198,7 @@ end
 -- HighlightCallback
 function ZPerl.Target.HighlightCallback(self, updateGUID)
 	local guid = UnitGUID(self.partyid)
-	if (guid and CanAccess(guid) and guid == updateGUID and UnitIsFriend("player", self.partyid)) then
+	if (guid and CanAccess(guid) and guid == updateGUID and SafeBool(UnitIsFriend("player", self.partyid), false)) then
 		ZPerl_Highlight:SetHighlight(self, updateGUID)
 	end
 end
@@ -260,7 +262,7 @@ local function UpdatePVP(self)
 		local c = ZPerl.ReactionColor(partyid)
 		self.nameFrame:SetBackdropColor(c.r, c.g, c.b)
 
-		if (conf.color.class and UnitPlayerControlled(partyid)) then
+		if (conf.color.class and SafeBool(UnitPlayerControlled(partyid), false)) then
 			ZPerl.SetUnitNameColor(self.nameFrame.text, partyid)
 		else
 			self.nameFrame.text:SetTextColor(1, 1, 1, conf.transparency.text)
@@ -332,8 +334,8 @@ local function UpdateClassification(self)
 		return
 	end
 
-	if (targetclassification == "normal" and UnitPlayerControlled(partyid)) then
-		if (not UnitIsPlayer(partyid)) then
+	if (targetclassification == "normal" and SafeBool(UnitPlayerControlled(partyid), false)) then
+		if (not SafeBool(UnitIsPlayer(partyid), false)) then
 			bossType = L["TYPE_PET"]
 			self.bossFrame.text:SetTextColor(1, 1, 1)
 			self.typeFramePlayer:Hide()
@@ -462,7 +464,7 @@ local function UpdateType(self)
 
 	--if (UnitIsPlayer(partyid)) then
 		local classification = UnitClassification(partyid)
-		if (self.conf.classIcon and (UnitIsPlayer(partyid) or (CanAccess(classification) and classification == "normal"))) then
+		if (self.conf.classIcon and (SafeBool(UnitIsPlayer(partyid), false) or (CanAccess(classification) and classification == "normal"))) then
 			local LocalClass = UnitClassBase(partyid)
 
 			if (self.conf.classText) then
@@ -474,14 +476,14 @@ local function UpdateType(self)
 				-- plain text (section 3 taint-propagation nuance)
 				ZPerl.SafeSetWidthFromText(self.bossFrame, self.bossFrame.text, 10, 70)
 			else
-				if (UnitIsPlayer(partyid) or not UnitPlayerControlled(partyid)) then
+				if (SafeBool(UnitIsPlayer(partyid), false) or not SafeBool(UnitPlayerControlled(partyid), false)) then
 					local l, r, t, b = ZPerl.ClassPos(LocalClass)
 					self.typeFramePlayer.classTexture:SetTexCoord(l, r, t, b)
 					self.typeFramePlayer:Show()
 				end
 			end
 		end
-		if (UnitIsPlayer(partyid)) then
+		if (SafeBool(UnitIsPlayer(partyid), false)) then
 			self.creatureTypeFrame:Hide()
 		end
 	--else

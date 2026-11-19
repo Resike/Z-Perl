@@ -659,6 +659,11 @@ function ZPerl.BlizzFrameDisable(self)
 	if not self then
 		return
 	end
+	-- unit watch, movable and placement changes on Blizzard's protected frames are blocked in combat
+	if InCombatLockdown() then
+		ZPerl.AfterCombatFor(ZPerl.BlizzFrameDisable, self)
+		return
+	end
 
 	UnregisterUnitWatch(self)
 
