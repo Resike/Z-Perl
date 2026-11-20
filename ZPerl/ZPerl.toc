@@ -25,6 +25,7 @@ ZPerl.xml
 
 ArcaneBar\ZPerl_ArcaneBar.xml
 AuraBlacklist\Localization.lua
+AuraBlacklist\Localization.zhCN.lua
 AuraBlacklist\ZPerl_AuraBlacklist.lua
 Party\ZPerl_Party.xml
 PartyPet\ZPerl_PartyPet.xml
@@ -34,6 +35,8 @@ PlayerBuffs\ZPerl_WeaponEnchants.lua
 PlayerPet\ZPerl_PlayerPet.xml
 Raid\ZPerl_Raid.xml
 RaidPets\ZPerl_RaidPets.xml
+CustomHighlight\Localization.lua
+CustomHighlight\Localization.zhCN.lua
 CustomHighlight\ZPerl_CustomHighlight.lua
 CustomHighlight\ZPerl_CustomHighlightConfig.lua
 Target\ZPerl_Target.xml
