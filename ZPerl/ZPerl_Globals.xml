@@ -271,6 +271,12 @@
 		<Scripts>
 			<OnLoad>
 				ZPerl.SetChildMembers(self)
+				-- the texts sit on a frame above the bars drawn over this one (absorbs, absorb loss)
+				local textFrame = CreateFrame("Frame", nil, self)
+				textFrame:SetAllPoints()
+				textFrame:SetFrameLevel(self:GetFrameLevel() + 3)
+				self.text:SetParent(textFrame)
+				self.percent:SetParent(textFrame)
 				ZPerl.RegisterBar(self)
 				self:SetScript("OnLoad", nil)
 				if (not ZPerl.OldStatusBarSetValue) then

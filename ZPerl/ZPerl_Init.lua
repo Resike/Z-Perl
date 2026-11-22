@@ -324,7 +324,7 @@ local function GetNamesWithoutBuff(spellName, with, filter)
 				sort(list, function(a, b) return a.name < b.name end)
 
 				names = (names or "").."|r"..i..": "
-				for i, item in ipairs(list) do
+				for _, item in ipairs(list) do
 					-- a member whose class is not known yet still gets listed, in grey
 					names = names..(item.class and ZPerl.ColorTable[item.class] or "|c00808080")..item.name.." "
 				end

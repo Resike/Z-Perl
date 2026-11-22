@@ -170,14 +170,14 @@ function ZPerl.PartyPet.OnLoad(self)
 
 	self.FlashFrames = {self.nameFrame, self.statsFrame}
 
-	self:SetScript("OnShow", function(self)
-		if not self.conf then
-			self.conf = conf.partypet
+	self:SetScript("OnShow", function(frame)
+		if not frame.conf then
+			frame.conf = conf.partypet
 		end
 		--CheckVisiblity()
-		ZPerl.PartyPet.UpdateDisplay(self)
-		if (self.perlOwner) then
-			ZPerl.Party.PlaceAuras(self.perlOwner)
+		ZPerl.PartyPet.UpdateDisplay(frame)
+		if (frame.perlOwner) then
+			ZPerl.Party.PlaceAuras(frame.perlOwner)
 		end
 	end)
 

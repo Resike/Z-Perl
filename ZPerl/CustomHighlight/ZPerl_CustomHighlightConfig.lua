@@ -33,6 +33,8 @@ local BaseScrollBoxEvents = BaseScrollBoxEvents
 local ScrollBoxConstants = ScrollBoxConstants
 
 local CustomHighlight = _G.ZPerl_Custom
+-- ZPerl.OptionsL once the options window builds our tab (ZPerl_Options loads on demand); the English text until then
+local L = ZPerl.L
 local QUESTION_MARK = "Interface\\Icons\\INV_Misc_QuestionMark"
 local ROWS = 14
 local ROW_HEIGHT = 22
@@ -116,7 +118,7 @@ local function RebuildSorted()
 	for id in pairs(spells) do
 		if (type(id) == "number") then
 			sorted[#sorted + 1] = id
-			sortKeys[id] = strlower(SpellInfo(id) or format("Spell %d", id))
+			sortKeys[id] = strlower(SpellInfo(id) or format(L["Spell %d"], id))
 		end
 	end
 	sort(sorted, function(a, b)
@@ -150,7 +152,7 @@ local function UpdateList()
 			local name, icon = SpellInfo(id)
 			row.spellID = id
 			row.icon:SetTexture(icon or QUESTION_MARK)
-			row.name:SetText(name or format("Spell %d", id))
+			row.name:SetText(name or format(L["Spell %d"], id))
 			row.idText:SetText(id)
 			row:Show()
 		else
@@ -160,9 +162,9 @@ local function UpdateList()
 	end
 	config.zoneMenu:GenerateMenu()
 	if (not zone and config.zoneMenu.OverrideText) then
-		config.zoneMenu:OverrideText("No zones")
+		config.zoneMenu:OverrideText(L["No zones"])
 	end
-	config.count:SetText(zone and format("%d spells in %s", total, zone) or "Add a zone to start a list.")
+	config.count:SetText(zone and format(L["%d spells in %s"], total, zone) or L["Add a zone to start a list."])
 	config.addSpell:SetEnabled(zone ~= nil)
 	config.spellEdit:SetEnabled(zone ~= nil)
 	config.removeZone:SetEnabled(zone ~= nil)
@@ -221,11 +223,11 @@ local function AddSpell(text)
 		end
 	end
 	if (not name or not id) then
-		ZPerl.Notice(id and "Custom highlights: no spell %s." or "Custom highlights: no spell %s by name; use its spell ID.", text)
+		ZPerl.Notice(id and L["Custom highlights: no spell %s."] or L["Custom highlights: no spell %s by name; use its spell ID."], text)
 		return
 	end
 	if (zones[zone][id]) then
-		ZPerl.Notice("Custom highlights: %s (%d) is already in %s.", name, id, zone)
+		ZPerl.Notice(L["Custom highlights: %s (%d) is already in %s."], name, id, zone)
 		return
 	end
 	zones[zone][id] = true
@@ -243,7 +245,7 @@ local function RemoveZone()
 		return
 	end
 	local name = zone
-	Confirm(format("Remove %s and its %d spells from the custom highlight list?", name, CountOf(zones[name] or {})), function()
+	Confirm(format(L["Remove %s and its %d spells from the custom highlight list?"], name, CountOf(zones[name] or {})), function()
 		zones[name] = nil
 		if (zone == name) then
 			zone = nil
@@ -254,7 +256,7 @@ local function RemoveZone()
 end
 
 local function ResetDefaults()
-	Confirm("Reset the custom highlight list of this layout to the default zones and spells? Zones and spells you added are lost.", function()
+	Confirm(L["Reset the custom highlight list of this layout to the default zones and spells? Zones and spells you added are lost."], function()
 		local conf = ZPerl.layout and ZPerl.layout.custom
 		if (type(conf) == "table") then
 			conf.zones = CustomHighlight:DefaultZoneData()
@@ -344,7 +346,7 @@ local function CreateRow(list, i)
 	row.remove:SetSize(22, 22)
 	row.remove:SetPoint("LEFT", 370, 0)
 	row.remove:SetScript("OnClick", Remove_OnClick)
-	Tip(row.remove, "Remove", "Remove this spell from the zone's list.")
+	Tip(row.remove, L["Remove"], L["Remove this spell from the zone's list."])
 
 	row:Hide()
 	return row
@@ -382,7 +384,7 @@ local function CreateConfig(parent)
 	f:SetSize(460, 560)
 
 	-- Zone picker and Remove zone
-	local zoneLabel = Label(f, "Zone")
+	local zoneLabel = Label(f, L["Zone"])
 	zoneLabel:SetPoint("TOPLEFT", 16, -12)
 	local menu = CreateFrame("DropdownButton", nil, f, "WowStyle1DropdownTemplate")
 	menu:SetWidth(300)
@@ -402,24 +404,24 @@ local function CreateConfig(parent)
 	local removeZone = CreateFrame("Button", nil, f, "UIPanelButtonTemplate")
 	removeZone:SetSize(110, 22)
 	removeZone:SetPoint("LEFT", menu, "RIGHT", 8, 0)
-	removeZone:SetText("Remove zone")
+	removeZone:SetText(L["Remove zone"])
 	removeZone:SetScript("OnClick", RemoveZone)
-	Tip(removeZone, "Remove zone", "Remove the shown zone and all its spells from the list, after a confirmation.")
+	Tip(removeZone, L["Remove zone"], L["Remove the shown zone and all its spells from the list, after a confirmation."])
 	f.removeZone = removeZone
 
 	-- Add zone: typed, or the zone you are in
-	local _, addZone = EditWithButton(f, -76, 220, "Add a zone (its name as the game shows it)", "Add zone", AddZone)
-	Tip(addZone, "Add zone", "Add a zone with an empty list and show it. The name must match the game's zone name exactly.")
+	local _, addZone = EditWithButton(f, -76, 220, L["Add a zone (its name as the game shows it)"], L["Add zone"], AddZone)
+	Tip(addZone, L["Add zone"], L["Add a zone with an empty list and show it. The name must match the game's zone name exactly."])
 	local here = CreateFrame("Button", nil, f, "UIPanelButtonTemplate")
 	here:SetSize(110, 22)
 	here:SetPoint("LEFT", addZone, "RIGHT", 6, 0)
-	here:SetText("Current zone")
+	here:SetText(L["Current zone"])
 	here:SetScript("OnClick", function() AddZone(GetRealZoneText()) end)
-	Tip(here, "Current zone", "Add the zone you are in (or show it, when it is listed).")
+	Tip(here, L["Current zone"], L["Add the zone you are in (or show it, when it is listed)."])
 
 	-- Add spell to the shown zone
-	local spellEdit, addSpell = EditWithButton(f, -124, 220, "Add a debuff to this zone (spell ID)", "Add spell", AddSpell)
-	Tip(addSpell, "Add spell", "Add a debuff by its spell ID. A raid member with that exact spell shows its icon. An exact name works only for spells the game can look up by name, mostly ones you know, so boss debuffs need their ID.")
+	local spellEdit, addSpell = EditWithButton(f, -124, 220, L["Add a debuff to this zone (spell ID)"], L["Add spell"], AddSpell)
+	Tip(addSpell, L["Add spell"], L["Add a debuff by its spell ID. A raid member with that exact spell shows its icon. An exact name works only for spells the game can look up by name, mostly ones you know, so boss debuffs need their ID."])
 	f.spellEdit, f.addSpell = spellEdit, addSpell
 
 	-- List
@@ -430,9 +432,9 @@ local function CreateConfig(parent)
 	list:EnableMouseWheel(true)
 	list:SetScript("OnMouseWheel", List_OnMouseWheel)
 
-	local colName = Label(f, "Name")
+	local colName = Label(f, L["Name"])
 	colName:SetPoint("BOTTOMLEFT", list, "TOPLEFT", 32, 2)
-	local colID = Label(f, "Spell ID")
+	local colID = Label(f, L["Spell ID"])
 	colID:SetPoint("BOTTOMLEFT", list, "TOPLEFT", 300, 2)
 
 	local scrollBar = CreateFrame("EventFrame", nil, list, "MinimalScrollBar")
@@ -463,9 +465,9 @@ local function CreateConfig(parent)
 	local reset = CreateFrame("Button", nil, f, "UIPanelButtonTemplate")
 	reset:SetSize(150, 22)
 	reset:SetPoint("BOTTOMRIGHT", -14, 12)
-	reset:SetText("Reset to defaults")
+	reset:SetText(L["Reset to defaults"])
 	reset:SetScript("OnClick", ResetDefaults)
-	Tip(reset, "Reset to defaults", "Put back the default zones and spells of this layout's list, after a confirmation. Zones and spells you added are lost.")
+	Tip(reset, L["Reset to defaults"], L["Put back the default zones and spells of this layout's list, after a confirmation. Zones and spells you added are lost."])
 
 	-- a layout switch or a zone change while the tab was hidden: re-read on show
 	f:SetScript("OnShow", function()
@@ -484,6 +486,7 @@ tinsert(ZPerl.SettingsPages, {
 	key = "CustomHighlight",
 	name = "Custom highlights",
 	create = function(page)
+		L = ZPerl.OptionsL
 		config = CreateConfig(page)
 		Pick()
 		RebuildSorted()

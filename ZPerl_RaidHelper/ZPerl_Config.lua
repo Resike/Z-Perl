@@ -11,9 +11,10 @@ end
 
 function ZPerl.RaidHelper.SetupFrames()
 
-	local function ValidAlpha(alpha)
+	---@return number
+	local function ValidAlpha(value)
 		-- a stored or typed value that is not a number (/zphelper alpha raid x) becomes opaque
-		alpha = tonumber(alpha) or 1
+		local alpha = tonumber(value) or 1
 		if (alpha < 0 or alpha > 1) then
 			alpha = 1
 		end
@@ -31,11 +32,13 @@ function ZPerl.RaidHelper.SetupFrames()
 	end
 
 	if (ZPerlRaidHelperDB) then
-		ZPerlRaidHelperDB.AssistsFrame_Transparency = ValidAlpha(ZPerlRaidHelperDB.AssistsFrame_Transparency)
-		ZPerl_Assists_Frame:SetAlpha(ZPerlRaidHelperDB.AssistsFrame_Transparency)
+		local assistsAlpha = ValidAlpha(ZPerlRaidHelperDB.AssistsFrame_Transparency)
+		ZPerlRaidHelperDB.AssistsFrame_Transparency = assistsAlpha
+		ZPerl_Assists_Frame:SetAlpha(assistsAlpha)
 
-		ZPerlRaidHelperDB.Targets_Transparency = ValidAlpha(ZPerlRaidHelperDB.Targets_Transparency)
-		ZPerl_RaidHelper_Frame:SetAlpha(ZPerlRaidHelperDB.Targets_Transparency)
+		local targetsAlpha = ValidAlpha(ZPerlRaidHelperDB.Targets_Transparency)
+		ZPerlRaidHelperDB.Targets_Transparency = targetsAlpha
+		ZPerl_RaidHelper_Frame:SetAlpha(targetsAlpha)
 
 		--ZPerlRaidHelperDB.Scale_AssistsFrame = ValidScale(ZPerlRaidHelperDB.Scale_AssistsFrame)
 		--ZPerl_Assists_Frame:SetScale(ZPerlRaidHelperDB.Scale_AssistsFrame)

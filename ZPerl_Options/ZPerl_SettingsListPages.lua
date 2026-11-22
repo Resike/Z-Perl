@@ -263,7 +263,7 @@ local function unitPage(pageName, k, isTarget)
 
 	R.section = pageName
 	if not isTarget then
-		check(own .. ".enable", "Show focus frame", "Show the focus frame.", {path = k .. ".enable", apply = ap})
+		check(own .. ".enable", "Show focus frame", "Show the focus frame. Blizzard's focus frame is hidden while this is on, and comes back after a reload when it is off.", {path = k .. ".enable", apply = ap})
 	end
 	dropdown(own .. ".classification", "Classification", "How rare, elite and boss units are marked: not at all, as text, or as a graphic on the portrait.", {
 		base = k, apply = ap,
@@ -313,7 +313,7 @@ unitPage("Focus", "focus", false)
 R.page = "Party"
 
 R.section = "Size"
-check("party.size.enable", "Show party frames", "Show the party frames.", {path = "party.enable", apply = {"party"}})
+check("party.size.enable", "Show party frames", "Show the party frames. Blizzard's party frames are hidden while this is on, and come back after a reload when it is off.", {path = "party.enable", apply = {"party"}})
 slider("party.size.scale", "Scale", "The size of the party frames.", {path = "party.scale", min = 0.5, max = 1.5, step = 0.01, percent = true})
 slider("party.size.width", "Extra width", "Widen the party frames.", {path = "party.size.width", min = 0, max = 100, step = 1})
 

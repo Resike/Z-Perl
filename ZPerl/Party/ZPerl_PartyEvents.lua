@@ -756,6 +756,11 @@ function ZPerl.Party.SetBits()
 
 	ZPerl.GroupVisibilityUpdate()
 
+	-- turning the party frames on hides Blizzard's at once
+	if ZPerl.Party.HideBlizzardPartyFrames then
+		ZPerl.Party.HideBlizzardPartyFrames()
+	end
+
 	if (ZPerl.layout) then
 		conf = ZPerl.layout
 		pconf = ZPerl.layout.party

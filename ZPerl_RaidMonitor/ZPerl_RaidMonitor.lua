@@ -326,12 +326,12 @@ function ZPerl.RaidMonitor.OnEvent(self, event, ...)
 end
 
 -- ZPerl.RaidMonitor.MonitorMakeAction
-function ZPerl.RaidMonitor.MonitorMakeAction(self, str, type)
+function ZPerl.RaidMonitor.MonitorMakeAction(self, str, button)
 	if (str == "target") then
 		return L["MONITOR_CLICKTARGET"]
 	elseif (str == "spell") then
 		local b
-		if (type == 1) then
+		if (button == 1) then
 			b = "LeftButton"
 		else
 			b = "RightButton"

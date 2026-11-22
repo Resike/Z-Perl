@@ -1,5 +1,5 @@
 ## Interface: 120105, 50504, 20506, 16001, 11509
-## Version: 8.0.2
+## Version: 8.0.3
 ## Author: Resike based on work by Zeta0xD, Ziliya, Halfdays, Zek and Nymbia
 ## Title: Z-Perl
 ## Notes: The classic X-Perl unit-frame experience rebuilt and maintained for all WoW flavours.
@@ -24,8 +24,6 @@ ZPerl_Globals.xml
 ZPerl.xml
 
 ArcaneBar\ZPerl_ArcaneBar.xml
-AuraBlacklist\Localization.lua
-AuraBlacklist\Localization.zhCN.lua
 AuraBlacklist\ZPerl_AuraBlacklist.lua
 Party\ZPerl_Party.xml
 PartyPet\ZPerl_PartyPet.xml
@@ -35,8 +33,6 @@ PlayerBuffs\ZPerl_WeaponEnchants.lua
 PlayerPet\ZPerl_PlayerPet.xml
 Raid\ZPerl_Raid.xml
 RaidPets\ZPerl_RaidPets.xml
-CustomHighlight\Localization.lua
-CustomHighlight\Localization.zhCN.lua
 CustomHighlight\ZPerl_CustomHighlight.lua
 CustomHighlight\ZPerl_CustomHighlightConfig.lua
 Target\ZPerl_Target.xml

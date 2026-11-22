@@ -1310,14 +1310,22 @@ function xpHigh:ShowHealGlow(frame)
 		bar = CreateFrame("StatusBar", nil, h)
 		bar:SetAllPoints()
 		bar:SetMinMaxValues(0, 1)
-		bar:SetStatusBarTexture("Interface\\AddOns\\ZPerl\\Images\\ZPerl_Highlight")
-		bar:GetStatusBarTexture():SetBlendMode("ADD")
-		bar:SetStatusBarColor(0.2, 0.8, 0.2)
+		-- the bar owns its fill texture's texcoords (resets them to the fill fraction on every value change), so the
+		-- fill is invisible and only sizes the glow: a plain texture anchored to its right edge, keeping its own coords
+		bar:SetStatusBarTexture("Interface\\Buttons\\WHITE8X8")
+		bar:SetStatusBarColor(0, 0, 0, 0)
+		local glow = bar:CreateTexture(nil, "OVERLAY")
+		glow:SetTexture("Interface\\AddOns\\ZPerl\\Images\\ZPerl_Highlight")
+		glow:SetBlendMode("ADD")
+		glow:SetVertexColor(0.2, 0.8, 0.2)
+		glow:SetPoint("TOPLEFT", bar, "TOPLEFT")
+		glow:SetPoint("BOTTOMRIGHT", bar:GetStatusBarTexture(), "BOTTOMRIGHT")
+		bar.glow = glow
 		bar.owner = frame
 		h.healBar = bar
 		self.healBars[bar] = true
 	end
-	bar:GetStatusBarTexture():SetTexCoord(h.tex:GetTexCoord())
+	bar.glow:SetTexCoord(h.tex:GetTexCoord())
 	bar:Show()
 	setHealBar(bar)
 end
@@ -1360,8 +1368,10 @@ local function listenHealComm(on)
 	healCommOn = on
 	for _, callback in ipairs(HEALCOMM_CALLBACKS) do
 		if (on) then
+			---@diagnostic disable-next-line: undefined-field
 			HealComm.RegisterCallback(xpHigh, callback, HealCommUpdate)
 		else
+			---@diagnostic disable-next-line: undefined-field
 			HealComm.UnregisterCallback(xpHigh, callback)
 		end
 	end

@@ -262,8 +262,9 @@ function B.slider(line, e, box)
 			PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
 		end)
 	end
-	-- the wheel is left to the options page: over a slider it scrolls the page, never moves the value
-	s:EnableMouseWheel(false)
+	-- the wheel steps the value like the steppers (the page itself does not scroll on the wheel)
+	s:EnableMouseWheel(true)
+	s:SetScript("OnMouseWheel", function(_, delta) nudge(delta > 0 and 1 or -1) end)
 
 	local fmt = sliderFormat(e)
 	local busy

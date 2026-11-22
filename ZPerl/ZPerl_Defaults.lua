@@ -124,6 +124,9 @@ local function GlobalConfigDefault(default)
 		background	= 1,
 --		fading		= nil,		-- 1.8.9
 		fadeTime	= 0.5,		-- 1.9.1
+		healthLoss	= 1,		-- the lost health drains away in red
+		absorbLoss	= 1,		-- the lost absorb drains away
+		fullPulse	= 1,		-- the player's and pet's power bars pulse when full
 		fat		= 1,
 --		inverse		= nil,		-- 1.8.6
 	}

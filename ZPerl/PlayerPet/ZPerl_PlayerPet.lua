@@ -196,7 +196,7 @@ local function UpdateHealth(self)
 end
 
 -- UpdateMana()
-local powerStyle = {text = "whole"}
+local powerStyle = {text = "whole", fullPulse = true}
 local function UpdateMana(self)
 	ZPerl.PowerUpdate(self, powerStyle)
 
@@ -240,18 +240,18 @@ local function HappinessFromPower(unit)
 	if (not powerType) then
 		return
 	end
-	local cur, max = UnitPower(unit, powerType), UnitPowerMax(unit, powerType)
+	local cur, top = UnitPower(unit, powerType), UnitPowerMax(unit, powerType)
 	-- A pet's power can be secret in combat, and this drives comparisons and
 	-- maths below; bail rather than crash.
 	---@diagnostic disable-next-line: secret-comparison
-	if (not cur or not max or IsSecret(cur) or IsSecret(max) or max <= 0) then
+	if (not cur or not top or IsSecret(cur) or IsSecret(top) or top <= 0) then
 		return
 	end
 	-- Zero is a real reading here (a pet about to run away), not "no happiness":
 	-- this only ever runs for hunters, since VARIABLES_LOADED nils the whole
 	-- function for every other class. The clamp below turns it into band 1.
 	---@diagnostic disable-next-line: secret-arithmetic
-	local band = math.ceil((cur / max) * HAPPY_BANDS)
+	local band = math.ceil((cur / top) * HAPPY_BANDS)
 	if (band < 1) then
 		band = 1
 	elseif (band > HAPPY_BANDS) then

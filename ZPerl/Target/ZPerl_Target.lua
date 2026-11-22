@@ -138,8 +138,6 @@ function ZPerl.Target.OnLoad(self, partyid)
 
 		self.combatMask = 0x00010000
 	else
-		ZPerl.BlizzFrameDisable(FocusFrame)
-
 		ZPerl.UnitFrameEnable(self, "FocusOnly")
 		--self:SetScript("OnShow", ZPerl.Target.UpdateDisplay)
 		self.combatMask = 0x00020000
@@ -512,12 +510,12 @@ ZPerl.Target.UpdateType = UpdateType
 
 -- ApplyWidth: protected; reads the config when it runs
 local function ApplyWidth(self)
-	local conf = self.conf
-	local inner = (conf.percent and 160 or 128) + conf.size.width
-	self:SetWidth(128 + ((conf.portrait and 1 or 0) * 62) + ((conf.percent and 1 or 0) * 32) + conf.size.width)
+	local frameConf = self.conf
+	local inner = (frameConf.percent and 160 or 128) + frameConf.size.width
+	self:SetWidth(128 + ((frameConf.portrait and 1 or 0) * 62) + ((frameConf.percent and 1 or 0) * 32) + frameConf.size.width)
 	self.nameFrame:SetWidth(inner)
 	self.statsFrame:SetWidth(inner)
-	ZPerl.SetScale(self, conf.scale)
+	ZPerl.SetScale(self, frameConf.scale)
 end
 
 -- ZPerl.Target.SetWidth
@@ -538,6 +536,11 @@ end
 -- ApplyEnable: protected
 local function ApplyEnable(self)
 	if (self.conf.enable) then
+		-- Blizzard's focus frame is hidden only while Z-Perl's is on; it comes back after a reload
+		if (self == ZPerl_Focus and not self.blizzOff) then
+			self.blizzOff = true
+			ZPerl.BlizzFrameDisable(FocusFrame)
+		end
 		RegisterUnitWatch(self)
 	else
 		self:Hide()

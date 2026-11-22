@@ -187,6 +187,8 @@ local function write(path, v)
 end
 
 -- Store the setting's value v for an entry.
+---@param e table
+---@param v any
 local function store(e, v)
 	local t = e.type
 	if e.each then
@@ -230,9 +232,9 @@ local function store(e, v)
 	-- refresh only on a change: a color drag stores every step, and refreshing the whole panel each step lags the game
 	if e.also then
 		local changed
-		for path, v in pairs(e.also) do
-			if norm(read(ZPerl.layout, path)) ~= norm(v) then
-				write(path, v)
+		for path, want in pairs(e.also) do
+			if norm(read(ZPerl.layout, path)) ~= norm(want) then
+				write(path, want)
 				changed = true
 			end
 		end
@@ -624,6 +626,11 @@ function ZPerl.SettingsAddonGet(which, key)
 	if v == nil then v = ADDON[which].default[key] or 0 end
 	return v
 end
+---@param which string
+---@param key string
+---@param step number?
+---@param after string?
+---@param v number
 function ZPerl.SettingsAddonSet(which, key, step, after, v)
 	local db = addonDB(which)
 	if not db then return end
@@ -668,10 +675,10 @@ for i = 9, 13 do
 	ZPerl["SettingsSetRaidGroup" .. i] = groupSet(i)
 end
 -- All and None set every group and class box, as the old window's buttons did (a class box shows a class column of Sort by Class).
-local function raidGroupsAll(on)
+local function raidGroupsAll(show)
 	local r = ZPerl.layout.raid
-	for i = 1, #r.group do r.group[i] = on and 1 or false end
-	for _, c in ipairs(r.class) do c.enable = on and 1 or false end
+	for i = 1, #r.group do r.group[i] = show and 1 or false end
+	for _, c in ipairs(r.class) do c.enable = show and 1 or false end
 	ZPerl.Apply({"raidheaders", "raid"})
 end
 function ZPerl.SettingsRaidGroupsAll() raidGroupsAll(true) end

@@ -3,6 +3,7 @@
 
 -- Status highlight spells
 if ZPerl.IsRetail then
+	---@diagnostic disable-next-line: create-global
 	ZPERL_HIGHLIGHT_SPELLS = {
 		hotSpells = {
 			[ZPerl.SpellName(774)] = 12,     -- Rejuvenation (old id 26982)

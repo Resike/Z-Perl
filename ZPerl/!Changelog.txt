@@ -1,3 +1,16 @@
+**8.0.3**
+* Health loss animation: lost health shows as a red bar that drains away behind the health bar.
+* Absorb loss animation: a lost absorb shield drains away instead of vanishing.
+* Full power pulse: the player's and pet's power bars pulse like retail's player frame when rage, energy, focus or a similar power is full in combat, on every client.
+* Each has an option under Look.
+* Fixed the "Only my buffs" and "Only my debuffs" options showing everyone's auras.
+* Retail: Fixed "Big buffs" and "Big debuffs" making everyone's auras big, and hiding other players' auras.
+* Fixed the absorb bar covering the health text.
+* Turning off the focus or party frames now brings back Blizzard's own after a reload.
+* Chinese (zhCN) translation of the Aura blacklist and Custom highlights editors.
+* The Custom highlights editor's text can now be translated.
+* Fixed the default Custom highlights zones for The Bastion of Twilight, Blackwing Descent and Dragon Soul on English clients (new or reset lists only).
+
 **8.0.2**
 * Added back OmniCC support and Blizzard cooldown numbers for buffs and debuffs.
 * Added Classic Cooldown Count support for buffs and debuffs.

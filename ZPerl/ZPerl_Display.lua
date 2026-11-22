@@ -200,13 +200,13 @@ end
 -- ZPerl.StatusBarSetValue
 function ZPerl.StatusBarSetValue(self, val)
 	if not tempDisableFadeBars and conf.bar.fading and self:GetName() then
-		local min, max = self:GetMinMaxValues()
+		local low, high = self:GetMinMaxValues()
 		local current = self:GetValue()
 
 		-- secret values (health always, power always) cannot be compared, so every update fades
 		-- from the old value; after a gain the fader lies inside the bar's own fill and does not show
-		local readable = CanAccess(val) and CanAccess(current) and CanAccess(max)
-		if not readable or (val < current and val <= max and val >= min) then
+		local readable = CanAccess(val) and CanAccess(current) and CanAccess(high)
+		if not readable or (val < current and val <= high and val >= low) then
 			local bar = fadeBars[self]
 
 			if not bar then
@@ -221,7 +221,7 @@ function ZPerl.StatusBarSetValue(self, val)
 					bar:SetValue(current)
 				end
 
-				bar:SetMinMaxValues(min, max)
+				bar:SetMinMaxValues(low, high)
 				bar:SetAlpha(self.fadeAlpha)
 				bar:Show()
 			end
@@ -229,6 +229,203 @@ function ZPerl.StatusBarSetValue(self, val)
 	end
 
 	ZPerl.OldStatusBarSetValue(self, val)
+end
+
+-----------------------------
+-- Health and absorb loss  --
+-----------------------------
+-- After a loss, the lost part of the health bar (a red bar behind it, bar.healthLoss) and of the absorb
+-- bar (a paler strip at its left end, bar.absorbLoss) drains away instead of vanishing: it waits
+-- LOSS_DELAY, then shrinks over LOSS_DURATION. A further loss during the wait pushes the start back; one
+-- during the drain restarts it from where it is. A gain back to the start ends it. A unit change (another
+-- GUID, or one that cannot be read) and ZPerl.NoFadeBars start over without animating.
+-- Readable values are animated here. A secret health (retail) cannot be subtracted, so the client's own
+-- bar interpolation drains the red bar, where it has one; a secret absorb is not animated.
+local LOSS_DURATION, LOSS_DELAY, LOSS_PAUSE, LOSS_POSTPONE = 0.75, 0.1, 0.025, 0.025
+local Interpolation = Enum and Enum.StatusBarInterpolation
+local EASE = Interpolation and Interpolation.ExponentialEaseOut
+local IMMEDIATE = Interpolation and Interpolation.Immediate
+
+-- LossValue(loss, current): the drawn value, from loss.startValue down to current, and how far the drain is (0..1)
+local function LossValue(loss, current)
+	local elapsed = GetTime() - loss.startTime
+	if (elapsed <= 0) then
+		return loss.startValue, 0
+	end
+	local done = elapsed / LOSS_DURATION
+	if (done < 1 and loss.startValue > current) then
+		return loss.startValue - done * (loss.startValue - current), done
+	end
+	return current, 1
+end
+
+-- LossTrack(loss, value): feeds a new readable value; returns true while an animation runs
+local function LossTrack(loss, value)
+	local last = loss.lastValue
+	loss.lastValue = value
+	if (not last or tempDisableFadeBars) then
+		loss.startTime = nil
+		return false
+	end
+	if (value < last) then
+		local now = GetTime()
+		if (not loss.startTime) then
+			loss.startValue = last
+			loss.startTime = now + LOSS_DELAY
+		elseif (loss.startTime > now) then
+			loss.startTime = loss.startTime + LOSS_POSTPONE
+		else
+			loss.startValue = LossValue(loss, last)
+			loss.startTime = now + LOSS_PAUSE
+		end
+	elseif (loss.startTime and value >= loss.startValue) then
+		loss.startTime = nil
+	end
+	return loss.startTime ~= nil
+end
+
+-- SameUnit(loss, unit): whether unit is the one loss saw last; remembers it
+local function SameUnit(loss, unit)
+	local guid = UnitGUID(unit)
+	local same = CanAccess(guid) and CanAccess(loss.guid) and guid ~= nil and guid == loss.guid
+	loss.guid = guid
+	return same
+end
+
+local function StopLoss(loss)
+	loss.startTime = nil
+	loss:SetScript("OnUpdate", nil)
+	loss:Hide()
+end
+
+local function HealthLossOnUpdate(loss)
+	local value, done = LossValue(loss, loss.lastValue)
+	if (done >= 1) then
+		loss:SetValue(loss.lastValue)
+		StopLoss(loss)
+	else
+		loss:SetValue(value)
+	end
+end
+
+-- HealthLossBar(bar): the red bar right behind the health bar, as the incoming heal bar is
+local function HealthLossBar(bar)
+	local loss = bar.healthLoss
+	if (not loss) then
+		local parent = bar:GetParent()
+		loss = CreateFrame("StatusBar", nil, parent)
+		loss:SetAllPoints(bar)
+		loss:SetFrameLevel(max(bar:GetFrameLevel() - 1, parent:GetFrameLevel()))
+		loss:SetStatusBarTexture(bar:GetStatusBarTexture():GetTexture() or "Interface\\TargetingFrame\\UI-StatusBar")
+		loss.tex = loss:GetStatusBarTexture()
+		ZPerl.RegisterBar(loss)
+		loss:SetStatusBarColor(1, 0, 0, 1)
+		loss:Hide()
+		bar.healthLoss = loss
+	end
+	return loss
+end
+
+-- ZPerl.HealthLoss(bar, unit, hp, hpMax, off): the health loss of a health bar just set to hp of hpMax;
+-- off when the bar does not show the health (the inverse option)
+function ZPerl.HealthLoss(bar, unit, hp, hpMax, off)
+	local loss = bar.healthLoss
+	if (off or not conf.bar.healthLoss) then
+		if (loss) then
+			loss.lastValue = nil
+			StopLoss(loss)
+		end
+		return
+	end
+	loss = loss or HealthLossBar(bar)
+	local same = SameUnit(loss, unit)
+	loss:SetMinMaxValues(0, hpMax)
+
+	if (CanAccess(hp) and CanAccess(hpMax)) then
+		if (not same) then
+			loss.lastValue = nil
+		end
+		if (LossTrack(loss, hp)) then
+			HealthLossOnUpdate(loss)
+			loss:Show()
+			loss:SetScript("OnUpdate", HealthLossOnUpdate)
+		else
+			-- kept at the health, so a later secret update drains from here
+			loss:SetValue(hp)
+			StopLoss(loss)
+		end
+	elseif (EASE) then
+		-- the bar rests under the health bar's fill; after a loss it eases down from the old value
+		loss.lastValue = nil
+		loss.startTime = nil
+		loss:SetScript("OnUpdate", nil)
+		loss:SetValue(hp, (same and not tempDisableFadeBars) and EASE or IMMEDIATE)
+		loss:Show()
+	else
+		loss.lastValue = nil
+		StopLoss(loss)
+	end
+end
+
+local function AbsorbLossOnUpdate(loss)
+	local value, done = LossValue(loss, loss.lastValue)
+	if (done >= 1) then
+		StopLoss(loss)
+		return
+	end
+	-- the absorb bar fills the health fill from its right end at the health bar's scale: the lost strip
+	-- ends where the absorb bar begins, and is as wide as the part still draining
+	local healthBar = loss.healthBar
+	local scale = healthBar:GetWidth() / loss.hpMax
+	local fill = healthBar:GetStatusBarTexture()
+	local right = -loss.lastValue * scale
+	loss:SetPoint("TOPRIGHT", fill, "TOPRIGHT", right, 0)
+	loss:SetPoint("BOTTOMRIGHT", fill, "BOTTOMRIGHT", right, 0)
+	loss:SetWidth(max(0, (min(value, loss.hp) - loss.lastValue) * scale))
+end
+
+-- AbsorbLoss(bar, healthBar, unit, amount): the absorb loss of the absorb bar bar; healthBar nil stops it
+local function AbsorbLoss(bar, healthBar, unit, amount)
+	local loss = bar.absorbLoss
+	local hp, hpMax
+	if (healthBar and conf.bar.absorbLoss and not conf.bar.inverse) then
+		hp = healthBar:GetValue()
+		hpMax = select(2, healthBar:GetMinMaxValues())
+		amount = amount or 0
+	end
+	---@diagnostic disable-next-line: secret-comparison
+	if (not hp or not CanAccess(amount) or not CanAccess(hp) or not CanAccess(hpMax) or hpMax <= 0) then
+		if (loss) then
+			loss.lastValue = nil
+			StopLoss(loss)
+		end
+		return
+	end
+
+	if (not loss) then
+		loss = CreateFrame("Frame", nil, healthBar:GetParent())
+		loss.texture = loss:CreateTexture(nil, "ARTWORK")
+		loss.texture:SetAllPoints()
+		loss.texture:SetTexture("Interface\\Buttons\\White8x8")
+		loss:Hide()
+		bar.absorbLoss = loss
+	end
+	if (not SameUnit(loss, unit)) then
+		loss.lastValue = nil
+	end
+
+	-- the absorb bar never shows more than the health
+	if (LossTrack(loss, min(amount, hp))) then
+		loss.healthBar, loss.hp, loss.hpMax = healthBar, hp, hpMax
+		local c = conf.color.bar.absorb or {r = 0.14, g = 0.33, b = 0.7, a = 0.7}
+		loss.texture:SetVertexColor(c.r, c.g, c.b, (c.a or 1) * 0.6)
+		loss:SetFrameLevel(healthBar:GetFrameLevel() + 1)
+		AbsorbLossOnUpdate(loss)
+		loss:Show()
+		loss:SetScript("OnUpdate", AbsorbLossOnUpdate)
+	else
+		StopLoss(loss)
+	end
 end
 
 -- ZPerl.RegisterClickCastFrame
@@ -613,8 +810,10 @@ function ZPerl.SetExpectedAbsorbs(self)
 		end
 		if (not healthBar or ZPerl.SafeBool(UnitIsDeadOrGhost(unit), false)) then
 			bar:Hide()
+			AbsorbLoss(bar)
 			return
 		end
+		AbsorbLoss(bar, healthBar, unit, amount)
 		-- a secret is never nil; a readable amount must be above 0
 		---@diagnostic disable-next-line: secret-comparison
 		if (not IsSecret(amount) and (not amount or amount <= 0)) then
@@ -944,16 +1143,16 @@ function ZPerl.UnitThreatStatus(self, relative, immediate)
 	end
 end
 
--- ZPerl.RegisterPrediction(self, conf, element)
+-- ZPerl.RegisterPrediction(self, frameConf, element)
 -- The heal prediction option turns the frame's heal element (UNIT_HEAL_PREDICTION for the frame's
 -- units) on or off. The frame must have run ZPerl.UnitFrameInit.
-function ZPerl.RegisterPrediction(self, conf, element)
+function ZPerl.RegisterPrediction(self, frameConf, element)
 	if not self then
 		return
 	end
 
 	-- the client's own event drives the bar; with LibHealComm its callbacks do (below)
-	if conf.healprediction and (HealComm or type(UnitGetIncomingHeals) == "function") then
+	if frameConf.healprediction and (HealComm or type(UnitGetIncomingHeals) == "function") then
 		ZPerl.UnitFrameEnable(self, element)
 	else
 		ZPerl.UnitFrameDisable(self, element)
@@ -986,6 +1185,7 @@ if (HealComm) then
 	end
 	for _, callback in ipairs({"HealComm_HealStarted", "HealComm_HealStopped", "HealComm_HealDelayed",
 		"HealComm_HealUpdated", "HealComm_ModifierChanged", "HealComm_GUIDDisappeared"}) do
+		---@diagnostic disable-next-line: undefined-field
 		HealComm.RegisterCallback("ZPerl", callback, HealCommUpdate)
 	end
 end

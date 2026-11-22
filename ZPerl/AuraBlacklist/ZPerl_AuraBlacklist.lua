@@ -4,6 +4,7 @@
 -- frames. The only links to the core are ZPerl.AuraBlacklist.Set (read by
 -- ZPerl.AurasRebuild) and an entry in ZPerl.SettingsPages for its tab in the options window.
 
+-- ZPerl.OptionsL once the options window builds our tab (ZPerl_Options loads on demand); the English text until then
 local L = ZPerl.L
 
 if (not ZPerl.AurasUpdate or not ZPerl.CanAccess or not ZPerl.SafeBool) then
@@ -80,7 +81,7 @@ end
 
 -- DisplayName(id, entry)
 local function DisplayName(id, entry)
-	return entry.name or format(L["AURABL_SPELL"], id)
+	return entry.name or format(L["Spell %d"], id)
 end
 
 -- SortByName
@@ -227,7 +228,7 @@ local function Config_UpdateList()
 			row:Hide()
 		end
 	end
-	config.count:SetText(format(L["AURABL_COUNT"], total))
+	config.count:SetText(format(L["%d spells"], total))
 	config.enable:SetChecked(db.enabled and true or false)
 	config.import:SetEnabled(GetBBFList() ~= nil)
 end
@@ -276,7 +277,7 @@ local function AddSpell(text)
 			name = SpellNameIcon(id)
 		end
 		if (not name) then
-			ZPerl.Notice(L["AURABL_NOTFOUND"], text)
+			ZPerl.Notice(L["Buff blacklist: no spell found for \"%s\" - try the spell ID"], text)
 			return
 		end
 	else
@@ -287,19 +288,19 @@ local function AddSpell(text)
 			local _
 			name, _, id = SpellNameIcon(text)
 			if (not id or not name or strlower(name) ~= strlower(text)) then
-				ZPerl.Notice(L["AURABL_NOTFOUND"], text)
+				ZPerl.Notice(L["Buff blacklist: no spell found for \"%s\" - try the spell ID"], text)
 				return
 			end
 		end
 	end
 
 	if (spells[id]) then
-		ZPerl.Notice(L["AURABL_EXISTS"], DisplayName(id, spells[id]), id)
+		ZPerl.Notice(L["Buff blacklist: %s (%d) is already on the list"], DisplayName(id, spells[id]), id)
 		return
 	end
 
 	spells[id] = {name = name}
-	ZPerl.Notice(L["AURABL_ADDED"], name, id)
+	ZPerl.Notice(L["Buff blacklist: added %s (%d)"], name, id)
 	ListChanged(true)
 	return true
 end
@@ -308,7 +309,7 @@ end
 local function ImportBBF()
 	local src = GetBBFList()
 	if (not src or not spells) then
-		ZPerl.Notice(L["AURABL_IMPORT_NONE"])
+		ZPerl.Notice(L["Buff blacklist: no BetterBlizzFrames blacklist found (BetterBlizzFrames must be enabled)"])
 		return
 	end
 
@@ -336,7 +337,7 @@ local function ImportBBF()
 		end
 	end
 
-	ZPerl.Notice(L["AURABL_IMPORTED"], added, existing, skipped)
+	ZPerl.Notice(L["Buff blacklist: imported %d new spell(s) from BetterBlizzFrames, %d already listed, %d skipped (no spell ID)"], added, existing, skipped)
 	if (added > 0) then
 		ListChanged(true)
 	end
@@ -412,7 +413,7 @@ local function CreateRow(list, i)
 	row.remove = CreateFrame("Button", nil, row, "UIPanelCloseButton")
 	row.remove:SetSize(22, 22)
 	row.remove:SetPoint("LEFT", 318, 0)
-	row.remove.tooltipTitle = L["AURABL_REMOVE"]
+	row.remove.tooltipTitle = L["Remove"]
 	row.remove:SetScript("OnClick", Remove_OnClick)
 	row.remove:SetScript("OnEnter", ShowTooltip)
 	row.remove:SetScript("OnLeave", GameTooltip_Hide)
@@ -436,7 +437,7 @@ local function CreateConfig(parent)
 		db.enabled = self:GetChecked() and true or false
 		ListChanged(false)
 	end)
-	local enableLabel = CreateLabel(f, L["AURABL_ENABLE"], "GameFontHighlight")
+	local enableLabel = CreateLabel(f, L["Enable buff blacklist"], "GameFontHighlight")
 	enableLabel:SetPoint("LEFT", enable, "RIGHT", 2, 0)
 	f.enable = enable
 
@@ -444,10 +445,10 @@ local function CreateConfig(parent)
 	local import = CreateFrame("Button", nil, f, "UIPanelButtonTemplate")
 	import:SetSize(200, 22)
 	import:SetPoint("TOPRIGHT", -14, -11)
-	import:SetText(L["AURABL_IMPORT"])
+	import:SetText(L["Import from BetterBlizzFrames"])
 	import:SetScript("OnClick", ImportBBF)
-	import.tooltipTitle = L["AURABL_IMPORT"]
-	import.tooltipText = L["AURABL_IMPORT_DESC"]
+	import.tooltipTitle = L["Import from BetterBlizzFrames"]
+	import.tooltipText = L["Adds the BetterBlizzFrames blacklist entries that are not on this list yet. Entries already on this list are not changed. Needs BetterBlizzFrames to be enabled."]
 	import:SetScript("OnEnter", ShowTooltip)
 	import:SetScript("OnLeave", GameTooltip_Hide)
 	if (import.SetMotionScriptsWhileDisabled) then
@@ -456,7 +457,7 @@ local function CreateConfig(parent)
 	f.import = import
 
 	-- Add by spell ID or exact name
-	local addLabel = CreateLabel(f, L["AURABL_ADD_DESC"])
+	local addLabel = CreateLabel(f, L["Spell ID or exact spell name:"])
 	addLabel:SetPoint("TOPLEFT", 16, -44)
 
 	local edit = CreateFrame("EditBox", "ZPerl_AuraBlacklist_ConfigAdd", f, "InputBoxTemplate")
@@ -474,9 +475,9 @@ local function CreateConfig(parent)
 	edit:SetScript("OnEscapePressed", edit.ClearFocus)
 
 	local add = CreateFrame("Button", nil, f, "UIPanelButtonTemplate")
-	add:SetSize(80, 22)
+	add:SetSize(90, 22)
 	add:SetPoint("LEFT", edit, "RIGHT", 8, 0)
-	add:SetText(L["AURABL_ADD"])
+	add:SetText(L["Add spell"])
 	add:SetScript("OnClick", DoAdd)
 
 	-- List
@@ -487,9 +488,9 @@ local function CreateConfig(parent)
 	list:EnableMouseWheel(true)
 	list:SetScript("OnMouseWheel", List_OnMouseWheel)
 
-	local colName = CreateLabel(f, L["AURABL_COL_NAME"])
+	local colName = CreateLabel(f, L["Name"])
 	colName:SetPoint("BOTTOMLEFT", list, "TOPLEFT", 32, 2)
-	local colID = CreateLabel(f, L["AURABL_COL_ID"])
+	local colID = CreateLabel(f, L["Spell ID"])
 	colID:SetPoint("BOTTOMLEFT", list, "TOPLEFT", 256, 2)
 
 	-- Blizzard's minimal scroll bar (as in the game's settings); the rows show sorted[listOffset + 1 ...]
@@ -533,6 +534,7 @@ tinsert(ZPerl.SettingsPages, {
 	key = "AuraBlacklist",
 	name = "Aura blacklist",
 	create = function(page)
+		L = ZPerl.OptionsL
 		config = CreateConfig(page)
 		RebuildSorted()
 		Config_UpdateList()

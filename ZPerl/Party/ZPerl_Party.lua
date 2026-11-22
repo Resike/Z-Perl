@@ -94,11 +94,22 @@ function ZPerl.Party.EventsOnLoad(self)
 	--partyHeader:UnregisterEvent("UNIT_NAME_UPDATE") -- IMPORTANT! Fix for WoW 2.1 UNIT_NAME_UPDATE lockup issues
 
 
-	-- Hide Blizzard party frames
+	-- Hide Blizzard party frames, only while Z-Perl's are on: they come back after a reload. The
+	-- "Raid-style party frames" CVar is a saved client setting, so its value from before Z-Perl turned it off
+	-- is kept in ZPerlDB.compactPartyCVar and put back once the party frames are off.
 	local function HideBlizzardPartyFrames()
-		-- Can't modify protected frames during combat
+		local on = pconf and pconf.enable
+		if (not on and not (ZPerlDB and ZPerlDB.compactPartyCVar)) then
+			return
+		end
+		-- Can't modify protected frames (or set this CVar) during combat
 		if InCombatLockdown() then
 			ZPerl.AfterCombat(HideBlizzardPartyFrames)
+			return
+		end
+		if (not on) then
+			ZPerl.Pcall(SetCVar, "useCompactPartyFrames", ZPerlDB.compactPartyCVar)
+			ZPerlDB.compactPartyCVar = nil
 			return
 		end
 
@@ -122,7 +133,13 @@ function ZPerl.Party.EventsOnLoad(self)
 		-- itself, as that also controls the Blizzard raid frames. Hiding/disabling the
 		-- manager here would suppress the native raid UI even when ZPerl_RaidFrames is
 		-- not loaded, or when the user has "Disable the default raid frames" turned off.
-		ZPerl.Pcall(SetCVar, "useCompactPartyFrames", "0")
+		local compact = GetCVar("useCompactPartyFrames")
+		if (compact and compact ~= "0") then
+			if (ZPerlDB) then
+				ZPerlDB.compactPartyCVar = compact
+			end
+			ZPerl.Pcall(SetCVar, "useCompactPartyFrames", "0")
+		end
 	end
 
 	HideBlizzardPartyFrames()

@@ -57,6 +57,9 @@ local APPLY = {
 	["general.look.inverse"] = PAINT,
 	["general.look.fading"] = {},
 	["general.look.fadetime"] = {},
+	["general.look.healthloss"] = {},
+	["general.look.absorbloss"] = {},
+	["general.look.fullpulse"] = {"player", "playerpet"},
 	["general.look.transparency"] = {"framealpha", "party", "partypet", "player", "raid", "raidpets", "target"},
 	["general.look.texttransparency"] = {"texttransparency", "player", "playerpet", "target", "raidhelper"},
 	["general.look.background"] = BACKDROP,
@@ -324,6 +327,12 @@ check("general.look.fat", "Fat health bars", "Draw the health bars fat.", {path 
 check("general.look.inverse", "Inverse bars", "Bars fill upwards from empty as units get damaged, instead of emptying from full.", {path = "bar.inverse"})
 check("general.look.fading", "Fading bars", "Health and mana bars fade away the portion of lost health and mana.", {path = "bar.fading"})
 slider("general.look.fadetime", "Fade time", "The speed of the fading bars.", {path = "bar.fadeTime", min = 0.2, max = 2, step = 0.1})
+check("general.look.healthloss", "Health loss animation", "Lost health shows as a red bar that drains away behind the health bar.", {path = "bar.healthLoss"})
+check("general.look.absorbloss", "Absorb loss animation", "A lost absorb shield drains away from the absorb bar instead of vanishing. Not on clients that hide absorb amounts.", {path = "bar.absorbLoss"})
+-- not on retail and Forever: the player's power is secret there in combat, when the pulse plays
+if not ZPerl.IsRetail and not ZPerl.IsForever then
+	check("general.look.fullpulse", "Full power pulse", "The player's and pet's power bars flash when rage, energy, focus or a similar power reaches its maximum.", {path = "bar.fullPulse"})
+end
 slider("general.look.transparency", "Frame transparency", "The transparency of the frames.", {path = "transparency.frame", min = 0, max = 1, step = 0.01, percent = true})
 slider("general.look.texttransparency", "Text transparency", "The transparency of the text.", {path = "transparency.text", min = 0, max = 1, step = 0.01, percent = true})
 color("general.look.background", "Background color", "The color and transparency of all frame backgrounds.", {path = "color.frame"})

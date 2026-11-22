@@ -117,7 +117,7 @@ end
 
 -- ZPerl.HealthSetBar(bar, unit, ignoreInverse): fills a health bar from the unit (the "inverse" bar
 -- option applies unless ignoreInverse, for the frames that never honoured it); returns hp, hpMax and missing
--- for the text. The readable arithmetic only picks the deficit when both values can be read: it
+-- for the text, and runs the health loss animation (ZPerl.HealthLoss). The readable arithmetic only picks the deficit when both values can be read: it
 -- keeps the ladder text of the plain path; a secret deficit comes from UnitHealthMissing. Every
 -- health call passes usePredicted = true (the API's default, what the old code showed), so the bar,
 -- the texts and the color read the same health.
@@ -135,8 +135,10 @@ function ZPerl.HealthSetBar(bar, u, ignoreInverse)
 		missing = UnitHealthMissing(u, true)
 	end
 
+	local inverse = conf.bar.inverse and not ignoreInverse
 	bar:SetMinMaxValues(0, hpMax)
-	bar:SetValue(conf.bar.inverse and not ignoreInverse and missing or hp)
+	bar:SetValue(inverse and missing or hp)
+	ZPerl.HealthLoss(bar, u, hp, hpMax, inverse)
 	return hp, hpMax, missing
 end
 
@@ -192,6 +194,205 @@ function ZPerl.PowerSetBar(bar, u, powerType, clampMax)
 	return cur, max, barMax
 end
 
+-- The full power pulse: a Lua port of Blizzard's FullResourcePulseFrame (retail's player power bar) when
+-- a power that fills up (rage, energy, focus, ...) reaches its max in combat: a spike at the bar's right
+-- end, then a glow that pulses while full and fades out when the power drops or combat ends. The port
+-- rather than the template on every client: only retail and Forever have the template, and retail's
+-- power is secret in combat, so the template would never play there. Classic textures stand in where
+-- the client lacks the FullAlert atlases. Made on first use. Only readable values: the logic compares them.
+-- Not on retail and Forever: the player's power is secret there in combat, when the pulse plays (the
+-- option is hidden there too).
+local PULSE_CLIENT = not ZPerl.IsRetail and not ZPerl.IsForever
+local PULSE_TOKENS = {
+	RAGE = true, FOCUS = true, ENERGY = true, LUNAR_POWER = true, MAELSTROM = true, FURY = true,
+	PAIN = true, INSANITY = true, POWER_TYPE_HEAT = true,
+}
+
+-- The template's mixin (Blizzard_UnitFrame/Mainline/BuilderSpenderFrame.lua, FullResourcePulse)
+local PulseMixin = {}
+
+local function PulseOnEvent(self, event)
+	if (event == "PLAYER_REGEN_ENABLED") then
+		if (self.SpikeFrame.SpikeAnim:IsPlaying() or self.PulseFrame.PulseAnim:IsPlaying()) then
+			self.FadeoutAnim:Play()
+		end
+	end
+end
+
+function PulseMixin:Initialize(active)
+	self.active = active
+	if (active) then
+		self:RegisterEvent("PLAYER_REGEN_ENABLED")
+		self:SetScript("OnEvent", PulseOnEvent)
+	else
+		self:UnregisterEvent("PLAYER_REGEN_ENABLED")
+		self:SetScript("OnEvent", nil)
+	end
+end
+
+function PulseMixin:SetMaxValue(maxValue)
+	self.maxValue = maxValue
+end
+
+function PulseMixin:StartAnimIfFull(newValue)
+	if (newValue == self.maxValue and UnitAffectingCombat("player")) then
+		if (self.FadeoutAnim:IsPlaying() or not self.PulseFrame.PulseAnim:IsPlaying()) then
+			self.SpikeFrame.SpikeAnim:Play()
+		end
+		self.FadeoutAnim:Stop()
+		self:SetAlpha(1)
+		self.PulseFrame.PulseAnim:Play()
+	elseif (not self.FadeoutAnim:IsPlaying() and (self.PulseFrame.PulseAnim:IsPlaying() or self.SpikeFrame.SpikeAnim:IsPlaying())) then
+		self.FadeoutAnim:Play()
+	end
+end
+
+function PulseMixin:RemoveAnims()
+	self:SetAlpha(0)
+	self.PulseFrame.PulseAnim:Stop()
+	self.SpikeFrame.SpikeAnim:Stop()
+end
+
+-- A texture of the port: the atlas at its size, or a classic stand-in (additive spark, tinted, w x h)
+local SPARK = "Interface\\CastingBar\\UI-CastingBar-Spark"
+local function PulseTexture(parent, atlas, w, h, r, g, b)
+	local t = parent:CreateTexture(nil, "OVERLAY")
+	if (C_Texture and C_Texture.GetAtlasInfo and C_Texture.GetAtlasInfo(atlas)) then
+		t:SetAtlas(atlas, true)
+	else
+		t:SetTexture(SPARK)
+		t:SetBlendMode("ADD")
+		t:SetVertexColor(r, g, b)
+		t:SetSize(w, h)
+	end
+	t:SetAlpha(0)
+	return t
+end
+
+-- One animation of the port: kind "Alpha" (a, b = from, to), "Scale" (a, b = {x, y} from, to; origin
+-- LEFT) or "Translation" (a, b = x, y offset)
+local function PulseAnim(group, kind, target, duration, delay, smoothing, a, b)
+	local anim = group:CreateAnimation(kind)
+	if (target) then
+		anim:SetTarget(target)
+	end
+	anim:SetOrder(1)
+	anim:SetDuration(duration)
+	anim:SetStartDelay(delay)
+	anim:SetSmoothing(smoothing)
+	if (kind == "Alpha") then
+		anim:SetFromAlpha(a)
+		anim:SetToAlpha(b)
+	elseif (kind == "Scale") then
+		anim:SetScaleFrom(a[1], a[2])
+		anim:SetScaleTo(b[1], b[2])
+		anim:SetOrigin("LEFT", 0, 0)
+	else
+		anim:SetOffset(a, b)
+	end
+end
+
+-- The port of the template (Blizzard_UnitFrame/Mainline/BuilderSpenderFrame.xml, FullResourcePulseFrame)
+---@return any
+local function PulseFramePort(bar)
+	local f = CreateFrame("Frame", nil, bar)
+	f:SetSize(119, 12)
+
+	local spike = CreateFrame("Frame", nil, f)
+	spike:SetSize(119, 12)
+	spike:SetPoint("TOPRIGHT")
+	f.SpikeFrame = spike
+	local big = PulseTexture(spike, "FullAlert-BigSpike", 48, 40, 1, 0.9, 0.5)
+	big:SetPoint("RIGHT", 21, 0)
+	local stay = PulseTexture(spike, "FullAlert-FrameGlow", 20, 24, 1, 1, 0.8)
+	stay:SetPoint("RIGHT", 11, 0)
+	spike.BigSpikeGlow, spike.AlertSpikeStay = big, stay
+
+	local spikeAnim = spike:CreateAnimationGroup()
+	spikeAnim:SetToFinalAlpha(true)
+	PulseAnim(spikeAnim, "Alpha", big, 0.25, 0, "IN", 0, 1)
+	PulseAnim(spikeAnim, "Scale", big, 0.1, 0, "NONE", {0.25, 0.75}, {1.4, 0.75})
+	PulseAnim(spikeAnim, "Scale", big, 0.2, 0.2, "IN", {1, 1}, {0.5, 1})
+	PulseAnim(spikeAnim, "Alpha", big, 0.25, 0.3, "NONE", 1, 0)
+	PulseAnim(spikeAnim, "Alpha", stay, 0.25, 0, "IN", 0, 1)
+	spike.SpikeAnim = spikeAnim
+
+	local pulse = CreateFrame("Frame", nil, f)
+	pulse:SetSize(119, 12)
+	pulse:SetPoint("TOPRIGHT")
+	f.PulseFrame = pulse
+	local yellow = PulseTexture(pulse, "FullAlert-YellowCurveGlow", 20, 24, 1, 0.82, 0)
+	yellow:SetSize(20, 24)
+	yellow:SetPoint("RIGHT", -1, -1)
+	local soft = PulseTexture(pulse, "FullAlert-SoftCurveGlow", 20, 24, 1, 1, 0.8)
+	soft:SetSize(20, 24)
+	soft:SetPoint("RIGHT", -1, -1)
+	pulse.YellowGlow, pulse.SoftGlow = yellow, soft
+
+	local pulseAnim = pulse:CreateAnimationGroup()
+	pulseAnim:SetLooping("REPEAT")
+	PulseAnim(pulseAnim, "Alpha", yellow, 0.1, 0, "NONE", 0, 1)
+	PulseAnim(pulseAnim, "Translation", yellow, 0.5, 0, "OUT", 20, 0)
+	PulseAnim(pulseAnim, "Alpha", yellow, 0.1, 0.4, "NONE", 1, 0)
+	PulseAnim(pulseAnim, "Alpha", soft, 0.1, 0, "NONE", 0, 1)
+	PulseAnim(pulseAnim, "Translation", soft, 0.7, 0, "OUT", 20, 0)
+	PulseAnim(pulseAnim, "Alpha", soft, 0.1, 0.6, "NONE", 1, 0)
+	pulse.PulseAnim = pulseAnim
+
+	local fadeout = f:CreateAnimationGroup()
+	fadeout:SetToFinalAlpha(true)
+	PulseAnim(fadeout, "Alpha", nil, 0.5, 0, "NONE", 1, 0)
+	fadeout:SetScript("OnFinished", function()
+		pulseAnim:Stop()
+		spikeAnim:Stop()
+	end)
+	f.FadeoutAnim = fadeout
+
+	for k, v in pairs(PulseMixin) do
+		f[k] = v
+	end
+	return f
+end
+
+local function FullPulseFrame(bar)
+	local f = PulseFramePort(bar)
+	f:ClearAllPoints()
+	f:SetAllPoints(bar)
+	local stay = f.SpikeFrame.AlertSpikeStay
+	if (stay) then
+		stay:ClearAllPoints()
+		stay:SetPoint("TOPRIGHT", bar, "TOPRIGHT", 11, 4)
+		stay:SetPoint("BOTTOMRIGHT", bar, "BOTTOMRIGHT", 11, -4)
+	end
+	f:RemoveAnims()
+	return f
+end
+
+-- ZPerl.FullPowerPulse(bar, unit, cur, max): runs the pulse of a power bar just set to cur of max
+function ZPerl.FullPowerPulse(bar, u, cur, max)
+	local f = bar.fullPulse
+	local _, token = UnitPowerType(u)
+	---@diagnostic disable-next-line: secret-comparison
+	local on = PULSE_CLIENT and conf.bar.fullPulse and ZPerl.CanAccess(token) and PULSE_TOKENS[token] and ZPerl.CanAccess(cur) and ZPerl.CanAccess(max) and max > 0
+	if (not on) then
+		if (f) then
+			f:RemoveAnims()
+		end
+		return
+	end
+	if (f == nil) then
+		f = FullPulseFrame(bar)
+		bar.fullPulse = f
+	end
+	if (f.zperlMax ~= max or f.zperlToken ~= token) then
+		f:Initialize(true)
+		f:SetMaxValue(max)
+		f.zperlMax, f.zperlToken = max, token
+	end
+	-- the template's own logic: a spike on reaching max in combat, a pulse while full, a fade out after
+	f:StartAnimIfFull(cur)
+end
+
 -- ZPerl.PowerUpdate(frame, style): the power element of a unit frame (frame.partyid is the unit,
 -- frame.statsFrame.manaBar the bar). style is a constant table of the module:
 --   percent    format of the percent text ("%d%%" truncates, "%.0f%%" rounds); nil prints none
@@ -199,6 +400,7 @@ end
 --   rawIfEmpty a readable max below 1 prints the value in the percent slot (as a type >= 1 power does)
 --   text       value text in .text: "valued" (ZPerl.SetValuedText) or "whole" ("%d/%d")
 --   clampMax   see ZPerl.PowerSetBar
+--   fullPulse  the full power pulse (ZPerl.FullPowerPulse)
 -- Returns the power type, value and max. A power type of 1 or more (rage, energy, ...) prints the
 -- value where the percent would be; the percent is ZPerl.GetPowerPercent's, plain or secret.
 function ZPerl.PowerUpdate(frame, style)
@@ -206,6 +408,9 @@ function ZPerl.PowerUpdate(frame, style)
 	local bar = frame.statsFrame.manaBar
 	local powerType = ZPerl.GetDisplayedPowerType(u)
 	local cur, max = ZPerl.PowerSetBar(bar, u, powerType, style.clampMax)
+	if (style.fullPulse) then
+		ZPerl.FullPowerPulse(bar, u, cur, max)
+	end
 
 	if (style.percent) then
 		local fs = style.inText and bar.text or bar.percent
@@ -804,7 +1009,7 @@ end
 -- maxFrameCount, layoutIndex, cooldown, countdown}. exclude is a set of spell IDs the groups drop.
 -- Reads no unit state and no aura data, so the filters apply whatever the unit's reaction.
 -- One group, "other", unless an option asks for more. castable / curable (ticked = 1) add the RAID
--- token; onlyMine keeps the player's and the player's pets' auras. big splits "mine" (the player's and
+-- token; onlyMine keeps the player's auras (and the pets' on the stand-in, see below). big splits "mine" (the player's and
 -- pets', double size, first) from "other"; buffs.bigStealable adds "steal" (stealable buffs, double
 -- size) and keeps them out of "other". buffs.bigpet is not read: the owner filter includes the pet.
 -- lineSize (the container's line width) and buffs.rows set each group's maxFrameCount to rows x icons per
@@ -824,14 +1029,33 @@ function ZPerl.AurasGroups(c, kind, exclude, lineSize, half)
 	local split = (b.cooldown and not b.cooldownAny) or (b.countdown and not b.countdownAny and c.auraText ~= false)
 	local textOff = c.auraText == false
 	local gap = ZPerl.AuraGap(c)
+	-- Blizzard's container cannot be trusted with the owner candidate filter, so there the owner
+	-- goes in the aura query instead: PLAYER (cast by the player, the pet or the vehicle) for a group of the
+	-- player's auras, !PLAYER for the groups beside it. Every group there tests every aura on its own (an aura
+	-- is not claimed by the first group it fits), so without !PLAYER "other" shows the player's auras again.
+	-- A client whose filters cannot be negated (no AuraUtil.AuraFilterNegationPrefix) keeps only the candidate
+	-- filter on those. The stand-in applies the candidate filter itself, so it gets no token.
+	local native = not ZPerl.AuraStandIn
+	local canNegate = native and AuraUtil and AuraUtil.AuraFilterNegationPrefix == "!"
+	-- Where the token carries the owner the candidate filter does not: Blizzard's test of a secret
+	-- isFromPlayerOrPlayerPet (another player's buff) drops the aura rather than passing it.
 	local function group(key, size, owner, stealable)
+		local f = filter
+		local candOwner = owner
+		if (owner == true and native) then
+			f = f.."|PLAYER"
+			candOwner = nil
+		elseif (owner == false and canNegate) then
+			f = f.."|!PLAYER"
+			candOwner = nil
+		end
 		local cand
-		if (exclude or owner ~= nil or stealable ~= nil) then
-			cand = {excludeSpellIDs = exclude, isFromPlayerOrPlayerPet = owner, isStealable = stealable}
+		if (exclude or candOwner ~= nil or stealable ~= nil) then
+			cand = {excludeSpellIDs = exclude, isFromPlayerOrPlayerPet = candOwner, isStealable = stealable}
 		end
 		return {
 			key = key,
-			filter = filter,
+			filter = f,
 			candidateFilters = cand,
 			size = size,
 			maxFrameCount = (lineSize and rows and size) and rows * max(1, floor((lineSize + 3) / (size + 3))) or math.huge,
@@ -848,6 +1072,7 @@ function ZPerl.AurasGroups(c, kind, exclude, lineSize, half)
 	end
 	local big = o.big and size and size * 2
 	if (o.onlyMine) then
+		-- group adds the PLAYER token on Blizzard's container (see above)
 		return {group(big and "mine" or "other", big or size, true)}
 	end
 	local mineSize = big or (split and size)

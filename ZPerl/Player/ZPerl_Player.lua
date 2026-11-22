@@ -643,7 +643,7 @@ function ZPerl.Player.DruidBarUpdate(self)
 end
 
 -- UpdateMana
-local powerStyle = {percent = percD, text = "valued", rawIfEmpty = true}
+local powerStyle = {percent = percD, text = "valued", rawIfEmpty = true, fullPulse = true}
 local function UpdateMana(self)
 	ZPerl.PowerUpdate(self, powerStyle)
 

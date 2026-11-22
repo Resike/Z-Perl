@@ -548,7 +548,7 @@ L["Show the focus's debuffs."] = "Show the focus's debuffs."
 
 -- Focus: Focus
 L["Show focus frame"] = "Show focus frame"
-L["Show the focus frame."] = "Show the focus frame."
+L["Show the focus frame. Blizzard's focus frame is hidden while this is on, and comes back after a reload when it is off."] = "Show the focus frame. Blizzard's focus frame is hidden while this is on, and comes back after a reload when it is off."
 L["Sound on focus change"] = "Sound on focus change"
 L["Play a sound when the focus changes: one for enemies, friendly and neutral units."] = "Play a sound when the focus changes: one for enemies, friendly and neutral units."
 
@@ -562,7 +562,7 @@ L["Show the focus target's debuffs."] = "Show the focus target's debuffs."
 
 -- Party: Size
 L["Show party frames"] = "Show party frames"
-L["Show the party frames."] = "Show the party frames."
+L["Show the party frames. Blizzard's party frames are hidden while this is on, and come back after a reload when it is off."] = "Show the party frames. Blizzard's party frames are hidden while this is on, and come back after a reload when it is off."
 L["The size of the party frames."] = "The size of the party frames."
 L["Widen the party frames."] = "Widen the party frames."
 
@@ -858,3 +858,44 @@ L["New name of layout %s:"] = "New name of layout %s:"
 L["Delete layout %s?"] = "Delete layout %s?"
 L["The Default layout cannot be renamed."] = "The Default layout cannot be renamed."
 L["Not available in combat."] = "Not available in combat."
+
+-- Page: Aura blacklist (AuraBlacklist/ZPerl_AuraBlacklist.lua)
+L["Enable buff blacklist"] = "Enable buff blacklist"
+L["Import from BetterBlizzFrames"] = "Import from BetterBlizzFrames"
+L["Adds the BetterBlizzFrames blacklist entries that are not on this list yet. Entries already on this list are not changed. Needs BetterBlizzFrames to be enabled."] = "Adds the BetterBlizzFrames blacklist entries that are not on this list yet. Entries already on this list are not changed. Needs BetterBlizzFrames to be enabled."
+L["Buff blacklist: no BetterBlizzFrames blacklist found (BetterBlizzFrames must be enabled)"] = "Buff blacklist: no BetterBlizzFrames blacklist found (BetterBlizzFrames must be enabled)"
+L["Buff blacklist: imported %d new spell(s) from BetterBlizzFrames, %d already listed, %d skipped (no spell ID)"] = "Buff blacklist: imported %d new spell(s) from BetterBlizzFrames, %d already listed, %d skipped (no spell ID)"
+L["Add spell"] = "Add spell"
+L["Spell ID or exact spell name:"] = "Spell ID or exact spell name:"
+L["Buff blacklist: added %s (%d)"] = "Buff blacklist: added %s (%d)"
+L["Buff blacklist: %s (%d) is already on the list"] = "Buff blacklist: %s (%d) is already on the list"
+L["Buff blacklist: no spell found for \"%s\" - try the spell ID"] = "Buff blacklist: no spell found for \"%s\" - try the spell ID"
+L["Spell ID"] = "Spell ID"
+L["Remove"] = "Remove"
+L["%d spells"] = "%d spells"
+L["Spell %d"] = "Spell %d"
+
+-- Page: Custom highlights (CustomHighlight/ZPerl_CustomHighlightConfig.lua)
+L["Zone"] = "Zone"
+L["Remove zone"] = "Remove zone"
+L["Remove the shown zone and all its spells from the list, after a confirmation."] = "Remove the shown zone and all its spells from the list, after a confirmation."
+L["Add a zone (its name as the game shows it)"] = "Add a zone (its name as the game shows it)"
+L["Add zone"] = "Add zone"
+L["Add a zone with an empty list and show it. The name must match the game's zone name exactly."] = "Add a zone with an empty list and show it. The name must match the game's zone name exactly."
+L["Current zone"] = "Current zone"
+L["Add the zone you are in (or show it, when it is listed)."] = "Add the zone you are in (or show it, when it is listed)."
+L["Add a debuff to this zone (spell ID)"] = "Add a debuff to this zone (spell ID)"
+L["Add a debuff by its spell ID. A raid member with that exact spell shows its icon. An exact name works only for spells the game can look up by name, mostly ones you know, so boss debuffs need their ID."] = "Add a debuff by its spell ID. A raid member with that exact spell shows its icon. An exact name works only for spells the game can look up by name, mostly ones you know, so boss debuffs need their ID."
+
+L["%d spells in %s"] = "%d spells in %s"
+L["Add a zone to start a list."] = "Add a zone to start a list."
+
+L["Custom highlights: no spell %s."] = "Custom highlights: no spell %s."
+L["Custom highlights: no spell %s by name; use its spell ID."] = "Custom highlights: no spell %s by name; use its spell ID."
+L["Custom highlights: %s (%d) is already in %s."] = "Custom highlights: %s (%d) is already in %s."
+
+L["Put back the default zones and spells of this layout's list, after a confirmation. Zones and spells you added are lost."] = "Put back the default zones and spells of this layout's list, after a confirmation. Zones and spells you added are lost."
+L["Reset the custom highlight list of this layout to the default zones and spells? Zones and spells you added are lost."] = "Reset the custom highlight list of this layout to the default zones and spells? Zones and spells you added are lost."
+L["Remove this spell from the zone's list."] = "Remove this spell from the zone's list."
+L["Remove %s and its %d spells from the custom highlight list?"] = "Remove %s and its %d spells from the custom highlight list?"
+L["No zones"] = "No zones"

@@ -532,10 +532,13 @@ function O.Create()
 	bar:SetPoint("TOPLEFT", scroll, "TOPRIGHT", 11, 0)
 	bar:SetPoint("BOTTOMLEFT", scroll, "BOTTOMRIGHT", 11, 0)
 	ScrollUtil.InitScrollFrameWithScrollBar(scroll, bar)
-	-- the stock wheel step is a few pixels a notch, slow for a long page: step a fixed 80 pixels instead (the bar
-	-- follows through the OnVerticalScroll hook set above)
-	scroll:SetScript("OnMouseWheel", function(self, delta)
-		self:SetVerticalScroll(Clamp(self:GetVerticalScroll() - delta * 80, 0, self:GetVerticalScrollRange()))
+	-- the wheel scrolls the page only over the bar (over the page it would move it under the cursor while a slider
+	-- is wheeled): the scroll frame swallows it, so it does not zoom the camera either. The stock step is a few
+	-- pixels a notch, slow for a long page: the bar steps a fixed 80 pixels instead (it follows through the
+	-- OnVerticalScroll hook set above)
+	scroll:SetScript("OnMouseWheel", function() end)
+	bar:SetScript("OnMouseWheel", function(_, delta)
+		scroll:SetVerticalScroll(Clamp(scroll:GetVerticalScroll() - delta * 80, 0, scroll:GetVerticalScrollRange()))
 	end)
 
 	reloadBtn = CreateFrame("Button", nil, win, "UIPanelButtonTemplate")
