@@ -54,7 +54,6 @@ local SafeBool = ZPerl.SafeBool
 local function SetSecretTimes(self, channeling, empowered)
 	self.startTime, self.maxValue, self.endTime = nil, nil, nil
 	self.timerDuration, self.unknownTime = nil, nil
-	self.tex:SetTexCoord(0, 1, 0, 1)
 
 	local durationObject
 	if (self.SetTimerDuration) then
@@ -113,7 +112,8 @@ local function SecureUpdate(self, elapsed)
 		local fill = self:GetStatusBarTexture()
 		if (fill) then
 			self.barSpark:ClearAllPoints()
-			self.barSpark:SetPoint("CENTER", fill, "RIGHT", 0, 1)
+			self.barSpark:SetPoint("TOP", fill, "TOPRIGHT", 0, 22)
+			self.barSpark:SetPoint("BOTTOM", fill, "BOTTOMRIGHT", 0, -19)
 		end
 	end
 	self.barFlash:Hide()
@@ -707,14 +707,15 @@ function ZPerl.ArcaneBar.OnUpdate(self, elapsed)
 		local status = min(getTime, self.maxValue)
 		local span = self.maxValue - self.startTime
 		local fraction = span > 0 and (status - self.startTime) / span or 1
-		self.tex:SetTexCoord(0, fraction, 0, 1)
 		self:SetValue(status)
 		self.barFlash:Hide()
 		UpdateStage(self, (status - self.startTime) * 1000)
 		if (status >= self.maxValue) then
 			self.barSpark:Hide()
 		else
-			self.barSpark:SetPoint("CENTER", self, "LEFT", max(0, fraction * self:GetWidth()), 1)
+			local sparkPosition = max(0, fraction * self:GetWidth())
+			self.barSpark:SetPoint("TOP", self, "TOPLEFT", sparkPosition, 22)
+			self.barSpark:SetPoint("BOTTOM", self, "BOTTOMLEFT", sparkPosition, -19)
 		end
 	elseif (self.casting) then
 		local status = getTime
@@ -723,7 +724,6 @@ function ZPerl.ArcaneBar.OnUpdate(self, elapsed)
 			self:SetValue(status)
 			self.barSpark:Hide()
 			self:SetStatusBarColor(barColors.success.r, barColors.success.g, barColors.success.b, conf.transparency.frame)
-			self.tex:SetTexCoord(0, 1, 0, 1)
 			self.casting = nil
 			self.barFlash:SetAlpha(0)
 			self.flashAlpha = 0
@@ -736,7 +736,6 @@ function ZPerl.ArcaneBar.OnUpdate(self, elapsed)
 			return
 		end
 
-		self.tex:SetTexCoord(0, (status - self.startTime) / (self.maxValue - self.startTime), 0, 1)
 		self:SetValue(status)
 		self.barFlash:Hide()
 
@@ -744,7 +743,8 @@ function ZPerl.ArcaneBar.OnUpdate(self, elapsed)
 		if (sparkPosition < 0) then
 			sparkPosition = 0
 		end
-		self.barSpark:SetPoint("CENTER", self, "LEFT", sparkPosition, 1)
+		self.barSpark:SetPoint("TOP", self, "TOPLEFT", sparkPosition, 22)
+		self.barSpark:SetPoint("BOTTOM", self, "BOTTOMLEFT", sparkPosition, -19)
 
 		ShowPrecast(self, "RIGHT")
 	elseif (self.channeling) then
@@ -766,24 +766,25 @@ function ZPerl.ArcaneBar.OnUpdate(self, elapsed)
 			return
 		end
 		local barValue = self.startTime + (self.endTime - time)
-		self.tex:SetTexCoord(0, min(1, max(0, (barValue - self.startTime) / (self.endTime - self.startTime))), 0, 1)
 		self:SetValue( barValue )
 		self.barFlash:Hide()
 
 		local sparkPosition = ((barValue - self.startTime) / (self.endTime - self.startTime)) * self:GetWidth()
-		self.barSpark:SetPoint("CENTER", self, "LEFT", sparkPosition, 1)
+		self.barSpark:SetPoint("TOP", self, "TOPLEFT", sparkPosition, 22)
+		self.barSpark:SetPoint("BOTTOM", self, "BOTTOMLEFT", sparkPosition, -19)
 
 		ShowPrecast(self, "LEFT")
 	elseif (getTime < self.holdTime) then
 		return
 	elseif (self.flash) then
-		-- A brief, restrained highlight, followed by the existing smooth fade.
-		-- Clamp the final frame too: a long frame must not skip the peak.
 		-- Alphas are kept in fields: inside a range-faded party frame GetAlpha returns a secret.
-		local alpha = min(0.22, (self.flashAlpha or 0) + elapsed * 1.5)
-		self.flashAlpha = alpha
-		self.barFlash:SetAlpha(alpha)
-		if (alpha >= 0.22) then
+		local alpha = (self.flashAlpha or 0) + elapsed * 3	-- CASTING_BAR_FLASH_STEP
+		if (alpha < 1) then
+			self.flashAlpha = alpha
+			self.barFlash:SetAlpha(alpha)
+		else
+			self.flashAlpha = 1
+			self.barFlash:SetAlpha(1)
 			self.flash = nil
 		end
 	elseif (self.fadeOut) then
@@ -810,19 +811,11 @@ end
 function ZPerl.ArcaneBar.OnLoad(self)
 	ZPerl.SetChildMembers(self)
 
-	-- Keep completion light inside the cast bar, below the spell text.
+	-- ZPerl2 style completion glow around the cast bar's parent (the name frame).
+	local around = self:GetParent() or self
 	self.barFlash:ClearAllPoints()
-	self.barFlash:SetAllPoints(self)
-	self.barFlash:SetFrameLevel(self:GetFrameLevel())
-	self.barFlash.tex:SetColorTexture(1, 1, 1, 1)
-	self.barFlash.tex:SetBlendMode("BLEND")
-	-- Only clip the spark: the optional timer outside the bar stays visible.
-	self.sparkClip = CreateFrame("Frame", nil, self)
-	self.sparkClip:SetAllPoints(self)
-	self.sparkClip:SetClipsChildren(true)
-	self.sparkClip:SetFrameLevel(self:GetFrameLevel())
-	self.barSpark:SetParent(self.sparkClip)
-	self.barSpark:SetSize(14, 24)
+	self.barFlash:SetPoint("TOPLEFT", around, "TOPLEFT", -3, 9)
+	self.barFlash:SetPoint("BOTTOMRIGHT", around, "BOTTOMRIGHT", 3, -9)
 	self.tex:SetTexture("Interface\\AddOns\\ZPerl\\Images\\ZPerl_StatusBar")
 	self.tex:SetHorizTile(false)
 	self.tex:SetVertTile(false)
@@ -839,6 +832,8 @@ function ZPerl.ArcaneBar.Set()
 		for k, v in pairs(ArcaneBars) do
 			if (v.optFrame and v.optFrame.conf and v.optFrame.conf.castBar) then
 				enableToggle(v.bar, v.optFrame.conf.castBar.enable)
+				-- Off, the glow's texture stays hidden: the flash still times the fade out
+				v.bar.barFlash.tex:SetShown(v.optFrame.conf.castBar.flash and true or false)
 
 				v.bar.castTimeText:ClearAllPoints()
 				if (conf.player.castBar.inside) then

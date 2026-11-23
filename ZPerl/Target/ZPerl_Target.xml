@@ -145,7 +145,7 @@
 							<TexCoords left="0.49" right="1.0" top="0.0" bottom="0.49"/>
 						</Texture>
 						<!-- 40 Yard Range Icon, re-incarnated... -->
-						<Texture name="$parentrangeIcon" file="Interface\Addons\ZPerl\Images\ZPerl_30Yard" hidden="true">
+						<Texture name="$parentrangeIcon" file="Interface\Addons\ZPerl\Images\ZPerl_HandRange" hidden="true">
 							<Size>
 								<AbsDimension x="48" y="19"/>
 							</Size>

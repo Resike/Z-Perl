@@ -1,3 +1,8 @@
+**8.0.4**
+* Cast bars: the completion flash is back to the classic glow around the name frame, with a new taller spark.
+* Cast bar flash: a new option for the player, pet, target, focus and party frames turns the completion glow off.
+* Cast bars: the fill no longer crops its texture as it grows.
+
 **8.0.3**
 * Health loss animation: lost health shows as a red bar that drains away behind the health bar.
 * Absorb loss animation: a lost absorb shield drains away instead of vanishing.

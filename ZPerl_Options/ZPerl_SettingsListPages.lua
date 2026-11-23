@@ -44,6 +44,7 @@ dropdown("player.shown.healthtext", "Health text", "How health is written on the
 check("player.shown.absorbs", "Absorbs", "Show the absorb bar.", {path = "player.absorbs"})
 check("player.shown.healprediction", "Heal prediction", "Show the heal prediction bar.", {path = "player.healprediction"})
 check("player.shown.castbar", "Cast bar", "Show a cast bar on the player frame.", {path = "player.castBar.enable"})
+check("player.shown.castbarflash", "Cast bar flash", "Show a glow around the name frame when a cast completes.", {path = "player.castBar.flash", needs = "player.castBar.enable"})
 dropdown("player.shown.casttime", "Cast time text", "Show the casting time beside the cast bar or inside it.", {
 	base = "player.castBar",
 	map = {
@@ -127,6 +128,7 @@ check("pet.shown.healthtext", "Health and mana text", "Show the health and mana 
 check("pet.shown.absorbs", "Absorbs", "Show the absorb bar.", {path = "pet.absorbs"})
 check("pet.shown.healprediction", "Heal prediction", "Show the heal prediction bar.", {path = "pet.healprediction"})
 check("pet.shown.castbar", "Cast bar", "Show a cast bar on the pet frame.", {path = "pet.castBar.enable"})
+check("pet.shown.castbarflash", "Cast bar flash", "Show a glow around the name frame when a cast completes.", {path = "pet.castBar.flash", needs = "pet.castBar.enable"})
 
 R.section = "Auras"
 check("pet.auras.buffs", "Buffs", "Show the pet's buffs.", {path = "pet.buffs.enable"})
@@ -247,6 +249,7 @@ local function unitPage(pageName, k, isTarget)
 	check(id .. ".shown.absorbs", "Absorbs", "Show the absorb bar.", {path = k .. ".absorbs", apply = ap})
 	check(id .. ".shown.healprediction", "Heal prediction", "Show the heal prediction bar.", {path = k .. ".healprediction", apply = ap})
 	check(id .. ".shown.castbar", "Cast bar", "Show a cast bar on the " .. k .. " frame.", {path = k .. ".castBar.enable", apply = {"arcanebar"}})
+	check(id .. ".shown.castbarflash", "Cast bar flash", "Show a glow around the name frame when a cast completes.", {path = k .. ".castBar.flash", needs = k .. ".castBar.enable", apply = {"arcanebar"}})
 	check(id .. ".shown.mana", "Mana bar", "Show the mana, rage or energy bar under the health bar.", {path = k .. ".mana", apply = ap})
 	dropdown(id .. ".shown.debuffhighlight", "Debuff highlight", "Color the frame while the unit has a debuff, for all units, friendly units or enemy units.", {
 		base = k .. ".highlightDebuffs", apply = ap,
@@ -342,6 +345,7 @@ dropdown("party.shown.healthtext", "Health text", "How health is written on the 
 check("party.shown.absorbs", "Absorbs", "Show the absorb bar.", {path = "party.absorbs"})
 check("party.shown.healprediction", "Heal prediction", "Show the heal prediction bar.", {path = "party.healprediction"})
 check("party.shown.castbar", "Cast bar", "Show a cast bar on the party frames.", {path = "party.castBar.enable"})
+check("party.shown.castbarflash", "Cast bar flash", "Show a glow around the name frame when a cast completes.", {path = "party.castBar.flash", needs = "party.castBar.enable"})
 
 R.section = "Auras"
 check("party.auras.buffs", "Buffs", "Show the party members' buffs.", {path = "party.buffs.enable"})

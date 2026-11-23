@@ -162,6 +162,7 @@ local function TargetConfigDefault(default, section)
 		portrait3D		= 1,
 		castBar = {
 			enable		= 1,
+			flash		= 1,
 		},
 		hitIndicator	= 1,			-- 2.1.7
 		hitIndicatorPos	= "PORTRAIT",
@@ -224,6 +225,7 @@ local function PartyConfigDefault(default)
 	default.party = {
 		castBar = {
 			enable		= 1,
+			flash		= 1,
 		},
 		spacing			= 40,			-- clears a buff row with duration text (25 + 12); the debuffs sit to the right
 		anchor			= "TOP",
@@ -309,6 +311,7 @@ local function PlayerConfigDefault(default)
 		enable			= 1,			-- the frame; takes effect after a reload
 		castBar = {
 			enable		= 1,
+			flash		= 1,
 --			original	= nil,
 --			castTime	= nil,
 		},
@@ -373,6 +376,7 @@ local function PetConfigDefault(default)
 		enable = 1,					-- the frame; takes effect after a reload
 		castBar = {
 			enable = 1,
+			flash = 1,
 		},
 		portrait = 1,
 		portrait3D = 1,

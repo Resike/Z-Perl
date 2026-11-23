@@ -5,8 +5,8 @@ local conf
 
 ZPerl.RequestConfig(function(New)
 	conf = New
-end, "$Revision: 12000 $")
-ZPerl.SetModuleRevision("$Revision: 12000 $")
+end, "$Revision: 120105 $")
+ZPerl.SetModuleRevision("$Revision: 120105 $")
 
 local ForeverAPI = ZPerl.ForeverAPI
 ------------------------------------------------------------------------------
