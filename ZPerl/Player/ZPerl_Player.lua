@@ -68,7 +68,7 @@ local UnitXPMax = UnitXPMax
 local CHAT_MSG_AFK = CHAT_MSG_AFK
 local FACTION_BAR_COLORS = FACTION_BAR_COLORS
 
--- secret value helpers from ZPerl.lua
+-- Secret value helpers from ZPerl.lua
 local GetPowerPercent = ZPerl.GetPowerPercent
 local SafeBool = ZPerl.SafeBool
 
@@ -84,7 +84,7 @@ local HighlightCallback
 ----------------------
 function ZPerl.Player.OnLoad(self)
 	ZPerl.SetChildMembers(self)
-	-- the aura color highlight is for party and raid frames; this frame shows only the HoT highlight
+	-- The aura color highlight is for party and raid frames; this frame shows only the HoT highlight
 	self.hotHighlightOnly = true
 	self.partyid = "player"
 	self.unit = self.partyid
@@ -127,7 +127,7 @@ function ZPerl.Player.OnLoad(self)
 
 	ZPerl.Player.PVPTimerSetup(self.nameFrame.pvptimer)
 
-	-- no DruidBarUpdate here: pconf is nil until the config loads; SetBits builds the bar
+	-- No DruidBarUpdate here: pconf is nil until the config loads; SetBits builds the bar
 	ZPerl.RegisterHighlight(self.highlight, 3)
 
 	local perlframes = {self.nameFrame, self.statsFrame, self.levelFrame, self.portraitFrame, self.groupFrame}
@@ -171,7 +171,7 @@ local function UpdateAssignedRoles(self)
 		end
 	end
 
-	-- role icons option check by playerlin
+	-- Role icons option check by playerlin
 	if (conf and conf.oldRoleIcons) then
 		if isTank then
 			icon:SetTexture("Interface\\GroupFrame\\UI-Group-MainTankIcon")
@@ -308,7 +308,7 @@ end
 
 -- UpdateName()
 local function UpdateName(self)
-	-- full "First Last" (or "First-Realm") display name
+	-- Full "First Last" (or "First-Realm") display name
 	playerName = ZPerl.UnitFullName(self.partyid)
 	self.nameFrame.text:SetText(playerName)
 	UpdateCombat(self)
@@ -317,7 +317,7 @@ end
 -- UpdateClass
 local function UpdateClass(self)
 	local _, class = UnitClass(self.partyid)
-	-- kept only when readable: every user compares it against class names
+	-- Kept only when readable: every user compares it against class names
 	if (ZPerl.CanAccess(class)) then
 		ZPerl.Player.playerClass = class
 	end
@@ -343,7 +343,7 @@ else
 		if data then
 			return data.name, data.reaction, data.currentReactionThreshold, data.nextReactionThreshold, data.currentStanding, data.factionID
 		end
-		return nil, nil, nil, nil, nil, nil -- documenting that there should be six returns.
+		return nil, nil, nil, nil, nil, nil -- Documenting that there should be six returns.
 	end
 end
 
@@ -367,7 +367,7 @@ local function UpdateRep(self)
 
 			local watched = name ~= nil
 			if name then
-				-- retail's renown and friendship factions report reactions FACTION_BAR_COLORS has no entry for
+				-- Retail's renown and friendship factions report reactions FACTION_BAR_COLORS has no entry for
 				color = FACTION_BAR_COLORS[reaction] or FACTION_BAR_COLORS[5]
 				-- min and max are the standing's thresholds (negative below Neutral): progress is value - min
 				-- of max - min. A standing with no span (a capped one) shows full.
@@ -430,7 +430,7 @@ local function UpdateXP(self)
 			local playerxp = UnitXP("player")
 			local playerxpmax = UnitXPMax("player")
 			local playerxprest = GetXPExhaustion() or 0
-			-- a max of 0 (the level cap on some clients) would divide by zero below
+			-- A max of 0 (the level cap on some clients) would divide by zero below
 			if (not playerxpmax or playerxpmax <= 0) then
 				playerxpmax = 1
 			end
@@ -637,7 +637,7 @@ function ZPerl.Player.DruidBarUpdate(self)
 	-- skip needs a state signature that every other caller of Setup would have to keep current.
 	ZPerl.AfterCombat(ApplyStatsHeight, self)
 
-	-- one table for every power event; StatsFrameSetup skips the nil entries
+	-- One table for every power event; StatsFrameSetup skips the nil entries
 	statsBars[1], statsBars[2], statsBars[3] = druidBar, self.statsFrame.xpBar, self.statsFrame.repBar
 	ZPerl.StatsFrameSetup(self, statsBars)
 end

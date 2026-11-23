@@ -20,3 +20,6 @@ L["MONITOR_CLICKTARGET"] = "|c00FFFF80objetivo|r"
 
 L["MONITOR_INNERVATE"] = "Enervar"
 L["MONITOR_MANATIDE"]  = "Totem de Marea de maná"
+
+L["MONITOR_CLICKCAST"] = "lanzar |c0000FF00%s|r"
+L["LOC_OOR"]          = "n/d"

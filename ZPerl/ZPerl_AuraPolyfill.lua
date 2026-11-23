@@ -72,7 +72,7 @@ function ZPerl.AuraData(unit, index, filter)
 end
 local AuraData = ZPerl.AuraData
 
------------------------------------------------------------------------------- buttons
+------------------------------------------------------------------------------ Buttons
 local Button = {}
 
 function Button:SetIcon(texture)
@@ -174,7 +174,7 @@ local function show(b, aura, index, filter)
 	b:Show()
 end
 
------------------------------------------------------------------------------- container
+------------------------------------------------------------------------------ Container
 local Container = {}
 
 function Container:SetUnit(unit)
@@ -288,7 +288,7 @@ function Container:UpdateAllAuras()
 		end
 	end
 
-	-- one flow over all groups
+	-- One flow over all groups
 	local point = self.anchorPoint or "TOPLEFT"
 	local h, v = self.growH or 1, self.growV or -1
 	local lineSize = self.lineSize
@@ -312,7 +312,7 @@ function Container:UpdateAllAuras()
 	self.hasTimers = #placed > 0
 end
 
--- duration texts count down while shown
+-- Duration texts count down while shown
 local function onUpdate(self, elapsed)
 	self.zTick = (self.zTick or 0) + elapsed
 	if (self.zTick < 0.2 or not self.hasTimers) then

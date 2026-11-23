@@ -21,3 +21,5 @@ L["MONITOR_CLICKTARGET"] = "|c00FFFF80bersaglia|r"
 L["MONITOR_INNERVATE"] = "Innervazione"
 
 L["LOC_OOR"] = "N/D"
+
+L["MONITOR_MANATIDE"] = "Totem della Marea di Mana"

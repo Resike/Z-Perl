@@ -116,3 +116,6 @@ L["ROSTERTEXT_TOGGLE"]        = "Alternar"
 L["ROSTERTEXT_TOGGLE_DESC"]   = "Alternar grupos seleccionados"
 L["ROSTERTEXT_SORT"]          = "Ordenar"
 L["ROSTERTEXT_SORT_DESC"]     = "Ordenar por nombre en lugar de grupo+nombre"
+
+L["CHECK_TOTALS"]    = "Total"
+L["ROSTERTEXT_TOTAL"] = "Total: %d"

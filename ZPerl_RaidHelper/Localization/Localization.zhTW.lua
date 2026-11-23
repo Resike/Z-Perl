@@ -37,3 +37,5 @@ L["HELPER_FINDSET"]     = "Find 設置為 %s. ('|c00007F00/zphelper find|r' 來�
 L["AGGRO_PLAYER"]  = "－獲得仇恨－"
 L["AGGRO_PET"]     = "－寵物獲得仇恨－"
 L["AGGRO_DRAGTIP"] = "拖曳以移動'獲得仇恨'警告訊息的位置"
+
+L["TITLE_MT_SHORT"] = "MT"

@@ -41,7 +41,7 @@ local CASTING_BAR_HOLD_TIME = CASTING_BAR_HOLD_TIME
 local FAILED = FAILED
 local SPELL_FAILED_INTERRUPTED = SPELL_FAILED_INTERRUPTED
 
--- cast times of other units can be secret in restricted content.
+-- Cast times of other units can be secret in restricted content.
 -- When the client offers duration objects the bar is driven by Blizzard
 -- (SetTimerDuration); otherwise a simple sweep animation is shown.
 local CanAccess = ZPerl.CanAccess
@@ -149,7 +149,7 @@ local barColors = {
 
 local events = {
 	"UNIT_SPELLCAST_START", "UNIT_SPELLCAST_STOP", "UNIT_SPELLCAST_FAILED", "UNIT_SPELLCAST_INTERRUPTED", "UNIT_SPELLCAST_INTERRUPTIBLE", "UNIT_SPELLCAST_NOT_INTERRUPTIBLE", "UNIT_SPELLCAST_DELAYED", "UNIT_SPELLCAST_CHANNEL_START", "UNIT_SPELLCAST_CHANNEL_UPDATE", "UNIT_SPELLCAST_CHANNEL_STOP", "PLAYER_ENTERING_WORLD",
-	-- evoker empowered casts (retail; ZPerl.On skips events a client does not have)
+	-- Evoker empowered casts (retail; ZPerl.On skips events a client does not have)
 	"UNIT_SPELLCAST_EMPOWER_START", "UNIT_SPELLCAST_EMPOWER_UPDATE", "UNIT_SPELLCAST_EMPOWER_STOP",
 }
 
@@ -160,7 +160,7 @@ local events = {
 -- release (UNIT_SPELLCAST_EMPOWER_STOP). With secret cast times the bar runs on the empowered duration
 -- object and shows no stages.
 local stageColors = {
-	[0] = {0.55, 0.55, 0.55},	-- charging, no stage yet
+	[0] = {0.55, 0.55, 0.55},	-- Charging, no stage yet
 	{1.0, 0.82, 0.0},
 	{1.0, 0.6, 0.0},
 	{1.0, 0.35, 0.0},
@@ -302,7 +302,7 @@ local function ActiveCasting(self)
 		name, _, _, _, endTime = UnitChannelInfo(self.unit)
 	end
 	if (name) then
-		-- a secret end time means we cannot tell, assume active
+		-- A secret end time means we cannot tell, assume active
 		---@diagnostic disable-next-line: secret-comparison
 		if (not CanAccess(endTime) or endTime > t + 500) then
 			return true
@@ -327,7 +327,7 @@ function ZPerl.ArcaneBar.OnEvent(self, event, unit, ...)
 		local nameChannel, _, _, _, _, _, _, _, _, numStages = UnitChannelInfo(self.unit)
 		local nameSpell = UnitCastingInfo(self.unit)
 		if nameChannel then
-			-- an empowered cast is a channel with stages
+			-- An empowered cast is a channel with stages
 			if (CanAccess(numStages) and numStages and numStages > 0) then
 				event = "UNIT_SPELLCAST_EMPOWER_START"
 			else
@@ -352,7 +352,7 @@ function ZPerl.ArcaneBar.OnEvent(self, event, unit, ...)
 		return
 	end
 
-	-- an empowered cast ends with its own UNIT_SPELLCAST_EMPOWER_STOP: the other casts' stop, fail and interrupt
+	-- An empowered cast ends with its own UNIT_SPELLCAST_EMPOWER_STOP: the other casts' stop, fail and interrupt
 	-- events (an instant cast while charging) leave it be
 	if (self.empowered and (event == "UNIT_SPELLCAST_STOP" or event == "UNIT_SPELLCAST_FAILED" or event == "UNIT_SPELLCAST_INTERRUPTED"
 		or event == "UNIT_SPELLCAST_CHANNEL_STOP" or event == "UNIT_SPELLCAST_DELAYED")) then
@@ -401,7 +401,7 @@ function ZPerl.ArcaneBar.OnEvent(self, event, unit, ...)
 		else
 			self.castTimeText:Hide()
 		end
-		-- pips after Show, so the bar has its width
+		-- Pips after Show, so the bar has its width
 		if (self.startTime) then
 			AddStages(self, numStages, (self.maxValue - self.startTime) * 1000)
 			UpdateStage(self, 0)
@@ -556,7 +556,7 @@ function ZPerl.ArcaneBar.OnEvent(self, event, unit, ...)
 				name, _, _, startTime, endTime, isTradeSkill = UnitChannelInfo(self.unit)
 			end
 			if (not name or (not self.showTradeSkills and isTradeSkill)) then
-				-- if there is no name, there is no bar
+				-- If there is no name, there is no bar
 				self:Hide()
 				return
 			end
@@ -575,7 +575,7 @@ function ZPerl.ArcaneBar.OnEvent(self, event, unit, ...)
 		if (self:IsShown()) then
 			local name, _, _, startTime, endTime, isTradeSkill = UnitCastingInfo(self.unit)
 			if (not name or (not self.showTradeSkills and isTradeSkill)) then
-				-- if there is no name, there is no bar
+				-- If there is no name, there is no bar
 				self:Hide()
 				return
 			end
@@ -592,7 +592,7 @@ function ZPerl.ArcaneBar.OnEvent(self, event, unit, ...)
 	elseif (event == "UNIT_SPELLCAST_CHANNEL_START") then
 		local name, _, _, startTime, endTime, isTradeSkill = UnitChannelInfo(self.unit)
 		if (not name or (not self.showTradeSkills and isTradeSkill)) then
-			-- if there is no name, there is no bar
+			-- If there is no name, there is no bar
 			self:Hide()
 			return
 		end
@@ -630,7 +630,7 @@ function ZPerl.ArcaneBar.OnEvent(self, event, unit, ...)
 		if (self:IsShown()) then
 			local name, _, _, startTime, endTime, isTradeSkill = UnitChannelInfo(self.unit)
 			if (not name or (not self.showTradeSkills and isTradeSkill)) then
-				-- if there is no name, there is no bar
+				-- If there is no name, there is no bar
 				self:Hide()
 				return
 			end
@@ -656,7 +656,7 @@ end
 
 local function ShowPrecast(self, side)
 	if (self.precast) then
-		-- a channel's span ends at endTime; maxValue is a placeholder there
+		-- A channel's span ends at endTime; maxValue is a placeholder there
 		local finish = self.channeling and self.endTime or self.maxValue
 		if (conf.player.castBar.precast and finish and CanAccess(finish) and CanAccess(self.startTime)) then
 			local _, _, _, latencyWorld = GetNetStats()
@@ -684,7 +684,7 @@ end
 
 -- ZPerl.ArcaneBar.OnUpdate
 function ZPerl.ArcaneBar.OnUpdate(self, elapsed)
-	-- secret cast times, no maths possible here
+	-- Secret cast times, no maths possible here
 	if ((self.timerDuration or self.unknownTime) and (self.casting or self.channeling)) then
 		SecureUpdate(self, elapsed)
 		return
@@ -703,7 +703,7 @@ function ZPerl.ArcaneBar.OnUpdate(self, elapsed)
 	self.castTimeText:SetText(text)
 
 	if (self.casting and self.empowered) then
-		-- charging through the stages, then held full until the release (UNIT_SPELLCAST_EMPOWER_STOP)
+		-- Charging through the stages, then held full until the release (UNIT_SPELLCAST_EMPOWER_STOP)
 		local status = min(getTime, self.maxValue)
 		local span = self.maxValue - self.startTime
 		local fraction = span > 0 and (status - self.startTime) / span or 1

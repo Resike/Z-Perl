@@ -111,7 +111,7 @@ function Events:UNIT_COMBAT(unit, action, descriptor, damage, damageType)
 	if unit ~= self.partyid then
 		return
 	end
-	-- set first: the flash and hit text animate even when a later line raises on a secret amount
+	-- Set first: the flash and hit text animate even when a later line raises on a secret amount
 	self:SetScript("OnUpdate", ZPerl.Player.OnUpdate)
 
 	if pconf.hitIndicator then
@@ -398,7 +398,7 @@ end
 -- Blizzard's TotemFrame (totems, also the paladin's and death knight's summons) is moved under the holder, also
 -- in combat (it is not protected). All off with player.classBar.
 local ClassBarTemplates = {
-	-- no size: the layout sizes it to its six runes (139 wide), so TOP is the runes' centre. aboveY: raised
+	-- No size: the layout sizes it to its six runes (139 wide), so TOP is the runes' centre. aboveY: raised
 	-- that much more in the Above position, where the runes' height would reach down over the name frame
 	DEATHKNIGHT = {template = "RuneFrameTemplate", y = -3, scale = 0.95, aboveY = 7,
 		tip = {"COMBAT_TEXT_RUNE_DEATH", "RUNES_TOOLTIP"}},
@@ -428,7 +428,7 @@ local function ClassBarTipEnter(bar)
 		return
 	end
 	if (pconf.classBarPos == "TOP") then
-		-- above the frame: the tooltip opens up and right from the bar's top right corner, off the frame
+		-- Above the frame: the tooltip opens up and right from the bar's top right corner, off the frame
 		GameTooltip:SetOwner(bar, "ANCHOR_NONE")
 		GameTooltip:ClearAllPoints()
 		GameTooltip:SetPoint("BOTTOMLEFT", bar, "TOPRIGHT")
@@ -460,7 +460,7 @@ local function ClassBarTooltip(holder)
 		GameTooltip:Hide()
 	end
 end
--- stands in for PlayerBottomManagedFrameContainer as the layoutParent of our bars
+-- Stands in for PlayerBottomManagedFrameContainer as the layoutParent of our bars
 local unmanaged = {AddManagedFrame = function() end, RemoveManagedFrame = function() end}
 local totemMoving
 local CanAccess = ZPerl.CanAccess
@@ -476,7 +476,7 @@ local function TotemAnchor(self)
 	totems:ClearAllPoints()
 	if (wanted) then
 		totems:SetParent(self.classBar)
-		-- under the frame, below the class bar's default spot when that is under the frame too; anchored to the
+		-- Under the frame, below the class bar's default spot when that is under the frame too; anchored to the
 		-- frame, not the bar, so the class bar's X / Y offsets leave the totems where they are
 		local below = (pconf.classBarPos ~= "TOP") and self.classBar:GetHeight() or 0
 		totems:SetPoint("TOP", self.statsFrame, "BOTTOM", 0, 2 - below)
@@ -497,10 +497,10 @@ end
 -- State is kept per object and per direction, so switching an option off flips that direction back.
 -- Flipbook animations play unflipped.
 local mirrorH, mirrorV
-local texH = setmetatable({}, {__mode = "k"})		-- texture -> its coordinates are flipped left to right
-local texV = setmetatable({}, {__mode = "k"})		-- texture -> ... top to bottom
+local texH = setmetatable({}, {__mode = "k"})		-- Texture -> its coordinates are flipped left to right
+local texV = setmetatable({}, {__mode = "k"})		-- Texture -> ... top to bottom
 local texHooked = setmetatable({}, {__mode = "k"})
-local anchorH = setmetatable({}, {__mode = "k"})	-- frame or region -> its anchors are mirrored left to right
+local anchorH = setmetatable({}, {__mode = "k"})	-- Frame or region -> its anchors are mirrored left to right
 local anchorV = setmetatable({}, {__mode = "k"})	-- ... top to bottom
 local flipping
 local MIRROR_H = {LEFT = "RIGHT", RIGHT = "LEFT", TOPLEFT = "TOPRIGHT", TOPRIGHT = "TOPLEFT",
@@ -562,7 +562,7 @@ local function MirrorAnchors(obj)
 	anchorH[obj], anchorV[obj] = mirrorH or false, mirrorV or false
 end
 
--- as Blizzard's LayoutFrame.lua tells a layout frame
+-- As Blizzard's LayoutFrame.lua tells a layout frame
 local function IsLayoutFrame(frame)
 	return frame.IsLayoutFrame ~= nil and frame:IsLayoutFrame() and true or false
 end
@@ -597,7 +597,7 @@ local function ClassBarMirror(holder)
 	local bar = holder.blizz
 	mirrorH = pconf.classBarMirror and true or false
 	mirrorV = pconf.classBarMirrorV and true or false
-	-- nothing is walked or hooked until a mirror is first switched on
+	-- Nothing is walked or hooked until a mirror is first switched on
 	if (not bar or (not mirrorH and not mirrorV and not holder.mirrorUsed)) then
 		return
 	end
@@ -672,7 +672,7 @@ local function UpdatePoints(bar, info)
 	if (CanAccess(maxPower) and maxPower > 0) then
 		shown = min(info.cap, maxPower)
 	end
-	-- may be secret: only StatusBar:SetValue sees it
+	-- May be secret: only StatusBar:SetValue sees it
 	local power = UnitPower("player", powerType)
 	local mirror = pconf.classBarMirror
 	for i, point in ipairs(bar.points) do
@@ -726,13 +726,13 @@ local function MakeBlizzardBar(holder, info)
 	if (info.scale) then
 		bar:SetScale(info.scale)
 	end
-	-- a layout frame sizes itself to its points: then its TOP anchor centres them on the stats frame
+	-- A layout frame sizes itself to its points: then its TOP anchor centres them on the stats frame
 	if (bar.Layout) then
 		ZPerl.Pcall(bar.Layout, bar)
 	end
 	bar:ClearAllPoints()
 	bar:SetPoint("TOP", holder, "TOP", info.x or 0, info.y or 0)
-	-- anything of Blizzard's that moves it out of the holder is undone
+	-- Anything of Blizzard's that moves it out of the holder is undone
 	local moving
 	hooksecurefunc(bar, "SetParent", function(b)
 		if (moving or b.zperlRetired) then
@@ -744,7 +744,7 @@ local function MakeBlizzardBar(holder, info)
 		b:SetPoint("TOP", holder, "TOP", info.x or 0, info.y or 0)
 		moving = nil
 	end)
-	-- points a layout adds (max power going up) take the mirror too
+	-- Points a layout adds (max power going up) take the mirror too
 	if (bar.Layout) then
 		hooksecurefunc(bar, "Layout", function(b)
 			if (not b.zperlRetired and holder.mirrorUsed) then
@@ -820,7 +820,7 @@ local function StaggerValue(bar)
 	local stagger, maxHealth = UnitStagger("player") or 0, UnitHealthMax("player")
 	bar:SetMinMaxValues(0, maxHealth)
 	bar:SetValue(stagger)
-	-- the share of max health on the left, the amount on the right (Z-Perl's number ladder; a secret one is
+	-- The share of max health on the left, the amount on the right (Z-Perl's number ladder; a secret one is
 	-- abbreviated by the client): a percent needs a division, so it shows only while the values can be read.
 	-- One decimal below 10%, rounded once (ZPerl.FormatPercent's extra half step would print no stagger as 0.1%).
 	bar.value:SetText(ZPerl.ShortNumber(stagger))
@@ -897,11 +897,11 @@ local function UpdateStagger(holder)
 	end
 	local shown = bar:IsShown()
 	bar:SetShown(wanted and true or false)
-	-- a spec change shows or hides it: the holder's Above raise follows
+	-- A spec change shows or hides it: the holder's Above raise follows
 	if (holder.owner and shown ~= bar:IsShown()) then
 		PlaceHolder(holder.owner)
 	end
-	-- on Mists the bar sits under the chi: the holder grows so the totems (the monk's statues) go below it
+	-- On Mists the bar sits under the chi: the holder grows so the totems (the monk's statues) go below it
 	local height = (ZPerl.IsMists and wanted) and 36 or holder.baseHeight
 	if (height and holder:GetHeight() ~= height) then
 		holder:SetHeight(height)
@@ -930,7 +930,7 @@ local function MakeStagger(holder)
 	local background = bar:CreateTexture(nil, "BACKGROUND")
 	background:SetAllPoints()
 	background:SetColorTexture(0.06, 0.06, 0.06, 0.9)
-	-- above the fill, in white with an outline so it reads on green, yellow and red alike
+	-- Above the fill, in white with an outline so it reads on green, yellow and red alike
 	local text = CreateFrame("Frame", nil, bar)
 	text:SetAllPoints()
 	text:SetFrameLevel(bar:GetFrameLevel() + 2)
@@ -963,7 +963,7 @@ local function MakeClassBar(self)
 	holder:SetHeight(22)
 	self.classBar = holder
 
-	-- the class resource bars are retail's (made from templates) and Mists Classic's (borrowed); elsewhere the
+	-- The class resource bars are retail's (made from templates) and Mists Classic's (borrowed); elsewhere the
 	-- holder carries only the totems
 	local class = select(2, UnitClass("player"))
 	if (ZPerl.IsMists and MistsFrames[class]) then
@@ -978,7 +978,7 @@ local function MakeClassBar(self)
 
 	local function usePoints()
 		if (blizz) then
-			-- retired for good: no events, hidden, and no longer pulled back into the holder
+			-- Retired for good: no events, hidden, and no longer pulled back into the holder
 			blizz.zperlRetired = true
 			blizz:UnregisterAllEvents()
 			blizz:Hide()
@@ -1054,7 +1054,7 @@ local function MakeClassBar(self)
 	end
 
 	if (not holder.bar and not holder.stagger) then
-		holder:SetHeight(1)	-- no class bar: the totems sit right under the stats frame
+		holder:SetHeight(1)	-- No class bar: the totems sit right under the stats frame
 	end
 	holder.baseHeight = holder:GetHeight()
 
@@ -1213,7 +1213,7 @@ function ZPerl.Player.SetBits(self)
 
 	ZPerl.AfterCombat(SetBitsLayout, self)
 	ClassBarUpdate(self)
-	if (ZPerl.Player.EnergyTickSetup) then -- the Classic-based clients only
+	if (ZPerl.Player.EnergyTickSetup) then -- The Classic-based clients only
 		ZPerl.Player.EnergyTickSetup(self)
 	end
 

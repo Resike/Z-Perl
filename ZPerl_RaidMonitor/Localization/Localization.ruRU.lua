@@ -20,3 +20,5 @@ L["MONITOR_CLICKTARGET"] = "|c00FFFF80цель|r"
 
 L["MONITOR_INNERVATE"] = "Озарение"
 L["MONITOR_MANATIDE"]  = "Тотем прилива маны"
+
+L["LOC_OOR"] = "н/д"

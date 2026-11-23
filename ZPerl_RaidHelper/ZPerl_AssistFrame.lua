@@ -126,7 +126,7 @@ end
 
 -- SortByClass(t1, t2) - comparator for sort; every entry needs .order, its index in the list before the sort
 local function SortByClass(t1, t2)
-	-- enemy names are secret inside instances and cannot be compared, so they follow the readable
+	-- Enemy names are secret inside instances and cannot be compared, so they follow the readable
 	-- names in their scan order (.order): sort needs a consistent comparator, and an inconsistent one
 	-- misorders the list or raises "invalid order function for sorting"
 	local r1, r2 = ZPerl.CanAccess(t1[1]), ZPerl.CanAccess(t2[1])
@@ -179,7 +179,7 @@ function ZPerl.RaidHelper.MakeAssistsString(List, title)
 		sort(List, SortByClass)
 
 		for i, entry in ipairs(List) do
-			-- a secret name (enemies inside instances) or class cannot be concatenated or used as a key
+			-- A secret name (enemies inside instances) or class cannot be concatenated or used as a key
 			local unit = {
 				ZPerl.CanAccess(entry[1]) and entry[1] or UNKNOWNOBJECT,
 				ZPerl.CanAccess(entry[2]) and entry[2] or "",
@@ -390,7 +390,7 @@ local targetting
 
 -- FoundEnemyBefore
 local function FoundEnemyBefore(FoundEnemy, name)
-	-- same indirect-unit secret-boolean risk as the rest of
+	-- Same indirect-unit secret-boolean risk as the rest of
 	-- this file; this helper is called from every site already fixed above.
 	for previous in pairs(FoundEnemy) do
 		if (ZPerl.SafeBool(UnitIsUnit(previous.."target", name.."target"), false)) then
@@ -409,7 +409,7 @@ local function AddEnemy(anyEnemy, FoundEnemy, name)
 			wholeEnemyUnitList[name] = true
 
 			if (ZPerl_Highlight and conf and conf.highlight.AGGRO) then
-				-- same doubly-indirect secret-boolean risk as
+				-- Same doubly-indirect secret-boolean risk as
 				-- below; fixed proactively alongside the confirmed crash.
 				if (ZPerl.SafeBool(UnitInRaid(namett), false) or ZPerl.SafeBool(UnitInParty(namett), false)) then
 					local aggroName = UnitName(namett)
@@ -542,7 +542,7 @@ function ZPerl.RaidHelper.UpdateAssists()
 	end
 
 	if (enemyFlag) then
-		-- same indirect-unit secret-boolean shape as above;
+		-- Same indirect-unit secret-boolean shape as above;
 		-- "focustarget" is indirect too. Default to "friend"/"not a match" so
 		-- an unreadable state just skips the aggro warning rather than
 		-- risking a false one.
@@ -560,7 +560,7 @@ function ZPerl.RaidHelper.UpdateAssists()
 
 					FoundEnemy["focus"] = true
 					tinsert(targetting, {UnitName("focus"), ""})
-					-- counted as the raid loop counts an AddEnemy hit; returning here (as AddEnemy does) skipped
+					-- Counted as the raid loop counts an AddEnemy hit; returning here (as AddEnemy does) skipped
 					-- the rest of the update: the lists, the aggro highlights and the counters stayed stale
 					anyEnemy = true
 					targettingCount = targettingCount + 1

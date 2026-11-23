@@ -100,7 +100,7 @@ function ZPerl.MigrateConfig()
 				if (type(profile) == "table") then
 					if (schema ~= 2 and schema ~= 3) then
 						ZPerl.SetUntickedKeys(profile)
-						-- the keys schema 3 took off that list: before schema 2 a nil there was unticked too
+						-- The keys schema 3 took off that list: before schema 2 a nil there was unticked too
 						for _, u in ipairs(UNTICKED_SIDES) do
 							local t = type(profile[u[1]]) == "table" and profile[u[1]][u[2]]
 							if (type(t) == "table" and t[u[3]] == nil and t.side == nil) then
@@ -219,7 +219,7 @@ function ZPerl.MigrateLayouts()
 	for k in pairs(old) do
 		s[k] = nil
 	end
-	-- after a rollback the first backup (the store before any schema 5) stays; the swept tables live on as layouts
+	-- After a rollback the first backup (the store before any schema 5) stays; the swept tables live on as layouts
 	s.layouts, s.migrated = layouts, pending
 	s.schema4 = type(s.schema4) == "table" and s.schema4 or old
 	s.active = type(s.active) == "table" and s.active or {}
@@ -291,7 +291,7 @@ function ZPerl.MigrateEngineNames()
 		if (type(layout) == "table") then
 			local positions = layout.positions
 			if (type(positions) == "table") then
-				-- collected first: keys are not added while the table is traversed
+				-- Collected first: keys are not added while the table is traversed
 				local renamed = {}
 				for k, v in pairs(positions) do
 					local new = frame(k)
@@ -420,10 +420,10 @@ function ZPerl.MigrateColorNames()
 	s.schema = 10
 end
 
------------------------------------------------------------------------------------------------- restore at load
+------------------------------------------------------------------------------------------------ Restore at load
 -- A tool that snapshots ZPerlDB (ZPerlDB.devRestore: tag, time, digest, data) restores it when its run ends. A run cut
 -- off leaves the snapshot in the file; ZPerl.RestoreAtLoad puts the settings back at the next login, in every build.
-local RESTORE_MAX_AGE = 24 * 3600 -- an older snapshot is dropped, not restored
+local RESTORE_MAX_AGE = 24 * 3600 -- An older snapshot is dropped, not restored
 local restoreNotice
 
 -- ZPerl.RestoreInto(live, from)

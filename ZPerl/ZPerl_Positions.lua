@@ -51,11 +51,11 @@ function ZPerl.SetScale(frame, scale)
 	end
 	local name = frame:GetName()
 	if (name and ZPerl.DefaultPoints[name]) then
-		-- not snapped: a slider step would move the frame to the grid
+		-- Not snapped: a slider step would move the frame to the grid
 		ZPerl.AlignmentGridHold(true)
 		ZPerl.SavePosition(frame)
 		ZPerl.AlignmentGridHold(false)
-		ZPerl.PlaceFrame(frame) -- the same spot, anchored as a load anchors it
+		ZPerl.PlaceFrame(frame) -- The same spot, anchored as a load anchors it
 	end
 end
 
@@ -196,7 +196,7 @@ function ZPerl.AlignmentGridToggle()
 end
 
 local function snapFrame(frame)
-	-- the tip promises a snap to the visible grid: a save while it is hidden stays where it is
+	-- The tip promises a snap to the visible grid: a save while it is hidden stays where it is
 	if (not gridDB().alignmentSnapToGrid or InCombatLockdown() or not ZPerl.AlignmentGridIsShown()) then return false end
 	local name = frame.GetName and frame:GetName()
 	if (name == "ZPerl_MinimapButton_Frame") then return false end

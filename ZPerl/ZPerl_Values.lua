@@ -4,7 +4,7 @@
 
 
 ------------------------------------------------------------------------------
--- restricted API support
+-- Restricted API support
 --
 -- The Forever client is expected to use the Midnight style "secret values".
 -- A secret cannot be compared, used in maths, used as a table key or tested as
@@ -149,7 +149,7 @@ function ZPerl.UnitAuraByIndex(unit, index, filter)
 	end
 
 	if (not HasAuraAPI) then
-		-- a client without GetUnitAuras (Classic Era): one aura by index, no vector to cache
+		-- A client without GetUnitAuras (Classic Era): one aura by index, no vector to cache
 		local aura = ZPerl.AuraData and ZPerl.AuraData(unit, index, filter or "HELPFUL")
 		if (not aura) then
 			return nil
@@ -288,7 +288,7 @@ function ZPerl.AuraContainerCreate(self, holderKey, name, groups, lineSize)
 	local level = self:GetFrameLevel() + 10
 	local holder = self[holderKey]
 	if (not holder) then
-		-- the stand-in (ZPerl.AuraStandIn) has no such template, and needs none
+		-- The stand-in (ZPerl.AuraStandIn) has no such template, and needs none
 		holder = CreateFrame("Frame", nil, self, (not ZPerl.AuraStandIn) and "DisableUntrustedLayoutScriptsTemplate" or nil)
 		self[holderKey] = holder
 	end
@@ -298,7 +298,7 @@ function ZPerl.AuraContainerCreate(self, holderKey, name, groups, lineSize)
 	-- cfg[key] is the group's current spec; its buttons' init reads it
 	local container = name and _G[name]
 	local cfg
-	-- the buttons of a frame whose classic buttons took right-click (Target's buffs) cancel the player's own buff
+	-- The buttons of a frame whose classic buttons took right-click (Target's buffs) cancel the player's own buff
 	local cancel = holderKey == "buffHalfFrame" and self.auraCancel or false
 	local function addGroup(g)
 		cfg[g.key] = g
@@ -322,7 +322,7 @@ function ZPerl.AuraContainerCreate(self, holderKey, name, groups, lineSize)
 		cfg = container.zperlAuraCfg
 		container:SetFrameLevel(level)
 		container:SetUnit(self.partyid)
-		-- groups are never removed: those the spec no longer asks for are disabled
+		-- Groups are never removed: those the spec no longer asks for are disabled
 		local wanted = {}
 		for _, g in ipairs(groups) do
 			wanted[g.key] = true
@@ -427,7 +427,7 @@ function ZPerl.AuraContainerInitButtonCommon(button, g, cancel)
 			button.zperlDuration:Hide()
 		end
 	end
-	-- tooltips off: the button ignores the mouse, and right-click cancel goes with it (the game shows a
+	-- Tooltips off: the button ignores the mouse, and right-click cancel goes with it (the game shows a
 	-- tooltip on every aura button that has the mouse)
 	button:EnableMouse((ZPerl.layout and ZPerl.layout.tooltip and ZPerl.layout.tooltip.enableBuffs) and true or false)
 	if (cancel and button.SetCancelAuraButtons) then
@@ -443,7 +443,7 @@ function ZPerl.AuraContainerInitButtonCommon(button, g, cancel)
 		button.countText:SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", -2, 2)
 		button:SetApplicationCount(button.countText)
 	end
-	-- the container moves its buttons to its own level when it is reconfigured: the children follow
+	-- The container moves its buttons to its own level when it is reconfigured: the children follow
 	if (button.cooldown) then
 		button.cooldown:SetFrameLevel(button:GetFrameLevel() + 1)
 	end
@@ -519,4 +519,4 @@ function ZPerl.UnitFullName(unit)
 	end
 	return n
 end
-end -- restricted API support
+end -- Restricted API support

@@ -37,3 +37,5 @@ L["HELPER_FINDSET"]     = "Find 설정 %s. ('|c00007F00/zphelper find|r' 지움)
 L["AGGRO_PLAYER"]  = "- 어그로 -"
 L["AGGRO_PET"]     = "- 소환수 어그로 -"
 L["AGGRO_DRAGTIP"] = "어그로 경고의 위치 이동"
+
+L["TITLE_MT_SHORT"] = "MT"

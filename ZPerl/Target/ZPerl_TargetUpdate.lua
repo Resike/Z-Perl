@@ -38,7 +38,7 @@ local percD = "%d"..PERCENT_SYMBOL
 function ZPerl.Target.SetManaType(self)
 	local unitPowerMax = UnitPowerMax(self.partyid)
 
-	-- a secret maximum cannot be tested, keep the bar shown
+	-- A secret maximum cannot be tested, keep the bar shown
 	---@diagnostic disable-next-line: secret-comparison
 	if ((CanAccess(unitPowerMax) and unitPowerMax == 0) or not self.conf.mana) then
 		if (self.statsFrame.manaBar:IsShown()) then
@@ -172,7 +172,7 @@ function ZPerl.Target.UpdateHealth(self)
 	self.targethp = hp
 	self.targethpmax = hpMax
 
-	-- indirect units (pettarget, targettarget...) can return
+	-- Indirect units (pettarget, targettarget...) can return
 	-- secret booleans, which cannot be tested; treat those as "alive and normal"
 	local ghost = SafeBool(UnitIsGhost(partyid), false)
 	local dead = SafeBool(UnitIsDead(partyid), false)
@@ -309,7 +309,7 @@ local function RaidTargetUpdate(self)
 
 	raidIcon:ClearAllPoints()
 	if (self.conf.raidIconAlternate) then
-		-- the corner mark matches the Player frame's (20x20)
+		-- The corner mark matches the Player frame's (20x20)
 		raidIcon:SetHeight(20)
 		raidIcon:SetWidth(20)
 		raidIcon:SetPoint("CENTER", self.nameFrame, "TOPRIGHT", -5, -4)
@@ -339,7 +339,7 @@ local function CheckDebuffs(self)
 	end
 end
 
--- used by ZPerl_TargetEvents.lua
+-- Used by ZPerl_TargetEvents.lua
 ZPerl.Target.CombatFlash = CombatFlash
 ZPerl.Target.UpdateLeader = UpdateLeader
 ZPerl.Target.RaidTargetUpdate = RaidTargetUpdate
@@ -383,7 +383,7 @@ function ZPerl.Target.UpdateDisplay(self)
 
 	ZPerl.NoFadeBars()
 
-	-- a fresh target is the most common moment the AuraContainer
+	-- A fresh target is the most common moment the AuraContainer
 	-- fallback's friend/enemy half-assignment needs to change; rebuild here (a
 	-- no-op on clients without it, deferred while secret) rather than on every
 	-- UNIT_AURA.

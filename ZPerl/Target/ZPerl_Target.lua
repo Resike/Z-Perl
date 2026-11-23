@@ -9,7 +9,7 @@ local L = ZPerl.L
 ZPerl.Elements.Target = {events = { }}
 ZPerl.Elements.TargetOnly = {events = {}}
 ZPerl.Elements.FocusOnly = {events = {}}
-ZPerl.Elements.TargetHeal = {events = {}} -- on while the frame's heal prediction option is on
+ZPerl.Elements.TargetHeal = {events = {}} -- On while the frame's heal prediction option is on
 local conf, tconf, fconf
 ZPerl.RequestConfig(function(new)
 	conf = new
@@ -33,7 +33,7 @@ ZPerl.RequestConfig(function(new)
 	end
 end, "$Revision:  $")
 
--- secret value helpers from ZPerl.lua
+-- Secret value helpers from ZPerl.lua
 local CanAccess = ZPerl.CanAccess
 local SafeBool = ZPerl.SafeBool
 
@@ -109,7 +109,7 @@ function ZPerl.Target.OnLoad(self, partyid)
 	self:RegisterForClicks("AnyUp")
 	self:RegisterForDrag("LeftButton")
 	ZPerl.SetChildMembers(self)
-	-- the aura color highlight is for party and raid frames; this frame shows only the HoT highlight
+	-- The aura color highlight is for party and raid frames; this frame shows only the HoT highlight
 	self.hotHighlightOnly = true
 
 	CombatFeedback_Initialize(self, self.hitIndicator.text, 30)
@@ -232,7 +232,7 @@ local function UpdatePVP(self)
 	local pvpIcon = self.nameFrame.pvp
 
 	local factionGroup = UnitFactionGroup(partyid)
-	-- faction names can be secret for creatures inside instances: they can be neither tested nor compared
+	-- Faction names can be secret for creatures inside instances: they can be neither tested nor compared
 	if (not CanAccess(factionGroup)) then
 		factionGroup = nil
 	end
@@ -272,7 +272,7 @@ local function UpdatePVP(self)
 		ZPerl.SetUnitNameColor(self.nameFrame.text, partyid)
 	end
 
-	-- indirect units can return secret flags; no icon in that case
+	-- Indirect units can return secret flags; no icon in that case
 	if SafeBool(UnitIsVisible(partyid), false) and SafeBool(UnitIsCharmed(partyid), false) and SafeBool(UnitIsPlayer(partyid), false) then
 		self.nameFrame.warningIcon:Show()
 	else
@@ -299,7 +299,7 @@ local function UpdateLevel(self)
 		self.levelFrame.skull:Hide()
 		self.levelFrame:SetWidth(27)
 		if (not CanAccess(targetlevel)) then
-			-- creature levels are secret inside instances
+			-- Creature levels are secret inside instances
 			self.levelFrame.text:SetTextColor(1, 1, 1)
 			self.levelFrame.text:Show()
 		elseif (targetlevel < 0) then
@@ -325,7 +325,7 @@ local function UpdateClassification(self)
 	local bossType, eliteGfx
 
 	if (not CanAccess(targetclassification)) then
-		-- the classification is secret, nothing can be decided
+		-- The classification is secret, nothing can be decided
 		self.bossFrame:Hide()
 		self.eliteFrame:Hide()
 		self.typeFramePlayer:Hide()
@@ -398,7 +398,7 @@ local function UpdateClassification(self)
 			self.levelFrame:SetFrameLevel(self.portraitFrame:GetFrameLevel() + 2)
 			self.levelFrame.outOfPlace = true
 		end
-		-- this is hidden if the mob is elite regardless of graphics (wihout gfx it says "Elite" for example)
+		-- This is hidden if the mob is elite regardless of graphics (wihout gfx it says "Elite" for example)
 		--if (self.conf.classIcon) then
 		--	self.typeFramePlayer:ClearAllPoints()
 		--	self.typeFramePlayer:SetPoint("BOTTOMRIGHT", self.portraitFrame, "BOTTOMRIGHT", 0, 0)
@@ -441,7 +441,7 @@ end
 local function UpdateType(self)
 	local partyid = self.partyid
 	local targettype = UnitCreatureType(partyid)
-	-- creature types are secret inside instances
+	-- Creature types are secret inside instances
 	local typeReadable = CanAccess(targettype)
 
 	---@diagnostic disable-next-line: secret-comparison
@@ -466,7 +466,7 @@ local function UpdateType(self)
 			local LocalClass = UnitClassBase(partyid)
 
 			if (self.conf.classText) then
-				-- the localized name: UnitClassBase gives the token ("WARRIOR"), which is for the icon
+				-- The localized name: UnitClassBase gives the token ("WARRIOR"), which is for the icon
 				self.bossFrame.text:SetText((UnitClass(partyid)))
 				self.bossFrame.text:SetTextColor(1, 1, 1)
 				self.bossFrame:Show()
@@ -501,7 +501,7 @@ local function UpdateType(self)
 	AdjustCreatureTypeFrame(self)
 end
 
--- used by ZPerl_TargetUpdate.lua and ZPerl_TargetEvents.lua
+-- Used by ZPerl_TargetUpdate.lua and ZPerl_TargetEvents.lua
 ZPerl.Target.UpdatePVP = UpdatePVP
 ZPerl.Target.UpdateName = UpdateName
 ZPerl.Target.UpdateLevel = UpdateLevel

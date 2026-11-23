@@ -116,3 +116,5 @@ L["ROSTERTEXT_TOGGLE"]        = "Umschalten"
 L["ROSTERTEXT_TOGGLE_DESC"]   = "Die ausgew\195\164hlten Gruppen umschalten"
 L["ROSTERTEXT_SORT"]          = "Sortieren"
 L["ROSTERTEXT_SORT_DESC"]     = "Nach Name sortieren anstatt nach Gruppe+Name"
+
+L["CHECK_REPORT_OFFLINE"] = " : %d offline"

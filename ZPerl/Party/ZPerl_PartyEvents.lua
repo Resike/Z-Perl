@@ -51,7 +51,7 @@ local TargetRaidIcon = shared.TargetRaidIcon
 local UpdateTarget = shared.UpdateTarget
 
 local partyHeader, partyAnchor
-function shared.SetAnchors(header, anchor) -- set by ZPerl.Party.OnLoad
+function shared.SetAnchors(header, anchor) -- Set by ZPerl.Party.OnLoad
 	partyHeader, partyAnchor = header, anchor
 end
 
@@ -224,7 +224,7 @@ function Events:UNIT_COMBAT(unit, action, descriptor, damage, damageType)
 	if unit ~= self.partyid then
 		return
 	end
-	-- set first: the flash and hit text animate even when a later line raises on a secret amount
+	-- Set first: the flash and hit text animate even when a later line raises on a secret amount
 	self:SetScript("OnUpdate", ZPerl.Party.OnUpdate)
 
 	if pconf.hitIndicator then
@@ -240,7 +240,7 @@ function Events:UNIT_COMBAT(unit, action, descriptor, damage, damageType)
 end
 
 -- UNIT_MAXHEALTH
-function Events:UNIT_MAXHEALTH() -- after the Health element's update
+function Events:UNIT_MAXHEALTH() -- After the Health element's update
 	ZPerl.UnitUpdateLevel(self) -- Level not available until we've received maxhealth
 	UpdateClass(self)
 end
@@ -332,7 +332,7 @@ local function BuildGuidMap()
 end
 
 function Bus.GROUP_ROSTER_UPDATE()
-	-- a drag cannot stay attached to the cursor when its frame is hidden by the roster change
+	-- A drag cannot stay attached to the cursor when its frame is hidden by the roster change
 	if (not InCombatLockdown()) then
 		partyAnchor:StopMovingOrSizing()
 	end
@@ -350,7 +350,7 @@ function Bus.GROUP_ROSTER_UPDATE()
 	end
 end
 
--- the highlight textures are applied at login, when a frame registers after that, and by the
+-- The highlight textures are applied at login, when a frame registers after that, and by the
 -- highlighttex applier, so a roster event does not re-apply them
 function Bus.PLAYER_LOGIN()
 	ZPerl.SetHighlights()
@@ -619,8 +619,8 @@ function ZPerl.Party.SetBits1(self)
 	end
 
 	self.targetFrame:SetWidth(pconf.target.size)
-	self.targetFrame:SetAlpha(conf.transparency.frame) -- nothing else resets it once the range fader is off
-	self.targetFrame.healthBar:SetAlpha(1) -- its Bars fade (the health bar is its statsFrame), for the same reason
+	self.targetFrame:SetAlpha(conf.transparency.frame) -- Nothing else resets it once the range fader is off
+	self.targetFrame.healthBar:SetAlpha(1) -- Its Bars fade (the health bar is its statsFrame), for the same reason
 
 	pconf.buffs.size = tonumber(pconf.buffs.size) or 20
 	ZPerl.Party.SetWidth(self)
@@ -756,7 +756,7 @@ function ZPerl.Party.SetBits()
 
 	ZPerl.GroupVisibilityUpdate()
 
-	-- turning the party frames on hides Blizzard's at once
+	-- Turning the party frames on hides Blizzard's at once
 	if ZPerl.Party.HideBlizzardPartyFrames then
 		ZPerl.Party.HideBlizzardPartyFrames()
 	end

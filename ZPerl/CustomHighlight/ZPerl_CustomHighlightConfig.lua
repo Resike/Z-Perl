@@ -39,12 +39,12 @@ local QUESTION_MARK = "Interface\\Icons\\INV_Misc_QuestionMark"
 local ROWS = 14
 local ROW_HEIGHT = 22
 
-local config			-- the tab's content, built the first time the tab is shown
-local zone				-- the zone shown in the list
-local sorted = {}		-- spell IDs of the zone, by name
+local config			-- The tab's content, built the first time the tab is shown
+local zone				-- The zone shown in the list
+local sorted = {}		-- Spell IDs of the zone, by name
 local sortKeys = {}
-local listOffset = 0	-- sorted index above the first row
-local syncing			-- the list is setting its scroll bar (its scroll callback is ours)
+local listOffset = 0	-- Sorted index above the first row
+local syncing			-- The list is setting its scroll bar (its scroll callback is ours)
 
 -- Zones() - the layout's zone table, made from the defaults the first time (as the highlight itself does)
 local function Zones()
@@ -379,7 +379,7 @@ end
 
 local function CreateConfig(parent)
 	local f = CreateFrame("Frame", "ZPerl_CustomHighlight_Config", parent)
-	-- the controls sit 12 px in from f's edge: shifted back so they line up with the settings tabs' rows
+	-- The controls sit 12 px in from f's edge: shifted back so they line up with the settings tabs' rows
 	f:SetPoint("TOPLEFT", -12, 0)
 	f:SetSize(460, 560)
 
@@ -469,7 +469,7 @@ local function CreateConfig(parent)
 	reset:SetScript("OnClick", ResetDefaults)
 	Tip(reset, L["Reset to defaults"], L["Put back the default zones and spells of this layout's list, after a confirmation. Zones and spells you added are lost."])
 
-	-- a layout switch or a zone change while the tab was hidden: re-read on show
+	-- A layout switch or a zone change while the tab was hidden: re-read on show
 	f:SetScript("OnShow", function()
 		Pick()
 		RebuildSorted()

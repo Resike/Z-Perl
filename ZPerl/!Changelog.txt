@@ -1,3 +1,12 @@
+**8.0.5**
+* 3D portrait zoom: a new option under General > Look sets how close the 3D portraits are framed.
+* 3D portraits now fade along with their frame (range fading and frame transparency).
+* Party: the class icon portrait option now takes priority over 3D portraits.
+* Health loss animation: no longer drains from above the current health, and resets when the bar is hidden.
+* Party: fixed errors from hidden dead or ghost states in combat.
+* The options window is now translated into German, Spanish, French, Italian, Korean, Brazilian Portuguese, Russian and Traditional Chinese.
+* More translations for the main addon in every language, and Brazilian Portuguese for Raid Admin, Raid Helper and Raid Monitor.
+
 **8.0.4**
 * Cast bars: the completion flash is back to the classic glow around the name frame, with a new taller spark.
 * Cast bar flash: a new option for the player, pet, target, focus and party frames turns the completion glow off.

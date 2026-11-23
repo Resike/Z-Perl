@@ -437,7 +437,7 @@ end
 -- CustomHighlight:Highlight
 function CustomHighlight:Highlight(frame, mode, unit, debuff, buffIcon)
 	if self.active[frame] then
-		-- another matching debuff took over: show its icon
+		-- Another matching debuff took over: show its icon
 		if self.active[frame] ~= buffIcon and frame.customHighlight and frame.customHighlight.icon then
 			self.active[frame] = buffIcon
 			frame.customHighlight.icon.tex:SetTexture(buffIcon)
@@ -453,7 +453,7 @@ function CustomHighlight:Highlight(frame, mode, unit, debuff, buffIcon)
 		local icon = self:IconAcquire()
 		c.icon = icon
 
-		-- a child of the raid frame: it hides with the frame (and with the UI) and takes the frame's scale
+		-- A child of the raid frame: it hides with the frame (and with the UI) and takes the frame's scale
 		icon:SetParent(frame)
 		icon:SetFrameLevel(frame:GetFrameLevel() + 10)
 		icon:ClearAllPoints()
@@ -528,7 +528,7 @@ function CustomHighlight:Check(frame, unit)
 			if not name then
 				break
 			end
-			-- by spell ID: a name is shared by unrelated spells. A secret ID cannot be looked up.
+			-- By spell ID: a name is shared by unrelated spells. A secret ID cannot be looked up.
 			if spellId and ZPerl.CanAccess(spellId) and z[spellId] then
 				self:Highlight(frame, "debuff", unit, name, icon)
 				return

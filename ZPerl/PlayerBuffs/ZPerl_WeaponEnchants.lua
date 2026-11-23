@@ -9,7 +9,7 @@
 ZPerl.Enchants = {}
 
 local INV = {[0] = 16, [1] = 17, [2] = 18} -- Enum.WeaponSlot -> inventory slot
-local PAD, GAP = 3, 12 -- after each icon; room for the duration text under an icon in a column
+local PAD, GAP = 3, 12 -- After each icon; room for the duration text under an icon in a column
 
 local block = CreateFrame("Frame", "ZPerl_PlayerEnchants", ZPerl_Player)
 block.buttons = {}
@@ -100,13 +100,13 @@ end
 function ZPerl.Enchants.Update()
 	---@diagnostic disable-next-line: undefined-field
 	local c = ZPerl_Player.conf
-	-- the 1 s ticker and the bus events can run before the profile is handed out
+	-- The 1 s ticker and the bus events can run before the profile is handed out
 	if (not c) then
 		return
 	end
 	local on = not ZPerl_Player.off and c.buffs.enable and c.enchants and c.enchants.enable
 	local size = c.buffs.size or 25
-	-- along the buff line (the flow ZPerl.AurasPlace set), or a column left of the frame
+	-- Along the buff line (the flow ZPerl.AurasPlace set), or a column left of the frame
 	---@diagnostic disable-next-line: undefined-field
 	local flow = ZPerl_Player.auraSpacerFlow
 	local point, dx, dy
@@ -141,7 +141,7 @@ function ZPerl.Enchants.Update()
 		block.buttons[i]:Hide()
 		block.buttons[i].slot = nil
 	end
-	-- the spacer's length along the line is what moves the buffs; the 1 is the step ZPerl.AurasPlace
+	-- The spacer's length along the line is what moves the buffs; the 1 is the step ZPerl.AurasPlace
 	-- takes back (a frame of length 0 has no rect)
 	if (flow and flow.rows) then
 		block:SetSize(n * (size + PAD) + 1, size)
@@ -160,7 +160,7 @@ ZPerl.On("UNIT_INVENTORY_CHANGED", function(_, unit)
 end)
 ZPerl.On("PLAYER_EQUIPMENT_CHANGED", ZPerl.Enchants.Update)
 ZPerl.On("PLAYER_ENTERING_WORLD", ZPerl.Enchants.Update)
--- the enchant has no expiry event: the ticker counts the time down and drops an expired one
+-- The enchant has no expiry event: the ticker counts the time down and drops an expired one
 ZPerl.Every(1, ZPerl.Enchants.Update)
 
 ZPerl.RegisterOptionChanger(ZPerl.Enchants.Update, nil, "playerenchants")

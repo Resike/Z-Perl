@@ -203,7 +203,7 @@ function ZPerl.StatusBarSetValue(self, val)
 		local low, high = self:GetMinMaxValues()
 		local current = self:GetValue()
 
-		-- secret values (health always, power always) cannot be compared, so every update fades
+		-- Secret values (health always, power always) cannot be compared, so every update fades
 		-- from the old value; after a gain the fader lies inside the bar's own fill and does not show
 		local readable = CanAccess(val) and CanAccess(current) and CanAccess(high)
 		if not readable or (val < current and val <= high and val >= low) then
@@ -215,7 +215,7 @@ function ZPerl.StatusBarSetValue(self, val)
 
 			if bar then
 				if not self.fadeAlpha then
-					-- the party range fade sets a secret alpha, which BarUpdate cannot count down
+					-- The party range fade sets a secret alpha, which BarUpdate cannot count down
 					local alpha = self:GetParent():GetAlpha()
 					self.fadeAlpha = CanAccess(alpha) and alpha or 1
 					bar:SetValue(current)
@@ -308,6 +308,17 @@ local function HealthLossOnUpdate(loss)
 	end
 end
 
+-- HideWithBar(loss, bar): a loss sits beside the health bar, not on it (a child would draw over the bar's
+-- fill), so it does not hide with it on its own: it stops when the bar hides. The next update shows it again,
+-- as for a new unit: what changed while hidden is not drained (the secret health eases only for the same unit).
+local function HideWithBar(loss, bar)
+	bar:HookScript("OnHide", function()
+		loss.lastValue = nil
+		loss.guid = nil
+		StopLoss(loss)
+	end)
+end
+
 -- HealthLossBar(bar): the red bar right behind the health bar, as the incoming heal bar is
 local function HealthLossBar(bar)
 	local loss = bar.healthLoss
@@ -321,6 +332,7 @@ local function HealthLossBar(bar)
 		ZPerl.RegisterBar(loss)
 		loss:SetStatusBarColor(1, 0, 0, 1)
 		loss:Hide()
+		HideWithBar(loss, bar)
 		bar.healthLoss = loss
 	end
 	return loss
@@ -350,12 +362,12 @@ function ZPerl.HealthLoss(bar, unit, hp, hpMax, off)
 			loss:Show()
 			loss:SetScript("OnUpdate", HealthLossOnUpdate)
 		else
-			-- kept at the health, so a later secret update drains from here
+			-- Kept at the health, so a later secret update drains from here
 			loss:SetValue(hp)
 			StopLoss(loss)
 		end
 	elseif (EASE) then
-		-- the bar rests under the health bar's fill; after a loss it eases down from the old value
+		-- The bar rests under the health bar's fill; after a loss it eases down from the old value
 		loss.lastValue = nil
 		loss.startTime = nil
 		loss:SetScript("OnUpdate", nil)
@@ -368,20 +380,32 @@ function ZPerl.HealthLoss(bar, unit, hp, hpMax, off)
 end
 
 local function AbsorbLossOnUpdate(loss)
-	local value, done = LossValue(loss, loss.lastValue)
+	local _, done = LossValue(loss, loss.lastValue)
 	if (done >= 1) then
 		StopLoss(loss)
 		return
 	end
-	-- the absorb bar fills the health fill from its right end at the health bar's scale: the lost strip
-	-- ends where the absorb bar begins, and is as wide as the part still draining
+	-- The health can change between absorb updates: read it here while it is readable
 	local healthBar = loss.healthBar
+	local hp = healthBar:GetValue()
+	local hpMax = select(2, healthBar:GetMinMaxValues())
+	---@diagnostic disable-next-line: secret-comparison
+	if (CanAccess(hp) and CanAccess(hpMax) and hpMax > 0) then
+		loss.hp, loss.hpMax = hp, hpMax
+	end
+	-- The absorb bar fills the health fill from its right end at the health bar's scale: the lost strip
+	-- ends where the absorb bar begins, and is as wide as the part still draining
+	-- the absorb bar never shows more than the health: both ends are clamped to it, and the drain runs
+	-- over the clamped range, so a shield larger than the health does not hold the strip, then snap it
 	local scale = healthBar:GetWidth() / loss.hpMax
 	local fill = healthBar:GetStatusBarTexture()
-	local right = -loss.lastValue * scale
+	local shown = min(loss.lastValue, loss.hp)
+	local start = min(loss.startValue, loss.hp)
+	local value = start - done * (start - shown)
+	local right = -shown * scale
 	loss:SetPoint("TOPRIGHT", fill, "TOPRIGHT", right, 0)
 	loss:SetPoint("BOTTOMRIGHT", fill, "BOTTOMRIGHT", right, 0)
-	loss:SetWidth(max(0, (min(value, loss.hp) - loss.lastValue) * scale))
+	loss:SetWidth(max(0, (value - shown) * scale))
 end
 
 -- AbsorbLoss(bar, healthBar, unit, amount): the absorb loss of the absorb bar bar; healthBar nil stops it
@@ -408,15 +432,17 @@ local function AbsorbLoss(bar, healthBar, unit, amount)
 		loss.texture:SetAllPoints()
 		loss.texture:SetTexture("Interface\\Buttons\\White8x8")
 		loss:Hide()
+		HideWithBar(loss, healthBar)
 		bar.absorbLoss = loss
 	end
 	if (not SameUnit(loss, unit)) then
 		loss.lastValue = nil
 	end
 
-	-- the absorb bar never shows more than the health
-	if (LossTrack(loss, min(amount, hp))) then
-		loss.healthBar, loss.hp, loss.hpMax = healthBar, hp, hpMax
+	-- The absorb itself is tracked, not its clamp to the health: a health drop under a shield larger
+	-- than the health is no absorb loss. The drawing clamps (AbsorbLossOnUpdate).
+	loss.healthBar, loss.hp, loss.hpMax = healthBar, hp, hpMax
+	if (LossTrack(loss, amount)) then
 		local c = conf.color.bar.absorb or {r = 0.14, g = 0.33, b = 0.7, a = 0.7}
 		loss.texture:SetVertexColor(c.r, c.g, c.b, (c.a or 1) * 0.6)
 		loss:SetFrameLevel(healthBar:GetFrameLevel() + 1)
@@ -480,7 +506,7 @@ end
 -- Flashing frames handler. Is hidden when there's nothing to do.
 local FlashFrame = CreateFrame("Frame", "ZPerl_FlashFrame", nil, BackdropTemplateMixin and "BackdropTemplate")
 FlashFrame.list = { }
-FlashFrame:Hide() -- its OnUpdate runs only while a flash is active (ZPerl.FrameFlash shows it)
+FlashFrame:Hide() -- Its OnUpdate runs only while a flash is active (ZPerl.FrameFlash shows it)
 
 -- FrameFlashOnUpdate(self, elapsed)
 local function FrameFlashOnUpdate(self, elapsed)
@@ -608,8 +634,69 @@ function ZPerl.NextMember(_, last)
 	end
 end
 
+-- A model does not take its parents' alpha, so the frame transparency and range fade would leave a 3D
+-- portrait opaque. Each ancestor of a synced model gets a SetAlpha hook that hands the effective alpha on to
+-- the models below it.
+local modelsByFrame = setmetatable({}, {__mode = "k"})
+
+-- Copies the model's effective alpha into its model alpha; also needed after SetUnit, as a new model starts opaque
+local function UpdateModelAlpha(model)
+	model:SetModelAlpha(model:GetEffectiveAlpha())
+end
+
+local function OnAncestorSetAlpha(frame)
+	for model in pairs(modelsByFrame[frame]) do
+		UpdateModelAlpha(model)
+	end
+end
+
+-- Hooks the model's ancestors once. The walk stops below UIParent: hooking a Blizzard frame would write into
+-- its table and taint it. SetUnit loads the model later and the loaded model starts opaque, so the alpha is also
+-- handed on when it has loaded.
+local function SyncModelAlpha(model)
+	model:HookScript("OnModelLoaded", UpdateModelAlpha)
+	local frame = model:GetParent()
+	while (frame and frame ~= UIParent) do
+		local models = modelsByFrame[frame]
+		if (not models) then
+			models = setmetatable({}, {__mode = "k"})
+			modelsByFrame[frame] = models
+			hooksecurefunc(frame, "SetAlpha", OnAncestorSetAlpha)
+		end
+		models[model] = true
+		frame = frame:GetParent()
+	end
+	UpdateModelAlpha(model)
+end
+
+-- Every 3D portrait model, for the zoom applier
+local portraitModels = setmetatable({}, {__mode = "k"})
+
+-- The zoom of the 3D portraits (General > Look), clamped to the slider's range
+local function PortraitZoom()
+	return min(max(tonumber(conf.portraitZoom) or 1, 0.5), 1)
+end
+
+-- ZPerl.SetPortraitZoom: applies the zoom setting to the 3D portraits now showing a unit; the others take it when
+-- their unit is set
+function ZPerl.SetPortraitZoom()
+	local zoom = PortraitZoom()
+	for model in pairs(portraitModels) do
+		if (model:IsShown()) then
+			model:SetPortraitZoom(zoom)
+		end
+	end
+end
+ZPerl.RegisterApplier("portraitzoom", ZPerl.SetPortraitZoom)
+
 -- ZPerl.UnitUpdatePortrait
 function ZPerl.UnitUpdatePortrait(self, force)
+	local model = self.portraitFrame and self.portraitFrame.portrait3D
+	if (model and not model.alphaSync) then
+		model.alphaSync = true
+		SyncModelAlpha(model)
+		portraitModels[model] = true
+	end
 	if (self.conf and self.conf.portrait) then
 		if self.conf.classPortrait then
 			local _, englishClass = UnitClass(self.partyid)
@@ -627,7 +714,8 @@ function ZPerl.UnitUpdatePortrait(self, force)
 		-- use the already-populated 2D portrait for NPCs there instead of attempting
 		-- 3D. Real players keep their animated portrait everywhere, since that case
 		-- has been reliable.
-		if (self.conf.portrait3D and UnitIsVisible(self.partyid) and (not IsInInstance() or UnitIsPlayer(self.partyid))) then
+		-- The class icon wins over 3D: choosing it keeps portrait3D, so a frame switched from 3D has both set
+		if (not self.conf.classPortrait and self.conf.portrait3D and UnitIsVisible(self.partyid) and (not IsInInstance() or UnitIsPlayer(self.partyid))) then
 			self.portraitFrame.portrait:Hide()
 			local guid = UnitGUID(self.partyid)
 			-- A secret GUID cannot be compared, and that includes the *stored*
@@ -638,8 +726,10 @@ function ZPerl.UnitUpdatePortrait(self, force)
 				self.portraitFrame.portrait3D:Show()
 				self.portraitFrame.portrait3D:ClearModel()
 				self.portraitFrame.portrait3D:SetUnit(self.partyid)
-				self.portraitFrame.portrait3D:SetPortraitZoom(0.8)
+				self.portraitFrame.portrait3D:SetPortraitZoom(PortraitZoom())
 				self.portraitFrame.portrait3D.guid = guid
+				-- A new model starts opaque
+				UpdateModelAlpha(self.portraitFrame.portrait3D)
 			end
 		else
 			self.portraitFrame.portrait:Show()
@@ -652,7 +742,7 @@ end
 colorCurves.levelSecret = {r = 1, g = 1, b = 1}
 function ZPerl.UnitUpdateLevel(self)
 	local level = UnitLevel(self.partyid)
-	-- creature levels can be secret inside instances
+	-- Creature levels can be secret inside instances
 	local readable = CanAccess(level)
 	local color = readable and GetDifficultyColor(level) or colorCurves.levelSecret
 	if (self.levelFrame) then
@@ -814,7 +904,7 @@ function ZPerl.SetExpectedAbsorbs(self)
 			return
 		end
 		AbsorbLoss(bar, healthBar, unit, amount)
-		-- a secret is never nil; a readable amount must be above 0
+		-- A secret is never nil; a readable amount must be above 0
 		---@diagnostic disable-next-line: secret-comparison
 		if (not IsSecret(amount) and (not amount or amount <= 0)) then
 			bar:Hide()
@@ -862,7 +952,7 @@ end
 -- Re-anchors only when the mode changes.
 local function PlaceExpectedHealth(bar, healthBar, afterFill)
 	if (afterFill) then
-		-- the health bar's width can change with the frame size, so it is set on every call
+		-- The health bar's width can change with the frame size, so it is set on every call
 		bar:SetWidth(healthBar:GetWidth())
 	end
 	if (bar.zperlAfterFill == afterFill) then
@@ -905,7 +995,7 @@ local function IncomingHeals(unit)
 			if (Enum and Enum.UnitIncomingHealClampMode) then
 				calculator:SetIncomingHealClampMode(Enum.UnitIncomingHealClampMode.MissingHealth)
 			end
-			-- the overflow past the missing health is a ratio (1.05) or a fraction (0.05) of it; no overflow
+			-- The overflow past the missing health is a ratio (1.05) or a fraction (0.05) of it; no overflow
 			local overflow = calculator:GetIncomingHealOverflowPercent()
 			if (CanAccess(overflow)) then
 				calculator:SetIncomingHealOverflowPercent(overflow >= 1 and 1 or 0)
@@ -936,7 +1026,7 @@ function ZPerl.SetExpectedHealth(self)
 			unit = self:GetParent().targetid
 		end
 
-		-- the client's own incoming heal value
+		-- The client's own incoming heal value
 		local amount = IncomingHeals(unit)
 
 		if not conf.color.bar.healprediction then
@@ -961,7 +1051,7 @@ function ZPerl.SetExpectedHealth(self)
 		if (IsSecret(amount) or IsSecret(UnitHealth(unit))) then
 			-- Secret amount or health: nothing can be added or compared, so the client sizes the bar
 			-- (PlaceExpectedHealth). A secret amount of 0 draws an empty bar.
-			-- a secret is never nil; a readable amount (with secret health) must still be above 0
+			-- A secret is never nil; a readable amount (with secret health) must still be above 0
 			---@diagnostic disable-next-line: secret-comparison
 			local none = not IsSecret(amount) and (not amount or amount <= 0)
 			if (none or ZPerl.SafeBool(UnitIsDeadOrGhost(unit), false)) then
@@ -977,10 +1067,10 @@ function ZPerl.SetExpectedHealth(self)
 		end
 
 		---@diagnostic disable-next-line: secret-comparison
-		if (amount and amount > 0 and not UnitIsDeadOrGhost(unit)) then
+		if (amount and amount > 0 and not ZPerl.SafeBool(UnitIsDeadOrGhost(unit), false)) then
 			PlaceExpectedHealth(bar, healthBar, false)
 			local healthMax = UnitHealthMax(unit)
-			local health = UnitIsGhost(unit) and 1 or (UnitIsDead(unit) and 0 or UnitHealth(unit))
+			local health = ZPerl.SafeBool(UnitIsGhost(unit), false) and 1 or (ZPerl.SafeBool(UnitIsDead(unit), false) and 0 or UnitHealth(unit))
 			if (not CanAccess(health) or not CanAccess(healthMax)) then
 				bar:Hide()
 				return
@@ -1088,7 +1178,7 @@ function ZPerl.UnitThreatStatus(self, relative, immediate)
 	if (t) then
 		local _, scaledPercent
 		local one, two
-		-- attack/combat flags for compound units can be secret
+		-- Attack/combat flags for compound units can be secret
 		if (ZPerl.SafeBool(UnitAffectingCombat(self.partyid), false) or (relative and ZPerl.SafeBool(UnitAffectingCombat(relative), false))) then
 			if (relative and ZPerl.SafeBool(UnitCanAttack(relative, self.partyid), false)) then
 				one, two = relative, self.partyid
@@ -1127,7 +1217,7 @@ function ZPerl.UnitThreatStatus(self, relative, immediate)
 				local r, g, b = smoothColor(1 - scaledPercent / 100)
 				t.text:SetTextColor(r, g, b)
 			else
-				-- the text sink can show a secret percent, but the
+				-- The text sink can show a secret percent, but the
 				-- needle animation needs maths, so it stays where it is.
 				t:SetScript("OnUpdate", nil)
 				t.text:SetTextColor(1, 1, 1)
@@ -1151,7 +1241,7 @@ function ZPerl.RegisterPrediction(self, frameConf, element)
 		return
 	end
 
-	-- the client's own event drives the bar; with LibHealComm its callbacks do (below)
+	-- The client's own event drives the bar; with LibHealComm its callbacks do (below)
 	if frameConf.healprediction and (HealComm or type(UnitGetIncomingHeals) == "function") then
 		ZPerl.UnitFrameEnable(self, element)
 	else

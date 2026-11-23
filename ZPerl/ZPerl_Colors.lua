@@ -64,7 +64,7 @@ local GameTooltipTextLeft1 = GameTooltipTextLeft1
 
 local CanAccess = ZPerl.CanAccess
 local ForeverAPI = ZPerl.ForeverAPI
-local colorCurves = { }	-- cached Blizzard color curves and small color tables
+local colorCurves = { }	-- Cached Blizzard color curves and small color tables
 ZPerl.colorCurves = colorCurves
 local ArcaneExclusions = ZPerl.ArcaneExclusions
 local playerClass = select(2, UnitClass("player"))
@@ -187,9 +187,9 @@ local function findMemberClass(unit)
 end
 -- A secret health value redraws the bar every frame: the group scan (up to 41 UnitIsUnit calls) runs at most every
 -- 0.5 s per unit token, as often as the target-of-target frames' own slow update.
-local memberCache = {} -- unit -> {class or false, time}
+local memberCache = {} -- Unit -> {class or false, time}
 
--- the class by GUID (any player, in the group or not); nil for a secret GUID, a non-player or no answer
+-- The class by GUID (any player, in the group or not); nil for a secret GUID, a non-player or no answer
 local function guidClass(unit)
 	local guid = UnitGUID(unit)
 	if (not guid or not CanAccess(guid) or not GetPlayerInfoByGUID) then
@@ -210,7 +210,7 @@ local function keepable(unit)
 		return false
 	end
 	local parent = unit:sub(1, -7)
-	-- the parent is a unit of its own ("target", "focus", "pet", "party1", "raid12"...), not an indirect one
+	-- The parent is a unit of its own ("target", "focus", "pet", "party1", "raid12"...), not an indirect one
 	return parent == "target" or not parent:find("target", 1, true)
 end
 local function forget(parent)
@@ -223,7 +223,7 @@ ZPerl.On("UNIT_TARGET", function(_, unit)
 		forget(unit)
 	end
 end)
--- a new group member or pet under a party/raid unit token: those tokens' targets are other units now
+-- A new group member or pet under a party/raid unit token: those tokens' targets are other units now
 ZPerl.On("GROUP_ROSTER_UPDATE", function() wipe(lastClass) end)
 
 function ZPerl.UnitClassToken(unit)
@@ -341,7 +341,7 @@ local ManaColors = {
 	[Enum.PowerType.Rage] = "rage",
 	[Enum.PowerType.Focus] = "focus",
 	[Enum.PowerType.Energy] = "energy",
-	[Enum.PowerType.Alternate] = "energy", -- used by some bosses, show it as energy bar
+	[Enum.PowerType.Alternate] = "energy", -- Used by some bosses, show it as energy bar
 }
 
 -- Forever may expose a usable power token while its numeric power type is
@@ -380,7 +380,7 @@ function ZPerl.SetManaBarType(self)
 				colorKey = PowerTokenColors[powerToken]
 			end
 			local c = colorKey and ((conf.color.bar and conf.color.bar[colorKey]) or DefaultPowerColors[colorKey])
-			-- retail's other power types (runic power, astral power, maelstrom, insanity, fury, pain) have no
+			-- Retail's other power types (runic power, astral power, maelstrom, insanity, fury, pain) have no
 			-- Z-Perl color option: they take Blizzard's color
 			if (not c and PowerBarColor) then
 				c = (CanAccess(powerToken) and PowerBarColor[powerToken]) or (CanAccess(p) and PowerBarColor[p])
@@ -508,7 +508,7 @@ end
 
 -- ZPerl.ReactionColor
 function ZPerl.ReactionColor(argUnit)
-	-- every boolean here can be secret for indirect units and
+	-- Every boolean here can be secret for indirect units and
 	-- creatures inside instances; ZPerl.SafeBool supplies a neutral default
 	if (ZPerl.SafeBool(UnitPlayerControlled(argUnit), false) or not ZPerl.SafeBool(UnitIsVisible(argUnit), true)) then
 		if (ZPerl.SameFaction(argUnit)) then
@@ -581,7 +581,7 @@ end
 -- ZPerl.CombatFlashSet
 function ZPerl.CombatFlashSet(self, elapsed, argNew, argGreen)
 	if (not conf.combatFlash) then
-		-- turned off mid-flash: end the flash, so CombatFlashSetFrames puts the base color back
+		-- Turned off mid-flash: end the flash, so CombatFlashSetFrames puts the base color back
 		if (self.PlayerFlash) then
 			self.PlayerFlash = 0
 			self.PlayerFlashGreen = nil
@@ -667,7 +667,7 @@ local function CanClassCureMagic(class)
 		if (not spellID) then
 			return nil
 		end
-		-- the global is a deprecated wrapper on some clients (Classic Era)
+		-- The global is a deprecated wrapper on some clients (Classic Era)
 		if (IsSpellKnown) then
 			return IsSpellKnown(spellID, false)
 		end
@@ -701,7 +701,7 @@ local MistsDispels = {
 if (ZPerl.IsMists) then
 	RetailDispels = MistsDispels
 end
-local retailDispellable	-- type -> true, rebuilt after SPELLS_CHANGED
+local retailDispellable	-- Type -> true, rebuilt after SPELLS_CHANGED
 
 local function KnowsSpell(spellID)
 	if (IsPlayerSpell and IsPlayerSpell(spellID)) then
@@ -842,7 +842,7 @@ local function setFlashBackdrop(f)
 	local inset = d.insets.left
 	if f.xpBdEdge ~= d.edgeFile or f.xpBdSize ~= d.edgeSize or f.xpBdInset ~= inset then
 		f.xpBdEdge, f.xpBdSize, f.xpBdInset = d.edgeFile, d.edgeSize, inset
-		-- a copy: the frame keeps the table it is given, and bgDef changes on every call
+		-- A copy: the frame keeps the table it is given, and bgDef changes on every call
 		f:SetBackdrop({bgFile = d.bgFile, edgeFile = d.edgeFile, tile = d.tile, tileSize = d.tileSize,
 			edgeSize = d.edgeSize, insets = {left = inset, right = d.insets.right, top = d.insets.top, bottom = d.insets.bottom}})
 	end
@@ -851,7 +851,7 @@ end
 -- ZPerl.CheckDebuffs
 --local Curses = setmetatable({ }, {__mode = "k"})	-- 2.2.6 - Now re-using static table to save garbage memory creation
 local Curses = { }
-local debuffColors = { } -- debuff type -> {r, g, b, a = 1}, copied from DebuffTypeColor
+local debuffColors = { } -- Debuff type -> {r, g, b, a = 1}, copied from DebuffTypeColor
 function ZPerl.CheckDebuffs(self, unit, resetBorders)
 	if not self.FlashFrames then
 		return
@@ -902,7 +902,7 @@ function ZPerl.CheckDebuffs(self, unit, resetBorders)
 			break
 		end
 
-		-- secret aura names/types cannot be looked up, skip them
+		-- Secret aura names/types cannot be looked up, skip them
 		if dispelName and CanAccess(dispelName) and CanAccess(name) then
 			local exclude = ArcaneExclusions[name]
 			---@diagnostic disable-next-line: secret-table-key

@@ -70,6 +70,8 @@ L["Frame transparency"] = "框体透明度"
 L["The transparency of the frames."] = "所有框体的整体透明度。"
 L["Text transparency"] = "文字透明度"
 L["The transparency of the text."] = "框体上文字的透明度。"
+L["3D portrait zoom"] = "3D头像缩放"
+L["How close the 3D portraits are framed: 1 shows the face, lower values show more of the model."] = "3D头像的取景远近：1显示脸部，较小的值显示更多模型。"
 L["Background color"] = "背景颜色"
 L["The color and transparency of all frame backgrounds."] = "所有框体背景的颜色和透明度。"
 L["Background opacity"] = "背景不透明度"
@@ -268,7 +270,7 @@ L["Only highlight debuffs when it is something you can cure."] = "仅当单位�
 L["Aggro glow"] = "仇恨发光"
 L["Highlight units with a red border if they have aggro. Requires Raid Helper's Target Counter to be loaded and enabled."] = "当单位获得仇恨时用红色边框高亮显示。需要加载并启用“团队助手”中的目标计数器功能。"
 L["Aggro warning text"] = "仇恨警告文字"
-L["Show the large  \"- AGGRO -\" text when a mob targets you or your pet. Requires Raid Helper to be loaded."] = "当怪物以你或你的宠物为目标时，显示醒目的 \"- 获得仇恨 -\" 大字警告。需要加载团队助手模块。"
+L["Show the large \"- AGGRO -\" text when a mob targets you or your pet. Requires Raid Helper to be loaded."] = "当怪物以你或你的宠物为目标时，显示醒目的 \"- 获得仇恨 -\" 大字警告。需要加载团队助手模块。"
 L["Mouseover glow"] = "鼠标悬停高亮"
 L["Highlight a frame while the mouse is over it."] = "当鼠标指针悬停在框体上时将其高亮显示。"
 L["Incoming heal glow"] = "预估治疗高亮"
@@ -542,7 +544,7 @@ L["Show the focus's debuffs."] = "显示焦点的减益效果。"
 
 -- Focus: Focus
 L["Show focus frame"] = "显示焦点框体"
-L["Show the focus frame."] = "显示焦点框体。"
+L["Show the focus frame. Blizzard's focus frame is hidden while this is on, and comes back after a reload when it is off."] = "显示焦点框体。开启时暴雪自带的焦点框体将被隐藏，关闭后重载界面即可恢复。"
 L["Sound on focus change"] = "切换焦点音效"
 L["Play a sound when the focus changes: one for enemies, friendly and neutral units."] = "切换焦点目标时播放提示音效：敌对、友善和中立单位各自对应不同音效。"
 
@@ -556,7 +558,7 @@ L["Show the focus target's debuffs."] = "显示焦点目标的减益效果。"
 
 -- Party: Size
 L["Show party frames"] = "显示小队框体"
-L["Show the party frames."] = "显示小队成员框体。"
+L["Show the party frames. Blizzard's party frames are hidden while this is on, and come back after a reload when it is off."] = "显示小队成员框体。开启时暴雪自带的小队框体将被隐藏，关闭后重载界面即可恢复。"
 L["The size of the party frames."] = "小队框体的整体缩放比例。"
 L["Widen the party frames."] = "增加小队框体的水平宽度。"
 

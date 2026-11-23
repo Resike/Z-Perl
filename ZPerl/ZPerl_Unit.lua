@@ -92,7 +92,7 @@ end
 -- never prints a decimal.
 function ZPerl.FormatPercent(fs, pct, precise)
 	if (ZPerl.IsSecret(pct)) then
-		-- a secret cannot be offset by 0.5 for rounding, so the format rounds it (99.6 shows 100)
+		-- A secret cannot be offset by 0.5 for rounding, so the format rounds it (99.6 shows 100)
 		fs:SetFormattedText((precise and precise ~= "whole") and perc1F or perc0F, pct)
 	elseif (precise == "whole" or (not precise and pct >= 10)) then
 		fs:SetFormattedText(percD, pct + 0.5)
@@ -389,7 +389,7 @@ function ZPerl.FullPowerPulse(bar, u, cur, max)
 		f:SetMaxValue(max)
 		f.zperlMax, f.zperlToken = max, token
 	end
-	-- the template's own logic: a spike on reaching max in combat, a pulse while full, a fade out after
+	-- The template's own logic: a spike on reaching max in combat, a pulse while full, a fade out after
 	f:StartAnimIfFull(cur)
 end
 
@@ -447,11 +447,11 @@ local function register(frame, event, el)
 	end
 	local isUnitEvent = strfind(event, "^UNIT_") or strfind(event, "^INCOMING_")
 	if (isUnitEvent and units == nil and frame.__units == nil) then
-		-- the frame has no unit yet: ZPerl.UnitFrameSetUnit registers the event when it gets one
+		-- The frame has no unit yet: ZPerl.UnitFrameSetUnit registers the event when it gets one
 		frame.__unitEvents[event] = true
 	elseif (units and isUnitEvent) then
 		if (el.units == nil or el.units[event] == nil) then
-			frame.__unitEvents[event] = true -- follows the frame's unit (ZPerl.UnitFrameSetUnit)
+			frame.__unitEvents[event] = true -- Follows the frame's unit (ZPerl.UnitFrameSetUnit)
 		end
 		ZPerl.RegisterUnitEventSafe(frame, event, unpack(units))
 	else
@@ -509,7 +509,7 @@ function ZPerl.UnitFrameDisable(frame, name)
 	end
 	frame.__elements[name] = nil
 	for event, fn in pairs(el.events) do
-		-- a new list, so a dispatch loop running over the old one is not shifted
+		-- A new list, so a dispatch loop running over the old one is not shifted
 		local old, list, removed = frame.__handlers[event], {}, false
 		for i = 1, #old do
 			if (not removed and old[i] == fn) then
@@ -607,7 +607,7 @@ function ZPerl.AurasLineSize(frame, kind, rowEdge)
 	elseif ((o.side == "LEFT" or o.side == "RIGHT") and (o.perLine or 0) == 0) then
 		line = 2000
 	end
-	-- both kinds inside the anchor at its two ends: a line holds what fits in half the anchor's width
+	-- Both kinds inside the anchor at its two ends: a line holds what fits in half the anchor's width
 	local b, d, inside = c.buffs, c.debuffs, frame.auraInside
 	if (inside and b.enable and d.enable and b.side ~= d.side and inside[b.side] and inside[d.side] and o.size) then
 		local half = (frame.auraAnchor or frame):GetWidth() / 2
@@ -618,7 +618,7 @@ end
 
 local AXIS = AnchorUtil and AnchorUtil.FlowLayoutAxis or {Horizontal = 0, Vertical = 1}
 
--- the corner a block's first icon sits at (point), the corner of the anchor (or of the near block) it
+-- The corner a block's first icon sits at (point), the corner of the anchor (or of the near block) it
 -- hangs from (rel), and the direction away from the frame (ax, ay). Every block is rows: TOP and BOTTOM
 -- fill rightward (reverse: leftward) and stack away from the frame; LEFT and RIGHT fill away from the frame
 -- and stack downward (reverse: upward).
@@ -674,11 +674,11 @@ local DUMMY = {
 	},
 }
 
--- the dummies each group of ZPerl.AurasGroups gets: the double-size groups (Big, Big stealable) a few,
+-- The dummies each group of ZPerl.AurasGroups gets: the double-size groups (Big, Big stealable) a few,
 -- "other" the rest; each at most its group's maxFrameCount (the Rows cap)
 local DUMMY_SHARE = {mine = 3, steal = 1}
 
--- lays the handle's dummy icons out as the container lays out its auras: the frame's aura groups in order,
+-- Lays the handle's dummy icons out as the container lays out its auras: the frame's aura groups in order,
 -- each icon at its group's size, one flow from the start corner (point) along lines of the container's
 -- width, 3 apart, a line as tall as its tallest icon and the lines the duration text gap apart, filling
 -- the way the block fills (grow: 1 right, -1 left) and stacking the way it stacks (stack: 1 up, -1 down).
@@ -726,7 +726,7 @@ local function coverHandle(frame, kind)
 	if (not h or not container or not point) then
 		return
 	end
-	-- the client refuses to anchor an addon frame to the container or its holder (their template forbids
+	-- The client refuses to anchor an addon frame to the container or its holder (their template forbids
 	-- untrusted layout scripts), so the handle goes to the unit frame at the container's measured rect
 	-- only while the handles show: while auras are secret the container's rect is secret too, and
 	-- arithmetic on it raises
@@ -739,10 +739,10 @@ local function coverHandle(frame, kind)
 	local w, ht = container:GetWidth(), container:GetHeight()
 	local A = ZPerl.CanAccess
 	local a = frame.auraHandleAnchor[kind]
-	-- the label points the way the icons fill: every block's lines run left / right
+	-- The label points the way the icons fill: every block's lines run left / right
 	local name = HANDLE_LABEL[kind]
 	h.label:SetText(a.grow and a.grow < 0 and "<< "..name or name.." >>")
-	-- the handle is anchored as the holder is, at the block's start corner (beyond the nearer block it hangs
+	-- The handle is anchored as the holder is, at the block's start corner (beyond the nearer block it hangs
 	-- off that block's handle), and shows the dummy icons laid out as the container would, so the place,
 	-- the sizes and the fill direction show whatever auras the unit has. It covers the dummies, and the
 	-- container when its rect is readable and larger (the start corner stays put)
@@ -775,11 +775,11 @@ local function dragStop(h)
 	local l, b = h:GetLeft(), h:GetBottom()
 	local o = frame.conf[kind]
 	if (l and b) then
-		-- the Settings sliders' range
+		-- The Settings sliders' range
 		o.x = max(-300, min(300, (o.x or 0) + floor(l - from[1] + 0.5)))
 		o.y = max(-300, min(300, (o.y or 0) + floor(b - from[2] + 0.5)))
 	end
-	-- frames share a conf (party members, party pets): every one of them moves
+	-- Frames share a conf (party members, party pets): every one of them moves
 	for _, other in ipairs(handled) do
 		if (other.conf and other.conf[kind] == o) then
 			ZPerl.AurasPlace(other)
@@ -799,7 +799,7 @@ local function makeHandle(frame, kind)
 	tex:SetColorTexture(0.2, 0.6, 1, 0.35)
 	h.dummies = {}
 	for i, d in ipairs(DUMMY[kind]) do
-		-- textures, not frames: the label (OVERLAY) stays on top. The border is the icon's box: the debuff
+		-- Textures, not frames: the label (OVERLAY) stays on top. The border is the icon's box: the debuff
 		-- dispel type's color, 1 pixel showing around the icon; a buff's is clear
 		local border = h:CreateTexture(nil, "BORDER")
 		local col = d.border
@@ -833,7 +833,7 @@ local function makeHandle(frame, kind)
 		self:StartMoving()
 	end)
 	h:SetScript("OnDragStop", dragStop)
-	-- the container moves and resizes with its auras, and the handle is not anchored to it:
+	-- The container moves and resizes with its auras, and the handle is not anchored to it:
 	-- ZPerl.AurasSyncHandles re-fits it on the 0.2 s ticker
 	h:Hide()
 	return h
@@ -845,11 +845,11 @@ local function refitHandle(frame, h)
 	end
 end
 
--- the ticker's handler; the harness's clock never fires timers in a probe run, so probes call it
+-- The ticker's handler; the harness's clock never fires timers in a probe run, so probes call it
 function ZPerl.AurasSyncHandles()
 	local on = ZPerl.Locked == 0 and not inCombat
 	if (on == handlesOn) then
-		if (on) then -- the containers move and resize with their auras: re-fit the shown handles
+		if (on) then -- The containers move and resize with their auras: re-fit the shown handles
 			for _, frame in ipairs(handled) do
 				refitHandle(frame, frame.buffHandle)
 				refitHandle(frame, frame.debuffHandle)
@@ -857,7 +857,7 @@ function ZPerl.AurasSyncHandles()
 		end
 		return
 	end
-	handlesOn = on -- before the loop: coverHandle reads the container only while handles are on
+	handlesOn = on -- Before the loop: coverHandle reads the container only while handles are on
 	for _, frame in ipairs(handled) do
 		for _, kind in ipairs({"buffs", "debuffs"}) do
 			local h = frame[kind == "buffs" and "buffHandle" or "debuffHandle"]
@@ -912,7 +912,7 @@ end
 -- between the two blocks. frame.auraInset(frame, side) is extra distance from the anchor.
 function ZPerl.AurasPlace(frame, fresh)
 	local buffContainer, debuffContainer = frame.buffContainer, frame.debuffContainer
-	-- a container built just now may be configured while auras are secret; a live one waits
+	-- A container built just now may be configured while auras are secret; a live one waits
 	if (not buffContainer or not debuffContainer or (not fresh and not ZPerl.AuraContainerGate(frame))) then
 		return
 	end
@@ -956,7 +956,7 @@ function ZPerl.AurasPlace(frame, fresh)
 		base = base or anchor
 		local target = base
 		if (near and near.side == side) then
-			-- beyond the nearer block, which is placed already: no overlap however many lines it wraps
+			-- Beyond the nearer block, which is placed already: no overlap however many lines it wraps
 			target, away = near.container, (rows and gap > 0) and gap or 3
 		elseif (inside) then
 			away = 0
@@ -977,7 +977,7 @@ function ZPerl.AurasPlace(frame, fresh)
 				or point:gsub("TOP", "<"):gsub("BOTTOM", "TOP"):gsub("<", "BOTTOM")
 			spacer:ClearAllPoints()
 			spacer:SetPoint(point, target, rel, x, y)
-			-- a frame of length 0 has no rect, and neither would the holder: the spacer is 1 longer
+			-- A frame of length 0 has no rect, and neither would the holder: the spacer is 1 longer
 			-- than its icons and the holder steps back by that 1
 			local bx, by = rows and -h or 0, rows and 0 or -v
 			holder:SetPoint(point, spacer, far, bx, by)
@@ -991,7 +991,7 @@ function ZPerl.AurasPlace(frame, fresh)
 				frame.auraSpacerFlow = nil
 			end
 		end
-		-- a disabled kind draws nothing, so it does not push the other one away
+		-- A disabled kind draws nothing, so it does not push the other one away
 		if (o.enable) then
 			near = near or {side = side, container = container, kind = kind}
 		end
@@ -1060,7 +1060,7 @@ function ZPerl.AurasGroups(c, kind, exclude, lineSize, half)
 			size = size,
 			maxFrameCount = (lineSize and rows and size) and rows * max(1, floor((lineSize + 3) / (size + 3))) or math.huge,
 			layoutIndex = 1,
-			-- the swipe and the text are one global for buffs and debuffs
+			-- The swipe and the text are one global for buffs and debuffs
 			cooldown = b.cooldown and (b.cooldownAny or owner == true) and true or false,
 			countdown = not textOff and b.countdown and (b.countdownAny or owner == true) and true or false,
 			gap = gap,
@@ -1072,7 +1072,7 @@ function ZPerl.AurasGroups(c, kind, exclude, lineSize, half)
 	end
 	local big = o.big and size and size * 2
 	if (o.onlyMine) then
-		-- group adds the PLAYER token on Blizzard's container (see above)
+		-- Group adds the PLAYER token on Blizzard's container (see above)
 		return {group(big and "mine" or "other", big or size, true)}
 	end
 	local mineSize = big or (split and size)
@@ -1099,7 +1099,7 @@ function ZPerl.AurasGroups(c, kind, exclude, lineSize, half)
 	return list
 end
 
--- the container's line width for kind "buffs" or "debuffs"
+-- The container's line width for kind "buffs" or "debuffs"
 local function lineSizeOf(frame, kind)
 	return frame.auraLineSize(frame, kind)
 end
@@ -1113,7 +1113,7 @@ function ZPerl.AurasRebuild(frame)
 		return
 	end
 	if (not UnitExists(frame.partyid)) then
-		-- the unit is back later: Update applies the request then
+		-- The unit is back later: Update applies the request then
 		if (frame.buffContainer) then
 			frame.auraContainerPending = true
 		end
@@ -1147,12 +1147,12 @@ function ZPerl.AurasRebuild(frame)
 	ZPerl.AurasPlace(frame, fresh)
 end
 
--- the container's own auto-refresh event list does not include UNIT_AURA: refresh on every show
+-- The container's own auto-refresh event list does not include UNIT_AURA: refresh on every show
 -- a SetUnit that raises (a live container, auras secret) leaves the rebuild pending, which sets the unit
 local function showContainer(frame, container, unit, enabled)
 	-- while secret a pending frame waits for the rebuild instead of retrying (and reporting) each event
 	if (container:GetUnit() ~= unit) then
-		-- the container still tracks the old unit: hidden until the rebuild applies
+		-- The container still tracks the old unit: hidden until the rebuild applies
 		if (not ZPerl.AuraContainerGate(frame) or not ZPerl.Pcall(container.SetUnit, container, unit)) then
 			frame.auraContainerPending = true
 			if (container:IsShown()) then
@@ -1188,7 +1188,7 @@ local function checkHalfSize(frame, c, unit)
 		filter = "HARMFUL"..(d.curable == 1 and "|RAID" or "")..(d.onlyMine and "|PLAYER" or "")
 		halfFilters[key] = filter
 	end
-	-- the id list is the only way to count the debuffs against the line; it is the API's table, one per
+	-- The id list is the only way to count the debuffs against the line; it is the API's table, one per
 	-- UNIT_AURA of a party frame with halfSize on
 	local count
 	if (C_UnitAuras.GetUnitAuraInstanceIDs) then

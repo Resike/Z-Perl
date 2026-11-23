@@ -20,3 +20,5 @@ L["MONITOR_CLICKTARGET"] = "|c00FFFF80目标|r"
 
 L["MONITOR_INNERVATE"] = "激活"
 L["MONITOR_MANATIDE"]  = "法力之潮图腾"
+
+L["LOC_OOR"] = "超出距离"

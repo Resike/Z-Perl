@@ -106,7 +106,7 @@ end ]]
 
 --local new, del = ZPerl.GetReusableTable, ZPerl.FreeTable
 
--- meta table for string based colors. Allows for other mods changing class colors and things all working:
+-- Meta table for string based colors. Allows for other mods changing class colors and things all working:
 -- class lookups are not cached, so a later change to CUSTOM_CLASS_COLORS shows up. Keys set directly
 -- (ZPerl.ColorTable.pet) still win.
 ZPerl.ColorTable = setmetatable({ }, {
@@ -165,11 +165,11 @@ local function HealthAbove(unit, mark)
 	if not CanAccess(hp) or not CanAccess(hpMax) then
 		return false
 	end
-	-- both readable (checked above)
+	-- Both readable (checked above)
 	---@diagnostic disable-next-line: secret-comparison
 	if hpMax <= 0 then
 		---@diagnostic disable-next-line: secret-comparison
-		return hp > 0 -- the maximum failed: alive counts as full
+		return hp > 0 -- The maximum failed: alive counts as full
 	end
 	---@diagnostic disable-next-line: secret-arithmetic, secret-comparison
 	return hp / hpMax > mark
@@ -196,7 +196,7 @@ local function DoRangeCheck(unit, opt)
 		else
 			if Excluded(name, unit) then
 				-- It's one of the filtered debuffs, so we have to iterate thru all debuffs to see if anything is curable
-				range = 0 -- stays 0 when all 40 are filtered ones
+				range = 0 -- Stays 0 when all 40 are filtered ones
 				for i = 1, 40 do
 					local auraName = ZPerl.UnitAuraByIndex(unit, i, "HARMFUL|RAID")
 					if not auraName then
@@ -208,7 +208,7 @@ local function DoRangeCheck(unit, opt)
 					end
 				end
 			else
-				range = nil -- a debuff on the unit: the plain range check decides
+				range = nil -- A debuff on the unit: the plain range check decides
 			end
 		end
 	end
@@ -241,7 +241,7 @@ local function DoRangeCheck(unit, opt)
 		end
 	end
 
-	-- a secret range result is returned as-is; the caller turns
+	-- A secret range result is returned as-is; the caller turns
 	-- it into an alpha with ZPerl.RangeAlpha instead of comparing it here.
 	if (IsSecret(range)) then
 		return range, true
@@ -276,7 +276,7 @@ function ZPerl.UpdateRangeIcon(icon, unit)
 		checkedRange = IsSecret(range) or range ~= nil
 	end
 	if (IsSecret(range) or IsSecret(checkedRange)) then
-		-- secret booleans drive the icon's alpha directly: shown only when checked and out of range
+		-- Secret booleans drive the icon's alpha directly: shown only when checked and out of range
 		icon:Show()
 		icon:SetAlpha(1)
 		ZPerl.SetAlphaFromBoolean(icon, checkedRange, 1, 0)
@@ -328,7 +328,7 @@ function ZPerl.UpdateSpellRangeSecure(self, unit, isRaidFrame)
 	local base = conf.transparency.frame
 	local mainA, nameA, statsA = base, 1, 1
 
-	-- each part runs its own check with its own settings; the name and bars sit in the frame, so with the whole
+	-- Each part runs its own check with its own settings; the name and bars sit in the frame, so with the whole
 	-- frame faded too their fades multiply. A unit too far away to be seen is out of range for every part (a secret
 	-- visibility leaves it to the range check).
 	if (rf.enabled and (isRaidFrame or not rf.raidOnly)) then
@@ -379,7 +379,7 @@ function ZPerl.UpdateSpellRange2(self, overrideUnit, isRaidFrame)
 		local rf = conf.rangeFinder
 		local mainA, nameA, statsA -- Receives main, name and stats alpha levels
 
-		-- each part runs its own check with its own settings (as UpdateSpellRangeSecure); a unit too far away to be
+		-- Each part runs its own check with its own settings (as UpdateSpellRangeSecure); a unit too far away to be
 		-- seen is out of range for every part
 		if (rf.enabled and (isRaidFrame or not conf.rangeFinder.raidOnly)) then
 			local visible = ZPerl.SafeBool(UnitIsVisible(unit), true)
@@ -409,7 +409,7 @@ function ZPerl.UpdateSpellRange2(self, overrideUnit, isRaidFrame)
 			end
 		end
 
-		-- a disconnected unit: the whole frame fades, its parts do not fade again (as UpdateSpellRangeSecure)
+		-- A disconnected unit: the whole frame fades, its parts do not fade again (as UpdateSpellRangeSecure)
 		if (not ZPerl.SafeBool(UnitIsConnected(unit), true)) then
 			mainA = conf.transparency.frame * rf.Main.FadeAmount
 			nameA, statsA = 1, 1
@@ -417,7 +417,7 @@ function ZPerl.UpdateSpellRange2(self, overrideUnit, isRaidFrame)
 			mainA = conf.transparency.frame
 		end
 
-		-- the parts inherit the main alpha; their own alpha is only their range fade, or they would fade twice
+		-- The parts inherit the main alpha; their own alpha is only their range fade, or they would fade twice
 		-- (as UpdateSpellRangeSecure)
 		self:SetAlpha(mainA)
 		if (self.nameFrame) then
@@ -498,7 +498,7 @@ function ZPerl.StartupSpellRange()
 		if (not self.FadeAmount) then
 			self.FadeAmount = 0.3
 		end
-		-- the old window's 10, 20, 30 and 45 yard choices all ran the group range check: they are the 40 yard choice
+		-- The old window's 10, 20, 30 and 45 yard choices all ran the group range check: they are the 40 yard choice
 		if (self.interact) then
 			self.interact = 5
 		end
@@ -622,8 +622,8 @@ end
 
 local hiddenParent = CreateFrame("Frame")
 hiddenParent:Hide()
-local hideWanted = {}	-- frame -> true while Z-Perl keeps it hidden
-local ownParent = {}	-- frame -> the parent it goes back to when Z-Perl stops hiding it
+local hideWanted = {}	-- Frame -> true while Z-Perl keeps it hidden
+local ownParent = {}	-- Frame -> the parent it goes back to when Z-Perl stops hiding it
 local hideHooked = {}
 local reparenting
 
@@ -632,7 +632,7 @@ local function applyBlizzHide(frame)
 	if (hideWanted[frame]) then
 		frame:SetParent(hiddenParent)
 	elseif (ownParent[frame]) then
-		-- a parent Z-Perl hides (the cast bar locked to PlayerFrame) would keep it hidden
+		-- A parent Z-Perl hides (the cast bar locked to PlayerFrame) would keep it hidden
 		local parent = ownParent[frame]
 		frame:SetParent(hideWanted[parent] and UIParent or parent)
 		ownParent[frame] = nil
@@ -641,7 +641,7 @@ local function applyBlizzHide(frame)
 end
 
 local function blizzHideNow(frame)
-	-- in combat even an unprotected frame waits: Blizzard's layout code runs on its reparent
+	-- In combat even an unprotected frame waits: Blizzard's layout code runs on its reparent
 	ZPerl.AfterCombatFor(applyBlizzHide, frame)
 end
 
@@ -681,7 +681,7 @@ function ZPerl.BlizzFrameDisable(self)
 	if not self then
 		return
 	end
-	-- unit watch, movable and placement changes on Blizzard's protected frames are blocked in combat
+	-- Unit watch, movable and placement changes on Blizzard's protected frames are blocked in combat
 	if InCombatLockdown() then
 		ZPerl.AfterCombatFor(ZPerl.BlizzFrameDisable, self)
 		return
@@ -767,7 +767,7 @@ function ZPerl.MainFrameStart(frame, on, blizz)
 		return
 	end
 	frame.off = true
-	-- unit watch changes are blocked in combat
+	-- Unit watch changes are blocked in combat
 	ZPerl.AfterCombatFor(UnregisterUnitWatch, frame)
 	frame:UnregisterAllEvents()
 	ZPerl.AfterCombatFor(frame.Hide, frame)

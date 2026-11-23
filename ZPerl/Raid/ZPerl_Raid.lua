@@ -3,10 +3,10 @@
 
 local L = ZPerl.L
 
-local Events = { } -- unit events, one set per frame (element Raid)
-local Bus = { } -- events no frame owns (ZPerl.On)
+local Events = { } -- Unit events, one set per frame (element Raid)
+local Bus = { } -- Events no frame owns (ZPerl.On)
 ZPerl.Elements.Raid = {events = Events}
-local allFrames = { } -- every raid frame, in creation order
+local allFrames = { } -- Every raid frame, in creation order
 local RaidGroupCounts = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0}
 local FrameArray = { }		-- List of raid frames indexed by raid ID
 local RaidPositions = { }	-- Back-matching of unit names to raid ID
@@ -60,7 +60,7 @@ local LOCALIZED_CLASS_NAMES_MALE = LOCALIZED_CLASS_NAMES_MALE
 local ColorFriendlyUnit = ZPerl.ColorFriendlyUnit
 local ColorHealthBar = ZPerl.ColorHealthBar
 
--- secret value helpers from ZPerl.lua
+-- Secret value helpers from ZPerl.lua
 local CanAccess = ZPerl.CanAccess
 
 -- RaidUnitName(unit) - "Name-Realm" for a raid unit, nil while the name is secret
@@ -124,11 +124,11 @@ function ZPerl.Raid.OnLoad(self)
 
 	self.Array = { }
 
-	-- the header attributes (group filter, sort, anchor, spacing) are set at PLAYER_ENTERING_WORLD and by the options window,
+	-- The header attributes (group filter, sort, anchor, spacing) are set at PLAYER_ENTERING_WORLD and by the options window,
 	-- not by ZPerl.OptionActions: an applier of the settings panel only
 	ZPerl.RegisterApplier("raidheaders", ZPerl.Raid.ChangeAttributes)
 	ZPerl.RegisterApplier("raidgap", function() ZPerl.Raid.SetGap(rconf.gap) end)
-	-- the gap spaces groups by their width, so a width change re-runs it (as the old window did)
+	-- The gap spaces groups by their width, so a width change re-runs it (as the old window did)
 	ZPerl.RegisterApplier("raidwidth", function() ZPerl.Raid.SetWidth() ZPerl.Raid.SetGap(rconf.gap or 0) end)
 
 	ZPerl.RegisterOptionChanger(function()
@@ -220,7 +220,7 @@ local function UpdateName(self)
 	self.lastGUID, self.lastID = guid, partyid -- These stored, so we can at least make a small effort in reducing workload on attribute changes.
 
 	if (name) then
-		-- full "First Last" (or "First-Realm") display name;
+		-- Full "First Last" (or "First-Realm") display name;
 		-- lastGUID/lastID above are what onAttrChanged-style comparisons use
 		self.nameFrame.text:SetText(ZPerl.UnitFullName(partyid))
 
@@ -380,7 +380,7 @@ end
 -- UpdateHealthText: the one text of the bar shows the deficit, the values or the percent
 local function UpdateHealthText(self, partyid, health, healthmax, missing)
 	local fs = self.statsFrame.healthBar.text
-	-- the two %d texts stay: one format for plain and secret values; the formatters would print -0 as 0
+	-- The two %d texts stay: one format for plain and secret values; the formatters would print -0 as 0
 	if (rconf.healerMode.enable) then
 		fs:SetFormattedText("-%d", missing)
 	elseif (rconf.values) then
@@ -478,7 +478,7 @@ local function UpdateMana(self)
 			if (rconf.values) then -- TODO rconf.manavalues
 				self.statsFrame.manaBar.text:SetFormattedText("%d/%d", mana, manamax)
 			else
-				-- percent from the client (UnitPower is always secret)
+				-- Percent from the client (UnitPower is always secret)
 				local pmanaPct100 = GetPowerPercent(partyid, pType)
 
 				if rconf.precisionManaPercent then
@@ -514,7 +514,7 @@ local function onAttrChanged(self, name, value)
 		else
 			--buffUpdates[self] = nil
 			SetFrameArray(self)
-			-- an option change while unitless skips this frame: rebuild when it gets a unit again
+			-- An option change while unitless skips this frame: rebuild when it gets a unit again
 			self.auraContainerPending = self.buffContainer and true or nil
 			self.lastID = nil
 			self.lastGUID = nil

@@ -36,3 +36,6 @@ L["HELPER_FINDSET"]     = "Find placer \195\160 %s. ('|c00007F00/zphelper find|r
 
 L["AGGRO_PET"]     = "- AGGRO DU FAMILIER -"
 L["AGGRO_DRAGTIP"] = "D\195\169place l'endroit de l'avertissement d'Aggro"
+
+L["TITLE_WARRIOR_SHORT"] = "Tanks"
+L["AGGRO_PLAYER"]       = "- AGGRO -"

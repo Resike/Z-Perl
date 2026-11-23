@@ -38,3 +38,5 @@ L["HELPER_FINDSET"]     = "Buscar definido a %s. ('|c00007F00/zphelper find|r' p
 
 L["AGGRO_PET"]     = "- AGGRO EN MASCOTA -"
 L["AGGRO_DRAGTIP"] = "Moeve la localización de la alerta de Aggro"
+
+L["AGGRO_PLAYER"] = "- AGGRO -"

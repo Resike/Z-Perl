@@ -43,7 +43,7 @@ local GameTooltip = GameTooltip
 local WorldFrame = WorldFrame
 
 local classOrder = {"WARRIOR", "ROGUE", "HUNTER", "DRUID", "SHAMAN", "PALADIN", "PRIEST", "MAGE", "WARLOCK"}
--- the classes newer than Classic, on the clients that have them
+-- The classes newer than Classic, on the clients that have them
 for _, class in ipairs({"DEATHKNIGHT", "MONK", "DEMONHUNTER", "EVOKER"}) do
 	if (LOCALIZED_CLASS_NAMES_MALE[class]) then
 		tinsert(classOrder, class)
@@ -221,7 +221,7 @@ function ZPerl.Pcall(...)
 	if (not success) then
 		errorCount = errorCount + 1
 		if (not doneOptions) then
-			-- the message goes in as an argument: Notice formats its first one, and an error text can hold a %
+			-- The message goes in as an argument: Notice formats its first one, and an error text can hold a %
 			ZPerl.Notice("Error: %s", tostring(err))
 		end
 		geterrorhandler()(err)
@@ -235,11 +235,11 @@ local lastName
 local lastWith
 local lastNamesCount
 local lastFilter, lastSort, lastTime
--- the list follows the group's auras, so a cached one is reused only for the same query within a second
+-- The list follows the group's auras, so a cached one is reused only for the same query within a second
 -- (the tooltip asks again while it stays open)
 local NAMES_CACHE_TIME = 1
 local function GetNamesWithoutBuff(spellName, with, filter)
-	-- aura names can be secret in restricted content and can
+	-- Aura names can be secret in restricted content and can
 	-- then neither be compared nor cached
 	if (not ZPerl.CanAccess(spellName)) then
 		return
@@ -261,7 +261,7 @@ local function GetNamesWithoutBuff(spellName, with, filter)
 			use = true
 		else
 			if conf.raid.sortByClass then
-				-- one column per class: the member counts when its class's column is enabled and shown
+				-- One column per class: the member counts when its class's column is enabled and shown
 				if (unitClass and ZPerl.CanAccess(unitClass)) then
 					for i, c in ipairs(conf.raid.class) do
 						if (c.name == unitClass) then
@@ -298,7 +298,7 @@ local function GetNamesWithoutBuff(spellName, with, filter)
 					end
 					tinsert(withList[group], {class = unitClass, name = unitName})
 				elseif conf.buffHelper.sort == "class" then
-					-- a member whose class is not known yet has no column (nil cannot be a table key): counted, not listed
+					-- A member whose class is not known yet has no column (nil cannot be a table key): counted, not listed
 					if unitClass then
 						if not withList[unitClass] then
 							--withList[unitClass] = ZPerl.GetReusableTable()
@@ -325,7 +325,7 @@ local function GetNamesWithoutBuff(spellName, with, filter)
 
 				names = (names or "").."|r"..i..": "
 				for _, item in ipairs(list) do
-					-- a member whose class is not known yet still gets listed, in grey
+					-- A member whose class is not known yet still gets listed, in grey
 					names = names..(item.class and ZPerl.ColorTable[item.class] or "|c00808080")..item.name.." "
 				end
 				names = names.."|r\r"
@@ -624,9 +624,9 @@ end
 -- ZPerl.RegisterOptionChanger(f, s, name)
 -- name makes the changer an applier (ZPerl.Appliers) the settings panel can run on its own.
 local optionFuncs = {}
-ZPerl.OptionChangers = optionFuncs -- exported for the test harness
+ZPerl.OptionChangers = optionFuncs -- Exported for the test harness
 local appliers = {}
-ZPerl.Appliers = appliers -- applier name -> function; the panel's `apply` names (ZPerl_SettingsList.lua)
+ZPerl.Appliers = appliers -- Applier name -> function; the panel's `apply` names (ZPerl_SettingsList.lua)
 function ZPerl.RegisterOptionChanger(f, s, name)
 	local v = {func = f, slf = s, name = name}
 	if name then
@@ -659,7 +659,7 @@ appliers.barcolors = function() ZPerl.ResetBarColorCache() end
 appliers.bartextures = function() ZPerl.Pcall(ZPerl.SetBarTextures) end
 appliers.skin = function() ZPerl.Pcall(ZPerl.SetupAllPerlFrames, nil, true) end
 appliers.framealpha = function() ZPerl.Pcall(ZPerl.SetPerlFramesAlpha) end
-appliers.custom = function() -- the custom raid highlights (CustomHighlight/)
+appliers.custom = function() -- The custom raid highlights (CustomHighlight/)
 	local c = _G.ZPerl_Custom
 	if c then ZPerl.Pcall(c.Refresh, c) end
 end
@@ -723,7 +723,7 @@ function ZPerl.OptionActions(which)
 	end
 	local d = ZPerl.Dev; if d and d.listener then d.Emit("optionactions") end
 
-	ZPerl.ResetBarColorCache() -- the health color curve reads the color options
+	ZPerl.ResetBarColorCache() -- The health color curve reads the color options
 
 	clampTransparency()
 

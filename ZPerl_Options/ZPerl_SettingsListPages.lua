@@ -74,7 +74,7 @@ check("player.player.withname", "With name", "Show the party number in the name 
 check("player.player.extend", "Extend portrait", "Let the portrait extend to the bottom of the stats frame when extra bars are shown.", {path = "player.extendPortrait"})
 if ZPerl.IsRetail or ZPerl.IsMists then
 	check("player.player.classbar", "Class resource bar", "Show Blizzard's class resource bar and the totem bar under the player frame. " .. (ZPerl.IsMists and "Classes with a resource bar: Death Knight (runes), Druid (eclipse, Balance), Monk (chi; stagger, Brewmaster), Paladin (holy power), Priest (shadow orbs, Shadow), Warlock (soul shards, burning embers or demonic fury)." or "Classes with a resource bar: Death Knight (runes), Druid (combo points, in Cat Form), Evoker (essence), Mage (arcane charges, Arcane), Monk (chi, Windwalker; stagger, Brewmaster), Paladin (holy power), Rogue (combo points), Warlock (soul shards)."), {path = "player.classBar"})
-	-- the tooltip works on the template bars, retail's
+	-- The tooltip works on the template bars, retail's
 	if ZPerl.IsRetail then
 		check("player.player.classbartooltip", "Class bar tooltip", "Show a tooltip over the class resource bar that explains the resource. Off, the bar lets the mouse through.", {path = "player.classBarTooltip", needs = "player.classBar"})
 	end
@@ -85,7 +85,7 @@ if ZPerl.IsRetail or ZPerl.IsMists then
 			{"Above", {classBarPos = "TOP"}},
 		},
 	})
-	-- the mirror works on the template bars, retail's
+	-- The mirror works on the template bars, retail's
 	if ZPerl.IsRetail then
 		check("player.player.classbarmirror", "Class bar mirror horizontally", "Flip the class resource bar left to right: the points fill from the right, and their art is mirrored.", {path = "player.classBarMirror", needs = "player.classBar"})
 		check("player.player.classbarmirrorv", "Class bar mirror vertically", "Flip the class resource bar's art top to bottom.", {path = "player.classBarMirrorV", needs = "player.classBar"})
@@ -175,7 +175,7 @@ dropdown("pet.pettarget.healthtext", "Health text", "How health is written on th
 -- One layout for both pages (the old UnitPage): `unitPage` adds a page, `unitFrame` the section of a target-of-target
 -- style frame. Every frame has its own aura settings; the old Target page wrote its aura values into the
 -- target-of-target tables as well (bug O1).
-local TOT = {"targettarget"} -- the changer for target of target, target of target of target, focus target and pet target
+local TOT = {"targettarget"} -- The changer for target of target, target of target of target, focus target and pet target
 -- The aura settings of profile table k. Every frame has Big debuffs; Target and Focus (main) have Big
 -- stealable buffs too.
 local function auraSettings(id, k, who, ap, main)
@@ -455,7 +455,7 @@ check("raid.raid.titles", "Group titles", "Show the titles of the raid groups.",
 check("raid.raid.notinbg", "Hide in battlegrounds", "Do not show the raid frames in a battleground.", {path = "raid.notInBG"})
 
 R.section = "Groups"
--- the class columns and the groups 9-12 of Sort by Class are saved with the sort
+-- The class columns and the groups 9-12 of Sort by Class are saved with the sort
 local RAID_SORT_KEYS = {}
 for i = 9, 13 do RAID_SORT_KEYS[#RAID_SORT_KEYS + 1] = "raid.group." .. i end
 for i = 1, 13 do
@@ -465,7 +465,7 @@ end
 for i = 1, 8 do
 	check("raid.groups." .. i, "Group " .. i, "Show raid group " .. i .. ".", {get = ZPerl["SettingsGetRaidGroup" .. i], set = ZPerl["SettingsSetRaidGroup" .. i], keys = {"raid.group." .. i}})
 end
--- groups 9 and up are the class columns of Sort by Class: one per class the client has
+-- Groups 9 and up are the class columns of Sort by Class: one per class the client has
 local RAID_CLASS_GROUPS = 0
 for k in pairs(LOCALIZED_CLASS_NAMES_MALE) do
 	if k ~= "Adventurer" and k ~= "TRAVELER" then RAID_CLASS_GROUPS = RAID_CLASS_GROUPS + 1 end
@@ -491,7 +491,7 @@ dropdown("raid.layout.anchor", "Anchor", "The direction the raid groups grow fro
 	options = {{"TOP", "Top"}, {"LEFT", "Left"}, {"BOTTOM", "Bottom"}, {"RIGHT", "Right"}},
 })
 slider("raid.layout.gap", "Gap", "The gap in pixels between neighbouring raid groups in a row, or in a column for the Left and Right anchors. Moves the groups.", {path = "raid.gap", min = 0, max = 100, step = 1})
-slider("raid.layout.spacing", "Spacing", "The spacing between the raid frames of a group.", {path = "raid.spacing", min = -5, max = 20, step = 1, throttle = true}) -- the header attributes take 25 ms (applyeq)
+slider("raid.layout.spacing", "Spacing", "The spacing between the raid frames of a group.", {path = "raid.spacing", min = -5, max = 20, step = 1, throttle = true}) -- The header attributes take 25 ms (applyeq)
 
 R.section = "Raid pets"
 check("raid.pets.enable", "Show raid pets", "Show the pets of the raid members.", {path = "raidpet.enable"})
@@ -516,7 +516,7 @@ dropdown("raid.custom.blend", "Blend", "How the custom highlight icons blend wit
 
 -- Raid Monitor (the ZPerl_RaidMonitor addon): its own per-character table, so get/set rows that show while it is loaded
 R.section = "Raid monitor"
--- closures only: the ZPerl.SettingsRaidMon* functions (ZPerl_Settings.lua) run when a row is read or changed
+-- Closures only: the ZPerl.SettingsRaidMon* functions (ZPerl_Settings.lua) run when a row is read or changed
 local function RAIDMON() return ZPerl.SettingsHasRaidMonitor() end
 local function rmGet(key) return function() return ZPerl.SettingsRaidMonGet(key) end end
 local function rmSwitch(key, class) return function(v) ZPerl.SettingsRaidMonSetSwitch(key, v, class) end end
@@ -676,11 +676,11 @@ do
 	}) do row(id).basic = true end
 	for i = 1, math.max(8, math.min(13, RAID_CLASS_GROUPS)) do
 		local e = row("raid.groups." .. i)
-		-- the class columns get their own line: it greys while Sort by Class is off, the groups 1-8 stay usable
+		-- The class columns get their own line: it greys while Sort by Class is off, the groups 1-8 stay usable
 		e.basic, e.inline = true, i <= 8 and "groups" or "classgroups"
 	end
 
-	-- every row of a frame needs that frame switched on (the switch row itself excepted)
+	-- Every row of a frame needs that frame switched on (the switch row itself excepted)
 	local function switchOf(e)
 		local pg, sec = e.page, e.section
 		if pg == "Player" then return "player.enable"
@@ -701,7 +701,7 @@ do
 		if key and e.type ~= "frames" and e.path ~= key and not (e.keys and e.keys[1] == key) then need(e.id, key) end
 	end
 
-	-- aura rows: the matching Buffs or Debuffs switch (a pet's target and the party pets switch both with Buffs); icons per line and Rows need Wrap
+	-- Aura rows: the matching Buffs or Debuffs switch (a pet's target and the party pets switch both with Buffs); icons per line and Rows need Wrap
 	local AURAS = {
 		{"player.auras.", "player"}, {"pet.auras.", "pet"}, {"pet.pettarget.", "pettarget"}, {"target.auras.", "target"},
 		{"target.tot.", "targettarget"}, {"target.tott.", "targettargettarget"}, {"focus.auras.", "focus"},
@@ -752,13 +752,13 @@ do
 	-- Enable Target counters lives in the Raid Helper's own table, not in ZPerl.layout: a `get` condition
 	local countersOn = {get = function() return ZPerl.SettingsAddonGetSwitch("helper", "TargetCounters") end, label = "Enable Target counters"}
 	for _, id in ipairs({"countersself", "countersenemy", "showcounters"}) do need("raid.raidhelper." .. id, countersOn) end
-	-- the tank targets rows need the window switch; Tooltip of also needs Tooltips
+	-- The tank targets rows need the window switch; Tooltip of also needs Tooltips
 	local helperOn = {get = function() return ZPerl.SettingsAddonGetSwitch("helper", "RaidHelper") end, label = "Enable Tank targets"}
 	for _, id in ipairs({"ctra", "blizzard", "noauto", "growup", "healthtext", "maxtanks", "unitwidth", "unitheight", "alpha", "bgalpha", "tooltips", "tooltipswhich"}) do
 		need("raid.raidhelper." .. id, helperOn)
 	end
 	need("raid.raidhelper.tooltipswhich", {get = function() return ZPerl.SettingsAddonGetSwitch("helper", "Tooltips") end, label = "Tooltips"})
-	-- every Raid monitor row needs the monitor switched on (the class rows are those of the client's classes)
+	-- Every Raid monitor row needs the monitor switched on (the class rows are those of the client's classes)
 	local monitorOn = {get = function() return ZPerl.SettingsRaidMonGet("enabled") == 1 end, label = "Enable Raid monitor"}
 	for _, e in ipairs(list) do
 		if e.section == "Raid monitor" and e.id ~= "raid.monitor.enable" then need(e.id, monitorOn) end

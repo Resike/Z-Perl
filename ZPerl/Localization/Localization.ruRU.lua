@@ -75,3 +75,18 @@ L["DRAGHINT2"] = "|c00FFFFFFShift+Клик|r для изменения разм�
 
 L["RAID_TOOLTIP_WITHBUFF"]    = "С баффом: (%s)"
 L["RAID_TOOLTIP_WITHOUTBUFF"] = "Без баффа: (%s)"
+
+L["MINIMAP_HELP1"]                    = "|c00FFFFFFЛевый клик|r - настройки"
+L["LOC_ZONE_ANTORUS"]                 = "Анторус, Пылающий Трон"
+L["LOC_ZONE_BARADIN_HOLD"]            = "Крепость Барадин"
+L["LOC_ZONE_BASTION_OF_TWILIGHT"]     = "Сумеречный бастион"
+L["LOC_ZONE_BLACKWING_DECENT"]        = "Твердыня Крыла Тьмы"
+L["LOC_ZONE_DRAGONSOUL"]              = "Душа Дракона"
+L["LOC_ZONE_FIRELANDS"]               = "Огненные Просторы"
+L["LOC_ZONE_THRONE_OF_FOUR_WINDS"]    = "Трон Четырех Ветров"
+L["LOC_ZONE_TOMB_OF_SARGERAS"]        = "Гробница Саргераса"
+L["KEY_NOTICE_RAID_BUFFS_AND_DEBUFFS"] = "Показаны баффы и дебаффы рейда"
+L["CMD_HELP"]                         = "|c00FFFF80Использование: |c00FFFFFF/zperl menu | lock | unlock | layout [название]"
+L["LAYOUT_LIST"]                      = "Макеты:"
+L["LAYOUT_CURRENT"]                   = " (текущий)"
+L["LAYOUT_UNKNOWN"]                   = "Нет макета с названием %s"

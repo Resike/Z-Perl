@@ -8,7 +8,7 @@
 -- frame's: the section's basic row (its switch) and each row whose label is the label of a basic row of the page, in
 -- the page's order.
 
--- frame -> {page, title, own section}
+-- Frame -> {page, title, own section}
 local FRAMES = {
 	ZPerl_Player = {"Player", "Player"}, ZPerl_Player_Pet = {"Pet", "Pet"},
 	ZPerl_PetTarget = {"Pet", "Pet target", "Pet's target"}, ZPerl_Target = {"Target", "Target"},
@@ -137,7 +137,7 @@ end
 
 local function open(name)
 	if InCombatLockdown() or combat or ZPerl.Locked ~= 0 then return end
-	-- the popup's controls are the options window's (ZPerl.OptionsControls, in ZPerl_Options)
+	-- The popup's controls are the options window's (ZPerl.OptionsControls, in ZPerl_Options)
 	if not ZPerl.LoadOptions() then return end
 	if not popup then create() end
 	hook()
@@ -206,7 +206,7 @@ local function make(name)
 	o:SetScript("OnMouseDown", function() downX, downY = GetCursorPosition() end)
 	o:SetScript("OnClick", function()
 		local x, y = GetCursorPosition()
-		-- a drag, not a click: moved 5 px or more on either axis
+		-- A drag, not a click: moved 5 px or more on either axis
 		if downX and (math.abs(x - downX) >= 5 or math.abs(y - downY) >= 5) then return end
 		open(name)
 	end)
@@ -217,7 +217,7 @@ end
 
 -- Called by ZPerl.ArrangeBarUpdate (unlock, lock, combat end): overlays are shown exactly while unlocked and out of combat.
 function ZPerl.FrameMenuUpdate()
-	if InCombatLockdown() then return end -- the overlays were hidden by PLAYER_REGEN_DISABLED
+	if InCombatLockdown() then return end -- The overlays were hidden by PLAYER_REGEN_DISABLED
 	local on = ZPerl.Locked == 0
 	if not on then close() end
 	for _, name in ipairs(ORDER) do

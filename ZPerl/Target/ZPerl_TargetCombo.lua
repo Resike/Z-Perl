@@ -158,7 +158,7 @@ local function SetComboBar(self)
 	self.nameFrame.cpMeter:SetValue(comboPoints)
 end
 
--- used by ZPerl_TargetUpdate.lua
+-- Used by ZPerl_TargetUpdate.lua
 ZPerl.Target.UpdateCombo = UpdateCombo
 
 -- RegisterComboEvents

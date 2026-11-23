@@ -13,7 +13,7 @@ function ZPerl.RaidHelper.SetupFrames()
 
 	---@return number
 	local function ValidAlpha(value)
-		-- a stored or typed value that is not a number (/zphelper alpha raid x) becomes opaque
+		-- A stored or typed value that is not a number (/zphelper alpha raid x) becomes opaque
 		local alpha = tonumber(value) or 1
 		if (alpha < 0 or alpha > 1) then
 			alpha = 1

@@ -66,8 +66,10 @@ local function GlobalConfigDefault(default)
 		text		= 1,
 	}
 
+	default.portraitZoom	= 1			-- The 3D portraits' SetPortraitZoom (General > Look)
+
 	default.highlightSelection	= 1
-	default.alignmentGrid		= false	-- the General > Frames grid and snap rows (ZPerl_Positions.lua)
+	default.alignmentGrid		= false	-- The General > Frames grid and snap rows (ZPerl_Positions.lua)
 	default.alignmentSnapToGrid	= false
 	default.combatFlash	= 1
 	default.maximumScale	= 1.5
@@ -93,11 +95,11 @@ local function GlobalConfigDefault(default)
 
 	default.buffs = {
 		cooldown	= 1,			-- 2.2.3
-		cooldownAny	= 1,			-- swipe on all auras, not only the player's
+		cooldownAny	= 1,			-- Swipe on all auras, not only the player's
 		countdown	= 1,			-- 2.2.2
-		countdownAny	= 1,			-- duration text on all auras
+		countdownAny	= 1,			-- Duration text on all auras
 --		blizzard	= nil,			-- Blizzard's countdown numbers on the cooldown frame
-		omnicc		= 1,			-- let OmniCC-style addons show their text
+		omnicc		= 1,			-- Let OmniCC-style addons show their text
 	}
 
 	default.rangeFinder = ZPerl.DefaultRangeFinder()
@@ -124,9 +126,9 @@ local function GlobalConfigDefault(default)
 		background	= 1,
 --		fading		= nil,		-- 1.8.9
 		fadeTime	= 0.5,		-- 1.9.1
-		healthLoss	= 1,		-- the lost health drains away in red
-		absorbLoss	= 1,		-- the lost absorb drains away
-		fullPulse	= 1,		-- the player's and pet's power bars pulse when full
+		healthLoss	= 1,		-- The lost health drains away in red
+		absorbLoss	= 1,		-- The lost absorb drains away
+		fullPulse	= 1,		-- The player's and pet's power bars pulse when full
 		fat		= 1,
 --		inverse		= nil,		-- 1.8.6
 	}
@@ -227,7 +229,7 @@ local function PartyConfigDefault(default)
 			enable		= 1,
 			flash		= 1,
 		},
-		spacing			= 40,			-- clears a buff row with duration text (25 + 12); the debuffs sit to the right
+		spacing			= 40,			-- Clears a buff row with duration text (25 + 12); the debuffs sit to the right
 		anchor			= "TOP",
 		enable			= 1,			-- 4.0.0
 		portrait		= 1,
@@ -274,7 +276,7 @@ local function PartyConfigDefault(default)
 --		flip			= nil,			-- 2.2.7
 	}
 	AuraLayoutDefaults(default.party, "BOTTOM", "buffs")
-	-- debuffs beside the stats frame, growing away from it (past the pet frame while it shows), as the
+	-- Debuffs beside the stats frame, growing away from it (past the pet frame while it shows), as the
 	-- original Z-Perl had them
 	default.party.debuffs.side = "RIGHT"
 end
@@ -293,7 +295,7 @@ local function PartyPetConfigDefault(default)
 		debuffs = {
 			enable		= 1,
 			curable		= 0,
-			size		= 12,			-- read by ZPerl_PartyPet.lua; ValidateSettings used to copy buffs.size
+			size		= 12,			-- Read by ZPerl_PartyPet.lua; ValidateSettings used to copy buffs.size
 		},
 		healerMode = {
 			--enable		= nil,
@@ -308,7 +310,7 @@ end
 -- PlayerConfigDefault
 local function PlayerConfigDefault(default)
 	default.player = {
-		enable			= 1,			-- the frame; takes effect after a reload
+		enable			= 1,			-- The frame; takes effect after a reload
 		castBar = {
 			enable		= 1,
 			flash		= 1,
@@ -360,7 +362,7 @@ local function PlayerConfigDefault(default)
 			enable		= 1,
 			size		= 25,
 		},
-		enchants = {					-- weapon enchants (poisons) at the start of the buff line
+		enchants = {					-- Weapon enchants (poisons) at the start of the buff line
 			enable		= 1,
 		},
 		size = {
@@ -373,7 +375,7 @@ end
 -- PetConfigDefault
 local function PetConfigDefault(default)
 	default.pet = {
-		enable = 1,					-- the frame; takes effect after a reload
+		enable = 1,					-- The frame; takes effect after a reload
 		castBar = {
 			enable = 1,
 			flash = 1,
@@ -476,7 +478,7 @@ local function RaidConfigDefault(default)
 			{enable = 1, name = "DRUID"},
 			{enable = 1, name = "SHAMAN"},
 			{enable = 1, name = "PALADIN"},
-		},	-- the newer classes are appended at the end of this function, on the clients that have them
+		},	-- The newer classes are appended at the end of this function, on the clients that have them
 		role			= nil,
 		titles			= 1,
 		percent			= 1,
@@ -489,7 +491,7 @@ local function RaidConfigDefault(default)
 		scale			= 1,
 		spacing			= 0,
 		inParty			= nil,
-		auraText		= false,			-- no duration text: it does not fit the raid frame
+		auraText		= false,			-- No duration text: it does not fit the raid frame
 		buffs = {
 --			enable		= nil,
 			castable	= 0,
@@ -512,7 +514,7 @@ local function RaidConfigDefault(default)
 			width		= 0,
 		},
 	}
-	-- debuffs inside the frame's right end, buffs inside its left end (the raid frames' auraInside), both bottom-aligned
+	-- Debuffs inside the frame's right end, buffs inside its left end (the raid frames' auraInside), both bottom-aligned
 	AuraLayoutDefaults(default.raid, "RIGHT", "debuffs")
 	default.raid.buffs.side = "LEFT"
 	default.raid.buffs.perLine, default.raid.debuffs.perLine = 4, 4

@@ -127,7 +127,7 @@ local function applyGroupVisibility()
 
 	local party = ZPerl_Party_SecureHeader
 	if (party) then
-		-- outside a raid the header stays shown, solo too: it shows no member without a group, and a
+		-- Outside a raid the header stays shown, solo too: it shows no member without a group, and a
 		-- shown header assigns the members itself when a group forms, in combat too (showing it is protected)
 		local show = pconf.enable
 		if (show and inRaid) then
@@ -205,7 +205,7 @@ function ZPerl.Off(event, fn)
 	if (not old) then
 		return
 	end
-	-- a new list, so a dispatch loop running over the old one is not shifted
+	-- A new list, so a dispatch loop running over the old one is not shifted
 	local list, removed = {}, false
 	for i = 1, #old do
 		if (not removed and old[i] == fn) then
@@ -239,7 +239,7 @@ ZPerl.DevBus = {listeners = listeners, dispatch = function(event, ...) onBusEven
 -- The scheduler: one C_Timer.NewTicker per distinct interval, created on first use and cancelled when
 -- its bucket empties. fn() runs every interval seconds, in the order added; an error goes to the
 -- error handler and the others still run. The same fn can be added to one bucket only once.
-local buckets = {} -- interval -> {fns = {...}, snapshot = {...} or nil, ticker = ...}
+local buckets = {} -- Interval -> {fns = {...}, snapshot = {...} or nil, ticker = ...}
 
 local function tick(bucket)
 	local snapshot = bucket.snapshot

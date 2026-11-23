@@ -36,3 +36,6 @@ L["HELPER_FINDSET"]     = "Finden auf %s festgelegt. ('|c00007F00/zphelper find|
 
 L["AGGRO_PET"]     = "- BEGLEITER AGGRO -"
 L["AGGRO_DRAGTIP"] = "Verschiebe die Position der Aggro Warnung"
+
+L["TITLE_WARRIOR_SHORT"] = "Tanks"
+L["AGGRO_PLAYER"]       = "- AGGRO -"

@@ -6,6 +6,7 @@
 	<Script file="Localization\Localization.frFR.lua"/>
 	<Script file="Localization\Localization.itIT.lua"/>
 	<Script file="Localization\Localization.koKR.lua"/>
+	<Script file="Localization\Localization.ptBR.lua"/>
 	<Script file="Localization\Localization.ruRU.lua"/>
 	<Script file="Localization\Localization.zhCN.lua"/>
 	<Script file="Localization\Localization.zhTW.lua"/>

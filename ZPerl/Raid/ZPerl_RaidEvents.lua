@@ -133,7 +133,7 @@ local function UpdateCombat(self)
 	else
 		self.nameFrame.combatIcon:Hide()
 	end
-	-- indirect units can return secret flags; no icon in that case
+	-- Indirect units can return secret flags; no icon in that case
 	if SafeBool(UnitIsVisible(partyid), false) and SafeBool(UnitIsCharmed(partyid), false) and SafeBool(UnitIsPlayer(partyid), false) then
 		self.nameFrame.warningIcon:Show()
 	else
@@ -156,7 +156,7 @@ local function UpdatePlayerFlags(self, partyid, ...)
 			local unitInfo = ZPerlRoster[unitName]
 			if (unitInfo) then
 				local change
-				-- same AFK/DND secrecy risk as above.
+				-- Same AFK/DND secrecy risk as above.
 				if (SafeBool(UnitIsAFK(partyid), false)) then
 					if (not unitInfo.afk) then
 						change = true
@@ -232,11 +232,11 @@ function ZPerl.Raid.OnUpdate(self, elapsed)
 					flashing = true
 				end
 			elseif (frame.PlayerFlash) then
-				-- hidden mid-flash: end the flash now, so the frame shows again in its own color
+				-- Hidden mid-flash: end the flash now, so the frame shows again in its own color
 				CombatFlash(frame, 1000, false)
 			end
 		end
-	-- set by a flash start (UNIT_COMBAT); idle otherwise
+	-- Set by a flash start (UNIT_COMBAT); idle otherwise
 	if (not flashing) then
 		self:SetScript("OnUpdate", nil)
 	end
@@ -258,7 +258,7 @@ end)
 local function RaidTargetUpdate(self)
 	local icon = self.nameFrame.raidIcon
 	if (not icon) then
-		-- the texture is made on the first mark
+		-- The texture is made on the first mark
 		if (not GetRaidTargetIndex(self.partyid)) then
 			return
 		end
@@ -354,7 +354,7 @@ function ZPerl.Raid.UpdateDisplay(self)
 	UpdateCombat(self)
 	ZPerl.UnitUpdateReadyState(self)
 	RaidTargetUpdate(self)
-	-- also with the range fader off: the poll then stops, and this puts the name and bars alpha back
+	-- Also with the range fader off: the poll then stops, and this puts the name and bars alpha back
 	ZPerl.UpdateSpellRange(self, self.partyid, true)
 
 	--buffUpdates[self] = true -- UpdateBuffs(self)
@@ -512,7 +512,7 @@ function Events:UNIT_COMBAT(unit, action, descriptor, damage, damageType)
 	if unit ~= self.partyid then
 		return
 	end
-	-- set first: the flash and hit text animate even when a later line raises on a secret amount
+	-- Set first: the flash and hit text animate even when a later line raises on a secret amount
 	ZPerl_Raid_Frame:SetScript("OnUpdate", ZPerl.Raid.OnUpdate)
 
 	if (action == "HEAL") then
@@ -624,7 +624,7 @@ function Events:UNIT_SPELLCAST_START(unit, lineGUID, spellID)
 	end
 
 	local name = UnitCastingInfo(unit)
-	-- spell and target names may be secret in restricted content
+	-- Spell and target names may be secret in restricted content
 	---@diagnostic disable-next-line: secret-table-key
 	if (name and CanAccess(name) and resSpells[name]) then
 		local u = unit.."target"
@@ -676,7 +676,7 @@ Shared.EnableEvents = function(self)
 	self.updatePower = UpdateMana
 	self.updatePowerType = updateManaType
 	self.conf = rconf
-	-- the raid header leaves no room beside a frame: RIGHT and LEFT overlay the ends of the bars
+	-- The raid header leaves no room beside a frame: RIGHT and LEFT overlay the ends of the bars
 	self.auraInside = {RIGHT = true, LEFT = true}
 	ZPerl.UnitFrameInit(self, nil, {"Health", "Raid", "Auras"})
 	if (rconf and rconf.mana) then
@@ -693,7 +693,7 @@ end
 local spareRoster = { }
 -- SetRaidRoster
 local function SetRaidRoster()
-	-- the tables are reused: the roster alternates between two, the others are cleared in place
+	-- The tables are reused: the roster alternates between two, the others are cleared in place
 	local NewRoster = spareRoster
 	wipe(NewRoster)
 	wipe(RaidPositions)
@@ -743,7 +743,7 @@ local function SetRaidRoster()
 			if (r) then
 				NewRoster[name] = r
 				ZPerlRoster[name] = nil
-				-- same AFK/DND secrecy risk as above.
+				-- Same AFK/DND secrecy risk as above.
 				r.afk = SafeBool(UnitIsAFK(unit), false) and GetTime() or nil
 				r.dnd = SafeBool(UnitIsDND(unit), false) and GetTime() or nil
 			else

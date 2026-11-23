@@ -13,7 +13,7 @@
 -- SetSearch(text), SetScale(scale), ExpandAll(), Lines(), Refresh().
 
 local C = ZPerl.OptionsControls
-local L = ZPerl.OptionsL -- the drawn text by its English wording; page and section names stay English in the state
+local L = ZPerl.OptionsL -- The drawn text by its English wording; page and section names stay English in the state
 local O = {}
 ZPerl.Options = O
 
@@ -51,7 +51,7 @@ local function pageOf(name)
 	end
 end
 
------------------------------------------------------------------------------------------------- layout
+------------------------------------------------------------------------------------------------ Layout
 local function sectionOpen(sec)
 	local o = state.open[sec.key]
 	if o == nil then return sec.hasBasic end
@@ -142,14 +142,14 @@ local function head(i)
 	if not h then
 		h = CreateFrame("Button", nil, content)
 		h:SetHeight(24)
-		-- a gold rule under the title, fading out to the right
+		-- A gold rule under the title, fading out to the right
 		h.line = h:CreateTexture(nil, "BORDER")
 		h.line:SetTexture("Interface\\Buttons\\WHITE8X8")
 		h.line:SetHeight(1)
 		h.line:SetPoint("BOTTOMLEFT")
 		h.line:SetPoint("BOTTOMRIGHT")
 		h.line:SetGradient("HORIZONTAL", CreateColor(0.86, 0.72, 0.2, 0.8), CreateColor(0.86, 0.72, 0.2, 0))
-		-- the open/closed state of a collapsible section: a minus when open, a plus when closed
+		-- The open/closed state of a collapsible section: a minus when open, a plus when closed
 		h.icon = h:CreateTexture(nil, "ARTWORK")
 		h.icon:SetSize(14, 14)
 		h.icon:SetPoint("LEFT", 4, 0)
@@ -171,7 +171,7 @@ local function sub(i)
 	local s = subs[i]
 	if not s then
 		s = content:CreateFontString(nil, "ARTWORK", "GameFontNormalSmall")
-		-- a faint rule from the label to the right edge of the content
+		-- A faint rule from the label to the right edge of the content
 		s.rule = content:CreateTexture(nil, "BACKGROUND")
 		s.rule:SetTexture("Interface\\Buttons\\WHITE8X8")
 		s.rule:SetHeight(1)
@@ -196,7 +196,7 @@ function O.Layout()
 	local pg = pageOf(state.tab)
 	if pg and not searching then
 		scroll:Hide()
-		-- another module page (e.g. Aura blacklist -> Custom highlights) must not stay under this one
+		-- Another module page (e.g. Aura blacklist -> Custom highlights) must not stay under this one
 		for _, p in ipairs(ZPerl.SettingsPages) do
 			if p ~= pg and p.frame then p.frame:Hide() end
 		end
@@ -292,7 +292,7 @@ function O.Layout()
 	O.Refresh()
 end
 
------------------------------------------------------------------------------------------------- refresh
+------------------------------------------------------------------------------------------------ Refresh
 function O.Refresh()
 	if not win or not win:IsShown() then return end
 	local combat = InCombatLockdown() and true or false
@@ -314,13 +314,13 @@ C.onChange = function(e)
 	O.Refresh()
 end
 
------------------------------------------------------------------------------------------------- state
+------------------------------------------------------------------------------------------------ State
 local function selectedLook()
 	for name, b in pairs(tabs) do
 		local on = name == state.tab and state.search == ""
 		b.sel:SetShown(on)
 		b.accent:SetShown(on)
-		-- the open tab in white, the others in the normal gold
+		-- The open tab in white, the others in the normal gold
 		if on then b.fs:SetTextColor(1, 1, 1) else b.fs:SetTextColor(1, 0.82, 0) end
 	end
 end
@@ -365,7 +365,7 @@ function O.ExpandAll()
 	O.Layout()
 end
 
------------------------------------------------------------------------------------------------- frame
+------------------------------------------------------------------------------------------------ Frame
 local function savePosition()
 	local x, y = win:GetLeft(), win:GetBottom()
 	if x and y then
@@ -442,7 +442,7 @@ function O.Create()
 
 	box = CreateFrame("EditBox", nil, win, "SearchBoxTemplate")
 	box:SetSize(190, 22)
-	-- the search at the right of the title bar, beside the close button
+	-- The search at the right of the title bar, beside the close button
 	box:SetPoint("RIGHT", close, "LEFT", -8, -6)
 	box:HookScript("OnTextChanged", function(self) O.SetSearch(self:GetText()) end)
 
@@ -455,10 +455,10 @@ function O.Create()
 	at:SetPoint("LEFT", advanced, "RIGHT", 4, 0)
 	at:SetText(L["Advanced options"])
 	advanced.label = at
-	advanced:SetHitRectInsets(0, -(at:GetStringWidth() + 4), 0, 0) -- the label clicks the box
+	advanced:SetHitRectInsets(0, -(at:GetStringWidth() + 4), 0, 0) -- The label clicks the box
 	advanced:SetScript("OnClick", function(self) O.SetAdvanced(self:GetChecked()) end)
 
-	-- the title bar's divider: a grey rule fading out at both ends
+	-- The title bar's divider: a grey rule fading out at both ends
 	local function rule(x1, x2, y)
 		local t = win:CreateTexture(nil, "ARTWORK")
 		t:SetTexture("Interface\\Buttons\\WHITE8X8")
@@ -472,7 +472,7 @@ function O.Create()
 	local divR = rule(WIDTH / 2, -8, -37)
 	divR:SetGradient("HORIZONTAL", CreateColor(0.6, 0.6, 0.6, 0.7), CreateColor(0.6, 0.6, 0.6, 0))
 
-	-- the tab list's panel: darker than the window, with the window's rounded tooltip edge at a smaller size
+	-- The tab list's panel: darker than the window, with the window's rounded tooltip edge at a smaller size
 	local panel = CreateFrame("Frame", nil, win, "BackdropTemplate")
 	panel:SetPoint("TOPLEFT", 6, -40)
 	panel:SetPoint("BOTTOMLEFT", 6, 8)
@@ -485,7 +485,7 @@ function O.Create()
 	})
 	panel:SetBackdropColor(0, 0, 0, 0.4)
 	panel:SetBackdropBorderColor(0.4, 0.4, 0.4, 0.8)
-	panel:SetFrameLevel(win:GetFrameLevel()) -- under the tabs
+	panel:SetFrameLevel(win:GetFrameLevel()) -- Under the tabs
 
 	tabs = {}
 	local ty = -44
@@ -494,7 +494,7 @@ function O.Create()
 		b:SetSize(TABW - 10, 26)
 		b:SetPoint("TOPLEFT", 10, ty)
 		ty = ty - 28
-		-- the open tab: a flat gold fill fading out to the right, with a gold bar on its left edge
+		-- The open tab: a flat gold fill fading out to the right, with a gold bar on its left edge
 		b.sel = b:CreateTexture(nil, "BACKGROUND")
 		b.sel:SetAllPoints()
 		b.sel:SetTexture("Interface\\Buttons\\WHITE8X8")
@@ -521,7 +521,7 @@ function O.Create()
 	end
 
 	scroll = CreateFrame("ScrollFrame", nil, win)
-	scroll:SetPoint("TOPLEFT", TABW + 22, -44) -- a gap after the tab panel
+	scroll:SetPoint("TOPLEFT", TABW + 22, -44) -- A gap after the tab panel
 	scroll:SetPoint("BOTTOMRIGHT", -30, 40)
 	content = CreateFrame("Frame", nil, scroll)
 	content:SetSize(CONTENTW, 10)
@@ -532,7 +532,7 @@ function O.Create()
 	bar:SetPoint("TOPLEFT", scroll, "TOPRIGHT", 11, 0)
 	bar:SetPoint("BOTTOMLEFT", scroll, "BOTTOMRIGHT", 11, 0)
 	ScrollUtil.InitScrollFrameWithScrollBar(scroll, bar)
-	-- the wheel scrolls the page only over the bar (over the page it would move it under the cursor while a slider
+	-- The wheel scrolls the page only over the bar (over the page it would move it under the cursor while a slider
 	-- is wheeled): the scroll frame swallows it, so it does not zoom the camera either. The stock step is a few
 	-- pixels a notch, slow for a long page: the bar steps a fixed 80 pixels instead (it follows through the
 	-- OnVerticalScroll hook set above)
@@ -552,7 +552,7 @@ function O.Create()
 	reloadNote:SetText(L["A change needs a reload."])
 	reloadNote:Hide()
 
-	-- the scale grip in the bottom right corner: a drag scales the window so its right edge follows the cursor, a
+	-- The scale grip in the bottom right corner: a drag scales the window so its right edge follows the cursor, a
 	-- right click puts the scale back to 1
 	local grip = CreateFrame("Button", nil, win)
 	grip:SetSize(16, 16)
@@ -563,7 +563,7 @@ function O.Create()
 	grip:SetHighlightTexture("Interface\\ChatFrame\\UI-ChatIM-SizeGrabber-Highlight")
 	grip:RegisterForClicks("RightButtonUp")
 	grip:SetScript("OnClick", function() O.SetScale(1) end)
-	-- the scale while dragging, as a percentage beside the grip
+	-- The scale while dragging, as a percentage beside the grip
 	local scaleText = grip:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
 	scaleText:SetPoint("BOTTOMRIGHT", grip, "TOPLEFT", -2, 2)
 	scaleText:Hide()

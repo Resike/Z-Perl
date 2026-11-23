@@ -183,6 +183,7 @@ local function CurrentConfig()
 					shared = true
 				end
 			end
+			---@diagnostic disable-next-line: undefined-global
 			if (not ZPerlPerCharacter and not shared) then
 				local positions = layouts[m].positions
 				layouts[m] = ZPerl.CopyTable(layouts.Default)
@@ -310,6 +311,7 @@ local function settingspart1()
 	playerName = UnitName("player")
 
 	if (not ZPerlDB) then
+		---@diagnostic disable-next-line: create-global
 		ZPerlDB = {}
 	end
 
@@ -341,7 +343,7 @@ local function onAddonLoaded(_, addon)
 	-- 0.x saved-variable names to the new ones, before settingspart1 and before AuraBlacklist's own ADDON_LOADED
 	ZPerl.Pcall(ZPerl.MigrateSavedNames, addon)
 	if (addon == "ZPerl") then
-		-- a dev run cut off between Begin and End: the saved settings go back (ZPerl_Migrate.lua)
+		-- A dev run cut off between Begin and End: the saved settings go back (ZPerl_Migrate.lua)
 		ZPerl.Pcall(ZPerl.RestoreAtLoad)
 		settingspart1()
 		for _, run in ipairs(afterConfig) do
@@ -443,7 +445,7 @@ function ZPerl.SelectLayout(name)
 		ZPerl.LayoutRefuse(string.format("No layout named %s.", tostring(name)))
 		return
 	end
-	local before = ZPerl.layout and ZPerl.CopyTable(ZPerl.layout) -- the outgoing layout as the frames show it, before the prune
+	local before = ZPerl.layout and ZPerl.CopyTable(ZPerl.layout) -- The outgoing layout as the frames show it, before the prune
 	ZPerl.PruneConfig()
 	ZPerlDB.active[ZPerl.LayoutKey()] = name
 	ZPerl.ReapplyLayout(before)
@@ -561,7 +563,7 @@ function ZPerl.ReapplyLayout(before)
 	ValidateClassNames(ZPerl.layout.raid)
 	local need = before and ZPerl.LayoutAppliers(before, ZPerl.layout)
 	if (need and not need.full) then
-		-- these follow the layout or the restored positions whether or not a key differs: the raid headers and widths,
+		-- These follow the layout or the restored positions whether or not a key differs: the raid headers and widths,
 		-- and the raid helper, which anchors its frame after the restore
 		need.raidheaders, need.raidwidth, need.raidsizes = true, true, true
 		local names = {}
@@ -809,7 +811,7 @@ function ValidateClassNames(part)
 	end
 	-- This should never happen, but I'm sure someone will find a way to break it
 
-	-- every class the client has must be in the list
+	-- Every class the client has must be in the list
 	local list = {}
 	for _, class in ipairs(ClientClasses()) do
 		list[class] = false

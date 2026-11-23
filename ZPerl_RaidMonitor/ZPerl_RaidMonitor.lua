@@ -199,7 +199,7 @@ local function UpdateTarget(self)
 				self.statusBar.name:SetTextColor(0.5, 0.5, 0.5)
 			end
 
-			-- secret health goes straight into the bar
+			-- Secret health goes straight into the bar
 			local hp, hpMax = UnitHealth(id), UnitHealthMax(id)
 			if (ZPerl.CanAccess(hp)) then
 				hp = UnitIsGhost(id) and 1 or (UnitIsDead(id) and 0 or hp)
@@ -224,7 +224,7 @@ end
 local function UpdateUnit(self)
 	local id = SecureButton_GetUnit(self)
 	if (id) then
-		-- full "First Last" (or "First-Realm") display name
+		-- Full "First Last" (or "First-Realm") display name
 		self.bar.name:SetText(ZPerl.UnitFullName(id))
 
 		self.powerType = UnitPowerType(id)
@@ -244,7 +244,7 @@ local function UpdateUnit(self)
 		elseif (ZPerl.CanAccess(self.mana) and ZPerl.CanAccess(self.manaMax) and self.manaMax > 0) then
 			ScaleBarColor(self.bar, self.mana / self.manaMax, "rbg")
 		else
-			-- secret power cannot be graded, use the mana color
+			-- Secret power cannot be graded, use the mana color
 			self.bar:SetStatusBarColor(0, 0, 1)
 			self.bar.bg:SetVertexColor(0, 0, 1, 0.5)
 		end
@@ -394,7 +394,7 @@ function ZPerl.RaidMonitor.Init(monitor)
 			end
 			if (v.powerType == 0 and v:IsShown()) then
 				local unit = v:GetAttribute("unit")
-				-- secret power is left out of the totals
+				-- Secret power is left out of the totals
 				if (UnitIsConnected(unit) and not ZPerl.SafeBool(UnitIsDeadOrGhost(unit), false) and ZPerl.CanAccess(v.mana) and ZPerl.CanAccess(v.manaMax)) then
 					local perc
 					if (v.manaMax == 0) then
@@ -452,7 +452,7 @@ function ZPerl.RaidMonitor.Init(monitor)
 		if IsInRaid() then--actually check if we are in a raid
 			for i = 1, GetNumGroupMembers() do
 				local id = "raid"..i
-				-- units with secret health are left out of the total
+				-- Units with secret health are left out of the total
 				if (UnitIsConnected(id) and ZPerl.CanAccess(UnitHealth(id)) and ZPerl.CanAccess(UnitHealthMax(id))) then
 					local hp, hpMax = UnitIsGhost(id) and 1 or (UnitIsDead(id) and 0 or UnitHealth(id)), UnitHealthMax(id)
 					--Begin 4.3 anti /0 fix.
@@ -968,7 +968,7 @@ function ZPerl.RaidMonitor.Init(monitor)
 		if (type(config.classes) ~= "table") then
 			config.classes = {PRIEST = true, DRUID = true, SHAMAN = true, PALADIN = true}
 		end
-		-- the healer classes newer than Classic, on the clients that have them (nil: never set)
+		-- The healer classes newer than Classic, on the clients that have them (nil: never set)
 		for _, class in ipairs({"MONK", "EVOKER"}) do
 			if (config.classes[class] == nil and LOCALIZED_CLASS_NAMES_MALE[class]) then
 				config.classes[class] = true
@@ -1049,7 +1049,7 @@ function ZPerl.RaidMonitor.Init(monitor)
 		}
 
 		for k, v in pairs(events) do
-			-- never error on an event this client does not have
+			-- Never error on an event this client does not have
 			if (self:IsShown()) then
 				ZPerl.RegisterEventSafe(self, v)
 			else

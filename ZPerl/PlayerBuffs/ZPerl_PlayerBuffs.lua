@@ -16,7 +16,7 @@ end
 --@end-debug@]===]
 
 -- The aura element (ZPerl_Unit.lua) draws the auras; these are its settings for the player frame.
--- the extra rows under the frame (druid / priest mana bar, reputation, experience) that BOTTOM blocks clear
+-- The extra rows under the frame (druid / priest mana bar, reputation, experience) that BOTTOM blocks clear
 local function Inset(self, side)
 	if (side ~= "BOTTOM" or pconf.extendPortrait) then
 		return 0
@@ -52,10 +52,10 @@ function ZPerl.PlayerBuffs.PlayerBuffSetup(self)
 
 	self.playerBuffsOn = true
 
-	-- the aura element; debuffs only show with buffs on
+	-- The aura element; debuffs only show with buffs on
 	self.auraInset = Inset
 	self.auraDebuffsNeedBuffs = true
-	self.auraCancel = true -- right-click cancels a buff, as on Blizzard's buff frame
+	self.auraCancel = true -- Right-click cancels a buff, as on Blizzard's buff frame
 	ZPerl.UnitFrameEnable(self, "Auras")
 
 	-- (re)build the AuraContainer fallback so it picks up any

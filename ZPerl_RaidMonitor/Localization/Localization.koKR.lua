@@ -20,3 +20,5 @@ L["MONITOR_CLICKTARGET"] = "|c00FFFF80대상|r"
 
 L["MONITOR_INNERVATE"] = "정신 자극"
 L["MONITOR_MANATIDE"]  = "마나 해일 토템"
+
+L["LOC_OOR"] = "없음"

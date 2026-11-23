@@ -96,7 +96,7 @@ local function UpdateUnit(self,forcedUpdate)
 
 	local name = UnitName(xunit)
 	local grey
-	-- creature names and health are secret inside instances
+	-- Creature names and health are secret inside instances
 	local nameReadable = ZPerl.CanAccess(name)
 
 	self.healthBar.bg:Show()
@@ -174,7 +174,7 @@ local function UpdateUnit(self,forcedUpdate)
 			self.combatIcon:Hide()
 		end
 
-		-- indirect units can return secret flags; no icon in that case
+		-- Indirect units can return secret flags; no icon in that case
 		if ZPerl.SafeBool(UnitIsCharmed(xunit), false) and ZPerl.SafeBool(UnitIsPlayer(xunit), false) then
 			self.warningIcon:Show()
 		else
@@ -553,7 +553,7 @@ local function ScanForMTDups()
 	--del(dups)
 end
 
- -- updates when roles are assigned
+ -- Updates when roles are assigned
 	--added aug 30, 2012
 function Events:PLAYER_ROLES_ASSIGNED()
 	--check for tanks for efficiency if possible
@@ -592,7 +592,7 @@ function Events:VARIABLES_LOADED()
 	ZPerl.MigrateSavedNames("ZPerl_RaidHelper")
 
 	if (InCombatLockdown()) then
-		-- the setup sets protected attributes; the event is unregistered and does not come again, so it runs at combat end
+		-- The setup sets protected attributes; the event is unregistered and does not come again, so it runs at combat end
 		ZPerl.AfterCombat(Events.VARIABLES_LOADED, self)
 		return
 	end
@@ -643,7 +643,7 @@ local function Registration()
 		if not conf then
 			return
 		end
-		-- never error on an event this client does not have
+		-- Never error on an event this client does not have
 		if (conf.RaidHelper == 1) then
 			ZPerl.RegisterEventSafe(ZPerl_RaidHelper_Frame, a)
 		else
@@ -755,7 +755,7 @@ function Events:UNIT_FACTION(unit)
 						frame.combatIcon:Hide()
 					end
 
-					-- indirect units can return secret flags; no icon in that case
+					-- Indirect units can return secret flags; no icon in that case
 					if (ZPerl.SafeBool(UnitIsCharmed(partyid), false)) then
 						frame.warningIcon:Show()
 					else

@@ -55,11 +55,11 @@ local scanUnits = {"target", "focus", "targettarget", "focustarget", "player"}
 
 local db			-- ZPerlDB.account.blacklist
 local spells		-- db.spells: [spellID] = {name = "..."}
-local sorted = {}	-- spell IDs in display order
-local listOffset = 0	-- sorted index above the first row of the options list
-local syncing		-- the list is setting its scroll bar (its scroll callback is ours)
+local sorted = {}	-- Spell IDs in display order
+local listOffset = 0	-- Sorted index above the first row of the options list
+local syncing		-- The list is setting its scroll bar (its scroll callback is ours)
 local sortKeys = {}
-local config		-- options tab content, built the first time the tab is shown
+local config		-- Options tab content, built the first time the tab is shown
 
 -- SpellNameIcon(spell) - name, icon, spellID for a spell ID or name; nil if unknown
 local function SpellNameIcon(spell)
@@ -151,7 +151,7 @@ end
 -- never-secret spells excepted (AuraContainerUtil.CanApplyIdentityCandidateFilters).
 
 local excludeSet		-- [spellID] = true for every listed ID; nil when the list is empty
-local setDirty = true	-- rebuild the set on next use
+local setDirty = true	-- Rebuild the set on next use
 
 function ZPerl.AuraBlacklist.Set(frame)
 	if (not db or not db.enabled or not frame or not filteredUnits[frame.partyid]) then
@@ -190,7 +190,7 @@ end
 function ZPerl.AuraBlacklist.Load()
 	InitDB()
 	setDirty = true
-	-- the options list shows the sorted IDs of the list it last saw: re-read the new one (the list redraws on show)
+	-- The options list shows the sorted IDs of the list it last saw: re-read the new one (the list redraws on show)
 	RebuildSorted()
 	RefreshFrames()
 end
@@ -206,7 +206,7 @@ local function Config_UpdateList()
 		listOffset = range
 	end
 	local offset = listOffset
-	-- the bar shows the rows in view out of all, and steps (arrows, wheel) one row at a time
+	-- The bar shows the rows in view out of all, and steps (arrows, wheel) one row at a time
 	local bar = config.scrollBar
 	syncing = true
 	bar:SetVisibleExtentPercentage(total > ROWS and ROWS / total or 1)
@@ -425,7 +425,7 @@ end
 -- CreateConfig(parent) - the options tab content, built the first time the tab is shown
 local function CreateConfig(parent)
 	local f = CreateFrame("Frame", "ZPerl_AuraBlacklist_Config", parent)
-	-- the controls sit 12 px in from f's edge: shifted back so they line up with the settings tabs' rows
+	-- The controls sit 12 px in from f's edge: shifted back so they line up with the settings tabs' rows
 	f:SetPoint("TOPLEFT", -12, 0)
 	f:SetSize(460, 510)
 
@@ -545,7 +545,7 @@ local function onAddonLoaded(_, name)
 	if (name == ADDON_NAME) then
 		InitDB()
 		ZPerl.Off("ADDON_LOADED", onAddonLoaded)
-		-- frames built before the list was loaded rebuild with it
+		-- Frames built before the list was loaded rebuild with it
 		RefreshFrames()
 	end
 end

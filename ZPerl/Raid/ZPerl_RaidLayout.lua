@@ -132,7 +132,7 @@ end
 -- Spaces raid groups 1-8 `gap` apart within their lines: rows (titles with the same top) for the TOP and
 -- BOTTOM anchors, columns (same left) for LEFT and RIGHT, where one row of unit frames hangs below each
 -- title. Each line keeps its end nearest the screen edge. Stores the gap; in combat it waits for combat end.
--- line order: by position, then group number for groups on the same spot
+-- Line order: by position, then group number for groups on the same spot
 local function before(p, q, a, b)
 	if (abs(p - q) > 0.5) then return p < q end
 	return a:GetID() < b:GetID()
@@ -147,12 +147,12 @@ function ZPerl.Raid.SetGap(gap)
 		ZPerl.AfterCombat(ZPerl.Raid.SetGap, gap)
 		return
 	end
-	ZPerl.AlignmentGridHold(true) -- the gap is exact: no snap
+	ZPerl.AlignmentGridHold(true) -- The gap is exact: no snap
 	local across = rconf.anchor == "TOP" or rconf.anchor == "BOTTOM"
 	local lines = { }
 	for i = 1, 8 do
 		local f = _G["ZPerl_Raid_Title"..i]
-		-- a title not laid out yet has no rect (GetTop/GetLeft nil): it keeps its place
+		-- A title not laid out yet has no rect (GetTop/GetLeft nil): it keeps its place
 		local pos
 		if (f) then
 			if (across) then
@@ -412,7 +412,7 @@ local function GetCombatRezzerList()
 	for i = 1, GetNumGroupMembers() do
 		local unit = "raid"..i
 		local _, class = UnitClass(unit)
-		-- never key the table with a nil or secret class
+		-- Never key the table with a nil or secret class
 		---@diagnostic disable-next-line: secret-table-key
 		if (class and ZPerl.CanAccess(class) and normalRezzers[class]) then
 			if (UnitAffectingCombat(unit)) then
@@ -497,7 +497,7 @@ function ZPerl.Raid.RaidTipExtra(unitid)
 		if (stats) then
 			local t = GetTime()
 
-			-- connected/AFK/DND status can all be secret
+			-- Connected/AFK/DND status can all be secret
 			-- default to "still offline/afk/dnd" when
 			-- uncertain, so an unreadable state doesn't clear the flag.
 			if (stats.offline and SafeBool(UnitIsConnected(unitid), false)) then
@@ -560,7 +560,7 @@ local function SetMainHeaderAttributes(self)
 	self:SetAttribute("showPlayer", rconf.inParty)
 	self:SetAttribute("showRaid", true)
 
-	-- always set: a point left from an earlier anchor (LEFT/RIGHT) would lay BOTTOM out as a row
+	-- Always set: a point left from an earlier anchor (LEFT/RIGHT) would lay BOTTOM out as a row
 	self:SetAttribute("point", rconf.anchor)
 	self:SetAttribute("minWidth", 80)
 	self:SetAttribute("minHeight", 10)

@@ -6,7 +6,7 @@
 -- Upvalues
 local floor = math.floor
 local format = string.format
--- the options text by its English wording (Localization/Localization.lua): labels stay English in the rows, which
+-- The options text by its English wording (Localization/Localization.lua): labels stay English in the rows, which
 -- are matched by them, and are translated only here, where they are drawn
 local L = ZPerl.OptionsL
 local C = {}
@@ -14,7 +14,7 @@ ZPerl.OptionsControls = C
 
 local COLW = 310
 C.COLW = COLW
-C.onChange = function(_) end -- the window sets it: called after a control wrote a value
+C.onChange = function(_) end -- The window sets it: called after a control wrote a value
 
 local K -- ZPerl.SettingsCore, read at first use (ZPerl_Settings.lua is part of Z-Perl, which loads before this addon)
 local function core()
@@ -22,7 +22,7 @@ local function core()
 	return K
 end
 
------------------------------------------------------------------------------------------------- needs and tips
+------------------------------------------------------------------------------------------------ Needs and tips
 local keyLabel
 local function labelFor(key)
 	if not keyLabel then
@@ -106,7 +106,7 @@ local function setEnabled(ctl, on)
 	end
 end
 
------------------------------------------------------------------------------------------------- pieces
+------------------------------------------------------------------------------------------------ Pieces
 local function text(parent, font, str)
 	local fs = parent:CreateFontString(nil, "ARTWORK", font or "GameFontHighlight")
 	fs:SetJustifyH("LEFT")
@@ -150,7 +150,7 @@ local function rgb2hex(r, g, b)
 	return format("FF%02X%02X%02X", floor(r * 255 + 0.5), floor(g * 255 + 0.5), floor(b * 255 + 0.5))
 end
 
------------------------------------------------------------------------------------------------- builders
+------------------------------------------------------------------------------------------------ Builders
 -- Each builder fills line.ctl and line.update(): re-read the row's value into the control.
 local B = {}
 
@@ -175,7 +175,7 @@ end
 -- whose own value and callback handling would sit beside the settings core's. A client without the template
 -- gets the plain slider.
 local MINIMAL = C_XMLUtil and C_XMLUtil.GetTemplateInfo and C_XMLUtil.GetTemplateInfo("MinimalSliderTemplate") ~= nil
-local STEPPER_OFF_ALPHA = 0.5	-- as Blizzard's steppers
+local STEPPER_OFF_ALPHA = 0.5	-- As Blizzard's steppers
 
 local function stepper(box, atlas, w, h)
 	local b = CreateFrame("Button", nil, box)
@@ -229,7 +229,7 @@ function B.slider(line, e, box)
 	s:EnableMouse(true)
 	s.IsEnabled = function(self) return self.fpOn ~= false end
 
-	-- the steppers are off at either end of the range and while the slider is
+	-- The steppers are off at either end of the range and while the slider is
 	local function steppers()
 		if not back then return end
 		local on = s.fpOn ~= false
@@ -245,10 +245,10 @@ function B.slider(line, e, box)
 		steppers()
 	end
 
-	-- one step: a stepper click (SetValue keeps it inside the range)
+	-- One step: a stepper click (SetValue keeps it inside the range)
 	local function nudge(dir)
 		if s.fpOn == false then return end
-		-- on the step grid, so fractional steps (0.01) do not save rounding drift
+		-- On the step grid, so fractional steps (0.01) do not save rounding drift
 		local steps = math.floor((s:GetValue() - e.min) / e.step + 0.5) + dir
 		s:SetValue(math.max(e.min, math.min(e.max, e.min + steps * e.step)))
 	end
@@ -262,7 +262,7 @@ function B.slider(line, e, box)
 			PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON)
 		end)
 	end
-	-- the wheel steps the value like the steppers (the page itself does not scroll on the wheel)
+	-- The wheel steps the value like the steppers (the page itself does not scroll on the wheel)
 	s:EnableMouseWheel(true)
 	s:SetScript("OnMouseWheel", function(_, delta) nudge(delta > 0 and 1 or -1) end)
 
@@ -275,7 +275,7 @@ function B.slider(line, e, box)
 		val:SetText(fmt(k.valueOf(e, ZPerl.layout)))
 		C.onChange(e)
 	end)
-	-- beside the whole row: anchored to the track, the tooltip rises over the value text above its right end
+	-- Beside the whole row: anchored to the track, the tooltip rises over the value text above its right end
 	hookTip(s, line, box)
 	line.fs = fs
 	return s, nil, function()
@@ -297,13 +297,13 @@ function B.dropdown(line, e, box)
 	dd:SetPoint("TOPLEFT", 0, -18)
 	dd:SetupMenu(function(_, root)
 		local list = choices(e)
-		-- a long list (LibSharedMedia's textures) scrolls instead of running off the screen
+		-- A long list (LibSharedMedia's textures) scrolls instead of running off the screen
 		if #list > 20 and root.SetScrollMode then
 			root:SetScrollMode(20 * 20)
 		end
 		for _, c in ipairs(list) do
 			local key = c[1]
-			-- read live, so a description generated earlier still marks the current value
+			-- Read live, so a description generated earlier still marks the current value
 			local radio = root:CreateRadio(c[2], function() return k.valueOf(e, ZPerl.layout) == key end, function()
 				k.store(e, key)
 				C.onChange(e)
@@ -315,7 +315,7 @@ function B.dropdown(line, e, box)
 					local t = button:AttachTexture()
 					t:SetDrawLayer("BACKGROUND")
 					t:SetTexture(file)
-					t:SetVertexColor(0, 0.8, 0, 0.8)	-- health green
+					t:SetVertexColor(0, 0.8, 0, 0.8)	-- Health green
 					t:SetPoint("TOPLEFT", 0, -1)
 					t:SetPoint("BOTTOMRIGHT", 0, 1)
 				end)
@@ -323,7 +323,7 @@ function B.dropdown(line, e, box)
 		end
 	end)
 	hookTip(dd, line)
-	-- a list from a function (LibSharedMedia) can grow: rebuild it as the menu opens
+	-- A list from a function (LibSharedMedia) can grow: rebuild it as the menu opens
 	if type(e.options) == "function" then
 		local open = dd:GetScript("OnMouseDown")
 		if open then
@@ -360,7 +360,7 @@ function B.frames(line, e, box)
 		end
 	end)
 	hookTip(dd, line)
-	-- the checkboxes read the mask live; regenerate and retext only when it changed
+	-- The checkboxes read the mask live; regenerate and retext only when it changed
 	local shown
 	return dd, fs, function()
 		local mask = k.maskOf(e.section)
@@ -391,7 +391,7 @@ function B.color(line, e, box)
 	end
 	btn:SetScript("OnClick", function()
 		local r, g, b = hex2rgb(k.valueOf(e, ZPerl.layout))
-		-- the swatch has no opacity: the store keeps the stored alpha (the opacity has its own slider row)
+		-- The swatch has no opacity: the store keeps the stored alpha (the opacity has its own slider row)
 		ColorPickerFrame:SetupColorPickerAndShow({
 			r = r, g = g, b = b, hasOpacity = false,
 			swatchFunc = function()
@@ -433,7 +433,7 @@ function B.spell(line, e, box)
 	btn:SetSize(36, 36)
 	btn:SetPoint("TOPLEFT", 3, -2)
 	btn:RegisterForClicks("LeftButtonUp", "RightButtonUp")
-	-- only the slot part of the 64px empty-slot texture, kept within 2px of the button: the column clips anything
+	-- Only the slot part of the 64px empty-slot texture, kept within 2px of the button: the column clips anything
 	-- left of its edge
 	local slot = btn:CreateTexture(nil, "BACKGROUND")
 	slot:SetTexture("Interface\\Buttons\\UI-EmptySlot")
@@ -542,7 +542,7 @@ local function buildInline(line, rows, box)
 	end
 end
 
------------------------------------------------------------------------------------------------- line
+------------------------------------------------------------------------------------------------ Line
 local HEIGHT = {check = 26, color = 26, button = 28, slider = 44, dropdown = 46, frames = 46, spell = 42}
 
 -- rows: the rows of the line (one, or all rows of an inline tag). parent: the window's content frame.
@@ -578,7 +578,7 @@ function C.Make(parent, rows)
 	end
 	fs = fs or line.fs
 	line.ctl = ctl
-	-- the tooltip text, built when it is shown (or read through O.Lines), not on every refresh: a shared row's text
+	-- The tooltip text, built when it is shown (or read through O.Lines), not on every refresh: a shared row's text
 	-- compares every ticked frame
 	function line.Tip(self)
 		local tip = tipOf(e) or ""

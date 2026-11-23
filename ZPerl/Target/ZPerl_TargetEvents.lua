@@ -46,7 +46,7 @@ function Events:UNIT_COMBAT(unit, action, descriptor, damage, damageType)
 	if unit ~= self.partyid then
 		return
 	end
-	-- set first: the flash and hit text animate even when a later line raises on a secret amount
+	-- Set first: the flash and hit text animate even when a later line raises on a secret amount
 	self:SetScript("OnUpdate", ZPerl.Target.OnUpdate)
 
 	ZPerl.Target.UpdateCombat(self)
@@ -147,7 +147,7 @@ function Events:UNIT_NAME_UPDATE()
 	ZPerl.Target.UpdateName(self)
 	ZPerl.Target.UpdateHealth(self)
 	ZPerl.Target.UpdateClassification(self)
-	ZPerl.Target.UpdateType(self) -- puts back the class text UpdateClassification hides with no elite tag
+	ZPerl.Target.UpdateType(self) -- Puts back the class text UpdateClassification hides with no elite tag
 end
 
 -- UNIT_LEVEL
@@ -177,7 +177,7 @@ end
 -- UNIT_FACTION
 function Events:UNIT_FACTION()
 	ZPerl.Target.UpdatePVP(self)
-	-- the containers' order follows hostility
+	-- The containers' order follows hostility
 	ZPerl.AurasRebuild(self)
 	ZPerl.AurasUpdate(self)
 end

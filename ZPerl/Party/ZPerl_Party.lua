@@ -3,17 +3,17 @@
 
 local L = ZPerl.L
 
-local Events = { } -- unit events, one set per frame (element Party)
-local Bus = { } -- events no frame owns (ZPerl.On)
+local Events = { } -- Unit events, one set per frame (element Party)
+local Bus = { } -- Events no frame owns (ZPerl.On)
 ZPerl.Elements.Party = {events = Events}
-local allFrames = { } -- every party frame, in creation order
+local allFrames = { } -- Every party frame, in creation order
 --local checkRaidNextUpdate
 local PartyFrames = { }
 local conf, pconf
 ZPerl.RequestConfig(function(new)
 	conf = new
 	pconf = new.party
-	for _, v in ipairs(allFrames) do -- every frame: one without a unit keeps its table too
+	for _, v in ipairs(allFrames) do -- Every frame: one without a unit keeps its table too
 		v.conf = pconf
 	end
 end, "$Revision:  $")
@@ -69,7 +69,7 @@ local GameFontNormal = GameFontNormal
 local GameFontNormalSmall = GameFontNormalSmall
 local PartyFrame = PartyFrame
 
--- secret value helpers from ZPerl.lua
+-- Secret value helpers from ZPerl.lua
 local CanAccess = ZPerl.CanAccess
 local IsSecret = ZPerl.IsSecret
 local SetAlphaFromBoolean = ZPerl.SetAlphaFromBoolean
@@ -115,7 +115,7 @@ function ZPerl.Party.EventsOnLoad(self)
 
 		if _G.PartyFrame then
 			ZPerl.BlizzFrameDisable(PartyFrame)
-			-- hidden with PartyFrame; only their events need stopping
+			-- Hidden with PartyFrame; only their events need stopping
 			for i = 1, 4 do
 				local memberFrame = PartyFrame["MemberFrame"..i]
 				if memberFrame then
@@ -269,7 +269,7 @@ local function onAttrChanged(self, name, value)
 	if (name == "unit") then
 		if (value and value ~= "party0") then
 			SetFrameArray(self, value)
-			-- names and GUIDs are only compared when readable
+			-- Names and GUIDs are only compared when readable
 			local currentName, currentGUID = UnitName(value), UnitGUID(value)
 			if (self.partyid ~= value or not CanAccess(currentName) or not CanAccess(currentGUID) or self.lastName ~= currentName or self.lastGUID ~= currentGUID) then
 				if (conf) then
@@ -286,7 +286,7 @@ end
 function ZPerl.Party.OnLoad(self)
 	ZPerl.SetChildMembers(self)
 	self.targetFrame.statsFrame = self.targetFrame.healthBar -- So the healthbar fades as part of pseudo statsFrame
-	-- the target frame is a child of this frame, whose range fader sets its alpha: the target runs its own range
+	-- The target frame is a child of this frame, whose range fader sets its alpha: the target runs its own range
 	-- fade, so it must not also fade with the member (or take the frame transparency twice)
 	if (self.targetFrame.SetIgnoreParentAlpha) then
 		self.targetFrame:SetIgnoreParentAlpha(true)
@@ -507,7 +507,7 @@ local function auraInset(self, side)
 		pe, fe = pet:GetLeft(), self:GetLeft()
 	end
 	if (pe and fe) then
-		-- the pet frame has its own scale: compare on screen, convert to this frame's units
+		-- The pet frame has its own scale: compare on screen, convert to this frame's units
 		local s = self:GetEffectiveScale()
 		local inset = (pe * pet:GetEffectiveScale() - fe * s) / s
 		if (side == "LEFT") then
@@ -526,7 +526,7 @@ local function auraSideAnchor(self, side)
 		return self.statsFrame, 0, -4
 	end
 end
--- the pet frame shows or hides: out of combat the blocks move now, else after combat; the gate marks
+-- The pet frame shows or hides: out of combat the blocks move now, else after combat; the gate marks
 -- the frame pending itself while auras are secret
 local function placeAuras(self)
 	if (InCombatLockdown()) then
@@ -602,7 +602,7 @@ local function UpdateAssignedRoles(self)
 		icon:SetPoint("TOPLEFT", 10, 5)
 	end
 
-	-- role icons option check by playerlin
+	-- Role icons option check by playerlin
 	if (conf and conf.oldRoleIcons) then
 		if isTank then
 			icon:SetTexture("Interface\\GroupFrame\\UI-Group-MainTankIcon")
@@ -656,7 +656,7 @@ end
 -- UpdateLeader
 local function UpdateLeader(self)
 	local partyid = self.partyid
-	-- same secret-boolean shape confirmed live crashing the
+	-- Same secret-boolean shape confirmed live crashing the
 	-- sibling UpdateLeader; fixed proactively here.
 	if (SafeBool(UnitIsGroupLeader(partyid), false)) then
 		self.nameFrame.leaderIcon:Show()
@@ -690,7 +690,7 @@ local function UpdatePVP(self)
 	local pvpIcon = self.nameFrame.pvpIcon
 
 	local factionGroup = UnitFactionGroup(partyid)
-	-- as on the Target frame: a secret faction can be neither tested nor compared
+	-- As on the Target frame: a secret faction can be neither tested nor compared
 	if (not CanAccess(factionGroup)) then
 		factionGroup = nil
 	end
@@ -726,7 +726,7 @@ local function UpdateCombat(self)
 			self.nameFrame.combatIcon:Hide()
 		end
 
-		-- indirect units can return secret flags; no icon in that case
+		-- Indirect units can return secret flags; no icon in that case
 		if SafeBool(UnitIsCharmed(partyid), false) and SafeBool(UnitIsPlayer(partyid), false) then
 			self.nameFrame.warningIcon:Show()
 		else
@@ -758,7 +758,7 @@ end
 local powerStyle = {percent = percD, text = "whole"}
 local function UpdateMana(self)
 	local partyid = self.partyid
-	-- same AFK-secrecy risk as UpdatePlayerFlags;
+	-- Same AFK-secrecy risk as UpdatePlayerFlags;
 	-- default to "still AFK" (skip the refresh) when uncertain.
 	if (self.afk and not SafeBool(UnitIsAFK(partyid), true)) then
 		UpdatePlayerFlags(self)

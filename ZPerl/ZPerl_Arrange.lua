@@ -2,7 +2,7 @@
 
 local bar = CreateFrame("Frame", "ZPerl_ArrangeBar", UIParent)
 bar:SetSize(280, 52)
-bar:SetPoint("TOP", UIParent, "TOP", 0, -40) -- first show only; a drag re-anchors it, kept for the session
+bar:SetPoint("TOP", UIParent, "TOP", 0, -40) -- First show only; a drag re-anchors it, kept for the session
 bar:SetFrameStrata("DIALOG")
 bar:SetClampedToScreen(true)
 bar:SetMovable(true)

@@ -32,7 +32,7 @@
 -- matches wins, so the state of a profile the old window could produce reads as an entry, not as nothing.
 
 local list = {}
-local R = {list = list} -- shared with ZPerl_SettingsListPages.lua: row helpers, constants and the page and section being added
+local R = {list = list} -- Shared with ZPerl_SettingsListPages.lua: row helpers, constants and the page and section being added
 ZPerl.SettingsRow = R
 
 -- Appliers per entry (names: ZPerl.Appliers in ZPerl_Init.lua). An entry not listed here applies with "full".
@@ -45,9 +45,9 @@ local function join(...)
 	end
 	return out
 end
-local PAINT = join(UF) -- every module that repaints its bars and names on a display update
-local BARS = {"party", "partypet", "player", "playerpet", "raid", "raidpets", "target"} -- modules with absorb and heal prediction bars
-local RANGE = {"party", "partypet", "raid", "raidpets", "target"} -- modules that re-run the range fade on a display update
+local PAINT = join(UF) -- Every module that repaints its bars and names on a display update
+local BARS = {"party", "partypet", "player", "playerpet", "raid", "raidpets", "target"} -- Modules with absorb and heal prediction bars
+local RANGE = {"party", "partypet", "raid", "raidpets", "target"} -- Modules that re-run the range fade on a display update
 local BACKDROP = {"skin", "party", "partypet", "player", "playerpet", "raid", "raidhelper", "target"}
 local APPLY = {
 	["general.frames.snap"] = {},
@@ -62,6 +62,7 @@ local APPLY = {
 	["general.look.fullpulse"] = {"player", "playerpet"},
 	["general.look.transparency"] = {"framealpha", "party", "partypet", "player", "raid", "raidpets", "target"},
 	["general.look.texttransparency"] = {"texttransparency", "player", "playerpet", "target", "raidhelper"},
+	["general.look.portraitzoom"] = {"portraitzoom"},
 	["general.look.background"] = BACKDROP,
 	["general.look.background.alpha"] = BACKDROP,
 	["general.look.border"] = BACKDROP,
@@ -128,7 +129,7 @@ local APPLY = {
 }
 for _, part in ipairs({"main", "name", "bars"}) do
 	for _, k in ipairs({"enable", "debuff", "health"}) do APPLY["general.range." .. part .. "." .. k] = RANGE end
-	-- the range polls (0.2 s) read the sliders; running RANGE on every drag step lagged the game
+	-- The range polls (0.2 s) read the sliders; running RANGE on every drag step lagged the game
 	APPLY["general.range." .. part .. ".fade"] = {}
 	APPLY["general.range." .. part .. ".healthmark"] = {}
 end
@@ -136,16 +137,16 @@ for _, k in ipairs({"scale", "width"}) do APPLY["player.size." .. k] = {"player"
 for _, k in ipairs({"portrait", "level", "classicon", "pvp", "hit", "healthtext", "absorbs", "healprediction"}) do APPLY["player.shown." .. k] = {"player"} end
 for _, k in ipairs({"xp", "xpdeficit", "rep", "partynumber", "withname", "extend", "nodruidbar", "energyticker", "classbar", "classbarpos", "classbarx", "classbary", "classbartooltip", "classbarmirror", "classbarmirrorv"}) do APPLY["player.player." .. k] = {"player"} end
 for _, k in ipairs({"scale", "width"}) do APPLY["pet.size." .. k] = {"playerpet"} end
--- the pet frame's own changer (Set_Bits) lays the frame out and redraws it; hit indicators and threat are read when
+-- The pet frame's own changer (Set_Bits) lays the frame out and redraws it; hit indicators and threat are read when
 -- the next combat or threat event arrives, and the old controls refreshed nothing
 for _, k in ipairs({"portrait", "level", "healthtext", "absorbs", "healprediction"}) do APPLY["pet.shown." .. k] = {"playerpet"} end
 APPLY["pet.shown.hit"] = {}
-APPLY["pet.shown.castbar"] = {"arcanebar"} -- the cast bar changer reads each registered frame's castBar.enable
+APPLY["pet.shown.castbar"] = {"arcanebar"} -- The cast bar changer reads each registered frame's castBar.enable
 APPLY["pet.shown.castbarflash"] = {"arcanebar"}
 for _, k in ipairs({"buffs", "debuffs", "buffsize", "debuffsize", "wrap", "rows", "castable", "curable", "bigbuffs", "bigdebuffs"}) do APPLY["pet.auras." .. k] = {"playerpet"} end
 for _, k in ipairs({"name", "happiness", "onlysad", "flashsad", "extend"}) do APPLY["pet.pet." .. k] = {"playerpet"} end
 APPLY["pet.pet.threat"] = {}
--- the pet's target is a frame of the target-of-target module; that module's changer covers all four of its frames
+-- The pet's target is a frame of the target-of-target module; that module's changer covers all four of its frames
 APPLY["pet.pettarget.enable"] = {"targettarget", "playerpet"}
 for _, k in ipairs({"scale", "mana", "buffs", "bigbuffs", "bigdebuffs", "level", "healthtext"}) do APPLY["pet.pettarget." .. k] = {"targettarget"} end
 
@@ -197,8 +198,8 @@ APPLY["raid.helper.visible"] = {}
 for _, k in ipairs({"enable", "alpha", "blend"}) do APPLY["raid.custom." .. k] = {"custom"} end
 APPLY["raid.custom.enable"] = {"custom", "raid"}
 APPLY["general.shown.afk"] = {"party", "player", "target", "targettarget", "raid"}
-APPLY["general.shown.readycheck"] = {"party", "raid"} -- the modules that call ZPerl.UnitUpdateReadyState
-local AURAS = {"playerbuffs", "playerpet", "target", "targettarget", "party", "partypet", "raid"} -- modules that style aura buttons
+APPLY["general.shown.readycheck"] = {"party", "raid"} -- The modules that call ZPerl.UnitUpdateReadyState
+local AURAS = {"playerbuffs", "playerpet", "target", "targettarget", "party", "partypet", "raid"} -- Modules that style aura buttons
 for _, k in ipairs({"cooldown", "cooldownany", "countdown", "countdownany", "blizzardnumbers", "omnicc"}) do APPLY["general.auras." .. k] = AURAS end
 
 local function throttleOf(apply)
@@ -209,12 +210,12 @@ end
 local function add(kind, id, label, tip, e)
 	e.id, e.page, e.section, e.type, e.label, e.tip = id, R.page, R.section, kind, label, tip
 	e.apply = e.apply or APPLY[id] or {"full"}
-	-- a slider or color whose appliers can take a frame (measured 12-16 ms): the party changer (5.6 ms) with
+	-- A slider or color whose appliers can take a frame (measured 12-16 ms): the party changer (5.6 ms) with
 	-- raid, raidpets or skin; the panel runs them at most every 0.1 s while the control moves
 	if (kind == "slider" or kind == "color") and not e.throttle then e.throttle = throttleOf(e.apply) end
 	list[#list + 1] = e
 end
--- an unticked box was stored false, a ticked one 1
+-- An unticked box was stored false, a ticked one 1
 local function check(id, label, tip, e)
 	e.on = e.on == nil and 1 or e.on
 	if e.off == nil then e.off = false end
@@ -269,11 +270,11 @@ local function of(prefix, suffix, frames, more)
 	for f, id in pairs(more or {}) do t[f] = id end
 	return t
 end
-local MAIN = {PLAYER, TARGET, FOCUS, PARTY} -- the frames with a class icon and a PvP flag
+local MAIN = {PLAYER, TARGET, FOCUS, PARTY} -- The frames with a class icon and a PvP flag
 local APPLY_TO = "Apply to several frames"
 local function framesPicker(id, label, tip) add("frames", id, label, tip, {apply = {}, group = APPLY_TO}) end
 local function shared(kind, id, label, tip, e)
-	e.apply = {} -- derived at the end of ZPerl_SettingsListPages.lua
+	e.apply = {} -- Derived at the end of ZPerl_SettingsListPages.lua
 	e.group = APPLY_TO
 	add(kind, id, label, tip, e)
 end
@@ -332,12 +333,13 @@ check("general.look.fading", "Fading bars", "Health and mana bars fade away the 
 slider("general.look.fadetime", "Fade time", "The speed of the fading bars.", {path = "bar.fadeTime", min = 0.2, max = 2, step = 0.1})
 check("general.look.healthloss", "Health loss animation", "Lost health shows as a red bar that drains away behind the health bar.", {path = "bar.healthLoss"})
 check("general.look.absorbloss", "Absorb loss animation", "A lost absorb shield drains away from the absorb bar instead of vanishing. Not on clients that hide absorb amounts.", {path = "bar.absorbLoss"})
--- not on retail and Forever: the player's power is secret there in combat, when the pulse plays
+-- Not on retail and Forever: the player's power is secret there in combat, when the pulse plays
 if not ZPerl.IsRetail and not ZPerl.IsForever then
 	check("general.look.fullpulse", "Full power pulse", "The player's and pet's power bars flash when rage, energy, focus or a similar power reaches its maximum.", {path = "bar.fullPulse"})
 end
 slider("general.look.transparency", "Frame transparency", "The transparency of the frames.", {path = "transparency.frame", min = 0, max = 1, step = 0.01, percent = true})
 slider("general.look.texttransparency", "Text transparency", "The transparency of the text.", {path = "transparency.text", min = 0, max = 1, step = 0.01, percent = true})
+slider("general.look.portraitzoom", "3D portrait zoom", "How close the 3D portraits are framed: 1 shows the face, lower values show more of the model.", {path = "portraitZoom", min = 0.5, max = 1, step = 0.05, default = 1})
 color("general.look.background", "Background color", "The color and transparency of all frame backgrounds.", {path = "color.frame"})
 slider("general.look.background.alpha", "Background opacity", "The opacity of all frame backgrounds.", {path = "color.frame.a", min = 0, max = 1, step = 0.01, percent = true})
 color("general.look.border", "Border color", "The color and transparency of all frame borders.", {path = "color.border"})
@@ -455,12 +457,12 @@ check("general.highlights.target", "Mouseover glow", "Highlight a frame while th
 check("general.highlights.heal", "Incoming heal glow", "Highlight units that are being healed in green.", {path = "highlight.HEAL"})
 check("general.highlights.hots", "HoTs", "Highlight units with a blue border that have your heal over time spells.", {path = "highlight.HOT"})
 check("general.highlights.shields", "Shields", "Highlight units with a purple border that have your short term beneficial shield buffs. With Sparkles on, a bar along the bottom of the health bar shows how much of your shield is left (on Classic Era and TBC an estimate: the shield's base absorb, without spell power).", {path = "highlight.SHIELD"})
--- the jumping heals of ZPERL_HIGHLIGHT_SPELLS.pomSpells (ZPerl_SpellData.lua); Classic Era has none, so the row greys there
+-- The jumping heals of ZPERL_HIGHLIGHT_SPELLS.pomSpells (ZPerl_SpellData.lua); Classic Era has none, so the row greys there
 check("general.highlights.pom", "Prayer of Mending", "Highlight the unit that has your Prayer of Mending (on retail and Mists also Atonement and Renewing Mist). With Sparkles on, the spell's icon shows on the frame, and a star follows the heal when it jumps to another unit.", {path = "highlight.POM",
 	needs = {get = function() return ZPERL_HIGHLIGHT_SPELLS ~= nil and next(ZPERL_HIGHLIGHT_SPELLS.pomSpells or {}) ~= nil end, label = "a client with Prayer of Mending"}})
 check("general.highlights.hotcount", "HoT counter", "Indicate on a unit how many active heal over time effects it has from any class.", {path = "highlight.HOTCOUNT"})
 check("general.highlights.sparkles", "Sparkles", "Use sparkles for a more apparent look of the glows. Off: the old style border colors.", {path = "highlight.sparkles"})
--- the combat log tells when your heals land; where addons do not get the combat log the row greys
+-- The combat log tells when your heals land; where addons do not get the combat log the row greys
 check("general.highlights.extrasparkles", "Extra sparkles", "Sparkles rise from a unit's health bar each time your heals (with Incoming heal glow on) or your heal over time spells (with HoTs on) heal it.", {path = "highlight.extraSparkles",
 	needs = {get = function() return ZPerl.EventValid("COMBAT_LOG_EVENT_UNFILTERED") end, label = "a client with the combat log"}})
 
@@ -485,7 +487,7 @@ local function rangePart(sectionName, key, idPart, first)
 		local kind = s[1]
 		add("spell", "general.range." .. idPart .. "." .. s[2], s[3], s[4], {
 			auto = function() return ZPerl.RangeSpells[kind] end,
-			-- the assist slot refuses spells that are only harmful, the attack slot those that are only helpful. A spell the
+			-- The assist slot refuses spells that are only harmful, the attack slot those that are only helpful. A spell the
 			-- client flags as neither (Taunt is not "harmful": it does no damage) fits either slot.
 			accept = function(id)
 				local help, harm = C_Spell.IsSpellHelpful(id), C_Spell.IsSpellHarmful(id)

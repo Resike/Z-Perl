@@ -3,8 +3,8 @@
 
 local L = ZPerl.L
 
-local Events = { } -- unit events, one set per frame (element PartyPet)
-local Bus = { } -- events no frame owns (ZPerl.On)
+local Events = { } -- Unit events, one set per frame (element PartyPet)
+local Bus = { } -- Events no frame owns (ZPerl.On)
 ZPerl.Elements.PartyPet = {events = Events}
 local EnableEvents
 local conf, pconf, petconf
@@ -14,7 +14,7 @@ ZPerl.RequestConfig(function(New)
 	conf = New
 	pconf = New.party
 	petconf = New.partypet
-	for _, v in ipairs(AllPetFrames) do -- every frame: one without a unit keeps its table too
+	for _, v in ipairs(AllPetFrames) do -- Every frame: one without a unit keeps its table too
 		v.conf = petconf
 	end
 end, "$Revision:  $")
@@ -46,7 +46,7 @@ local UnregisterUnitWatch = UnregisterUnitWatch
 
 local CurveConstants = CurveConstants
 
--- secret value helpers from ZPerl.lua
+-- Secret value helpers from ZPerl.lua
 local CanAccess = ZPerl.CanAccess
 local SafeBool = ZPerl.SafeBool
 
@@ -73,7 +73,7 @@ local function UpdateGUIDs()
 	--del(guids)
 	--guids = new()
 	wipe(guids)
-	-- never key the table with a nil or secret GUID
+	-- Never key the table with a nil or secret GUID
 	if pconf.showPlayer then
 		local guid = UnitGUID("player")
 		if (guid and CanAccess(guid)) then
@@ -94,7 +94,7 @@ end
 
 function ZPerl.PartyPet.SetFrame(id, unit, owner)
 	if not _G["ZPerl_partypet"..id].__unitEvents then
-		return -- its OnLoad has not run yet (the party frames' OnLoad ran first)
+		return -- Its OnLoad has not run yet (the party frames' OnLoad ran first)
 	end
 	PartyPetFrames[unit] = _G["ZPerl_partypet"..id]
 	PartyPetFrames[unit].partyid = unit
@@ -128,9 +128,9 @@ end
 -- ZPerl.PartyPet.OnLoad
 function ZPerl.PartyPet.OnLoad(self)
 	ZPerl.SetChildMembers(self)
-	-- the aura color highlight is for party and raid frames; this frame shows only the HoT highlight
+	-- The aura color highlight is for party and raid frames; this frame shows only the HoT highlight
 	self.hotHighlightOnly = true
-	-- the frame is a child of its owner's party frame, whose range fader sets that frame's alpha: the pet runs its
+	-- The frame is a child of its owner's party frame, whose range fader sets that frame's alpha: the pet runs its
 	-- own range fade, so it must not also fade with its owner (or take the frame transparency twice)
 	if (self.SetIgnoreParentAlpha) then
 		self:SetIgnoreParentAlpha(true)
@@ -328,7 +328,7 @@ end
 -- UpdateControl
 local function UpdateControl(self)
 	local partyid = self.partyid
-	-- indirect units can return secret flags; no icon in that case
+	-- Indirect units can return secret flags; no icon in that case
 	if partyid and SafeBool(UnitIsVisible(partyid), false) and SafeBool(UnitIsCharmed(partyid), false) and SafeBool(UnitIsPlayer(partyid), false) then
 		self.nameFrame.warningIcon:Show()
 	else
@@ -432,7 +432,7 @@ function Events:UNIT_COMBAT(unit, action, descriptor, damage, damageType)
 	if unit ~= self.partyid then
 		return
 	end
-	-- set first: the flash and hit text animate even when a later line raises on a secret amount
+	-- Set first: the flash and hit text animate even when a later line raises on a secret amount
 	self:SetScript("OnUpdate", OnUpdate)
 
 	if (action == "HEAL") then
@@ -452,7 +452,7 @@ end
 -- re-applies name, class color, auras and debuff highlight together. At most 5 frames per burst.
 Bus.GROUP_ROSTER_UPDATE = Bus.PLAYER_ENTERING_WORLD
 Bus.UNIT_PET = Bus.PLAYER_ENTERING_WORLD
--- a vehicle swap changed the GUID the 0.2 s poll used to catch: not checked in game
+-- A vehicle swap changed the GUID the 0.2 s poll used to catch: not checked in game
 Bus.UNIT_ENTERED_VEHICLE = Bus.PLAYER_ENTERING_WORLD
 Bus.UNIT_EXITED_VEHICLE = Bus.PLAYER_ENTERING_WORLD
 
@@ -528,7 +528,7 @@ local function ApplyLayout(self)
 
 	self:SetHeight(petconf.mana and 50 or 40)
 	ZPerl.SetScale(self, petconf.scale)
-	-- a RIGHT aura block of the member frame sits past this frame
+	-- A RIGHT aura block of the member frame sits past this frame
 	local member = _G["ZPerl_party"..self:GetID()]
 	if (member and member.buffContainer) then
 		ZPerl.AurasPlace(member)

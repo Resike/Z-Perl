@@ -13,3 +13,5 @@ L["RAID_TOOLTIP_DYING"]   = "Meurt dans %s"
 
 L["RAID_AFK"]          = "Afk"
 L["RAID_RESSER_AVAIL"] = "R\195\169sur\195\69ction possible"
+
+L["RAID_RESSING"] = " ressuscite"

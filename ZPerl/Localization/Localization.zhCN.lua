@@ -89,3 +89,9 @@ L["DRAGHINT2"] = "|c00FFFFFFShift+单击|r 改变窗口大小"
 
 L["RAID_TOOLTIP_WITHBUFF"]    = "拥有增益：(%s)"
 L["RAID_TOOLTIP_WITHOUTBUFF"] = "缺少增益：(%s)"
+
+L["KEY_NOTICE_RAID_BUFFS_AND_DEBUFFS"] = "显示团队增益和减益效果"
+L["CMD_HELP"]                         = "|c00FFFF80用法：|c00FFFFFF/zperl menu | lock | unlock | layout [名称]"
+L["LAYOUT_LIST"]                      = "布局："
+L["LAYOUT_CURRENT"]                   = "（当前）"
+L["LAYOUT_UNKNOWN"]                   = "没有名为 %s 的布局"

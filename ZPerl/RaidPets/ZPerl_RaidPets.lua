@@ -3,11 +3,11 @@
 
 local L = ZPerl.L
 
-local Events = {} -- unit events, one set per frame (element RaidPets)
-local Bus = {} -- events no frame owns (ZPerl.On)
+local Events = {} -- Unit events, one set per frame (element RaidPets)
+local Bus = {} -- Events no frame owns (ZPerl.On)
 local busOn
 ZPerl.Elements.RaidPets = {events = Events}
-local allFrames = {} -- every pet frame, in creation order
+local allFrames = {} -- Every pet frame, in creation order
 local RaidPetFrameArray = {}
 local conf, rconf, raidconf
 ZPerl.RequestConfig(function(New)
@@ -40,7 +40,7 @@ local CurveConstants = CurveConstants
 local LOCALIZED_CLASS_NAMES_MALE = LOCALIZED_CLASS_NAMES_MALE
 local PETS = PETS
 
--- secret value helpers from ZPerl.lua
+-- Secret value helpers from ZPerl.lua
 local CanAccess = ZPerl.CanAccess
 local CLASS_COUNT = 0
 for k, v in pairs(LOCALIZED_CLASS_NAMES_MALE) do
@@ -82,7 +82,7 @@ local function RaidPetUpdateGUIDs()
 	for i = 1, GetNumGroupMembers() do
 		local id = "raidpet"..i
 		if (UnitExists(id)) then
-			-- never key the table with a nil or secret GUID
+			-- Never key the table with a nil or secret GUID
 			local guid = UnitGUID(id)
 			if (guid and CanAccess(guid)) then
 				---@diagnostic disable-next-line: secret-table-key
@@ -195,7 +195,7 @@ end
 local function RaidTargetUpdate(self)
 	local icon = self.raidIcon
 	if (not icon) then
-		-- the texture is made on the first mark
+		-- The texture is made on the first mark
 		if (not self.partyid or not GetRaidTargetIndex(self.partyid)) then
 			return
 		end
@@ -309,7 +309,7 @@ function Bus.UNIT_ENTERED_VEHICLE(event, unit)
 	end
 	--TitlesUpdateFrame:Show()
 end
--- the vehicle swap the 0.2 s poll used to catch as a changed GUID: not checked in game
+-- The vehicle swap the 0.2 s poll used to catch as a changed GUID: not checked in game
 Bus.UNIT_EXITED_VEHICLE = Bus.UNIT_ENTERED_VEHICLE
 
 -- GROUP_ROSTER_UPDATE
@@ -369,7 +369,7 @@ end
 
 -- ZPerl.RaidPets.RaidPetSingleOnLoad
 function ZPerl.RaidPets.RaidPetSingleOnLoad(self)
-	-- the aura color highlight is for party and raid frames; this frame shows only the HoT highlight
+	-- The aura color highlight is for party and raid frames; this frame shows only the HoT highlight
 	self.hotHighlightOnly = true
 	self:OnBackdropLoaded()
 	self.updateHealth = UpdateHealth
@@ -462,7 +462,7 @@ local function SetMainHeaderAttributes(self)
 	self:SetAttribute("startingIndex", - maxUnits + 1)
 	self:SetAttribute("startingIndex", startingIndex)
 
-	-- the header makes buttons for what its attributes allow, so the decider waits for them
+	-- The header makes buttons for what its attributes allow, so the decider waits for them
 	ZPerl.RaidPets.Ready = true
 
 	--self.initialConfigFunction = initialConfigFunction
@@ -559,7 +559,7 @@ function ZPerl.RaidPets.Virtual()
 	virtualFrame:OnBackdropLoaded()
 	virtualFrame:SetBackdropColor(conf.color.frame.r, conf.color.frame.g, conf.color.frame.b, conf.color.frame.a)
 	virtualFrame:SetBackdropBorderColor(conf.color.border.r, conf.color.border.g, conf.color.border.b, 1)
-	-- aligned to the raid, the pets follow the last group and can't be dragged on their own
+	-- Aligned to the raid, the pets follow the last group and can't be dragged on their own
 	virtualFrame:EnableMouse(not rconf.alignToRaid)
 	virtualFrame:Show()
 end
@@ -578,7 +578,7 @@ function ZPerl.RaidPets.OptionActions()
 		SetElements(frame)
 	end
 
-	-- the events no frame owns follow the enable option
+	-- The events no frame owns follow the enable option
 	if ((rconf.enable and true) ~= busOn) then
 		busOn = rconf.enable and true
 		for event, fn in pairs(Bus) do

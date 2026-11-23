@@ -33,7 +33,7 @@ local UnregisterUnitWatch = UnregisterUnitWatch
 
 local UIParent = UIParent
 
--- secret value helpers from ZPerl.lua
+-- Secret value helpers from ZPerl.lua
 local CanAccess = ZPerl.CanAccess
 local IsSecret = ZPerl.IsSecret
 local SafeBool = ZPerl.SafeBool
@@ -63,7 +63,7 @@ function ZPerl.TargetTarget.OnLoad(self)
 	self:RegisterForClicks("AnyUp")
 	self:RegisterForDrag("LeftButton")
 	ZPerl.SetChildMembers(self)
-	-- the aura color highlight is for party and raid frames; this frame shows only the HoT highlight
+	-- The aura color highlight is for party and raid frames; this frame shows only the HoT highlight
 	self.hotHighlightOnly = true
 
 	self.guid = 0
@@ -96,7 +96,7 @@ function ZPerl.TargetTarget.OnLoad(self)
 	if (extra) then
 		ZPerl.UnitFrameEnable(self, extra)
 	end
-	-- the frame's own unit gets no UNIT_AURA, and regUnit's aura changes are not its auras: the
+	-- The frame's own unit gets no UNIT_AURA, and regUnit's aura changes are not its auras: the
 	-- poll updates them
 	ZPerl.UnregisterEventSafe(self, "UNIT_AURA")
 	ZPerl.RegisterPrediction(self, conf[self.partyid], "TargetTargetHeal")
@@ -141,7 +141,7 @@ end
 -------------------------
 local function UpdatePVP(self)
 	local partyid = self.partyid
-	-- indirect units can return secret flags; no icon in that case
+	-- Indirect units can return secret flags; no icon in that case
 	local ffa, isPvP, faction = UnitIsPVPFreeForAll(partyid), UnitIsPVP(partyid), UnitFactionGroup(partyid)
 	if (not CanAccess(ffa) or not CanAccess(isPvP) or (faction ~= nil and not CanAccess(faction))) then
 		self.nameFrame.pvpIcon:Hide()
@@ -196,7 +196,7 @@ function ZPerl.TargetTarget.UpdateDisplay(self)
 		return
 	end
 	if self.conf.enable and UnitExists(self.parentid) and SafeBool(UnitIsConnected(partyid), true) then
-		-- full "First Last" (or "First-Realm") display name
+		-- Full "First Last" (or "First-Realm") display name
 		self.targetname = ZPerl.UnitFullName(partyid)
 		if self.targetname then
 			ZPerl_Highlight:RemoveHighlight(self)
@@ -221,7 +221,7 @@ function ZPerl.TargetTarget.UpdateDisplay(self)
 				self.levelFrame.text:Show()
 				self.levelFrame.skull:Hide()
 				if (not CanAccess(TargetTargetLevel) or not CanAccess(classification)) then
-					-- creature levels are secret inside instances
+					-- Creature levels are secret inside instances
 					self.levelFrame:SetWidth(27)
 					self.levelFrame.text:SetText(TargetTargetLevel)
 					self.levelFrame.text:SetTextColor(1, 1, 1)
@@ -271,7 +271,7 @@ function ZPerl.TargetTarget.UpdateDisplay(self)
 
 			RaidIconUpdate(self)
 
-			-- the containers' order follows the unit and its hostility; a guid that cannot be read
+			-- The containers' order follows the unit and its hostility; a guid that cannot be read
 			-- cannot be compared, so then only a change of hostility rebuilds
 			local hostile = SafeBool(UnitCanAttack("player", partyid), false)
 			local guid = CanAccess(self.guid) and self.guid or nil
@@ -294,7 +294,7 @@ end
 -- UpdateControl
 local function UpdateControl(self)
 	local partyid = self.partyid
-	-- indirect units can return secret flags; no icon in that case
+	-- Indirect units can return secret flags; no icon in that case
 	if SafeBool(UnitIsVisible(partyid), false) and SafeBool(UnitIsCharmed(partyid), false) and SafeBool(UnitIsPlayer(self.partyid), false) then
 		self.nameFrame.warningIcon:Show()
 	else
@@ -306,7 +306,7 @@ end
 local function UpdateCombat(self)
 	local inCombat = UnitAffectingCombat(self.partyid)
 	if (IsSecret(inCombat)) then
-		-- let the widget resolve the secret boolean
+		-- Let the widget resolve the secret boolean
 		self.nameFrame.combatIcon:Show()
 		SetAlphaFromBoolean(self.nameFrame.combatIcon, inCombat, 1, 0)
 	elseif inCombat then
@@ -467,7 +467,7 @@ ZPerl.Elements.TargetTarget = {events = {
 	UNIT_POWER_FREQUENT = updatePowerBars,
 	UNIT_TARGET = refresh,
 }}
--- on while the heal prediction option is on (ZPerl.RegisterPrediction); refreshes on the unit the
+-- On while the heal prediction option is on (ZPerl.RegisterPrediction); refreshes on the unit the
 -- frame hangs off
 ZPerl.Elements.TargetTargetHeal = {events = {
 	UNIT_HEAL_PREDICTION = function(self, unit)
@@ -476,7 +476,7 @@ ZPerl.Elements.TargetTargetHeal = {events = {
 		end
 	end,
 }}
--- a new target changes the target's target, so every shown field is stale: the full display is the update
+-- A new target changes the target's target, so every shown field is stale: the full display is the update
 ZPerl.Elements.TargetTargetTarget = {events = {PLAYER_TARGET_CHANGED = display}}
 ZPerl.Elements.TargetTargetFocus = {events = {PLAYER_FOCUS_CHANGED = display}}
 
@@ -558,7 +558,7 @@ local function Set(self)
 
 	ZPerl.AfterCombatFor(EnableDisable, self)
 
-	-- an option may have changed what the containers show; the display builds them for a new unit
+	-- An option may have changed what the containers show; the display builds them for a new unit
 	if (self.buffContainer) then
 		ZPerl.AurasRebuild(self)
 		ZPerl.AurasUpdate(self)

@@ -12,7 +12,7 @@
 -- Upvalues
 local floor = math.floor
 local format = string.format
-local L = ZPerl.OptionsL -- the drawn text by its English wording (Localization/Localization.lua)
+local L = ZPerl.OptionsL -- The drawn text by its English wording (Localization/Localization.lua)
 -- Pages other addons add: {key, name, create}. The options window makes each a tab with a frame it keeps in `frame`;
 -- create(frame) runs the first time the tab is shown.
 ZPerl.SettingsPages = ZPerl.SettingsPages or {}
@@ -26,8 +26,8 @@ local function rowById(id)
 	end
 	return byId[id]
 end
-local function refresh() if ZPerl.Options then ZPerl.Options.Refresh() end end -- re-reads every control of the open window
-local sharedValue, sharedStore, setMask, maskOf -- shared controls, below
+local function refresh() if ZPerl.Options then ZPerl.Options.Refresh() end end -- Re-reads every control of the open window
+local sharedValue, sharedStore, setMask, maskOf -- Shared controls, below
 
 -- Parent table and last key of a dotted path (an integer key is its own last key). create: build missing tables.
 -- The split of each path is cached: the options window reads every row's value on each open and refresh, and a
@@ -74,12 +74,12 @@ local function baseTable(root, e, create)
 	return type(t) == "table" and t or nil
 end
 
------------------------------------------------------------------------------------------------- apply
+------------------------------------------------------------------------------------------------ Apply
 -- ZPerl.Apply (ZPerl_Init.lua) runs the entry's appliers and defers itself in combat. A slider or color calls it on
 -- every step; an entry with `throttle` (appliers slower than a frame) at most once per 0.1 s, with a trailing call so
 -- the last value always applies.
 local lastRun, trailing, latest = 0, false, nil
-local collect -- while a shared control writes: the appliers its frames' entries want, name -> true
+local collect -- While a shared control writes: the appliers its frames' entries want, name -> true
 local function applyNow(names)
 	lastRun = GetTime()
 	ZPerl.Apply(names)
@@ -116,7 +116,7 @@ local function apply(e, names)
 	if e.throttle then applyThrottled(names) else applyNow(names) end
 end
 
------------------------------------------------------------------------------------------------- values
+------------------------------------------------------------------------------------------------ Values
 local function hexOf(c)
 	if type(c) ~= "table" then return "FFFFFFFF" end
 	local function b(x) return floor((x or 1) * 255 + 0.5) end
@@ -214,7 +214,7 @@ local function store(e, v)
 			c = {}
 			p[k] = c
 		end
-		-- the swatch has no opacity: the stored alpha stays
+		-- The swatch has no opacity: the stored alpha stays
 		c.r, c.g, c.b = tonumber(r, 16) / 255, tonumber(g, 16) / 255, tonumber(b, 16) / 255
 	elseif e.map then
 		local entry = e.map[v]
@@ -243,10 +243,10 @@ local function store(e, v)
 	apply(e)
 end
 
------------------------------------------------------------------------------------------------- shared
+------------------------------------------------------------------------------------------------ Shared
 -- ZPerl.SettingsFrames is set by the list file, which loads after this one: read it at run time
 local function full() return 2 ^ #ZPerl.SettingsFrames - 1 end
-local masks = {} -- section -> bitmask of the ticked frames; session state, not saved
+local masks = {} -- Section -> bitmask of the ticked frames; session state, not saved
 local function ticked(mask, i) return bit.band(mask, bit.lshift(1, i - 1)) ~= 0 end
 function maskOf(section) return masks[section] or full() end
 
@@ -364,7 +364,7 @@ local function sharedTip(e)
 	end
 end
 
------------------------------------------------------------------------------------------------- popup
+------------------------------------------------------------------------------------------------ Popup
 StaticPopupDialogs["ZPERL_SETTINGS_CONFIRM"] = {
 	text = "%s",
 	button1 = ACCEPT,
@@ -378,7 +378,7 @@ local function confirm(text, fn)
 	StaticPopup_Show("ZPERL_SETTINGS_CONFIRM", text, nil, fn)
 end
 
------------------------------------------------------------------------------------------------- core functions
+------------------------------------------------------------------------------------------------ Core functions
 -- Reset to defaults and the layout rows change the whole profile; the old window disabled them in combat.
 local function refuseInCombat()
 	if InCombatLockdown() then
@@ -542,7 +542,7 @@ function ZPerl.SettingsRaidMonClassGet(class)
 	local db = ZPerlRaidMonitorDB
 	return type(db) == "table" and type(db.classes) == "table" and db.classes[class] and true or false
 end
--- a switch that re-runs the setup (enabled, GrowUp, or a class with class set): refused in combat
+-- A switch that re-runs the setup (enabled, GrowUp, or a class with class set): refused in combat
 function ZPerl.SettingsRaidMonSetSwitch(key, v, class)
 	local f, db = raidMon(), ZPerlRaidMonitorDB
 	if not f or type(db) ~= "table" then return end
@@ -555,7 +555,7 @@ function ZPerl.SettingsRaidMonSetSwitch(key, v, class)
 	end
 	f:Init()
 end
--- a value read as the monitor draws: sizes re-lay the frame (deferred in combat by the monitor), alphas restyle it
+-- A value read as the monitor draws: sizes re-lay the frame (deferred in combat by the monitor), alphas restyle it
 function ZPerl.SettingsRaidMonSet(key, step, after, v)
 	local f, db = raidMon(), ZPerlRaidMonitorDB
 	if not f or type(db) ~= "table" then return end
@@ -588,11 +588,11 @@ local function helper(fn, ...)
 end
 ---@type table<string, fun(db: table)>
 local AFTER = {
-	enable = function() helper("EnableDisable") end, -- also rebuilds the tank list (MTRosterChanged)
+	enable = function() helper("EnableDisable") end, -- Also rebuilds the tank list (MTRosterChanged)
 	frame = function() helper("SetFrameSizes") end,
 	sizes = function() helper("MTListApplyUnitSizes") helper("SetFrameSizes") end,
 	tanks = function() helper("MakeTankList") helper("SetTitle") helper("SetFrameSizes") end,
-	-- the counters redraw on target and roster events only: recount and redraw now (the Assists window's own refresh)
+	-- The counters redraw on target and roster events only: recount and redraw now (the Assists window's own refresh)
 	counters = function() helper("UpdateAssists") helper("ShowAssists") end,
 	alpha = function(db) ZPerl_RaidHelper_Frame:SetAlpha(db.Targets_Transparency) end,
 	back = function(db) helper("SetupFrameSimple", ZPerl_RaidHelper_Frame, db.Background_Transparency) end,
@@ -608,7 +608,7 @@ local AFTER = {
 	end,
 }
 function ZPerl.SettingsHasAddon(which) return addonDB(which) ~= nil end
--- a switch (1 on, 0 off)
+-- A switch (1 on, 0 off)
 function ZPerl.SettingsAddonGetSwitch(which, key)
 	local db = addonDB(which)
 	return db ~= nil and db[key] == 1
@@ -619,7 +619,7 @@ function ZPerl.SettingsAddonSetSwitch(which, key, after, v)
 	db[key] = v and 1 or 0
 	if AFTER[after] then AFTER[after](db) end
 end
--- a number (a slider, or a dropdown of numbers)
+-- A number (a slider, or a dropdown of numbers)
 function ZPerl.SettingsAddonGet(which, key)
 	local db = addonDB(which)
 	local v = db and tonumber(db[key])
@@ -684,14 +684,14 @@ end
 function ZPerl.SettingsRaidGroupsAll() raidGroupsAll(true) end
 function ZPerl.SettingsRaidGroupsNone() raidGroupsAll(false) end
 
------------------------------------------------------------------------------------------------- click
+------------------------------------------------------------------------------------------------ Click
 local function click(e)
 	if e.nocombat and refuseInCombat() then return end
 	local function run()
 		if e.nocombat and refuseInCombat() then return end
 		local f = e.func
 		if f then f(e.arg) end
-		if e.arg then apply(e) end -- a button with an arg re-runs its appliers
+		if e.arg then apply(e) end -- A button with an arg re-runs its appliers
 		refresh()
 	end
 	if e.confirm then confirm((L[e.confirm]:gsub("{layout}", function() return ZPerl.ActiveLayout() or "Default" end)), run) else run() end
@@ -702,7 +702,7 @@ function ZPerl.SettingsSetRow(id, v)
 	store(rowById(id), v)
 end
 function ZPerl.SettingsGetRow(id) return valueOf(rowById(id), ZPerl.layout) end
-function ZPerl.SettingsRefresh() refresh() end -- the layout and profile changes
+function ZPerl.SettingsRefresh() refresh() end -- The layout and profile changes
 
 -- What the options window (ZPerl_OptionsControls.lua, ZPerl_OptionsWindow.lua) uses: the value logic stays here.
 ZPerl.SettingsCore = {

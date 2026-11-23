@@ -22,20 +22,20 @@ local UnitPowerMax = UnitPowerMax
 
 local CanAccess = ZPerl.CanAccess
 
-local TICK = 2 -- seconds between energy ticks
+local TICK = 2 -- Seconds between energy ticks
 local ENERGY = Enum.PowerType.Energy
 
 -- The server ticks on its own clock whatever the form or the energy, so the state outlives form changes
 -- and full energy: the spark keeps sweeping from the last tick seen.
 local lastTick -- GetTime() of the last tick seen; nil until the first one
-local lastEnergy -- the energy at the last power event; nil while it is unreadable
+local lastEnergy -- The energy at the last power event; nil while it is unreadable
 -- GetTime() of a tick-sized gain off the current tick clock: Wolfshead Helm (20) and Furor (40) on a shift
 -- to Cat Form gain a tick's worth anywhere in the cycle. It moves the clock only once a later tick-sized
 -- gain lands a whole number of ticks after it, so one stray gain never moves a clock that is right, and a
 -- clock that is wrong (first set by a stray gain) corrects itself on the next two real ticks.
 local candidate
 
-local SLACK = 0.25 -- seconds a tick may land off the 2 s grid (event latency)
+local SLACK = 0.25 -- Seconds a tick may land off the 2 s grid (event latency)
 
 -- OnGrid(t, from): whether time t is a whole number of ticks after time from, within SLACK
 local function OnGrid(t, from)
@@ -57,20 +57,20 @@ local function TakeGain(gain, cur, max, now)
 	end
 	local capped = cur >= max and gain < 19
 	if (not lastTick) then
-		-- the first tick seen; a capped gain is too unsure to start the clock on
+		-- The first tick seen; a capped gain is too unsure to start the clock on
 		if (not capped) then
 			lastTick = now
 		end
 	elseif (OnGrid(now, lastTick)) then
-		lastTick, candidate = now, nil -- a tick where one is due: follows the server's small drift
+		lastTick, candidate = now, nil -- A tick where one is due: follows the server's small drift
 	elseif (candidate and now - candidate > TICK - SLACK and OnGrid(now, candidate)) then
-		lastTick, candidate = now, nil -- two gains a tick apart off the old clock: the clock was wrong
+		lastTick, candidate = now, nil -- Two gains a tick apart off the old clock: the clock was wrong
 	elseif (not capped) then
 		candidate = now
 	end
 end
 
--- the holder's OnUpdate: places the spark by the time since the last tick
+-- The holder's OnUpdate: places the spark by the time since the last tick
 local function SparkOnUpdate(holder)
 	local bar = holder.bar
 	local phase = ((GetTime() - lastTick) % TICK) / TICK
@@ -124,7 +124,7 @@ local function OnDisplayPower(self)
 	Refresh(self)
 end
 
--- the events follow the frame's units (the Power element registers the same ones); the handlers check the unit
+-- The events follow the frame's units (the Power element registers the same ones); the handlers check the unit
 ZPerl.Elements.PlayerEnergyTick = {
 	events = {UNIT_POWER_FREQUENT = OnPower, UNIT_DISPLAYPOWER = OnDisplayPower},
 }

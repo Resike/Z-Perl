@@ -50,7 +50,7 @@ local PET_DAMAGE_PERCENTAGE = PET_DAMAGE_PERCENTAGE
 local TARGET = TARGET
 local UNKNOWN = UNKNOWN
 
--- secret value helpers from ZPerl.lua
+-- Secret value helpers from ZPerl.lua
 local CanAccess = ZPerl.CanAccess
 local IsSecret = ZPerl.IsSecret
 local SafeBool = ZPerl.SafeBool
@@ -61,7 +61,7 @@ local EnableEvents
 -- ZPerl.PlayerPet.OnLoad
 function ZPerl.PlayerPet.OnLoad(self)
 	ZPerl.SetChildMembers(self)
-	-- the aura color highlight is for party and raid frames; this frame shows only the HoT highlight
+	-- The aura color highlight is for party and raid frames; this frame shows only the HoT highlight
 	self.hotHighlightOnly = true
 	self.partyid = "pet"
 
@@ -307,7 +307,7 @@ end
 
 -- UpdateControl
 local function UpdateControl(self)
-	-- indirect units can return secret flags; no icon in that case
+	-- Indirect units can return secret flags; no icon in that case
 	if SafeBool(UnitIsCharmed(self.partyid), false) and SafeBool(UnitIsPlayer(self.partyid), false) then
 		self.nameFrame.warningIcon:Show()
 	else
@@ -366,8 +366,8 @@ end
 -- for hunters only; PlayerPet is the Events table. Unit events register for pet and
 -- player unless listed.
 ZPerl.Elements.PetLoad = {events = {}}
-ZPerl.Elements.PetHeal = {events = {}} -- on while the heal prediction option is on
-ZPerl.Elements.PetPreview = {events = {}} -- on while the preview shows a pet that does not exist
+ZPerl.Elements.PetHeal = {events = {}} -- On while the heal prediction option is on
+ZPerl.Elements.PetPreview = {events = {}} -- On while the preview shows a pet that does not exist
 ZPerl.Elements.PetHappiness = {events = {}, units = {UNIT_HAPPINESS = GetPetHappiness and {"pet"} or nil}}
 ZPerl.Elements.PlayerPet = {
 	events = Events,
@@ -375,7 +375,7 @@ ZPerl.Elements.PlayerPet = {
 		UNIT_TARGET = {"pet"}},
 }
 
--- the portrait is taller than the frame: a bottom block starts below it
+-- The portrait is taller than the frame: a bottom block starts below it
 local function AuraInset(self, side)
 	local p = self.portraitFrame
 	return (side == "BOTTOM" and p:IsShown()) and max(0, p:GetHeight() - self:GetHeight()) or 0
@@ -469,7 +469,7 @@ function Events:UNIT_COMBAT(unit, action, descriptor, damage, damageType)
 	if unit ~= self.partyid then
 		return
 	end
-	-- set first: the flash and hit text animate even when a later line raises on a secret amount
+	-- Set first: the flash and hit text animate even when a later line raises on a secret amount
 	self:SetScript("OnUpdate", ZPerl.PlayerPet.OnUpdate)
 
 	if pconf.hitIndicator then
@@ -544,7 +544,7 @@ function ZPerl.Elements.PetPreview.events:PLAYER_REGEN_DISABLED()
 	end
 	if virtual then
 		virtual = nil
-		-- the preview dimmed the frames to 0.5
+		-- The preview dimmed the frames to 0.5
 		ZPerl_Player_Pet:SetAlpha(conf.transparency.frame)
 		ZPerl.UnitFrameDisable(ZPerl_Player_Pet, "PetPreview")
 		RegisterUnitWatch(ZPerl_Player_Pet)
@@ -637,7 +637,7 @@ function ZPerl.PlayerPet.Virtual(show)
 	else
 		if virtual then
 			virtual = nil
-			-- the preview dimmed the frames to 0.5
+			-- The preview dimmed the frames to 0.5
 			ZPerl_Player_Pet:SetAlpha(conf.transparency.frame)
 			RegisterUnitWatch(ZPerl_Player_Pet)
 			if ZPerl_PetTarget then
