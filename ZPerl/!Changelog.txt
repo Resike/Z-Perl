@@ -1,3 +1,6 @@
+**8.0.6**
+* 3D portraits: fixed errors when range fading is active on a frame.
+
 **8.0.5**
 * 3D portrait zoom: a new option under General > Look sets how close the 3D portraits are framed.
 * 3D portraits now fade along with their frame (range fading and frame transparency).

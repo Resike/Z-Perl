@@ -639,9 +639,13 @@ end
 -- the models below it.
 local modelsByFrame = setmetatable({}, {__mode = "k"})
 
--- Copies the model's effective alpha into its model alpha; also needed after SetUnit, as a new model starts opaque
+-- Copies the model's effective alpha into its model alpha; also needed after SetUnit, as a new model starts opaque.
+-- The range fade can give an ancestor a secret alpha, which SetModelAlpha refuses: the model keeps its last alpha.
 local function UpdateModelAlpha(model)
-	model:SetModelAlpha(model:GetEffectiveAlpha())
+	local alpha = model:GetEffectiveAlpha()
+	if (CanAccess(alpha)) then
+		model:SetModelAlpha(alpha)
+	end
 end
 
 local function OnAncestorSetAlpha(frame)
