@@ -93,6 +93,21 @@ local function CountOf(spells)
 	return n
 end
 
+-- ZoneList() - the zone dropdown's choices, {name, "name (spells)"} each, kept until the list changes (zonesDirty) or
+-- the layout does: the same table back opens the dropdown without measuring it again
+local zoneList, zoneListOf, zonesDirty = {}, nil, true
+local function ZoneList()
+	local zones = Zones()
+	if (zonesDirty or zones ~= zoneListOf) then
+		zonesDirty, zoneListOf = false, zones
+		zoneList = {}
+		for i, name in ipairs(ZoneNames()) do
+			zoneList[i] = {name, format("%s (%d)", name, CountOf(zones[name]))}
+		end
+	end
+	return zoneList
+end
+
 -- Pick() - keeps the shown zone valid: the current zone when it is listed, else the first one
 local function Pick()
 	local zones = Zones()
@@ -160,9 +175,21 @@ local function UpdateList()
 			row:Hide()
 		end
 	end
-	config.zoneMenu:GenerateMenu()
-	if (not zone and config.zoneMenu.OverrideText) then
-		config.zoneMenu:OverrideText(L["No zones"])
+	-- The zone button's text, set only when it changes (this runs on every scroll of the spell list)
+	local menuText = L["No zones"]
+	if (zone) then
+		menuText = zone
+		for _, c in ipairs(ZoneList()) do
+			if (c[1] == zone) then
+				menuText = c[2]
+				break
+			end
+		end
+	end
+	local menu = config.zoneMenu
+	if (menu.shownText ~= menuText and menu.OverrideText) then
+		menu.shownText = menuText
+		menu:OverrideText(menuText)
 	end
 	config.count:SetText(zone and format(L["%d spells in %s"], total, zone) or L["Add a zone to start a list."])
 	config.addSpell:SetEnabled(zone ~= nil)
@@ -172,6 +199,7 @@ end
 
 -- Changed() - after any change to the list: re-pick, re-sort, redraw, re-read the current zone
 local function Changed()
+	zonesDirty = true
 	Pick()
 	RebuildSorted()
 	UpdateList()
@@ -389,16 +417,11 @@ local function CreateConfig(parent)
 	local menu = CreateFrame("DropdownButton", nil, f, "WowStyle1DropdownTemplate")
 	menu:SetWidth(300)
 	menu:SetPoint("TOPLEFT", 14, -28)
-	menu:SetupMenu(function(_, root)
-		local names = ZoneNames()
-		if (#names > 20 and root.SetScrollMode) then
-			root:SetScrollMode(20 * 20)
-		end
-		local zones = Zones() or {}
-		for _, name in ipairs(names) do
-			root:CreateRadio(format("%s (%d)", name, CountOf(zones[name])), function() return zone == name end, function() ShowZone(name) end)
-		end
-	end)
+	-- The list in ZPerl.DropdownPicker (ZPerl_Picker.lua): a Blizzard menu makes garbage on every open
+	ZPerl.DropdownPicker(menu, {
+		isSelected = function(c) return zone == c[1] end,
+		pick = function(c) ShowZone(c[1]) end,
+	}, ZoneList)
 	f.zoneMenu = menu
 
 	local removeZone = CreateFrame("Button", nil, f, "UIPanelButtonTemplate")
@@ -471,6 +494,7 @@ local function CreateConfig(parent)
 
 	-- A layout switch or a zone change while the tab was hidden: re-read on show
 	f:SetScript("OnShow", function()
+		zonesDirty = true
 		Pick()
 		RebuildSorted()
 		UpdateList()

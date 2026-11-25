@@ -2008,49 +2008,75 @@ function ZPerl.RaidAdmin.GetChannelList()
 end
 end
 
+-- The report channel dropdown, its list in ZPerl.DropdownPicker (ZPerl_Picker.lua). The choices, {i, colored name,
+-- entry = a GetChannelList entry} each, are kept until the joined channels change.
+local channelChoices, channelNames = {}, {}
+local function ChannelsChanged()
+	for i = 1, 10 do
+		local c, name = GetChannelName(i)
+		if (channelNames[i] ~= (c ~= 0 and name or false)) then
+			return true
+		end
+	end
+end
+local function ChannelChoices()
+	if (channelList and not ChannelsChanged()) then
+		return channelChoices
+	end
+	for i = 1, 10 do
+		local c, name = GetChannelName(i)
+		channelNames[i] = c ~= 0 and name or false
+	end
+	channelList = ZPerl.RaidAdmin.GetChannelList()
+	channelChoices = {}
+	for i, entry in ipairs(channelList) do
+		local clr = entry.color
+		channelChoices[i] = {i, format("|cFF%02X%02X%02X%s|r", clr.r * 255, clr.g * 255, clr.b * 255, entry.display or ""), entry = entry}
+	end
+	return channelChoices
+end
+
+local function IsOutputChannel(entry)
+	return entry.channel == outputChannel and (outputChannel ~= "CHANNEL" or entry.index == outputChannelIndex)
+end
+
+-- The button shows the chosen channel in its chat color
+local function ChannelButtonText(dd)
+	for i, c in ipairs(ChannelChoices()) do
+		if (IsOutputChannel(c.entry)) then
+			outputChannelSelection = i
+			local clr = c.entry.color
+			outputChannelColor = {clr.r, clr.g, clr.b}
+			dd:OverrideText(c.entry.display or "")
+			if (dd.Text) then
+				dd.Text:SetTextColor(clr.r, clr.g, clr.b)
+			end
+			return
+		end
+	end
+end
+
 -- ZPerl.RaidAdmin.CheckChannelsOnLoad
 function ZPerl.RaidAdmin.CheckChannelsOnLoad(self)
 	if (not outputChannelSelection) then
 		outputChannelSelection = 1
 	end
 
-	local dropdown = MSA_DropDownMenu_Create(self:GetName().."_DropDown", self)
-	dropdown:SetAllPoints(self)
-	MSA_DropDownMenu_Initialize(dropdown, ZPerl.RaidAdmin.CheckChannelsInitialize)
-	MSA_DropDownMenu_SetWidth(dropdown, 100)
-	MSA_DropDownMenu_SetSelectedID(dropdown, outputChannelSelection)
-	_G[dropdown:GetName().."Text"]:SetTextColor(unpack(outputChannelColor))
-end
-
--- ChannelOnClick
-local function ChannelOnClick(self)
-	local v = self.value
-	outputChannel = v.channel
-	outputChannelIndex = v.index
-	outputChannelSelection = self:GetID()
-	MSA_DropDownMenu_SetSelectedID(ZPerl_CheckButtonChannel, outputChannelSelection)
-
-	_G["ZPerl_CheckButtonChannelText"]:SetTextColor(v.red, v.green, v.blue)
-end
-
--- ZPerl.RaidAdmin.CheckChannelsInitialize
-function ZPerl.RaidAdmin.CheckChannelsInitialize()
-	channelList = ZPerl.RaidAdmin.GetChannelList()
-
-	for i,entry in pairs(channelList) do
-		local r, g, b = entry.color.r, entry.color.g, entry.color.b
-		if (entry.channel == outputChannel) then
-			if (outputChannel ~= "CHANNEL" or entry.index == outputChannelIndex) then
-				outputChannelSelection = i
-				outputChannelColor = {r, g, b}
-			end
-		end
-
-		local info = MSA_DropDownMenu_CreateInfo()
-		info.text = entry.display
-		info.func = ChannelOnClick
-		info.value = {channel = entry.channel, index = entry.index, red = r, green = g, blue = b}
-		info.colorCode = format("|cFF%02X%02X%02X", r * 255, g * 255, b * 255)
-		MSA_DropDownMenu_AddButton(info)
-	end
+	self:SetSize(140, 26)
+	local dd = CreateFrame("DropdownButton", nil, self, "WowStyle1DropdownTemplate")
+	dd:SetWidth(120)
+	dd:SetPoint("LEFT", 18, 0)
+	ZPerl.DropdownPicker(dd, {
+		isSelected = function(c) return IsOutputChannel(c.entry) end,
+		pick = function(c)
+			outputChannel = c.entry.channel
+			outputChannelIndex = c.entry.index
+		end,
+		refresh = function() ChannelButtonText(dd) end,
+	}, ChannelChoices)
+	-- The frame's tooltip, over the button that covers it
+	dd:HookScript("OnEnter", function() self:GetScript("OnEnter")(self) end)
+	dd:HookScript("OnLeave", function() GameTooltip:Hide() end)
+	self.dropdown = dd
+	ChannelButtonText(dd)
 end

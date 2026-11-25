@@ -14,19 +14,17 @@ end, "$Revision: 1 $")
 -- Upvalues
 local collectgarbage = collectgarbage
 local format = format
+local ipairs = ipairs
 local min = min
 local pairs = pairs
 
 local C_AddOns = C_AddOns
-local CreateFrame = CreateFrame
 local GetAddOnCPUUsage = GetAddOnCPUUsage
 local GetAddOnMemoryUsage = GetAddOnMemoryUsage
 local IsAltKeyDown = IsAltKeyDown
 local IsShiftKeyDown = IsShiftKeyDown
 local UpdateAddOnCPUUsage = UpdateAddOnCPUUsage
 local UpdateAddOnMemoryUsage = UpdateAddOnMemoryUsage
-
-local BackdropTemplateMixin = BackdropTemplateMixin
 
 local GameTooltip = GameTooltip
 local UIParent = UIParent
@@ -35,102 +33,71 @@ local UIParent = UIParent
 function ZPerl.MinimapButtonOnClick(self, button)
 	GameTooltip:Hide()
 	if (button == "LeftButton") then
+		ZPerl.DropdownPickerClose()
 		ZPerl.ToggleSettings()
 	elseif (button == "RightButton") then
 		ZPerl.MinimapMenu(self)
 	end
 end
 
--- ZPerl.MinimapMenuOnLoad
-function ZPerl.MinimapMenuOnLoad(self)
-	local dropdown = MSA_DropDownMenu_Create(self:GetName().."_DropDown", self)
-	self.dropdown = dropdown
-	dropdown.displayMode = "MENU"
-	dropdown:SetAllPoints(self)
-	MSA_DropDownMenu_Initialize(dropdown, ZPerl.MinimapMenuInitialize)
+-- The minimap menu: every entry made once, {key, text, run = func, shown = func (offered only when it returns true)};
+-- the menu is one table refilled with the shown entries on each open, in ZPerl.DropdownPicker's list (ZPerl_Picker.lua)
+local function Loaded(addon)
+	return C_AddOns.IsAddOnLoaded(addon)
 end
-
--- ZPerl.MinimapMenuInitialize
-function ZPerl.MinimapMenuInitialize(self, level)
-	local info
-
-	if (level == 2) then
-		return
-	end
-
-	info = MSA_DropDownMenu_CreateInfo()
-	info.isTitle = 1
-	info.text = ZPerl.ProductName
-	MSA_DropDownMenu_AddButton(info)
-
-	info = MSA_DropDownMenu_CreateInfo()
-	info.notCheckable = 1
-	info.func = ZPerl.OpenSettings
-	info.text = L["MINIMENU_OPTIONS"]
-	MSA_DropDownMenu_AddButton(info)
-
-	if (C_AddOns.IsAddOnLoaded("ZPerl_RaidAdmin")) then
-		if (ZPerl_AdminFrame and not ZPerl_AdminFrame:IsShown()) then
-			info = MSA_DropDownMenu_CreateInfo()
-			info.notCheckable = 1
-			info.text = L["MINIMENU_RAIDAD"]
-			info.func = function() ZPerl_AdminFrame:Show() end
-			MSA_DropDownMenu_AddButton(info)
-		end
-
-		if (ZPerl_Check and not ZPerl_Check:IsShown()) then
-			info = MSA_DropDownMenu_CreateInfo()
-			info.notCheckable = 1
-			info.text = L["MINIMENU_ITEMCHK"]
-			info.func = function() ZPerl_Check:Show() end
-			MSA_DropDownMenu_AddButton(info)
-		end
-
-		if (ZPerl_RosterText and not ZPerl_RosterText:IsShown()) then
-			info = MSA_DropDownMenu_CreateInfo()
-			info.notCheckable = 1
-			info.text = L["MINIMENU_ROSTERTEXT"]
-			info.func = function() ZPerl_RosterText:Show() end
-			MSA_DropDownMenu_AddButton(info)
-		end
-	end
-
-	if (C_AddOns.IsAddOnLoaded("ZPerl_RaidHelper")) then
-		if (ZPerl_Assists_Frame and not ZPerl_Assists_Frame:IsShown()) then
-			info = MSA_DropDownMenu_CreateInfo()
-			info.notCheckable = 1
-			info.text = L["MINIMENU_ASSIST"]
-			info.func = function()
-					ZPerlRaidHelperDB.AssistsFrame = 1
-					ZPerlRaidHelperDB.TargettingFrame = 1
-					ZPerl.RaidHelper.SetFrameSides()
-				end
-			MSA_DropDownMenu_AddButton(info)
-		end
-	end
-
-	if (C_AddOns.IsAddOnLoaded("ZPerl_RaidMonitor")) then
-		if (ZPerl_RaidMonitor_Frame and not ZPerl_RaidMonitor_Frame:IsShown()) then
-			info = MSA_DropDownMenu_CreateInfo()
-			info.notCheckable = 1
-			info.text = L["MINIMENU_CASTMON"]
-			info.func = function()
-				ZPerlRaidMonitorDB.enabled = 1
-				ZPerl_RaidMonitor_Frame:SetFrameSizes()
-			end
-			MSA_DropDownMenu_AddButton(info)
-		end
-	end
+local function Hidden(frame)
+	return frame and not frame:IsShown()
 end
+local menuEntries = {
+	{"title", ZPerl.ProductName, title = true},
+	{"options", L["MINIMENU_OPTIONS"], run = function() ZPerl.OpenSettings() end},
+	{"raidadmin", L["MINIMENU_RAIDAD"],
+		shown = function() return Loaded("ZPerl_RaidAdmin") and Hidden(ZPerl_AdminFrame) end,
+		run = function() ZPerl_AdminFrame:Show() end},
+	{"itemcheck", L["MINIMENU_ITEMCHK"],
+		shown = function() return Loaded("ZPerl_RaidAdmin") and Hidden(ZPerl_Check) end,
+		run = function() ZPerl_Check:Show() end},
+	{"rostertext", L["MINIMENU_ROSTERTEXT"],
+		shown = function() return Loaded("ZPerl_RaidAdmin") and Hidden(ZPerl_RosterText) end,
+		run = function() ZPerl_RosterText:Show() end},
+	{"assists", L["MINIMENU_ASSIST"],
+		shown = function() return Loaded("ZPerl_RaidHelper") and Hidden(ZPerl_Assists_Frame) end,
+		run = function()
+			ZPerlRaidHelperDB.AssistsFrame = 1
+			ZPerlRaidHelperDB.TargettingFrame = 1
+			ZPerl.RaidHelper.SetFrameSides()
+		end},
+	{"castmonitor", L["MINIMENU_CASTMON"],
+		shown = function() return Loaded("ZPerl_RaidMonitor") and Hidden(ZPerl_RaidMonitor_Frame) end,
+		run = function()
+			ZPerlRaidMonitorDB.enabled = 1
+			ZPerl_RaidMonitor_Frame:SetFrameSizes()
+		end},
+}
+local menuList = {}
+local menuSource = {
+	plain = true,
+	remeasure = true,
+	pick = function(c)
+		if (c.run) then
+			c.run()
+		end
+	end,
+}
 
 -- ZPerl.MinimapMenu
 function ZPerl.MinimapMenu(self)
-	if (not ZPerl_Minimap) then
-		CreateFrame("Frame", "ZPerl_Minimap", nil, BackdropTemplateMixin and "BackdropTemplate")
-		ZPerl.MinimapMenuOnLoad(ZPerl_Minimap)
+	local n = 0
+	for _, entry in ipairs(menuEntries) do
+		if (not entry.shown or entry.shown()) then
+			n = n + 1
+			menuList[n] = entry
+		end
 	end
-
-	MSA_ToggleDropDownMenu(1, nil, ZPerl_Minimap.dropdown, "cursor", 0, 0)
+	for i = n + 1, #menuList do
+		menuList[i] = nil
+	end
+	ZPerl.DropdownPickerOpen(self, menuSource, menuList)
 end
 
 -- ZPerl_Options loads on demand (the first time the options open): it has no startup memory, so its diff is all of it

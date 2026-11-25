@@ -17,6 +17,7 @@ local setmetatable = setmetatable
 local type = type
 local unpack = unpack
 
+local C_ClassColor = C_ClassColor
 local C_CurveUtil = C_CurveUtil
 local C_SpellBook = C_SpellBook
 local CreateColor = CreateColor
@@ -262,6 +263,21 @@ function ZPerl.UnitClassToken(unit)
 	return c[1] or nil
 end
 
+-- Colors a health bar with a secret class token, as SetSecretClassColor does for names. bright scales the
+-- channels (the class bar brightness); the bar clamps them, min / max can not on secret numbers.
+local function SetSecretClassBarColor(bar, class, bright)
+	local c = C_ClassColor.GetClassColor(class)
+	---@diagnostic disable-next-line: secret-access
+	local r, g, b = c.r, c.g, c.b
+	if (bright ~= 1) then
+		r, g, b = r * bright, g * bright, b * bright
+	end
+	bar:SetStatusBarColor(r, g, b)
+	if (bar.bg) then
+		bar.bg:SetVertexColor(r, g, b, 0.25)
+	end
+end
+
 -- ZPerl.ColorHealthBar
 function ZPerl.ColorHealthBar(self, partyid)
 	if (not partyid) then
@@ -270,6 +286,17 @@ function ZPerl.ColorHealthBar(self, partyid)
 	local bar = self.statsFrame.healthBar
 	if (conf.color.classbar) then
 		local class = ZPerl.UnitClassToken(partyid)
+		if (not class and C_ClassColor and C_ClassColor.GetClassColor and ZPerl.SafeBool(UnitIsPlayer(partyid), false)) then
+			-- In instances and battlegrounds the class of a player outside the group is secret: the client
+			-- resolves the color. Secret arithmetic refused: the unscaled color; refused too: health colors.
+			local _, secretClass = UnitClass(partyid)
+			if (secretClass ~= nil and not CanAccess(secretClass)) then
+				local bright = conf.color.classbarBright or 1
+				if (pcall(SetSecretClassBarColor, bar, secretClass, bright) or (bright ~= 1 and pcall(SetSecretClassBarColor, bar, secretClass, 1))) then
+					return
+				end
+			end
+		end
 		if (class) then
 			if (ZPerl.SafeBool(UnitIsPlayer(partyid), false)) then
 				---@diagnostic disable-next-line: secret-table-key
@@ -475,6 +502,31 @@ function ZPerl.PlayerTipHide()
 	end
 end
 
+-- Colors a font string with a secret class token: C_ClassColor.GetClassColor resolves it on the client side,
+-- and SetTextColor takes the secret channels as they are. Errors (an older client, a nil color) mean no color.
+local function SetSecretClassColor(text, class, alpha)
+	local c = C_ClassColor.GetClassColor(class)
+	---@diagnostic disable-next-line: secret-access
+	text:SetTextColor(c.r, c.g, c.b, alpha)
+end
+
+-- ZPerl.SetClassTextColor(text, unit)
+-- Class color for a unit's name. In instances and battlegrounds the class of a player outside the group is
+-- secret and ZPerl.UnitClassToken can not read it; the client still colors it from the secret token.
+function ZPerl.SetClassTextColor(text, unit)
+	local class = ZPerl.UnitClassToken(unit)
+	if (not class and C_ClassColor and C_ClassColor.GetClassColor) then
+		local _, secretClass = UnitClass(unit)
+		if (secretClass ~= nil and not CanAccess(secretClass)) then
+			if (pcall(SetSecretClassColor, text, secretClass, conf.transparency.text)) then
+				return
+			end
+		end
+	end
+	local color = ZPerl.GetClassColor(class)
+	text:SetTextColor(color.r, color.g, color.b, conf.transparency.text)
+end
+
 -- ZPerl.ColorFriendlyUnit
 function ZPerl.ColorFriendlyUnit(self, partyid)
 	local color
@@ -483,7 +535,8 @@ function ZPerl.ColorFriendlyUnit(self, partyid)
 		color = conf.color.reaction.enemy
 	else
 		if (conf.color.class) then
-			color = ZPerl.GetClassColor(ZPerl.UnitClassToken(partyid))
+			ZPerl.SetClassTextColor(self, partyid)
+			return
 		else
 			if (ZPerl.SafeBool(UnitIsPVP(partyid), false)) then
 				color = conf.color.reaction.friend
@@ -563,7 +616,8 @@ function ZPerl.SetUnitNameColor(self, unit)
 	if (ZPerl.SafeBool(UnitIsPlayer(unit), false) or not ZPerl.SafeBool(UnitIsVisible(unit), true)) then -- Changed UnitPlayerControlled to UnitIsPlayer for 2.3.5
 		-- 1.8.3 - Changed to override pvp name colors
 		if (conf.color.class) then
-			color = ZPerl.GetClassColor(ZPerl.UnitClassToken(unit))
+			ZPerl.SetClassTextColor(self, unit)
+			return
 		else
 			color = ZPerl.ReactionColor(unit)
 		end

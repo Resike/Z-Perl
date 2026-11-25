@@ -5,6 +5,7 @@
 	<Script file="ZPerl_HitText.lua"/>
 	<Script file="ZPerl.lua"/>
 	<Script file="ZPerl_Colors.lua"/>
+	<Script file="ZPerl_Picker.lua"/>
 	<Script file="ZPerl_Minimap.lua"/>
 	<Script file="ZPerl_Display.lua"/>
 	<Script file="ZPerl_Unit.lua"/>

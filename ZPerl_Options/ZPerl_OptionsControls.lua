@@ -129,14 +129,15 @@ local function sliderFormat(e)
 end
 
 -- e.options() lists names that are data (layout and texture names): only the fixed choice lists are translated
+-- A list from a function is its own table, {key, label, file} each, not a copy: read only. The same table back from
+-- the function means the menu built from it is still current.
 local function choices(e)
+	if type(e.options) == "function" then return e.options() end
 	local out = {}
 	if e.map then
 		for i, m in ipairs(e.map) do out[i] = {i, L[m[1]]} end
-	elseif type(e.options) == "table" then
-		for i, o in ipairs(e.options) do out[i] = {i, L[o[2]]} end
 	else
-		for i, o in ipairs(e.options()) do out[i] = {o[1], o[2], o[3]} end
+		for i, o in ipairs(e.options) do out[i] = {i, L[o[2]]} end
 	end
 	return out
 end
@@ -288,89 +289,74 @@ function B.slider(line, e, box)
 	end
 end
 
-function B.dropdown(line, e, box)
-	local k = core()
+-- The button of a dropdown, its list in ZPerl.DropdownPicker (ZPerl_Picker.lua): a Blizzard menu makes garbage on every
+-- open. getList() hands the choices as the list opens.
+local function pickerButton(line, e, box, src, getList)
 	local fs = text(box, "GameFontHighlight", labelOf(e))
 	fs:SetPoint("TOPLEFT", 0, 0)
 	local dd = CreateFrame("DropdownButton", nil, box, "WowStyle1DropdownTemplate")
 	dd:SetWidth(COLW - 14)
 	dd:SetPoint("TOPLEFT", 0, -18)
-	dd:SetupMenu(function(_, root)
-		local list = choices(e)
-		-- A long list (LibSharedMedia's textures) scrolls instead of running off the screen
-		if #list > 20 and root.SetScrollMode then
-			root:SetScrollMode(20 * 20)
-		end
-		for _, c in ipairs(list) do
-			local key = c[1]
-			-- Read live, so a description generated earlier still marks the current value
-			local radio = root:CreateRadio(c[2], function() return k.valueOf(e, ZPerl.layout) == key end, function()
-				k.store(e, key)
-				C.onChange(e)
-			end)
-			-- e.texture: each choice shows its texture (c[3], a file) behind its name
-			local file = e.texture and c[3]
-			if file and radio.AddInitializer then
-				radio:AddInitializer(function(button)
-					local t = button:AttachTexture()
-					t:SetDrawLayer("BACKGROUND")
-					t:SetTexture(file)
-					t:SetVertexColor(0, 0.8, 0, 0.8)	-- Health green
-					t:SetPoint("TOPLEFT", 0, -1)
-					t:SetPoint("BOTTOMRIGHT", 0, 1)
-				end)
-			end
-		end
-	end)
+	ZPerl.DropdownPicker(dd, src, getList)
 	hookTip(dd, line)
-	-- A list from a function (LibSharedMedia) can grow: rebuild it as the menu opens
-	if type(e.options) == "function" then
-		local open = dd:GetScript("OnMouseDown")
-		if open then
-			dd:SetScript("OnMouseDown", function(self, ...)
-				if not (self.IsMenuOpen and self:IsMenuOpen()) then self:GenerateMenu() end
-				return open(self, ...)
-			end)
-		end
-	end
-	-- GenerateMenu rebuilds the whole description (a table and closures per choice): only when the value changed,
-	-- not on every refresh (each open of the window, each change elsewhere).
-	local shown
-	return dd, fs, function()
-		local v = k.valueOf(e, ZPerl.layout)
-		if v ~= shown then
-			shown = v
-			dd:GenerateMenu()
-		end
-	end
+	return dd, fs
 end
 
+-- A dropdown of single choices. A table of options or a map is turned into choices once; a function is asked as the
+-- list opens (ZPerl.SettingsBarTextureList hands back the same table until LibSharedMedia registers a texture).
+function B.dropdown(line, e, box)
+	local k = core()
+	local static = type(e.options) ~= "function" and choices(e)
+	local function getList() return static or choices(e) end
+	local src = {
+		texture = e.texture,
+		isSelected = function(c) return k.valueOf(e, ZPerl.layout) == c[1] end,
+		pick = function(c)
+			k.store(e, c[1])
+			C.onChange(e)
+		end,
+	}
+	local dd, fs = pickerButton(line, e, box, src, getList)
+	local shown
+	local function refresh()
+		local v = k.valueOf(e, ZPerl.layout)
+		if v == shown then return end
+		shown = v
+		local label = v
+		for _, c in ipairs(getList()) do
+			if c[1] == v then label = c[2] break end
+		end
+		if dd.OverrideText then dd:OverrideText(label ~= nil and tostring(label) or "") end
+	end
+	src.refresh = refresh
+	return dd, fs, refresh
+end
+
+-- The frames a shared row acts on: a checkbox per frame, the list kept open while ticking
 function B.frames(line, e, box)
 	local k = core()
-	local fs = text(box, "GameFontHighlight", labelOf(e))
-	fs:SetPoint("TOPLEFT", 0, 0)
-	local dd = CreateFrame("DropdownButton", nil, box, "WowStyle1DropdownTemplate")
-	dd:SetWidth(COLW - 14)
-	dd:SetPoint("TOPLEFT", 0, -18)
-	dd:SetupMenu(function(_, root)
-		for i, fl in ipairs(ZPerl.SettingsFrames) do
-			root:CreateCheckbox(L[fl], function() return k.ticked(k.maskOf(e.section), i) end, function()
-				k.setMask(e.section, bit.bxor(k.maskOf(e.section), bit.lshift(1, i - 1)))
-			end)
-		end
-	end)
-	hookTip(dd, line)
-	-- The checkboxes read the mask live; regenerate and retext only when it changed
+	local list = {}
+	for i, fl in ipairs(ZPerl.SettingsFrames) do list[i] = {i, L[fl]} end
+	local src = {
+		check = true,
+		isSelected = function(c) return k.ticked(k.maskOf(e.section), c[1]) end,
+		pick = function(c)
+			k.setMask(e.section, bit.bxor(k.maskOf(e.section), bit.lshift(1, c[1] - 1)))
+			return true
+		end,
+	}
+	local dd, fs = pickerButton(line, e, box, src, function() return list end)
 	local shown
-	return dd, fs, function()
+	local function refresh()
 		local mask = k.maskOf(e.section)
 		if mask == shown then return end
 		shown = mask
-		dd:GenerateMenu()
-		local n, all = 0, #ZPerl.SettingsFrames
+		local n, all = 0, #list
 		for i = 1, all do if k.ticked(mask, i) then n = n + 1 end end
 		if dd.OverrideText then dd:OverrideText(n == 0 and L["None"] or n == all and L["All frames"] or format(L["%d frames"], n)) end
 	end
+	src.refresh = refresh
+	return dd, fs, refresh
 end
 
 function B.color(line, e, box)

@@ -409,13 +409,24 @@ function ZPerl.SettingsGetLayout() return ZPerl.ActiveLayout() or "Default" end
 local function sharedMedia()
 	return LibStub and LibStub("LibSharedMedia-3.0", true)
 end
+-- The list is kept until LibSharedMedia registers a new status bar texture: the same table back tells the dropdown its
+-- menu is still current, so opening it does not rebuild the description (a table and closures per texture).
+local barTextures, watching
 function ZPerl.SettingsBarTextureList()
+	local media = sharedMedia()
+	if media and not watching and media.RegisterCallback then
+		watching = {}
+		media.RegisterCallback(watching, "LibSharedMedia_Registered", function(_, mediatype)
+			if mediatype == "statusbar" then barTextures = nil end
+		end)
+		barTextures = nil
+	end
+	if barTextures then return barTextures end
 	local ret, seen = {}, {}
 	for _, t in ipairs(ZPerl.BarTextures) do
 		ret[#ret + 1] = {t[1], t[1], t[2]}
 		seen[t[1]] = true
 	end
-	local media = sharedMedia()
 	if media then
 		for _, name in ipairs(media:List("statusbar")) do
 			local file = media:Fetch("statusbar", name, true)
@@ -425,6 +436,7 @@ function ZPerl.SettingsBarTextureList()
 			end
 		end
 	end
+	barTextures = ret
 	return ret
 end
 function ZPerl.SettingsGetBarTexture()

@@ -1,5 +1,5 @@
 ## Interface: 120105, 50504, 20506, 16001, 11509
-## Version: 8.0.6
+## Version: 8.0.7
 ## Author: Resike based on work by Zeta0xD, Ziliya, Halfdays, Zek and Nymbia
 ## Title: Z-Perl
 ## Notes: The classic X-Perl unit-frame experience rebuilt and maintained for all WoW flavours.
@@ -18,7 +18,6 @@ Libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
 Libs\LibDataBroker-1.1\LibDataBroker-1.1.xml
 Libs\LibClassicDurations\LibClassicDurations.xml
 Libs\LibHealComm-4.0\LibHealComm-4.0.xml
-Libs\MSA-DropDownMenu-1.0\MSA-DropDownMenu-1.0.lua
 
 ZPerl_Globals.xml
 ZPerl.xml

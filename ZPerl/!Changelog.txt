@@ -1,3 +1,8 @@
+**8.0.7**
+* Class colors now also work in instances and battlegrounds for players outside your group, on names and class colored health bars.
+* Options window and Custom highlights: dropdowns no longer create garbage memory each time they are shown or opened (megabytes with a long bar texture list), and scrolling the custom highlight spell list no longer rebuilds the zone dropdown. Their lists show 10 entries and scroll for the rest.
+* The minimap button menu and the item check report channel dropdown now use the same dropdown lists.
+
 **8.0.6**
 * 3D portraits: fixed errors when range fading is active on a frame.
 
