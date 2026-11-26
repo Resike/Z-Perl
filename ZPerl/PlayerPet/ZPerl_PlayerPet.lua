@@ -242,9 +242,10 @@ local function HappinessFromPower(unit)
 	end
 	local cur, top = UnitPower(unit, powerType), UnitPowerMax(unit, powerType)
 	-- A pet's power can be secret in combat, and this drives comparisons and
-	-- maths below; bail rather than crash.
+	-- maths below; bail rather than crash. IsSecret first: even a boolean test on
+	-- a secret errors.
 	---@diagnostic disable-next-line: secret-comparison
-	if (not cur or not top or IsSecret(cur) or IsSecret(top) or top <= 0) then
+	if (IsSecret(cur) or IsSecret(top) or not cur or not top or top <= 0) then
 		return
 	end
 	-- Zero is a real reading here (a pet about to run away), not "no happiness":
@@ -260,21 +261,103 @@ local function HappinessFromPower(unit)
 	return band
 end
 
+-- Secret happiness: Forever returns the pet's power as a secret value, which Lua
+-- cannot compare or do maths on. Step curves let the client do the banding: each
+-- face gets alpha 1 inside its own third and 0 outside it, matching HAPPY_BANDS = 3.
+-- No tooltip or flash is possible on this path.
+local FACE_POINTS = {
+	{{0, 1}, {0.3335, 0}},					-- Unhappy
+	{{0, 0}, {0.3335, 1}, {0.6665, 0}},		-- Content
+	{{0, 0}, {0.6665, 1}},					-- Happy
+}
+local NOT_HAPPY_POINTS = {{0, 1}, {0.6665, 0}}	-- "Only when sad"
+local faceCurves, notHappyCurve
+
+local function StepCurve(points)
+	local curve = C_CurveUtil.CreateCurve()
+	curve:SetType(Enum.LuaCurveType.Step)
+	for i = 1, #points do
+		curve:AddPoint(points[i][1], points[i][2])
+	end
+	return curve
+end
+
+local function ApplySecretHappiness(self, powerType)
+	local unit = self.partyid
+	local icon = self.happyFrame.icon
+
+	if (not faceCurves) then
+		notHappyCurve = StepCurve(NOT_HAPPY_POINTS)
+		faceCurves = {StepCurve(FACE_POINTS[1]), StepCurve(FACE_POINTS[2]), StepCurve(FACE_POINTS[3])}
+	end
+	if (not icon.faces) then
+		local faces = {}
+		for i = 1, 3 do
+			local tex = icon:CreateTexture(nil, "BACKGROUND")
+			tex:SetAllPoints()
+			tex:SetTexture("Interface\\PetPaperDollFrame\\UI-PetHappiness")
+			tex:SetTexCoord(0.5625 - (0.1875 * i), 0.75 - (0.1875 * i), 0, 0.359375)
+			faces[i] = tex
+		end
+		icon.faces = faces
+	end
+
+	for i = 1, 3 do
+		icon.faces[i]:SetAlpha(UnitPowerPercent(unit, powerType, false, faceCurves[i]))
+		icon.faces[i]:Show()
+	end
+	if (pconf.happiness.onlyWhenSad) then
+		self.happyFrame:SetAlpha(UnitPowerPercent(unit, powerType, false, notHappyCurve))
+	else
+		self.happyFrame:SetAlpha(1)
+	end
+
+	icon.tex:Hide()
+	icon.tooltip, icon.tooltipDamage, icon.tooltipLoyalty = nil, nil, nil
+	self.happyFrame:Show()
+end
+
+-- Returns true if the icon was drawn from a secret value
+local function SecretHappiness(self)
+	local powerType = Enum and Enum.PowerType and Enum.PowerType.Happiness
+	if (not powerType or not pconf.happiness.enable or not UnitPowerPercent or not C_CurveUtil
+		or not C_CurveUtil.CreateCurve or not Enum.LuaCurveType) then
+		return false
+	end
+	if (not UnitExists(self.partyid) or not IsSecret(UnitPower(self.partyid, powerType))) then
+		return false
+	end
+	ApplySecretHappiness(self, powerType)
+	return true
+end
+
 local function SetHappiness(self)
 	local happiness, damagePercentage, loyaltyRate
 	if (GetPetHappiness) then
 		happiness, damagePercentage, loyaltyRate = GetPetHappiness()
-	else
+	end
+	-- GetPetHappiness can be missing or return nothing; try the power type too
+	if (not happiness) then
 		happiness = HappinessFromPower(self.partyid)
 	end
 	if (not happiness) then
-		-- No happiness for this pet (or unreadable): leave the icon alone.
 		ZPerl.FrameFlashStop(self.happyFrame)
-		self.happyFrame:Hide()
+		if (not SecretHappiness(self)) then
+			-- No happiness for this pet (or unreadable)
+			self.happyFrame:Hide()
+		end
 		return
 	end
 
 	local icon = self.happyFrame.icon
+	if (icon.faces) then
+		-- Undo the secret path once the value is readable again
+		for i = 1, 3 do
+			icon.faces[i]:Hide()
+		end
+		icon.tex:Show()
+		self.happyFrame:SetAlpha(1)
+	end
 	icon.tex:SetTexCoord(0.5625 - (0.1875 * happiness), 0.75 - (0.1875 * happiness), 0, 0.359375)
 
 	if pconf.happiness.enable and (not pconf.happiness.onlyWhenSad or happiness < 3) then
@@ -387,7 +470,7 @@ EnableEvents = function(self)
 	self.updateHealth = UpdateHealth
 	self.auraInset = AuraInset
 	ZPerl.UnitFrameInit(self, {"pet", "player"}, {"PetLoad", "Health", "PlayerPet", "Auras"})
-	if classFileName == "HUNTER" then
+	if classFileName == "HUNTER" and not ZPerl.IsRetail then
 		ZPerl.UnitFrameEnable(self, "PetHappiness")
 	end
 end
@@ -395,8 +478,8 @@ end
 -- VARIABLES_LOADED
 function ZPerl.Elements.PetLoad.events:VARIABLES_LOADED()
 	local _, classFileName = UnitClass("player")
-	if classFileName ~= "HUNTER" then
-		-- Disable happiness for non-hunters
+	if classFileName ~= "HUNTER" or ZPerl.IsRetail then
+		-- Disable happiness for non-hunters, and on retail where pets have none
 		SetHappiness = nil
 	end
 
@@ -431,9 +514,9 @@ end
 function Events:UNIT_POWER_FREQUENT()
 	UpdateMana(self)
 	UpdateCombat(self)
-	-- Without GetPetHappiness there is no UNIT_HAPPINESS to ride, and happiness
-	-- is itself a power now, so this is where it changes.
-	if (not GetPetHappiness and SetHappiness) then
+	-- UNIT_HAPPINESS may never fire (or not exist), and happiness is itself a
+	-- power now, so this is where it changes.
+	if (SetHappiness) then
 		SetHappiness(self)
 	end
 end

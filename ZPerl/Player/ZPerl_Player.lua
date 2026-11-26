@@ -610,7 +610,7 @@ function ZPerl.Player.DruidBarUpdate(self)
 
 	--local druidBarExtra
 	---@diagnostic disable-next-line: secret-comparison
-	if ((ZPerl.Player.playerClass == "DRUID" or ZPerl.Player.playerClass == "PRIEST") and UnitPowerType(self.partyid) > 0) then -- Shaman's UnitPowerType is buggy
+	if ((ZPerl.Player.playerClass == "DRUID" or ZPerl.Player.playerClass == "PRIEST") and ZPerl.GetDisplayedPowerType(self.partyid) > 0) then -- Shaman's UnitPowerType is buggy
 		if (pconf.values) then
 			druidBar.text:Show()
 		else

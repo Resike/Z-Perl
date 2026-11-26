@@ -22,7 +22,7 @@ local function Inset(self, side)
 		return 0
 	end
 	local _, playerClass = UnitClass("player")
-	local extraBar = ((playerClass == "DRUID" or playerClass == "PRIEST") and UnitPowerType(self.partyid) > 0 and not pconf.noDruidBar) and 1 or 0
+	local extraBar = ((playerClass == "DRUID" or playerClass == "PRIEST") and ZPerl.GetDisplayedPowerType(self.partyid) > 0 and not pconf.noDruidBar) and 1 or 0
 	return (extraBar + (pconf.repBar and 1 or 0) + (pconf.xpBar and 1 or 0)) * 13.5
 end
 

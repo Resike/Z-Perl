@@ -1,3 +1,8 @@
+**8.0.8**
+* Pet happiness: fixed the happiness icon never showing on the Forever client. Its tooltip and the "Flash when sad" option are not available there.
+* Retail: the pet happiness icon is no longer checked for, since retail pets have no happiness.
+* Player: fixed a druid and priest error ("attempt to compare number with nil") when the power type is briefly unknown, such as entering a vehicle or during a loading screen.
+
 **8.0.7**
 * Class colors now also work in instances and battlegrounds for players outside your group, on names and class colored health bars.
 * Options window and Custom highlights: dropdowns no longer create garbage memory each time they are shown or opened (megabytes with a long bar texture list), and scrolling the custom highlight spell list no longer rebuilds the zone dropdown. Their lists show 10 entries and scroll for the rest.

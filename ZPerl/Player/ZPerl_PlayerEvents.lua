@@ -1117,7 +1117,7 @@ local function SetBitsLayout(self)
 
 	if (pconf.extendPortrait) then
 		local druidBarExtra
-		if (UnitPowerType(self.partyid) > 0 and not pconf.noDruidBar) and ((ZPerl.Player.playerClass == "DRUID") or (ZPerl.Player.playerClass == "PRIEST")) then
+		if (ZPerl.GetDisplayedPowerType(self.partyid) > 0 and not pconf.noDruidBar) and ((ZPerl.Player.playerClass == "DRUID") or (ZPerl.Player.playerClass == "PRIEST")) then
 			druidBarExtra = 1
 		else
 			druidBarExtra = 0

@@ -359,6 +359,7 @@ function ZPerl.ClassPos(unitClass)
 end
 
 
+-- UnitPowerType can return nil for a moment (vehicle switch, loading screen)
 function ZPerl.GetDisplayedPowerType(unitID)
 	return UnitPowerType(unitID) or 0
 end
