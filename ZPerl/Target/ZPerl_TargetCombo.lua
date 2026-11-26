@@ -16,6 +16,7 @@ local max = max
 local min = min
 local pcall = pcall
 
+local C_Timer = C_Timer
 local GetComboPoints = GetComboPoints
 local GetCVar = GetCVar
 local SetCVar = SetCVar
@@ -80,13 +81,31 @@ local function GetComboColor(num)
 		return 0, 1, 0
 	end
 end
+-- GetComboUnit: in a vehicle (e.g. the Oculus drakes) the combo points belong to the vehicle, not the player
+local function GetComboUnit()
+	if SafeBool(UnitHasVehicleUI("player"), false) then
+		return "vehicle"
+	end
+	return "player"
+end
+-- Classic clients (pre-WoD rules) keep combo points on the target, not on the player
+local targetCombo = not (ZPerl.IsRetail or ZPerl.IsForever) and GetComboPoints ~= nil
+-- GetComboCount: GetComboPoints is the authoritative read for target-based combo points. UnitPower
+-- lags behind it for points the server adds outside the normal builder flow (Premeditation, Ruthlessness)
+local function GetComboCount(unit)
+	if targetCombo then
+		return GetComboPoints(unit, "target") or 0
+	end
+	return UnitPower(unit, Enum.PowerType.ComboPoints)
+end
 ---------------
 -- Combo Points
 ---------------
 local function UpdateCombo(self)
-	local comboPoints = UnitPower("player", Enum.PowerType.ComboPoints)
-	local maxComboPoints = UnitPowerMax("player", Enum.PowerType.ComboPoints)
-	local hostile = SafeBool(UnitCanAttack(UnitHasVehicleUI("player") and "vehicle" or "player", "target"), true)
+	local unit = GetComboUnit()
+	local comboPoints = GetComboCount(unit)
+	local maxComboPoints = UnitPowerMax(unit, Enum.PowerType.ComboPoints)
+	local hostile = SafeBool(UnitCanAttack(unit, "target"), true)
 	local dead = SafeBool(UnitIsDeadOrGhost("target"), false)
 	local showForeverCombo = tconf.combo.enable or tconf.comboindicator.enable or tconf.combo.blizzard
 
@@ -152,8 +171,9 @@ local function SetComboBar(self)
 		return
 	end
 
-	local comboPoints = GetComboPoints("player", "target")
-	local maxComboPoints = UnitPowerMax("player", Enum.PowerType.ComboPoints)
+	local unit = GetComboUnit()
+	local comboPoints = GetComboCount(unit)
+	local maxComboPoints = UnitPowerMax(unit, Enum.PowerType.ComboPoints)
 	self.nameFrame.cpMeter:SetMinMaxValues(0, maxComboPoints)
 	self.nameFrame.cpMeter:SetValue(comboPoints)
 end
@@ -204,21 +224,46 @@ end
 local function comboBar(self)
 	comboRefresh(self, true)
 end
+-- Delayed re-reads for target-based combo points: on Classic clients the points from Premeditation and
+-- Ruthlessness can land without a COMBO_POINTS power event, or after one that still read the old value
+local recheckPending
+local function comboRecheck()
+	recheckPending = nil
+	comboRefresh(ComboEventFrame)
+end
+local function scheduleRecheck()
+	if not recheckPending then
+		recheckPending = true
+		C_Timer.After(0.1, comboRefresh)
+		C_Timer.After(0.35, comboRecheck)
+	end
+end
+local function comboPower(self, unit, powerType)
+	if powerType == "COMBO_POINTS" then
+		comboRefresh(self)
+		if targetCombo then
+			scheduleRecheck()
+		end
+	end
+end
+local comboEvents = {
+	PLAYER_ENTERING_WORLD = function(self)
+		ZPerl_HideBlizzardComboDisplay()
+		comboBar(self)
+	end,
+	UNIT_POWER_FREQUENT = comboPower,
+	UNIT_MAXPOWER = comboBar,
+	UNIT_ENTERED_VEHICLE = comboBar,
+	UNIT_EXITED_VEHICLE = comboBar,
+}
+if targetCombo then
+	-- UNIT_POWER_UPDATE is the server-confirmed update, which still fires when the frequent one is skipped
+	comboEvents.UNIT_POWER_UPDATE = comboPower
+	-- Premeditation is a cast and Ruthlessness follows a finisher cast: re-read after every player cast
+	comboEvents.UNIT_SPELLCAST_SUCCEEDED = scheduleRecheck
+end
 ZPerl.Elements.TargetCombo = {
-	events = {
-		PLAYER_ENTERING_WORLD = function(self)
-			ZPerl_HideBlizzardComboDisplay()
-			comboBar(self)
-		end,
-		UNIT_POWER_FREQUENT = function(self, unit, powerType)
-			if powerType == "COMBO_POINTS" then
-				comboRefresh(self)
-			end
-		end,
-		UNIT_MAXPOWER = comboBar,
-		UNIT_ENTERED_VEHICLE = comboBar,
-		UNIT_EXITED_VEHICLE = comboBar,
-	},
+	events = comboEvents,
 	units = {UNIT_ENTERED_VEHICLE = {"player"}, UNIT_EXITED_VEHICLE = {"player"}},
 }
 ZPerl.UnitFrameInit(ComboEventFrame, {"player", "vehicle"}, {})

@@ -165,6 +165,7 @@ local function TargetConfigDefault(default, section)
 		castBar = {
 			enable		= 1,
 			flash		= 1,
+			shield		= 1,
 		},
 		hitIndicator	= 1,			-- 2.1.7
 		hitIndicatorPos	= "PORTRAIT",
@@ -228,6 +229,7 @@ local function PartyConfigDefault(default)
 		castBar = {
 			enable		= 1,
 			flash		= 1,
+			shield		= 1,
 		},
 		spacing			= 40,			-- Clears a buff row with duration text (25 + 12); the debuffs sit to the right
 		anchor			= "TOP",
@@ -314,6 +316,7 @@ local function PlayerConfigDefault(default)
 		castBar = {
 			enable		= 1,
 			flash		= 1,
+			shield		= false,		-- Off like Blizzard's player cast bar
 --			original	= nil,
 --			castTime	= nil,
 		},

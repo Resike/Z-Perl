@@ -800,8 +800,16 @@ function ZPerl.DebufHighlightInit()
 		return
 	end
 
-	-- We also re-set the colors here so that we highlight best color per class
-	if (playerClass == "MAGE") then
+	-- We also re-set the colors here so that we highlight best color per class. On Retail and Mists a class
+	-- missing from RetailDispels removes nothing, so it skips the Classic table below
+	if (ZPerl.IsRetail or ZPerl.IsMists) then
+		getShow = function(Curses)
+			if (conf.highlightDebuffs.class) then
+				return nil
+			end
+			return Curses.Magic or Curses.Curse or Curses.Poison or Curses.Disease
+		end
+	elseif (playerClass == "MAGE") then
 		getShow = function(Curses)
 			local show
 			if (not conf.highlightDebuffs.class) then
@@ -870,7 +878,11 @@ function ZPerl.DebufHighlightInit()
 			return Curses.Poison or show
 		end
 	else
+		-- A class with no dispel: with Only curable on nothing is curable, so nothing is highlighted
 		getShow = function(Curses)
+			if (conf.highlightDebuffs.class) then
+				return nil
+			end
 			return Curses.Magic or Curses.Curse or Curses.Poison or Curses.Disease
 		end
 	end

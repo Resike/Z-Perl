@@ -45,6 +45,7 @@ check("player.shown.absorbs", "Absorbs", "Show the absorb bar.", {path = "player
 check("player.shown.healprediction", "Heal prediction", "Show the heal prediction bar.", {path = "player.healprediction"})
 check("player.shown.castbar", "Cast bar", "Show a cast bar on the player frame.", {path = "player.castBar.enable"})
 check("player.shown.castbarflash", "Cast bar flash", "Show a glow around the name frame when a cast completes.", {path = "player.castBar.flash", needs = "player.castBar.enable"})
+check("player.shown.castbarshield", "Cast bar shield", "Show a shield icon on the name frame while you cast a spell that cannot be interrupted.", {path = "player.castBar.shield", needs = "player.castBar.enable"})
 dropdown("player.shown.casttime", "Cast time text", "Show the casting time beside the cast bar or inside it.", {
 	base = "player.castBar",
 	map = {
@@ -250,6 +251,7 @@ local function unitPage(pageName, k, isTarget)
 	check(id .. ".shown.healprediction", "Heal prediction", "Show the heal prediction bar.", {path = k .. ".healprediction", apply = ap})
 	check(id .. ".shown.castbar", "Cast bar", "Show a cast bar on the " .. k .. " frame.", {path = k .. ".castBar.enable", apply = {"arcanebar"}})
 	check(id .. ".shown.castbarflash", "Cast bar flash", "Show a glow around the name frame when a cast completes.", {path = k .. ".castBar.flash", needs = k .. ".castBar.enable", apply = {"arcanebar"}})
+	check(id .. ".shown.castbarshield", "Cast bar shield", "Show a shield icon on the name frame while the unit casts a spell that cannot be interrupted.", {path = k .. ".castBar.shield", needs = k .. ".castBar.enable", apply = {"arcanebar"}})
 	check(id .. ".shown.mana", "Mana bar", "Show the mana, rage or energy bar under the health bar.", {path = k .. ".mana", apply = ap})
 	dropdown(id .. ".shown.debuffhighlight", "Debuff highlight", "Color the frame while the unit has a debuff, for all units, friendly units or enemy units.", {
 		base = k .. ".highlightDebuffs", apply = ap,
@@ -346,6 +348,7 @@ check("party.shown.absorbs", "Absorbs", "Show the absorb bar.", {path = "party.a
 check("party.shown.healprediction", "Heal prediction", "Show the heal prediction bar.", {path = "party.healprediction"})
 check("party.shown.castbar", "Cast bar", "Show a cast bar on the party frames.", {path = "party.castBar.enable"})
 check("party.shown.castbarflash", "Cast bar flash", "Show a glow around the name frame when a cast completes.", {path = "party.castBar.flash", needs = "party.castBar.enable"})
+check("party.shown.castbarshield", "Cast bar shield", "Show a shield icon on the name frame while the unit casts a spell that cannot be interrupted.", {path = "party.castBar.shield", needs = "party.castBar.enable"})
 
 R.section = "Auras"
 check("party.auras.buffs", "Buffs", "Show the party members' buffs.", {path = "party.buffs.enable"})
@@ -727,7 +730,8 @@ do
 	need("general.look.fadetime", "bar.fading")
 	for _, id in ipairs({"gradientstart", "gradientstart.alpha", "gradientend", "gradientend.alpha"}) do need("general.look." .. id, "color.gradient.enable") end
 	need("general.colors.brightness", "color.classbar")
-	for _, id in ipairs({"debuff", "curable", "aggro", "aggrowarning", "target", "heal", "hots", "shields", "pom", "hotcount", "sparkles", "extrasparkles"}) do need("general.highlights." .. id, "highlight.enable") end
+	-- The debuff highlight has its own switch (highlightDebuffs.enable), not Status highlighting
+	for _, id in ipairs({"aggro", "aggrowarning", "target", "heal", "hots", "shields", "pom", "hotcount", "sparkles", "extrasparkles"}) do need("general.highlights." .. id, "highlight.enable") end
 	need("general.highlights.curable", "highlightDebuffs.enable")
 	need("general.range.raidonly", "rangeFinder.enabled")
 	for part, key in pairs({main = "Main", name = "NameFrame", bars = "StatsFrame"}) do

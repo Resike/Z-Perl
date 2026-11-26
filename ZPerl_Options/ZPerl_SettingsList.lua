@@ -116,6 +116,7 @@ local APPLY = {
 	["player.shown.castbar"] = {"arcanebar"},
 	["player.shown.casttime"] = {"arcanebar"},
 	["player.shown.castbarflash"] = {"arcanebar"},
+	["player.shown.castbarshield"] = {"arcanebar"},
 	["player.auras.buffs"] = {"playerbuffs"},
 	["player.auras.debuffs"] = {"playerbuffs"},
 	["player.auras.buffsize"] = {"playerbuffs"},
@@ -161,6 +162,7 @@ for _, k in ipairs({"portrait", "level", "classicon", "pvp", "hit"}) do APPLY["p
 for _, k in ipairs({"healthtext", "absorbs", "healprediction"}) do APPLY["party.shown." .. k] = PARTYPETS end
 APPLY["party.shown.castbar"] = {"arcanebar"}
 APPLY["party.shown.castbarflash"] = {"arcanebar"}
+APPLY["party.shown.castbarshield"] = {"arcanebar"}
 for _, k in ipairs({"buffs", "debuffs", "buffsize", "debuffsize", "wrap", "castable", "curable", "onlymine", "big", "rows", "halfsize"}) do APPLY["party.auras." .. k] = PARTY end
 for _, k in ipairs({"names", "targets", "targetsize", "targetlarge", "range", "threat"}) do APPLY["party.party." .. k] = PARTY end
 APPLY["party.party.showplayer"] = PARTYPETS

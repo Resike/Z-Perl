@@ -1,3 +1,10 @@
+**8.0.9**
+* Cast bars: a shield icon now shows on the name frame while the unit casts a spell that cannot be interrupted, like on Blizzard's cast bars. It sits on the right side of the target and focus frames and on the left side of the others. Turn it on or off with "Cast bar shield" on the Player, Target, Focus and Party pages (on by default, except for the player).
+* Combo points: in a vehicle (such as the Oculus drakes) the vehicle's combo points are shown.
+* Classic: combo points from Premeditation and Ruthlessness now show up right away.
+* Debuff highlight: "Only curable" now works for classes that cannot dispel (Warrior, Hunter, Death Knight, Demon Hunter, and Rogue on retail): with it on, they get no debuff highlight. Before, they got a highlight for every magic, curse, poison or disease debuff, and retail Rogues for every poison.
+* Options: the Debuff highlight and Only curable options can now be changed with Status highlighting turned off, since the debuff highlight does not depend on it.
+
 **8.0.8**
 * Pet happiness: fixed the happiness icon never showing on the Forever client. Its tooltip and the "Flash when sad" option are not available there.
 * Retail: the pet happiness icon is no longer checked for, since retail pets have no happiness.

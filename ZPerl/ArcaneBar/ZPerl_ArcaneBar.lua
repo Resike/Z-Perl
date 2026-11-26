@@ -139,6 +139,20 @@ local function SameCast(castID, lineGUID)
 	return castID == 0 or castID == lineGUID
 end
 
+-- SetShield(self, notInterruptible)
+-- Shield icon while the cast cannot be interrupted, as Blizzard's cast bars show.
+-- The flag can be secret for target/focus casts, so the icon is set by alpha from it. Not with the frame's
+-- Cast bar shield option off (showShield, set by ZPerl.ArcaneBar.Set).
+local function SetShield(self, notInterruptible)
+	if (not self.shield) then
+		return
+	end
+	if (not self.showShield) then
+		notInterruptible = false
+	end
+	ZPerl.SetAlphaFromBoolean(self.shield, notInterruptible, 1, 0)
+end
+
 -- Registers frame to spellcast events.
 local barColors = {
 	main = {r = 1.0, g = 0.7, b = 0.0},
@@ -360,11 +374,12 @@ function ZPerl.ArcaneBar.OnEvent(self, event, unit, ...)
 	end
 
 	if (event == "UNIT_SPELLCAST_EMPOWER_START") then
-		local name, _, _, startTime, endTime, isTradeSkill, _, _, _, numStages = UnitChannelInfo(self.unit)
+		local name, _, _, startTime, endTime, isTradeSkill, notInterruptible, _, _, numStages = UnitChannelInfo(self.unit)
 		if (not name or (not self.showTradeSkills and isTradeSkill)) then
 			self:Hide()
 			return
 		end
+		SetShield(self, notInterruptible)
 		self.spellText:SetText(SpellName(name))
 		self.castID = nil
 		self.barParentName:Hide()
@@ -433,6 +448,7 @@ function ZPerl.ArcaneBar.OnEvent(self, event, unit, ...)
 		end
 		local _, _, complete = ...
 		self.empowered = nil
+		SetShield(self, false)
 		ClearStages(self)
 		ClearSecretTimes(self)
 		self.castTimeText:Hide()
@@ -457,12 +473,13 @@ function ZPerl.ArcaneBar.OnEvent(self, event, unit, ...)
 		end
 		self.fadeOut = 1
 	elseif (event == "UNIT_SPELLCAST_START") then
-		local name, _, _, startTime, endTime, isTradeSkill, castID = UnitCastingInfo(self.unit)
+		local name, _, _, startTime, endTime, isTradeSkill, castID, notInterruptible = UnitCastingInfo(self.unit)
 		if (not name or (not self.showTradeSkills and isTradeSkill)) then
 			self:Hide()
 			return
 		end
 
+		SetShield(self, notInterruptible)
 		self.empowered = nil
 		ClearStages(self)
 		self:SetStatusBarColor(barColors.main.r, barColors.main.g, barColors.main.b, conf.transparency.frame)
@@ -505,6 +522,7 @@ function ZPerl.ArcaneBar.OnEvent(self, event, unit, ...)
 				self:Hide()
 			end
 			if (self:IsShown()) then
+				SetShield(self, false)
 				ClearSecretTimes(self)
 				if (self.maxValue) then
 					self:SetValue(self.maxValue)
@@ -535,6 +553,7 @@ function ZPerl.ArcaneBar.OnEvent(self, event, unit, ...)
 				self.spellText:SetText(SPELL_FAILED_INTERRUPTED)
 			end
 
+			SetShield(self, false)
 			ClearSecretTimes(self)
 			if (self.maxValue) then
 				self:SetValue(self.maxValue)
@@ -550,6 +569,9 @@ function ZPerl.ArcaneBar.OnEvent(self, event, unit, ...)
 			self.holdTime = GetTime() + (CASTING_BAR_HOLD_TIME or 1)
 		end
 	elseif (event == "UNIT_SPELLCAST_INTERRUPTIBLE") or (event == "UNIT_SPELLCAST_NOT_INTERRUPTIBLE") then
+		if (self:IsShown() and (self.casting or self.channeling)) then
+			SetShield(self, event == "UNIT_SPELLCAST_NOT_INTERRUPTIBLE")
+		end
 		if (self:IsShown()) then
 			local name, _, _, startTime, endTime, isTradeSkill = UnitCastingInfo(self.unit)
 			if (not name) then
@@ -590,13 +612,14 @@ function ZPerl.ArcaneBar.OnEvent(self, event, unit, ...)
 			end
 		end
 	elseif (event == "UNIT_SPELLCAST_CHANNEL_START") then
-		local name, _, _, startTime, endTime, isTradeSkill = UnitChannelInfo(self.unit)
+		local name, _, _, startTime, endTime, isTradeSkill, notInterruptible = UnitChannelInfo(self.unit)
 		if (not name or (not self.showTradeSkills and isTradeSkill)) then
 			-- If there is no name, there is no bar
 			self:Hide()
 			return
 		end
 
+		SetShield(self, notInterruptible)
 		self.empowered = nil
 		ClearStages(self)
 		self:SetStatusBarColor(barColors.channel.r, barColors.channel.g, barColors.channel.b, conf.transparency.frame)
@@ -725,6 +748,7 @@ function ZPerl.ArcaneBar.OnUpdate(self, elapsed)
 			self.barSpark:Hide()
 			self:SetStatusBarColor(barColors.success.r, barColors.success.g, barColors.success.b, conf.transparency.frame)
 			self.casting = nil
+			SetShield(self, false)
 			self.barFlash:SetAlpha(0)
 			self.flashAlpha = 0
 			self.barFlash:Show()
@@ -754,6 +778,7 @@ function ZPerl.ArcaneBar.OnUpdate(self, elapsed)
 		end
 		if (time == self.endTime) then
 			self.channeling = nil
+			SetShield(self, false)
 			self.barSpark:Hide()
 			self.barFlash:SetAlpha(0)
 			self.flashAlpha = 0
@@ -820,6 +845,20 @@ function ZPerl.ArcaneBar.OnLoad(self)
 	self.tex:SetHorizTile(false)
 	self.tex:SetVertTile(false)
 
+	-- Uninterruptible cast shield icon straddling the name frame's edge, as on Blizzard's cast bars, shown by
+	-- alpha (SetShield). Left edge here; RegisterFrame moves it to the right edge on target and focus.
+	local shield = self:CreateTexture(nil, "OVERLAY")
+	shield:SetPoint("CENTER", around, "LEFT", 0, 0)
+	if (C_Texture and C_Texture.GetAtlasInfo and C_Texture.GetAtlasInfo("ui-castingbar-shield")) then
+		shield:SetAtlas("ui-castingbar-shield")
+		shield:SetSize(20, 23)
+	else
+		shield:SetTexture("Interface\\CastingBar\\UI-CastingBar-Arena-Shield")
+		shield:SetSize(24, 24)
+	end
+	shield:SetAlpha(0)
+	self.shield = shield
+
 	self.casting = nil
 	self.holdTime = 0
 
@@ -834,6 +873,11 @@ function ZPerl.ArcaneBar.Set()
 				enableToggle(v.bar, v.optFrame.conf.castBar.enable)
 				-- Off, the glow's texture stays hidden: the flash still times the fade out
 				v.bar.barFlash.tex:SetShown(v.optFrame.conf.castBar.flash and true or false)
+				-- Turned off mid-cast, the shield goes at once; turned on, it shows from the next cast
+				v.bar.showShield = v.optFrame.conf.castBar.shield and true or false
+				if (not v.bar.showShield) then
+					SetShield(v.bar, false)
+				end
 
 				v.bar.castTimeText:ClearAllPoints()
 				if (conf.player.castBar.inside) then
@@ -887,6 +931,11 @@ function ZPerl.ArcaneBar.RegisterFrame(self, unit)
 
 	f.unit = unit
 	f.showTradeSkills = true
+	-- Target and focus show the shield on the name frame's right edge
+	if (f.shield) then
+		f.shield:ClearAllPoints()
+		f.shield:SetPoint("CENTER", self, (unit == "target" or unit == "focus") and "RIGHT" or "LEFT", 0, 0)
+	end
 	f.barParentName = self.text
 	f:SetPoint("TOPLEFT", 4, -4)
 	f:SetPoint("BOTTOMRIGHT", -4, 4)
