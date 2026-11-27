@@ -1,3 +1,8 @@
+**8.1.0**
+* Party: the gap between party frames is now set separately for vertical (Top and Bottom anchors) and horizontal (Left and Right anchors) layouts, with "Vertical spacing" and "Horizontal spacing" on the Party page. Horizontal layouts keep their current gap.
+* Tank targets: when anyone in the raid is marked as main tank, only the marked tanks are listed and players who picked the tank role themselves are no longer added. Without any main tank marks, the tank role is still used.
+* Fixed an error ("bad argument #2 to 'StartSizing'") when resizing the tank targets window from its corner, and the raid monitor's while it grows downwards.
+
 **8.0.9**
 * Cast bars: a shield icon now shows on the name frame while the unit casts a spell that cannot be interrupted, like on Blizzard's cast bars. It sits on the right side of the target and focus frames and on the left side of the others. Turn it on or off with "Cast bar shield" on the Player, Target, Focus and Party pages (on by default, except for the player).
 * Combo points: in a vehicle (such as the Oculus drakes) the vehicle's combo points are shown.

@@ -387,7 +387,8 @@ dropdown("party.layout.anchor", "Anchor", "The side of the anchor the party fram
 	options = {{"TOP", "Top"}, {"BOTTOM", "Bottom"}, {"LEFT", "Left"}, {"RIGHT", "Right"}},
 })
 check("party.layout.flip", "Flip", "Mirror the party frame layout.", {path = "party.flip"})
-slider("party.layout.spacing", "Spacing", "The gap in pixels between party frames.", {path = "party.spacing", min = 0, max = 200, step = 1})
+slider("party.layout.spacing", "Vertical spacing", "The gap in pixels between party frames with the Top and Bottom anchors.", {path = "party.spacing", min = 0, max = 200, step = 1})
+slider("party.layout.spacinghorizontal", "Horizontal spacing", "The gap in pixels between party frames with the Left and Right anchors.", {path = "party.spacingHorizontal", min = 0, max = 200, step = 1})
 
 R.section = "Party pets"
 check("party.pets.enable", "Party pets", "Show the party members' pet frames.", {path = "partypet.enable"})

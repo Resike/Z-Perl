@@ -420,6 +420,24 @@ function ZPerl.MigrateColorNames()
 	s.schema = 10
 end
 
+-- ZPerl.MigratePartySpacing()
+-- Schema 11, once, after ZPerl.MigrateColorNames: the party spacing split in two, spacing for the TOP and BOTTOM anchors
+-- and spacingHorizontal for LEFT and RIGHT. Each layout's horizontal gap starts as its old spacing, so no layout moves.
+-- schema4 is left alone.
+function ZPerl.MigratePartySpacing()
+	local s = ZPerlDB
+	if (s.schema and s.schema >= 11) or type(s.layouts) ~= "table" then
+		return
+	end
+	for _, layout in pairs(s.layouts) do
+		local party = type(layout) == "table" and layout.party
+		if (type(party) == "table" and party.spacingHorizontal == nil) then
+			party.spacingHorizontal = party.spacing
+		end
+	end
+	s.schema = 11
+end
+
 ------------------------------------------------------------------------------------------------ Restore at load
 -- A tool that snapshots ZPerlDB (ZPerlDB.devRestore: tag, time, digest, data) restores it when its run ends. A run cut
 -- off leaves the snapshot in the file; ZPerl.RestoreAtLoad puts the settings back at the next login, in every build.

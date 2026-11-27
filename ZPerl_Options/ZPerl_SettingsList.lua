@@ -168,6 +168,7 @@ for _, k in ipairs({"names", "targets", "targetsize", "targetlarge", "range", "t
 APPLY["party.party.showplayer"] = PARTYPETS
 APPLY["party.layout.anchor"] = PARTY
 APPLY["party.layout.spacing"] = PARTY
+APPLY["party.layout.spacinghorizontal"] = PARTY
 APPLY["party.layout.flip"] = PARTYPETS
 for _, k in ipairs({"scale", "name", "level", "mana", "buffs", "buffsize", "debuffsize"}) do APPLY["party.pets." .. k] = {"partypet"} end
 APPLY["party.pets.enable"] = {"partypet"}

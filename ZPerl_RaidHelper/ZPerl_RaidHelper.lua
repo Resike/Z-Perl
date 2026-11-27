@@ -395,10 +395,20 @@ function ZPerl.RaidHelper.MTRosterChanged()
 			oldBlizzardNames[n] = true
 		end
 
+		-- Main tank marks win: the TANK role is self-chosen and often wrong in raids, so it is only used when no one is marked
+		local numMembers = GetNumGroupMembers()
+		local useRoles = type(UnitGroupRolesAssigned) == "function"
+		for i = 1, numMembers do
+			if (GetPartyAssignment("maintank", "raid"..i)) then
+				useRoles = false
+				break
+			end
+		end
+
 		-- Scan roster, adding any new ones, and removing found ones from old tanks list
-		for i = 1, GetNumGroupMembers() do
+		for i = 1, numMembers do
 			local unitid = "raid"..i
-			if ((type(UnitGroupRolesAssigned) == "function" and ZPerl.SafeBool(UnitGroupRolesAssigned(unitid), nil) == "TANK") or GetPartyAssignment("maintank", unitid)) then
+			if (GetPartyAssignment("maintank", unitid) or (useRoles and ZPerl.SafeBool(UnitGroupRolesAssigned(unitid), nil) == "TANK")) then
 				local name = GetUnitName(unitid, true)
 				local name2, realm = UnitName(unitid)
 				if (not ZPerl.CanAccess(name) or not ZPerl.CanAccess(name2)) then

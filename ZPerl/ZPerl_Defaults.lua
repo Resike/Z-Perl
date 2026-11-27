@@ -232,6 +232,7 @@ local function PartyConfigDefault(default)
 			shield		= 1,
 		},
 		spacing			= 40,			-- Clears a buff row with duration text (25 + 12); the debuffs sit to the right
+		spacingHorizontal	= 40,			-- The gap with the LEFT and RIGHT anchors; spacing is the TOP and BOTTOM one
 		anchor			= "TOP",
 		enable			= 1,			-- 4.0.0
 		portrait		= 1,

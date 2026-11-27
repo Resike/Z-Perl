@@ -458,7 +458,7 @@ local function scaleMouseDown(self)
 		scaleIndication.text:SetFormattedText("%dx%d", self.frame:GetWidth(), self.frame:GetHeight())
 	end
 
-	self.anchor:StartSizing(self.resizeTop and "TOPRIGHT")
+	self.anchor:StartSizing(self.resizeTop and "TOPRIGHT" or nil)
 
 	self.oldBdBorder = {self.frame:GetBackdropBorderColor()}
 	self.frame:SetBackdropBorderColor(1, 1, 0.5, 1)

@@ -680,7 +680,7 @@ function ZPerl.Party.SetMainAttributes()
 		partyHeader:SetAttribute("yOffset", -pconf.spacing)
 	elseif (pconf.anchor == "LEFT") then
 		partyHeader:SetPoint("TOPLEFT", partyAnchor, "TOPLEFT", 0, 0)
-		partyHeader:SetAttribute("xOffset", pconf.spacing)
+		partyHeader:SetAttribute("xOffset", pconf.spacingHorizontal)
 		partyHeader:SetAttribute("yOffset", 0)
 	elseif (pconf.anchor == "BOTTOM") then
 		partyHeader:SetPoint("BOTTOMLEFT", partyAnchor, "BOTTOMLEFT", 0, 0)
@@ -688,7 +688,7 @@ function ZPerl.Party.SetMainAttributes()
 		partyHeader:SetAttribute("yOffset", pconf.spacing)
 	elseif (pconf.anchor == "RIGHT") then
 		partyHeader:SetPoint("BOTTOMRIGHT", partyAnchor, "BOTTOMRIGHT", 0, 0)
-		partyHeader:SetAttribute("xOffset", -pconf.spacing)
+		partyHeader:SetAttribute("xOffset", -pconf.spacingHorizontal)
 		partyHeader:SetAttribute("yOffset", 0)
 	end
 
@@ -710,7 +710,7 @@ function ZPerl.Party.Virtual(on)
 		elseif (pconf.anchor == "LEFT") then
 			virtual:SetPoint("TOPLEFT", partyAnchor, "TOPLEFT", 0, 0)
 			virtual:SetHeight(h)
-			virtual:SetWidth(w * 4 + (pconf.spacing * 3))
+			virtual:SetWidth(w * 4 + (pconf.spacingHorizontal * 3))
 		elseif (pconf.anchor == "BOTTOM") then
 			virtual:SetPoint("BOTTOMLEFT", partyAnchor, "BOTTOMLEFT", 0, 0)
 			virtual:SetHeight((h * 4) + (pconf.spacing * 3))
@@ -718,7 +718,7 @@ function ZPerl.Party.Virtual(on)
 		elseif (pconf.anchor == "RIGHT") then
 			virtual:SetPoint("TOPRIGHT", partyAnchor, "TOPRIGHT", 0, 0)
 			virtual:SetHeight(h)
-			virtual:SetWidth(w * 4 + (pconf.spacing * 3))
+			virtual:SetWidth(w * 4 + (pconf.spacingHorizontal * 3))
 		end
 		virtual:OnBackdropLoaded()
 		virtual:SetBackdropColor(conf.color.frame.r, conf.color.frame.g, conf.color.frame.b, conf.color.frame.a)

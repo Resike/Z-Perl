@@ -322,6 +322,7 @@ local function settingspart1()
 	ZPerl.MigrateGroupNine()
 	ZPerl.MigratePartyDebuffs()
 	ZPerl.MigrateColorNames()
+	ZPerl.MigratePartySpacing()
 	GiveConfig()
 
 	-- Informational only: settings migrations key on ZPerlDB.schema (ZPerl.MigrateConfig)
